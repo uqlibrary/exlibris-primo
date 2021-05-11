@@ -1,4 +1,4 @@
-# PRIMO2 Customisations
+# PRIMO Customisations
 
 UQ Library is a Hosted Multi-Tenant Customer of Ex Libris (the alternative is to be an On-Premises Customer).
 
@@ -12,9 +12,9 @@ There are 6 basic environments:
 | prod-dev | [search.library.uq.edu.au](https://search.library.uq.edu.au/primo-explore/search?sortby=rank&vid=61UQ_DEV) (ie vid=61UQ_DEV) | `primo-prod-dev` | development on the live server |
 | prod-dac | [search.library.uq.edu.au](https://search.library.uq.edu.au/primo-explore/search?sortby=rank&vid=61UQ_DAC) (ie vid=61UQ_DAC) | (uses prod) | DAC's personal area. Keep it up to date with the others - deploy prod-dev changes here |
 | prod-otb | [search.library.uq.edu.au](https://search.library.uq.edu.au/primo-explore/search?sortby=rank&vid=61UQ_DEV_LOGIN) (ie vid=61UQ_DEV_LOGIN) | - | Blue out of the box primo in the prod environment - it would be very unusual for us to make changes to this |
-| sandbox | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ&sortby=rank) (ie vid=61UQ) | `primo-sand-box` | sandbox area |
-| sandbox-dev | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DEV&sortby=rank) (ie vid=61UQ_DEV) | `primo-sand-box-dev` | sandbox dev area |
-| sandbox-dac | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DAC&sortby=rank) (ie vid=61UQ_DAC) | (uses primo-sand-box) | DAC's personal area. Keep it up to date with the others - deploy sandbox-dev changes here |
+| sandbox | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ&sortby=rank) (ie vid=61UQ) | `primo-sandbox` | sandbox area |
+| sandbox-dev | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DEV&sortby=rank) (ie vid=61UQ_DEV) | `primo-sandbox-dev` | sandbox dev area |
+| sandbox-dac | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DAC&sortby=rank) (ie vid=61UQ_DAC) | (uses primo-sandbox) | DAC's personal area. Keep it up to date with the others - deploy sandbox-dev changes here |
 | sandbox-otb | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DEV_LOGIN&sortby=rank) (ie vid=61UQ_DEV_LOGIN) | - | sandbox out of the box - it would be very unusual for us to make changes to this |
 
 The branch is set in [src/primo2/view_package/custom.js](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/js/custom.js) (and of course there is the `master` branch, but this does not map to any of the live environments)
@@ -23,11 +23,11 @@ Primo UI is in active development. All releases are scheduled by ExLibris and ar
 
 ## Theming for new Primo UI
 
-Styling of primo pages is in the reusbale repo at uqlibrary/reusable-webcomponents - see the src/applications/primo folder
+Styling of primo pages is in the reusable repo at uqlibrary/reusable-webcomponents - see the src/applications/primo folder
 
 * Customisation package `/view_package/*` - [readme](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md)
 
-See also notes on Alma Styling, below.
+Styling of the Primo GetIt iframe, via the Alma mashup, is maintained in this repo. See below.
 
 [Primo SandBox Back Office](https://uq-edu-primo-sb.hosted.exlibrisgroup.com:1443/primo_publishing/admin/acegilogin.jsp)
 
@@ -39,18 +39,17 @@ See also notes on Alma Styling, below.
 
 ## Development Workflow
 
-DAC sometimes asks for different changes in different environments (see table, above) so WAG (Web Advisory Group) can compare the differences. For example she may want Change A in primo-sand-box-dev and Change B in primo-prod-dev.
+DAC sometimes asks for different changes in different environments (see table, above) so AGDA (Action Group on Discovery and Access) can compare the differences. For example she may want Change A in primo-sandbox-dev and Change B in primo-prod-dev.
 
 You might change the package that gets uploaded to Primo if it is angular changes (this repo) or you might change the js & css that is called from assets.library.uq.edu.au (repo reusable-webcomponents), or both.
 
 Here is a workflow that covers both of these:
 
 * Start by making sure the branch you are altering is up to date:
-  * Merge master into the branch eg `primo-sand-box-dev`
+  * Merge master into the branch eg `primo-sandbox-dev`
 * Do development:
   * Make changes
   * [Upload package](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md) to back office if an angular change
-  * Push to github if an assets.library element changes (and also at appropriate times to record any angular changes)
 * Eventually, get acceptance from DAC that she wants it live - now you need to put any changes to the primo package in the 3 other environments, so they all match
 * For each of the 3 other branches (where there is an change to the primo package):
   * Merge in, preferably from master
@@ -60,7 +59,7 @@ Here is a workflow that covers both of these:
 
 ## Alma Styling
 
-Parts of the Primo pages are inside iframes, eg the 'Get It' block on the full display page. This means our main custom-styles.css file wont affect it.
+Parts of the Primo pages are inside iframes, eg the 'Get It' block on the full display page. This means our main reusable-webcomponents custom-styles.css file wont affect it.
 
 Ex libris provides a css upload that styles inside the iframes.
 
@@ -73,9 +72,8 @@ Ex libris provides a css upload that styles inside the iframes.
 1. Create the zip for upload
 
     1. Checkout the appropriate branch
-    1. Copy your changes to mashup_new.scss at applications/primao2/alma/branding_skin/css/
     1. Run  `npm run almastyles` to create the .css files from the .scss files (probably worth checking the genrated css works by pasting it back into the inspect window in the browser)
-    1. Run `npm run almazip` to create branding_skin.zip, containing the updates files
+    1. Run `npm run almazip` to create branding_skin.zip, containing the updated file
 
 1. Upload the zip to alma
 
@@ -86,7 +84,7 @@ Ex libris provides a css upload that styles inside the iframes.
 
 There are 2 npm commands for this process:
 
-* `npm run almastyles`, will build the .scss files at applications/primo2/alma/branding_skin/css into .css files
+* `npm run almastyles`, will build the .scss file at applications/primo2/alma/branding_skin/css into a .css file
 * `npm run almazip`, will build a zip file ready to be uploaded to alma
 
 The upload is done in Alma back office. Paths are:
