@@ -29,7 +29,7 @@ Exceptions:
 
 - 'view_package' directory should be renamed to a name of desired view (eg 61UQ for production view, 61UQ_DEV for development, etc) eg.
 
-  `$ cp -r ~/uqlibrary-reusable-components/applications/primo2/view_package/ ~/61UQ_DEV`
+  `$ cp -r ~/exlibris-primo/src/view_package/ ~/61UQ_DEV`
 
 - make sure there are no hidden files (eg .idea, .git, etc)
 - create a zip named after the Primo view, eg 61UQ_DEV view will have 61UQ_DEV.zip

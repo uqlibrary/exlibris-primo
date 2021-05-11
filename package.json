@@ -1,0 +1,16 @@
+{
+  "name": "exlibris-primo",
+  "private": true,
+  "scripts": {
+    "almastyles": "node-sass ./src/alma/branding_skin/css --output ./src/alma/branding_skin/css --output-style compressed",
+    "almazip": "bestzip src/alma/branding_skin.zip src/alma/branding_skin/css/mashup_new.css"
+  },
+  "devDependencies": {
+    "bestzip": "^2.2.0",
+    "node-sass": "^6.0.0"
+  },
+  "engines": {
+    "npm": "^6",
+    "node": "11.10.1"
+  }
+}
