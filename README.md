@@ -4,7 +4,7 @@ This repo maintains the code which is uploaded to the exlibris servers for Primo
 
 It is a fork of an older repo, uqlibrary-reusable-components, maintaining only the primo elements.
 
-### Getting Started
+## Getting Started
 
 Project requires the following major dependencies:
 
