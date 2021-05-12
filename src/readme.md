@@ -17,15 +17,15 @@ There are 6 basic environments:
 | sandbox-dac | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DAC&sortby=rank) (ie vid=61UQ_DAC) | (uses primo-sandbox) | DAC's personal area. Keep it up to date with the others - deploy sandbox-dev changes here |
 | sandbox-otb | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DEV_LOGIN&sortby=rank) (ie vid=61UQ_DEV_LOGIN) | - | sandbox out of the box - it would be very unusual for us to make changes to this |
 
-The branch is set in [src/primo2/view_package/custom.js](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/js/custom.js) (and of course there is the `master` branch, but this does not map to any of the live environments)
+The branch is set in [view_package/custom.js](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/js/custom.js) (and of course there is the `master` branch, but this does not map to any of the live environments)
 
-Primo UI is in active development. All releases are scheduled by ExLibris and are available in Primo Sand Box a couple of weeks before going to production.
+Primo UI is in active development. All releases are scheduled by Ex Libris and are available in Primo Sand Box a couple of weeks before going to production.
 
 ## Theming for new Primo UI
 
 Styling of primo pages is in the reusable repo at uqlibrary/reusable-webcomponents - see the src/applications/primo folder
 
-* Customisation package `/view_package/*` - [readme](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md)
+* Customisation package `view_package/*` - [readme](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md)
 
 Styling of the Primo GetIt iframe, via the Alma mashup, is maintained in this repo. See below.
 
@@ -33,7 +33,7 @@ Styling of the Primo GetIt iframe, via the Alma mashup, is maintained in this re
 
 ## Primo release notes/dev notes
 
-* [ExLibris Primo release notes](https://knowledge.exlibrisgroup.com/Primo/Release_Notes)
+* [Ex Libris Primo release notes](https://knowledge.exlibrisgroup.com/Primo/Release_Notes)
 * [Community Primo dev notes](https://docs.google.com/document/d/1pfhN1LZSuV6ZOZ7REldKYH7TR1Cc4BUzTMdNHwH5Bkc/edit#)
 * [Community Primo cookbook notes](https://docs.google.com/document/d/1z1D5II6rhRd2Q01Uqpb_1v6OEFv_OksujEZ-htNJ0rw/edit#heading=h.ti1szv6s9yu0)
 
@@ -50,6 +50,7 @@ Here is a workflow that covers both of these:
 * Do development:
   * Make changes
   * [Upload package](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md) to back office if an angular change
+    * You can run `npm run viewzip <viewname>` where `<viewname>` is `61UQ`, `61UQ_DEV` or `61UQ_DAC` to create the zipfile
 * Eventually, get acceptance from DAC that she wants it live - now you need to put any changes to the primo package in the 3 other environments, so they all match
 * For each of the 3 other branches (where there is an change to the primo package):
   * Merge in, preferably from master
@@ -61,18 +62,18 @@ Here is a workflow that covers both of these:
 
 Parts of the Primo pages are inside iframes, eg the 'Get It' block on the full display page. This means our main reusable-webcomponents custom-styles.css file wont affect it.
 
-Ex libris provides a css upload that styles inside the iframes.
+Ex Libris provides a css upload that styles inside the iframes.
 
 ### Workflow
 
 1. Make your changes
     1. Choose your workarea (eg [primo sandbox dev](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DEV&sortby=rank) )
-    1. In the inspect panel, edit the css source file at AlmagetitMashupiframe > uq-psb.alma.exlibrisgroup.com > view > branding_skin > css > mashup_new.css until you are happy with the result, and copy to your local mashup_new.scss file
+    1. In the inspect panel, edit the css source file at Alma "Get It" iframe > uq-psb.alma.exlibrisgroup.com > view > branding_skin > css > mashup_new.css until you are happy with the result, and copy to your local mashup_new.scss file
 
 1. Create the zip for upload
 
     1. Checkout the appropriate branch
-    1. Run  `npm run almastyles` to create the .css files from the .scss files (probably worth checking the genrated css works by pasting it back into the inspect window in the browser)
+    1. Run `npm run almastyles` to create the .css files from the .scss files (probably worth checking the genrated css works by pasting it back into the inspect window in the browser)
     1. Run `npm run almazip` to create branding_skin.zip, containing the updated file
 
 1. Upload the zip to alma

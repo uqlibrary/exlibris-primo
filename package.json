@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "almastyles": "node-sass ./src/alma/branding_skin/css --output ./src/alma/branding_skin/css --output-style compressed",
-    "almazip": "cd src && cd alma && bestzip branding_skin.zip branding_skin/css/mashup_new.css"
+    "almazip": "cd src && cd alma && bestzip branding_skin.zip branding_skin/css/mashup_new.css",
+    "viewzip": "./bin/view-package-build.sh"
   },
   "devDependencies": {
     "bestzip": "^2.2.0",
