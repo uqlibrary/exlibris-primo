@@ -71,3 +71,11 @@ table {
     }
   }
 }
+
+// hide the 'resource type' line in the Request purchase form
+.purchaseRequest>form div.clearfix:first-of-type ul {
+  li.width72:nth-child(2),
+  li.width24.nextLine:first-child {
+    display: none
+  }
+}
