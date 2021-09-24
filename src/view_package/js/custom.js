@@ -12,7 +12,7 @@
   });
 
   app.component('prmTopbarAfter', {
-    template: '<alert-list></alert-list>'
+    template: '<alert-list system="primo"></alert-list>'
   });
 
   app.component('prmSearchBookmarkFilterAfter', {
