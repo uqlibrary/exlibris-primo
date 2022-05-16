@@ -34,12 +34,12 @@
 
       var recordId = '';
       // no one knows what the TN actually means (per SVG), but in practice all the CDI records have it on their record id
-      if (!!vm.parentCtrl.item.pnx && !!vm.parentCtrl.item.pnx.control && !!vm.parentCtrl.item.pnx.control.recordid &&
+      if (!!vm.parentCtrl?.item?.pnx?.control?.recordid &&
           vm.parentCtrl.item.pnx.control.recordid[0] && vm.parentCtrl.item.pnx.control.recordid[0].startsWith('TN')) {
         recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid);
       }
       if (recordId === '') {
-        if (!!vm.parentCtrl.item.pnx && !!vm.parentCtrl.item.pnx.search && !!vm.parentCtrl.item.pnx.search.recordid) {
+        if (!!vm.parentCtrl?.item?.pnx?.search?.recordid) {
           recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
         }
       }
@@ -53,10 +53,10 @@
       }
 
       var recordTitle = '';
-      if (recordId !== '' && !!vm.parentCtrl.item.pnx && !!vm.parentCtrl.item.pnx.search && !!vm.parentCtrl.item.pnx.search.title && !!vm.parentCtrl.item.pnx.search.title[0]) {
+      if (recordId !== '' && !!vm?.parentCtrl?.item?.pnx?.search?.title && !!vm.parentCtrl.item.pnx.search.title[0]) {
         recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.search.title[0]);
       }
-      if (recordTitle === '' && recordId !== '' && !!vm.parentCtrl.item.pnx && !!vm.parentCtrl.item.pnx.display && !!vm.parentCtrl.item.pnx.display.title && !!vm.parentCtrl.item.pnx.display.title[0]) {
+      if (recordTitle === '' && !!vm.parentCtrl?.item?.pnx?.display?.title && !!vm.parentCtrl.item.pnx.display.title[0]) {
         recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.display.title[0]);
       }
       if (recordTitle !== '') {
