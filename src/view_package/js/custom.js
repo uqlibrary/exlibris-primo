@@ -215,11 +215,17 @@
   ];
 
   // delete the items they provide because we have similar in our myibrary list
-  var deletionList = ['.my-favorties-ctm', '.my-search-history-ctm'];
+  var deletionList = [
+    '.my-library-card-ctm',
+    '.my-loans-ctm',
+    '.my-requests-ctm',
+    '.my-favorties-ctm',
+    '.my-search-history-ctm'
+  ];
   deletionList.forEach(e => {
     var elem = document.querySelector(e);
     !!elem && elem.remove();
-  })
+  });
 
   var parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
   if (!!parentElem) {
