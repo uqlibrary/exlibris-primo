@@ -192,21 +192,16 @@
       link: 'https://lib-print.library.uq.edu.au:9192/user',
       svg: 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z',
     },
-    // {
-    //   title: 'eSpace dashboard',
-    //   link: 'https://espace.library.uq.edu.au/dashboard',
-    //   svg: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z',
-    // },
     {
       title: 'Room bookings',
       link: 'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb',
       svg: 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z',
     },
-    // {
-    //   title: 'Saved items',
-    //   link: 'https://search.library.uq.edu.au/primo-explore/login?vid=61UQ&targetURL=https%3A%2F%2Fsearch.library.uq.edu.au%2Fprimo-explore%2Ffavorites%3Fvid%3D61UQ%26lang%3Den_US%26section%3Ditems',
-    //   svg: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
-    // },
+    {
+      title: 'Saved items',
+      link: 'https://search.library.uq.edu.au/primo-explore/login?vid=61UQ&targetURL=https%3A%2F%2Fsearch.library.uq.edu.au%2Fprimo-explore%2Ffavorites%3Fvid%3D61UQ%26lang%3Den_US%26section%3Ditems',
+      svg: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+    },
     {
       title: 'Saved searches',
       link: 'https://search.library.uq.edu.au/primo-explore/login?vid=61UQ&targetURL=https%3A%2F%2Fsearch.library.uq.edu.au%2Fprimo-explore%2Ffavorites%3Fvid%3D61UQ%26lang%3Den_US%26section%3Dqueries',
@@ -219,46 +214,34 @@
     }
   ];
 
-  // get elem md-menu-content.prm-user-menu-content
+  // delete the items they provide because we have similar in our myibrary list
+  var deletionList = ['.my-favorties-ctm', '.my-search-history-ctm'];
+  deletionList.forEach(e => {
+    var elem = document.querySelector(e);
+    !!elem && elem.remove();
+  })
+
   var parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
-  // var parentElem = document.querySelector('#skiptohere');
   if (!!parentElem) {
+    var parentUL = document.createElement('ul');
+    !!parentUL && (parentUL.className = 'mylibrary-list');
     listMyLibraryLinks.forEach((e, i) => {
       var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      // var path = document.createElement('path');
       !!path && (path.setAttribute('d', e.svg));
 
       var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      // var svg = document.createElement('svg');
       !!svg && (svg.width = '100%');
       !!svg && (svg.height = '100%');
       !!svg && svg.setAttribute('viewBox', '0 0 24 24');
-      // !!svg && svg.setAttribute('y', '0');
-      // !!svg && svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      // !!svg && (svg.fit = '');
-      // !!svg && svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       !!svg && svg.setAttribute('focusable', 'false');
       !!svg && !!path && svg.appendChild(path);
 
-      // var mdIcon = document.createElement('span');
-      // !!mdIcon && (mdIcon.role = 'presentation');
-      // !!mdIcon && (mdIcon.className = 'md-primoExplore-theme');
-      // !!mdIcon && !!svg && mdIcon.appendChild(svg);
-
-      // var prmIcon = document.createElement('span');
-      // !!prmIcon && (prmIcon.className = 'rotate-25');
-      // !!prmIcon && prmIcon.setAttribute('icon-type', 'svg');
-      // !!prmIcon && prmIcon.setAttribute('svg-icon-set', 'primo-ui');
-      // !!prmIcon && prmIcon.setAttribute('icon-definition', 'prm_pin');
-      // !!prmIcon && !!mdIcon && prmIcon.appendChild(mdIcon);
-
       var button = document.createElement('button');
-      !!button && (button.className = 'mylibrary button-with-icon md-button md-primoExplore-theme md-ink-ripple');
+      !!button && (button.className = 'button-with-icon md-button md-primoExplore-theme md-ink-ripple');
       !!button && (button.type = 'button');
       !!button && button.setAttribute('aria-label', `Go to ${e.title}`);
       !!button && (button.role = 'menuitem');
-      !!button && (button.href = e.link);
-      // !!button && !!prmIcon && button.appendChild(prmIcon);
+      !!button && button.setAttribute('onclick', `location.href='${e.link}'`);
       !!button && !!svg && button.appendChild(svg);
 
       var text = document.createTextNode(e.title);
@@ -266,9 +249,14 @@
       !!span && !!text && span.appendChild(text);
       !!button && !!span && button.appendChild(span);
 
-      var mdMenuItem = document.createElement('div');
+      var mdMenuItem = document.createElement('li');
       !!mdMenuItem && !!button && mdMenuItem.appendChild(button);
-      !!mdMenuItem && parentElem.appendChild(mdMenuItem);
+      !!parentUL && !!mdMenuItem && parentUL.appendChild(mdMenuItem);
     })
+    !!parentUL && parentElem.appendChild(parentUL);
+
+    // and add it to the mobile menu too (honestly? a completely different div for mobile :( )
+    var mobilemenu = document.querySelector('.mobile-main-menu-bg');
+    !!mobilemenu && mobilemenu.appendChild(parentUL);
   }
 })();
