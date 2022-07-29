@@ -222,14 +222,15 @@ function rewriteAccountDropdown() {
   ];
 
   // delete the items they provide because we have similar in our myibrary list
-  const deletionList = [
+  const deletionClassList = [
     '.my-library-card-ctm',
     '.my-loans-ctm',
     '.my-requests-ctm',
     '.my-favorties-ctm',
-    '.my-search-history-ctm'
+    '.my-search-history-ctm',
+    '.my-PersonalDetails-ctm',
   ];
-  deletionList.forEach(e => {
+  deletionClassList.forEach(e => {
     const elem = document.querySelector(e);
     !!elem && elem.remove();
   });
