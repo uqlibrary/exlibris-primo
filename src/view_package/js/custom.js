@@ -203,21 +203,21 @@ function rewriteAccountDropdown() {
       link: 'https://www.library.uq.edu.au/learning-resources',
       id: 'mylibrary-menu-course-resources',
       svg: 'M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z',
-      subtext: '',
+      subtext: 'Course readings & exam papers',
     },
     {
       title: 'Print balance',
       link: 'https://lib-print.library.uq.edu.au:9192/user',
       id: 'mylibrary-menu-print-balance',
       svg: 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z',
-      subtext: '',
+      subtext: 'Log in to your print account',
     },
     {
-      title: 'Room bookings',
+      title: 'Book a room or desk',
       link: 'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb',
       id: 'mylibrary-menu-room-bookings',
       svg: 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z',
-      subtext: '',
+      subtext: 'Student meeting & study spaces',
     },
   ];
 
