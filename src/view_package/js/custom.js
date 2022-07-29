@@ -183,6 +183,7 @@ function ready(fn) {
 
 function rewriteAccountDropdown() {
   // THESE LINKS MUST DUPLICATE THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
+  // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here)
   const listMyLibraryLinks = [
     {
       title: 'Library account',
@@ -228,6 +229,60 @@ function rewriteAccountDropdown() {
     },
   ];
 
+  const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
+  if (!parentElem) {
+    return;
+  }
+
+  const parentUL = document.createElement('ul');
+  !!parentUL && (parentUL.className = 'mylibrary-list');
+  listMyLibraryLinks.forEach((e, i) => {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    !!path && (path.setAttribute('d', e.svg));
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    !!svg && (svg.width = '100%');
+    !!svg && (svg.height = '100%');
+    !!svg && svg.setAttribute('viewBox', '0 0 24 24');
+    !!svg && svg.setAttribute('focusable', 'false');
+    !!svg && !!path && svg.appendChild(path);
+
+    const button = document.createElement('button');
+    !!button && (button.className = 'button-with-icon md-primoExplore-theme md-ink-ripple');
+    !!button && (button.type = 'button');
+    !!button && button.setAttribute('data-testid', e.id);
+    !!button && button.setAttribute('aria-label', `Go to ${e.title}`);
+    !!button && (button.role = 'menuitem');
+    !!button && button.setAttribute('onclick', `location.href='${e.link}'`);
+    !!button && !!svg && button.appendChild(svg);
+
+    const textParent = document.createElement('div');
+    !!textParent && (textParent.className = 'textwrapper');
+
+    const primaryText = document.createTextNode(e.title);
+    const primaryTextBlock = document.createElement('span');
+    !!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
+    !!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
+    !!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
+
+    const subtext = document.createTextNode(e.subtext);
+    const subtextDiv = document.createElement('span');
+    !!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
+    !!subtextDiv && subtextDiv.appendChild(subtext);
+    !!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
+
+    !!button && !!textParent && button.appendChild(textParent);
+
+    const mdMenuItem = document.createElement('li');
+    !!mdMenuItem && !!button && mdMenuItem.appendChild(button);
+    !!parentUL && !!mdMenuItem && parentUL.appendChild(mdMenuItem);
+  })
+  !!parentUL && parentElem.appendChild(parentUL);
+
+  // and add it to the mobile menu too (honestly? a completely different div for mobile :( )
+  const mobilemenu = document.querySelector('.mobile-main-menu-bg');
+  !!mobilemenu && mobilemenu.appendChild(parentUL);
+
   // delete the items they provide because we have similar in our myibrary list
   const deletionClassList = [
     '.my-library-card-ctm',
@@ -242,61 +297,9 @@ function rewriteAccountDropdown() {
     !!elem && elem.remove();
   });
 
-  const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
-  if (!!parentElem) {
-    const parentUL = document.createElement('ul');
-    !!parentUL && (parentUL.className = 'mylibrary-list');
-    listMyLibraryLinks.forEach((e, i) => {
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      !!path && (path.setAttribute('d', e.svg));
-
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      !!svg && (svg.width = '100%');
-      !!svg && (svg.height = '100%');
-      !!svg && svg.setAttribute('viewBox', '0 0 24 24');
-      !!svg && svg.setAttribute('focusable', 'false');
-      !!svg && !!path && svg.appendChild(path);
-
-      const button = document.createElement('button');
-      !!button && (button.className = 'button-with-icon md-button md-primoExplore-theme md-ink-ripple');
-      !!button && (button.type = 'button');
-      !!button && button.setAttribute('data-testid', e.id);
-      !!button && button.setAttribute('aria-label', `Go to ${e.title}`);
-      !!button && (button.role = 'menuitem');
-      !!button && button.setAttribute('onclick', `location.href='${e.link}'`);
-      !!button && !!svg && button.appendChild(svg);
-
-      const textParent = document.createElement('div');
-      !!textParent && (textParent.className = 'textwrapper');
-
-      const primaryText = document.createTextNode(e.title);
-      const primaryTextBlock = document.createElement('span');
-      !!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
-      !!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
-      !!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
-
-      const subtext = document.createTextNode(e.subtext);
-      const subtextDiv = document.createElement('span');
-      !!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
-      !!subtextDiv && subtextDiv.appendChild(subtext);
-      !!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
-
-      !!button && !!textParent && button.appendChild(textParent);
-
-      const mdMenuItem = document.createElement('li');
-      !!mdMenuItem && !!button && mdMenuItem.appendChild(button);
-      !!parentUL && !!mdMenuItem && parentUL.appendChild(mdMenuItem);
-    })
-    !!parentUL && parentElem.appendChild(parentUL);
-
-    // and add it to the mobile menu too (honestly? a completely different div for mobile :( )
-    const mobilemenu = document.querySelector('.mobile-main-menu-bg');
-    !!mobilemenu && mobilemenu.appendChild(parentUL);
-
-    // remove one of the dividers, having removed all the contents of the block
-    const hr = document.querySelector('md-menu-divider')
-    !!hr && hr.remove();
-  }
+  // remove one of the dividers, having removed all the contents of the block
+  const hr = document.querySelector('md-menu-divider')
+  !!hr && hr.remove();
 }
 
 ready(rewriteAccountDropdown);
