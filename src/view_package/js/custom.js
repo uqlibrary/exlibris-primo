@@ -181,7 +181,71 @@ function ready(fn) {
 
 })();
 
-function rewriteAccountDropdown(parentElem) {
+function createSVG(e) {
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  !!path && (path.setAttribute('d', e.svg));
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  !!svg && (svg.width = '100%');
+  !!svg && (svg.height = '100%');
+  !!svg && svg.setAttribute('viewBox', '0 0 24 24');
+  !!svg && svg.setAttribute('focusable', 'false');
+  !!svg && !!path && svg.appendChild(path);
+  return svg;
+}
+
+const feedbackOptions = {
+  title: 'Feedback',
+  link: 'https://support.my.uq.edu.au/app/library/feedback',
+  id: 'mylibrary-menu-feedback',
+  svg: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
+  subtext: '',
+};
+function rewriteLoggedOutDropdown() {
+  const loggedoutmenu = document.querySelector('.md-open-menu-container md-menu-content');
+  if (!loggedoutmenu) {
+    return;
+  }
+
+  const svg = createSVG(feedbackOptions);
+
+  const imageholder = document.createElement('md-icon');
+  !!imageholder && (imageholder.role = 'presentation');
+  !!imageholder && (imageholder.className = 'md-primoExplore-theme');
+  !!imageholder && !!svg && imageholder.appendChild(svg);
+
+  const imagewrapper = document.createElement('prm-icon');
+  !!imagewrapper && imagewrapper.setAttribute('icon-type', 'svg');
+  !!imagewrapper && imagewrapper.setAttribute('svg-icon-set', 'primo-ui');
+  !!imagewrapper && imagewrapper.setAttribute('icon-definition', 'restore');
+  !!imagewrapper && !!imageholder && imagewrapper.appendChild(imageholder);
+
+  const optionTitle = document.createTextNode(feedbackOptions.title);
+  const span = document.createElement('span');
+  !!span && !!optionTitle && span.appendChild(optionTitle);
+
+  const ripple = document.createElement('div');
+  !!ripple && (ripple.className = 'md-ripple-container');
+
+  const button = document.createElement('button');
+  !!button && (button.className = 'button-with-icon md-button md-primoExplore-theme md-ink-ripple');
+  !!button && (button.type = 'button');
+  !!button && (button.role = 'menuitem');
+  !!button && button.setAttribute('aria-label', 'Provide feedback');
+  !!button && button.setAttribute('onclick', `location.href='${feedbackOptions.link}'`);
+  !!button && !!imagewrapper && button.appendChild(imagewrapper);
+  !!button && !!span && button.appendChild(span);
+  !!button && !!ripple && button.appendChild(ripple);
+
+  const mdmenuitem = document.createElement('md-menu-item');
+  !!mdmenuitem && (mdmenuitem.className = 'my-feedback-ctm');
+  !!mdmenuitem && !!button && mdmenuitem.appendChild(button);
+
+  !!loggedoutmenu && !!mdmenuitem && loggedoutmenu.appendChild(mdmenuitem);
+};
+
+
+function rewriteLoggedInDropdown(parentElem) {
   // THESE LINKS MUST DUPLICATE THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
   // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here)
   const listMyLibraryLinks = [
@@ -220,27 +284,13 @@ function rewriteAccountDropdown(parentElem) {
       svg: 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z',
       subtext: 'Student meeting & study spaces',
     },
-    {
-      title: 'Feedback',
-      link: 'https://support.my.uq.edu.au/app/library/feedback',
-      id: 'mylibrary-menu-feedback',
-      svg: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
-      subtext: '',
-    },
+    feedbackOptions,
   ];
 
   const parentUL = document.createElement('ul');
   !!parentUL && (parentUL.className = 'mylibrary-list');
   listMyLibraryLinks.forEach((e, i) => {
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    !!path && (path.setAttribute('d', e.svg));
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    !!svg && (svg.width = '100%');
-    !!svg && (svg.height = '100%');
-    !!svg && svg.setAttribute('viewBox', '0 0 24 24');
-    !!svg && svg.setAttribute('focusable', 'false');
-    !!svg && !!path && svg.appendChild(path);
+    const svg = createSVG(e);
 
     const button = document.createElement('button');
     !!button && (button.className = 'button-with-icon md-primoExplore-theme md-ink-ripple');
@@ -278,7 +328,7 @@ function rewriteAccountDropdown(parentElem) {
   const mobilemenu = document.querySelector('.mobile-main-menu-bg');
   !!mobilemenu && mobilemenu.appendChild(parentUL);
 
-  // delete the items they provide because we have similar in our myibrary list
+  // delete the items they provide because we have similar in our mylibrary list
   const deletionClassList = [
     '.my-library-card-ctm',
     '.my-loans-ctm',
@@ -303,6 +353,7 @@ function waitForLoginArea() {
     if (!!loginbutton) {
       // not logged in
       clearInterval(awaitLoginArea);
+      rewriteLoggedOutDropdown();
       return;
     }
 
@@ -312,11 +363,11 @@ function waitForLoginArea() {
     }
 
     clearInterval(awaitLoginArea);
-    rewriteAccountDropdown(parentElem);
+    rewriteLoggedInDropdown(parentElem);
   }, 100);
 }
 
-// dont start looking for the account area until the nav bar is available
+// don't start looking for the account area until the nav bar is available
 function waitforNavBar() {
   const awaitNavbar = setInterval(() => {
     const navbar = document.querySelector('prm-topbar');
