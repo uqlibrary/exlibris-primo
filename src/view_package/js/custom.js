@@ -181,7 +181,7 @@ function ready(fn) {
 
 })();
 
-function rewriteAccountDropdown() {
+function rewriteAccountDropdown(parentElem) {
   // THESE LINKS MUST DUPLICATE THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
   // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here)
   const listMyLibraryLinks = [
@@ -228,11 +228,6 @@ function rewriteAccountDropdown() {
       subtext: '',
     },
   ];
-
-  const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
-  if (!parentElem) {
-    return;
-  }
 
   const parentUL = document.createElement('ul');
   !!parentUL && (parentUL.className = 'mylibrary-list');
@@ -302,4 +297,34 @@ function rewriteAccountDropdown() {
   !!hr && hr.remove();
 }
 
-ready(rewriteAccountDropdown);
+function waitForLoginArea() {
+  const awaitLoginArea = setInterval(() => {
+    const loginbutton = document.querySelector('.sign-in-btn-ctm');
+    if (!!loginbutton) {
+      // not logged in
+      clearInterval(awaitLoginArea);
+      return;
+    }
+
+    const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
+    if (!parentElem) {
+      return;
+    }
+
+    clearInterval(awaitLoginArea);
+    rewriteAccountDropdown(parentElem);
+  }, 100);
+}
+
+// dont start looking for the account area until the nav bar is available
+function waitforNavBar() {
+  const awaitNavbar = setInterval(() => {
+    const navbar = document.querySelector('prm-topbar');
+    if (!!navbar) {
+      clearInterval(awaitNavbar);
+      waitForLoginArea();
+    }
+  }, 250);
+}
+
+ready(waitforNavBar());
