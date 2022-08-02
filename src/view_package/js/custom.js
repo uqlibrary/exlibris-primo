@@ -279,7 +279,7 @@ function rewriteLoggedInDropdown(parentElem) {
   });
   const vid = params.vid || '61UQ';
   const domain = window.location.hostname;
-  // THESE LINKS MUST DUPLICATE THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
+  // THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
   // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here)
   const listMyLibraryLinks = [
     {
@@ -324,6 +324,7 @@ function rewriteLoggedInDropdown(parentElem) {
   ];
 
   const parentUL = document.createElement('ul');
+  !!parentUL && (parentUL.id = 'mylibrary-list');
   !!parentUL && (parentUL.className = 'mylibrary-list');
   listMyLibraryLinks.forEach((e, i) => {
     const svg = createSVG(e);
@@ -427,6 +428,18 @@ function rewriteLoggedInDropdown(parentElem) {
   !!hr && hr.remove();
 }
 
+function listenforLoggedInMenuButtonClick() {
+  const menubutton = document.querySelector('.user-menu-button');
+  console.log('menubutton=', menubutton);
+  !!menubutton && menubutton.addEventListener('click', function(e) {
+      const accountItemmenu = document.getElementById('mylibrary-list');
+      if (!accountItemmenu) {
+        const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
+        rewriteLoggedInDropdown(parentElem);
+      }
+  });
+}
+
 function waitForLoginArea() {
   const awaitLoginArea = setInterval(() => {
     const loginbutton = document.querySelector('.sign-in-btn-ctm');
@@ -437,13 +450,8 @@ function waitForLoginArea() {
       return;
     }
 
-    const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
-    if (!parentElem) {
-      return;
-    }
-
     clearInterval(awaitLoginArea);
-    rewriteLoggedInDropdown(parentElem);
+    listenforLoggedInMenuButtonClick();
   }, 100);
 }
 
