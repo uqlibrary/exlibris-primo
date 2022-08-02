@@ -200,6 +200,7 @@ const feedbackOptions = {
   id: 'mylibrary-menu-feedback',
   svg: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
   subtext: '',
+  newWindow: true,
 };
 function rewriteLoggedOutDropdown() {
   const loggedoutmenu = document.querySelector('.md-open-menu-container md-menu-content');
@@ -233,6 +234,7 @@ function rewriteLoggedOutDropdown() {
   !!button && (button.role = 'menuitem');
   !!button && button.setAttribute('aria-label', 'Provide feedback');
   !!button && button.setAttribute('onclick', `location.href='${feedbackOptions.link}'`);
+  !!button && !!feedbackOptions.newWindow && button.setAttribute('_target', `blank`);
   !!button && !!imagewrapper && button.appendChild(imagewrapper);
   !!button && !!span && button.appendChild(span);
   !!button && !!ripple && button.appendChild(ripple);
@@ -269,6 +271,7 @@ function rewriteLoggedInDropdown(parentElem) {
       id: 'mylibrary-menu-course-resources',
       svg: 'M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z',
       subtext: 'Course readings & exam papers',
+      newWindow: true,
     },
     {
       title: 'Print balance',
@@ -276,6 +279,7 @@ function rewriteLoggedInDropdown(parentElem) {
       id: 'mylibrary-menu-print-balance',
       svg: 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z',
       subtext: 'Log in to your print account',
+      newWindow: true,
     },
     {
       title: 'Book a room or desk',
@@ -283,6 +287,7 @@ function rewriteLoggedInDropdown(parentElem) {
       id: 'mylibrary-menu-room-bookings',
       svg: 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z',
       subtext: 'Student meeting & study spaces',
+      newWindow: true,
     },
     feedbackOptions,
   ];
@@ -297,6 +302,7 @@ function rewriteLoggedInDropdown(parentElem) {
     !!button && (button.type = 'button');
     !!button && button.setAttribute('data-testid', e.id);
     !!button && button.setAttribute('aria-label', `Go to ${e.title}`);
+    !!button && !!e.newWindow && button.setAttribute('_target', `blank`);
     !!button && (button.role = 'menuitem');
     !!button && button.setAttribute('onclick', `location.href='${e.link}'`);
     !!button && !!svg && button.appendChild(svg);
@@ -337,7 +343,7 @@ function rewriteLoggedInDropdown(parentElem) {
           clearInterval(awaitMobileMenuArea);
           !!mobilemenu && mobilemenu.appendChild(parentUL);
 
-          // delete supplied items
+          // delete primo-defined account items
           const deletableItems = [
               'prm-library-card-menu',
               '.my-search-history-ctm'
@@ -346,6 +352,12 @@ function rewriteLoggedInDropdown(parentElem) {
             const elem = document.querySelector(e);
             console.log('deleting', elem);
             !!elem && elem.remove();
+          });
+          // delete any other items
+          let ps = document.querySelectorAll('.settings-container > div > div');
+          ps.forEach(function (p) {
+            console.log('deleting', p);
+            p.remove();
           });
 
           // the built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
