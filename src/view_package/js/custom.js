@@ -248,19 +248,23 @@ function rewriteLoggedOutDropdown() {
 
 
 function rewriteLoggedInDropdown(parentElem) {
+  const params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+  });
+  const vid = params.vid || '61UQ';
   // THESE LINKS MUST DUPLICATE THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
   // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here)
   const listMyLibraryLinks = [
     {
       title: 'Library account',
-      link: 'https://search.library.uq.edu.au/primo-explore/account?vid=61UQ&section=overview&lang=en_US',
+      link: `https://search.library.uq.edu.au/primo-explore/account?vid=${vid}&section=overview&lang=en_US`,
       id: 'mylibrary-menu-borrowing',
       svg: 'M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z',
       subtext: 'Loans, requests & settings',
     },
     {
       title: 'Favourites',
-      link: 'https://search.library.uq.edu.au/primo-explore/login?vid=61UQ&targetURL=https%3A%2F%2Fsearch.library.uq.edu.au%2Fprimo-explore%2Ffavorites%3Fvid%3D61UQ%26lang%3Den_US%26section%3Ditems',
+      link: `https://search.library.uq.edu.au/primo-explore/login?vid=${vid}&targetURL=https%3A%2F%2Fsearch.library.uq.edu.au%2Fprimo-explore%2Ffavorites%3Fvid%3D61UQ%26lang%3Den_US%26section%3Ditems`,
       id: 'mylibrary-menu-saved-items',
       svg: 'm12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
       subtext: 'Saved items, searches & search history',
