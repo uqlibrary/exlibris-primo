@@ -323,10 +323,44 @@ function rewriteLoggedInDropdown(parentElem) {
     !!parentUL && !!mdMenuItem && parentUL.appendChild(mdMenuItem);
   })
   !!parentUL && parentElem.appendChild(parentUL);
+  console.log('parentUL=', parentUL);
 
-  // and add it to the mobile menu too (honestly? a completely different div for mobile :( )
-  const mobilemenu = document.querySelector('.mobile-main-menu-bg');
-  !!mobilemenu && mobilemenu.appendChild(parentUL);
+  const mobilebutton = document.querySelector('.mobile-menu-button');
+  console.log('mobilebutton=', mobilebutton);
+  !!mobilebutton && mobilebutton.addEventListener('click', function(e) {
+      console.log('clicked!')
+
+      const awaitMobileMenuArea = setInterval(() => {
+        const mobilemenu = document.querySelector('.mobile-main-menu-bg .settings-container div');
+        console.log('mobilemenu=', mobilemenu);
+        if (!!mobilemenu) {
+          clearInterval(awaitMobileMenuArea);
+          !!mobilemenu && mobilemenu.appendChild(parentUL);
+
+          // delete supplied items
+          const deletableItems = [
+              'prm-library-card-menu',
+              '.my-search-history-ctm'
+          ];
+          deletableItems.forEach(e => {
+            const elem = document.querySelector(e);
+            console.log('deleting', elem);
+            !!elem && elem.remove();
+          });
+
+          // the built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
+          const awaitAccountButton = setInterval(() => {
+            const accountButton = document.querySelector('prm-library-card-menu');
+            if (!!accountButton) {
+              // is once enough?
+              clearInterval(awaitAccountButton);
+
+              accountButton.remove();
+            }
+          }, 100);
+        }
+      }, 50);
+  });
 
   // delete the items they provide because we have similar in our mylibrary list
   const deletionClassList = [
