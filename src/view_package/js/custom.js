@@ -255,24 +255,21 @@ function rewriteLoggedOutDropdown() {
   !!mobilebutton && mobilebutton.addEventListener('click', function(e) {
     console.log('clicked!')
 
-    const awaitMobileMenuArea = setInterval(() => {
+    setInterval(() => {
       const mobilemenu = document.querySelector('.settings-container div');
       console.log('mobilemenu=', mobilemenu);
       if (!!mobilemenu) {
-        clearInterval(awaitMobileMenuArea);
-        mobilemenu.appendChild(feedbackButtonElement);
+        const checkFeedItem = document.querySelector('.my-feedback-ctm');
+        !checkFeedItem && mobilemenu.appendChild(feedbackButtonElement);
       }
-    }, 50);
 
-    const awaitLoginButton = setInterval(() => {
       // remove the "Log in" menu item that duplicates "My account" function
       const oldLoginButton = document.querySelector('.settings-container prm-authentication');
       console.log('oldLoginButton=', oldLoginButton);
       if (!!oldLoginButton) {
-        clearInterval(awaitLoginButton);
         oldLoginButton.remove();
       }
-    }, 50);
+    }, 100);
   });
 }
 
