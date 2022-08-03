@@ -201,14 +201,11 @@ const feedbackOptions = {
   svg: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
   subtext: '',
   newWindow: true,
+  className: 'my-feedback-ctm',
 };
-function rewriteLoggedOutDropdown() {
-  const loggedoutmenu = document.querySelector('.md-open-menu-container md-menu-content');
-  if (!loggedoutmenu) {
-    return;
-  }
 
-  const svg = createSVG(feedbackOptions);
+function createPrimoStyleAccountLink(options) {
+  const svg = createSVG(options);
 
   const imageholder = document.createElement('md-icon');
   !!imageholder && (imageholder.role = 'presentation');
@@ -221,7 +218,7 @@ function rewriteLoggedOutDropdown() {
   !!imagewrapper && imagewrapper.setAttribute('icon-definition', 'restore');
   !!imagewrapper && !!imageholder && imagewrapper.appendChild(imageholder);
 
-  const optionTitle = document.createTextNode(feedbackOptions.title);
+  const optionTitle = document.createTextNode(options.title);
   const span = document.createElement('span');
   !!span && !!optionTitle && span.appendChild(optionTitle);
 
@@ -233,54 +230,91 @@ function rewriteLoggedOutDropdown() {
   !!button && (button.type = 'button');
   !!button && (button.role = 'menuitem');
   !!button && button.setAttribute('aria-label', 'Provide feedback');
-  !!button && button.setAttribute('onclick', `location.href='${feedbackOptions.link}'`);
+  !!button && button.setAttribute('onclick', `location.href='${options.link}'`);
   !!button &&
-    button.setAttribute(
-        'onclick',
-        !!feedbackOptions.newWindow ? `javascript:window.open('${feedbackOptions.link}', '_blank');` :`location.href='${feedbackOptions.link}'`
-    );
+  button.setAttribute(
+      'onclick',
+      !!options.newWindow ? `javascript:window.open('${options.link}', '_blank');` : `location.href='${options.link}'`
+  );
   !!button && !!imagewrapper && button.appendChild(imagewrapper);
   !!button && !!span && button.appendChild(span);
   !!button && !!ripple && button.appendChild(ripple);
 
-  const feedbackButtonElement = document.createElement('md-menu-item');
-  !!feedbackButtonElement && (feedbackButtonElement.className = 'my-feedback-ctm');
-  !!feedbackButtonElement && !!button && feedbackButtonElement.appendChild(button);
+  const buttonWrapper = document.createElement('md-menu-item');
+  !!buttonWrapper && !!options.className && (buttonWrapper.className = options.className);
+  !!buttonWrapper && !!button && buttonWrapper.appendChild(button);
+  return buttonWrapper;
+}
 
-  !!loggedoutmenu && !!feedbackButtonElement && loggedoutmenu.appendChild(feedbackButtonElement);
-
+function listenForLoggedOutMobileMenuButtonCLick(buttonOptions) {
   // and add the feedback link to the mobile menu as well
   const mobilebutton = document.querySelector('.mobile-menu-button');
   console.log('mobilebutton=', mobilebutton);
-  !!mobilebutton && mobilebutton.addEventListener('click', function(e) {
+  !!mobilebutton && mobilebutton.addEventListener('click', function (e) {
     console.log('clicked!')
 
-    setInterval(() => {
+    const maxLoops = 20;
+
+    // add the feedback link
+    let loopFeedback = 0;
+    const waitForFeedbackLink = setInterval(() => {
+      if (loopFeedback > maxLoops) {
+        console.log('never found parent for feedback link');
+        clearInterval(waitForFeedbackLink);
+      }
       const mobilemenu = document.querySelector('.settings-container div');
       console.log('mobilemenu=', mobilemenu);
       if (!!mobilemenu) {
+        clearInterval(waitForFeedbackLink);
         const checkFeedItem = document.querySelector('.my-feedback-ctm');
-        !checkFeedItem && mobilemenu.appendChild(feedbackButtonElement);
+        if (!checkFeedItem) {
+          const feedbackButtonElement = createPrimoStyleAccountLink(buttonOptions);
+          !!feedbackButtonElement && mobilemenu.appendChild(feedbackButtonElement);
+        }
       }
+      loopFeedback++;
+    }, 100);
 
-      // remove the "Log in" menu item that duplicates "My account" function
+    // remove the "Log in" menu item that duplicates "My account" function
+    let loopLogin = 0;
+    const waitForRedundantLoginLink = setInterval(() => {
+      if (loopFeedback > maxLoops) {
+        console.log('never found redundant log in link');
+        clearInterval(waitForRedundantLoginLink);
+      }
       const oldLoginButton = document.querySelector('.settings-container prm-authentication');
       console.log('oldLoginButton=', oldLoginButton);
       if (!!oldLoginButton) {
+        clearInterval(waitForRedundantLoginLink);
         oldLoginButton.remove();
       }
+      loopLogin++;
     }, 100);
   });
 }
 
-function rewriteLoggedInDropdown(parentElem) {
+function listenForLoggedOutDesktopMenuButtonClick(linkOptions) {
+  const menubutton = document.querySelector('md-menu.md-menu._md button');
+  console.log('MENU:: rewriteLoggedOutDropdown menubutton=', menubutton);
+  !!menubutton && menubutton.addEventListener('click', function (e) {
+    const existingFeedbackItem = document.getElementById(`.${linkOptions.className}`);
+    console.log("MENU::existingFeedbackItem=", existingFeedbackItem);
+    if (!existingFeedbackItem) {
+      const feedbackButtonElement = createPrimoStyleAccountLink(linkOptions);
+      const loggedoutmenu = document.querySelector('md-menu-content.prm-user-menu-content');
+      !!loggedoutmenu && !!feedbackButtonElement && loggedoutmenu.appendChild(feedbackButtonElement);
+    }
+  });
+}
+
+function createGenericListAccountLinks(parentElem) {
   const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
   });
   const vid = params.vid || '61UQ';
   const domain = window.location.hostname;
   // THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
-  // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here)
+  // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
   const listMyLibraryLinks = [
     {
       title: 'Library account',
@@ -363,53 +397,16 @@ function rewriteLoggedInDropdown(parentElem) {
     !!mdMenuItem && !!button && mdMenuItem.appendChild(button);
     !!parentUL && !!mdMenuItem && parentUL.appendChild(mdMenuItem);
   })
-  !!parentUL && parentElem.appendChild(parentUL);
-  console.log('parentUL=', parentUL);
+  return parentUL;
+}
 
-  const mobilebutton = document.querySelector('.mobile-menu-button');
-  console.log('mobilebutton=', mobilebutton);
-  !!mobilebutton && mobilebutton.addEventListener('click', function(e) {
-      console.log('clicked!')
+function rewriteDesktopLoggedInDropdown(parentElem) {
+  !parentElem && console.log('invalid parent elemen passed to rewriteDesktopLoggedInDropdown');
+  const listAccountLinks = createGenericListAccountLinks();
+  console.log('listAccountLinks=', listAccountLinks);
+  !!parentElem && !!listAccountLinks && parentElem.appendChild(listAccountLinks);
 
-      const awaitMobileMenuArea = setInterval(() => {
-        const mobilemenu = document.querySelector('.mobile-main-menu-bg .settings-container div');
-        console.log('mobilemenu=', mobilemenu);
-        if (!!mobilemenu) {
-          clearInterval(awaitMobileMenuArea);
-          !!mobilemenu && mobilemenu.appendChild(parentUL);
-
-          // delete primo-defined account items
-          const deletableItems = [
-              'prm-library-card-menu',
-              '.my-search-history-ctm'
-          ];
-          deletableItems.forEach(e => {
-            const elem = document.querySelector(e);
-            console.log('deleting', elem);
-            !!elem && elem.remove();
-          });
-          // delete any other items
-          let ps = document.querySelectorAll('.settings-container > div > div');
-          ps.forEach(function (p) {
-            console.log('deleting', p);
-            p.remove();
-          });
-
-          // the built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
-          const awaitAccountButton = setInterval(() => {
-            const accountButton = document.querySelector('prm-library-card-menu');
-            if (!!accountButton) {
-              // is once enough?
-              clearInterval(awaitAccountButton);
-
-              accountButton.remove();
-            }
-          }, 100);
-        }
-      }, 50);
-  });
-
-  // delete the items they provide because we have similar in our mylibrary list
+  // delete the items they provide because we have similar in our account links list
   const deletionClassList = [
     '.my-library-card-ctm',
     '.my-loans-ctm',
@@ -420,6 +417,7 @@ function rewriteLoggedInDropdown(parentElem) {
   ];
   deletionClassList.forEach(e => {
     const elem = document.querySelector(e);
+    console.log('MENU::desktop will remove ', e, elem);
     !!elem && elem.remove();
   });
 
@@ -428,15 +426,65 @@ function rewriteLoggedInDropdown(parentElem) {
   !!hr && hr.remove();
 }
 
-function listenforLoggedInMenuButtonClick() {
+function listenForLoggedInDesktopMenuButtonClick() {
   const menubutton = document.querySelector('.user-menu-button');
   console.log('menubutton=', menubutton);
-  !!menubutton && menubutton.addEventListener('click', function(e) {
-      const accountItemmenu = document.getElementById('mylibrary-list');
-      if (!accountItemmenu) {
-        const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
-        rewriteLoggedInDropdown(parentElem);
+  !!menubutton && menubutton.addEventListener('click', function (e) {
+    const accountItemmenu = document.getElementById('mylibrary-list');
+    if (!accountItemmenu) {
+      const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
+      rewriteDesktopLoggedInDropdown(parentElem);
+    }
+  });
+}
+
+function listenForLoggedInMobileMenuButtonClick() {
+  const mobilemenubutton = document.querySelector('.mobile-menu-button');
+  console.log('MENU:: 1/7 mobilemenubutton=', mobilemenubutton);
+  !!mobilemenubutton && mobilemenubutton.addEventListener('click', function (e) {
+    console.log('MENU:: 2/7 logged in mobile menu button click', e);
+    const awaitMenuBlock = setInterval(() => {
+      const parentElem = document.querySelector('.mobile-main-menu-bg .settings-container div');
+      if (!!parentElem) {
+        clearInterval(awaitMenuBlock);
+        console.log('MENU:: 3/7 parentElem=', parentElem);
+        const createdList = createGenericListAccountLinks(parentElem);
+        !!parentElem && !!createdList && parentElem.appendChild(createdList);
+        console.log('MENU:: 4/7 createdList=', createdList);
       }
+    });
+    // delete primo-defined account items
+    const deletableItems = [
+      'prm-library-card-menu',
+      '.settings-container .my-search-history-ctm'
+    ];
+    deletableItems.forEach(e => {
+      const elem = document.querySelector(e);
+      console.log('MENU:: 5/7 deleting', e, elem);
+      !!elem && elem.remove();
+
+      // temp debug
+      const elem2 = document.querySelector(e);
+      console.log('MENU:: 5A/7 deleted', e, elem2);
+    });
+    // delete any other items
+    let ps = document.querySelectorAll('.settings-container > div > div');
+    ps.forEach(function (p) {
+      console.log('MENU:: 6/7 deleting', p);
+      p.remove();
+    });
+
+    // the built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
+    const awaitAccountButton = setInterval(() => {
+      const accountButton = document.querySelector('prm-library-card-menu');
+      if (!!accountButton) {
+        console.log('MENU:: 7/7 remove logged in button')
+        clearInterval(awaitAccountButton);
+
+        accountButton.remove();
+      }
+    }, 100);
+
   });
 }
 
@@ -446,12 +494,14 @@ function waitForLoginArea() {
     if (!!loginbutton) {
       // not logged in
       clearInterval(awaitLoginArea);
-      rewriteLoggedOutDropdown();
+      listenForLoggedOutDesktopMenuButtonClick(feedbackOptions);
+      listenForLoggedOutMobileMenuButtonCLick(feedbackOptions);
       return;
     }
 
     clearInterval(awaitLoginArea);
-    listenforLoggedInMenuButtonClick();
+    listenForLoggedInDesktopMenuButtonClick();
+    listenForLoggedInMobileMenuButtonClick();
   }, 100);
 }
 
