@@ -181,9 +181,9 @@ function ready(fn) {
 
 })();
 
-function createSVG(e) {
+function createSVG(options) {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  !!path && (path.setAttribute('d', e.svg));
+  !!path && (path.setAttribute('d', options.svgPath));
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   !!svg && (svg.width = '100%');
@@ -198,7 +198,7 @@ const feedbackOptions = {
   title: 'Feedback',
   link: 'https://support.my.uq.edu.au/app/library/feedback',
   id: 'mylibrary-menu-feedback',
-  svg: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
+  svgPath: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
   subtext: '',
   newWindow: true,
   className: 'my-feedback-ctm',
@@ -246,68 +246,7 @@ function createPrimoStyleAccountLink(options) {
   return buttonWrapper;
 }
 
-function listenForLoggedOutMobileMenuButtonCLick(buttonOptions) {
-  // and add the feedback link to the mobile menu as well
-  const mobilebutton = document.querySelector('.mobile-menu-button');
-  console.log('mobilebutton=', mobilebutton);
-  !!mobilebutton && mobilebutton.addEventListener('click', function (e) {
-    console.log('clicked!')
-
-    const maxLoops = 20;
-
-    // add the feedback link
-    let loopFeedback = 0;
-    const waitForFeedbackLink = setInterval(() => {
-      if (loopFeedback > maxLoops) {
-        console.log('never found parent for feedback link');
-        clearInterval(waitForFeedbackLink);
-      }
-      const mobilemenu = document.querySelector('.settings-container div');
-      console.log('mobilemenu=', mobilemenu);
-      if (!!mobilemenu) {
-        clearInterval(waitForFeedbackLink);
-        const checkFeedItem = document.querySelector('.my-feedback-ctm');
-        if (!checkFeedItem) {
-          const feedbackButtonElement = createPrimoStyleAccountLink(buttonOptions);
-          !!feedbackButtonElement && mobilemenu.appendChild(feedbackButtonElement);
-        }
-      }
-      loopFeedback++;
-    }, 100);
-
-    // remove the "Log in" menu item that duplicates "My account" function
-    let loopLogin = 0;
-    const waitForRedundantLoginLink = setInterval(() => {
-      if (loopFeedback > maxLoops) {
-        console.log('never found redundant log in link');
-        clearInterval(waitForRedundantLoginLink);
-      }
-      const oldLoginButton = document.querySelector('.settings-container prm-authentication');
-      console.log('oldLoginButton=', oldLoginButton);
-      if (!!oldLoginButton) {
-        clearInterval(waitForRedundantLoginLink);
-        oldLoginButton.remove();
-      }
-      loopLogin++;
-    }, 100);
-  });
-}
-
-function listenForLoggedOutDesktopMenuButtonClick(linkOptions) {
-  const menubutton = document.querySelector('md-menu.md-menu._md button');
-  console.log('MENU:: rewriteLoggedOutDropdown menubutton=', menubutton);
-  !!menubutton && menubutton.addEventListener('click', function (e) {
-    const existingFeedbackItem = document.getElementById(`.${linkOptions.className}`);
-    console.log("MENU::existingFeedbackItem=", existingFeedbackItem);
-    if (!existingFeedbackItem) {
-      const feedbackButtonElement = createPrimoStyleAccountLink(linkOptions);
-      const loggedoutmenu = document.querySelector('md-menu-content.prm-user-menu-content');
-      !!loggedoutmenu && !!feedbackButtonElement && loggedoutmenu.appendChild(feedbackButtonElement);
-    }
-  });
-}
-
-function createGenericListAccountLinks(parentElem) {
+function createGenericStyleListAccountLinks(parentElem) {
   const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
   });
@@ -320,21 +259,21 @@ function createGenericListAccountLinks(parentElem) {
       title: 'Library account',
       link: `https://${domain}/primo-explore/account?vid=${vid}&section=overview&lang=en_US`,
       id: 'mylibrary-menu-borrowing',
-      svg: 'M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z',
+      svgPath: 'M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z',
       subtext: 'Loans, requests & settings',
     },
     {
       title: 'Favourites',
       link: `https://${domain}/primo-explore/favorites?vid=${vid}&lang=en_US&section=items`,
       id: 'mylibrary-menu-saved-items',
-      svg: 'm12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+      svgPath: 'm12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
       subtext: 'Saved items, searches & search history',
     },
     {
       title: 'Learning resources',
       link: 'https://www.library.uq.edu.au/learning-resources',
       id: 'mylibrary-menu-course-resources',
-      svg: 'M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z',
+      svgPath: 'M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z',
       subtext: 'Course readings & exam papers',
       newWindow: true,
     },
@@ -342,7 +281,7 @@ function createGenericListAccountLinks(parentElem) {
       title: 'Print balance',
       link: 'https://lib-print.library.uq.edu.au:9192/user',
       id: 'mylibrary-menu-print-balance',
-      svg: 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z',
+      svgPath: 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z',
       subtext: 'Log in to your print account',
       newWindow: true,
     },
@@ -350,7 +289,7 @@ function createGenericListAccountLinks(parentElem) {
       title: 'Book a room or desk',
       link: 'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb',
       id: 'mylibrary-menu-room-bookings',
-      svg: 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z',
+      svgPath: 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z',
       subtext: 'Student meeting & study spaces',
       newWindow: true,
     },
@@ -400,9 +339,80 @@ function createGenericListAccountLinks(parentElem) {
   return parentUL;
 }
 
+function listenForLoggedOutMobileMenuButtonCLick(buttonOptions) {
+  // and add the feedback link to the mobile menu as well
+  const mobilebutton = document.querySelector('.mobile-menu-button');
+  console.log('mobilebutton=', mobilebutton);
+  !!mobilebutton && mobilebutton.addEventListener('click', function (e) {
+    console.log('listenForLoggedOutMobileMenuButtonCLick CLICKED!')
+
+    const maxLoops = 20;
+
+    // add the feedback link
+    let loopFeedback = 0;
+    const waitForFeedbackLink = setInterval(() => {
+      if (loopFeedback > maxLoops) {
+        console.log('never found parent for feedback link');
+        clearInterval(waitForFeedbackLink);
+      }
+      const mobilemenu = document.querySelector('.settings-container div');
+      console.log('mobilemenu=', mobilemenu);
+      if (!!mobilemenu) {
+        clearInterval(waitForFeedbackLink);
+        const checkFeedItem = document.querySelector('.my-feedback-ctm');
+        if (!checkFeedItem) {
+          const feedbackButtonElement = createPrimoStyleAccountLink(buttonOptions);
+          !!feedbackButtonElement && mobilemenu.appendChild(feedbackButtonElement);
+        }
+      }
+      loopFeedback++;
+    }, 100);
+
+    removeElementWhenItAppears('.settings-container prm-authentication') // "Log in" menu item that duplicates "My account" function
+  });
+}
+
+function listenForLoggedOutDesktopMenuButtonClick(linkOptions) {
+  const menubutton = document.querySelector('md-menu.md-menu._md button');
+  console.log('MENU:: rewriteLoggedOutDropdown menubutton=', menubutton);
+  !!menubutton && menubutton.addEventListener('click', function (e) {
+    console.log('listenForLoggedOutDesktopMenuButtonClick CLICKED!');
+    const existingFeedbackItem = document.getElementById(`.${linkOptions.className}`);
+    console.log("MENU::existingFeedbackItem=", existingFeedbackItem);
+    if (!existingFeedbackItem) {
+      const feedbackButtonElement = createPrimoStyleAccountLink(linkOptions);
+      const loggedoutmenu = document.querySelector('md-menu-content.prm-user-menu-content');
+      !!loggedoutmenu && !!feedbackButtonElement && loggedoutmenu.appendChild(feedbackButtonElement);
+    }
+  });
+}
+
+// there is a delayed load for a lot of items, but no guarantee that they will be provided on any given page, so only try so many times
+function removeElementWhenItAppears(selector, onlyOne = true, timeout = 100, maxLoops = 20) {
+  let loopCount = 0;
+  const awaitButton = setInterval(() => {
+    if (loopCount > maxLoops) {
+      clearInterval(awaitButton);
+    }
+
+    const element = !!onlyOne ? document.querySelector(selector) : document.querySelectorAll(selector);
+    if (!!element) {
+      console.log('MENU:: 8/7 remove element', selector, element);
+      clearInterval(awaitButton);
+
+      if (!!onlyOne) {
+        element.remove();
+      } else {
+        element.forEach(e => e.remove());
+      }
+    }
+    loopCount++;
+  }, timeout);
+}
+
 function rewriteDesktopLoggedInDropdown(parentElem) {
   !parentElem && console.log('invalid parent elemen passed to rewriteDesktopLoggedInDropdown');
-  const listAccountLinks = createGenericListAccountLinks();
+  const listAccountLinks = createGenericStyleListAccountLinks();
   console.log('listAccountLinks=', listAccountLinks);
   !!parentElem && !!listAccountLinks && parentElem.appendChild(listAccountLinks);
 
@@ -430,6 +440,7 @@ function listenForLoggedInDesktopMenuButtonClick() {
   const menubutton = document.querySelector('.user-menu-button');
   console.log('menubutton=', menubutton);
   !!menubutton && menubutton.addEventListener('click', function (e) {
+    console.log('listenForLoggedInDesktopMenuButtonClick CLICKED!')
     const accountItemmenu = document.getElementById('mylibrary-list');
     if (!accountItemmenu) {
       const parentElem = document.querySelector('md-menu-content.prm-user-menu-content');
@@ -442,21 +453,20 @@ function listenForLoggedInMobileMenuButtonClick() {
   const mobilemenubutton = document.querySelector('.mobile-menu-button');
   console.log('MENU:: 1/7 mobilemenubutton=', mobilemenubutton);
   !!mobilemenubutton && mobilemenubutton.addEventListener('click', function (e) {
-    console.log('MENU:: 2/7 logged in mobile menu button click', e);
+    console.log('MENU:: 2/7 listenForLoggedInMobileMenuButtonClick CLICKED!', e);
     const awaitMenuBlock = setInterval(() => {
       const parentElem = document.querySelector('.mobile-main-menu-bg .settings-container div');
       if (!!parentElem) {
         clearInterval(awaitMenuBlock);
         console.log('MENU:: 3/7 parentElem=', parentElem);
-        const createdList = createGenericListAccountLinks(parentElem);
-        !!parentElem && !!createdList && parentElem.appendChild(createdList);
+        const createdList = createGenericStyleListAccountLinks(parentElem);
+        !!createdList && parentElem.appendChild(createdList);
         console.log('MENU:: 4/7 createdList=', createdList);
       }
     });
     // delete primo-defined account items
     const deletableItems = [
       'prm-library-card-menu',
-      '.settings-container .my-search-history-ctm'
     ];
     deletableItems.forEach(e => {
       const elem = document.querySelector(e);
@@ -468,22 +478,16 @@ function listenForLoggedInMobileMenuButtonClick() {
       console.log('MENU:: 5A/7 deleted', e, elem2);
     });
     // delete any other items
-    let ps = document.querySelectorAll('.settings-container > div > div');
-    ps.forEach(function (p) {
-      console.log('MENU:: 6/7 deleting', p);
-      p.remove();
-    });
+    removeElementWhenItAppears('.settings-container > div > div', false);
+    // let ps = document.querySelectorAll('.settings-container > div > div');
+    // ps.forEach(function (p) {
+    //   console.log('MENU:: 6/7 deleting', p);
+    //   p.remove();
+    // });
 
-    // the built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
-    const awaitAccountButton = setInterval(() => {
-      const accountButton = document.querySelector('prm-library-card-menu');
-      if (!!accountButton) {
-        console.log('MENU:: 7/7 remove logged in button')
-        clearInterval(awaitAccountButton);
-
-        accountButton.remove();
-      }
-    }, 100);
+    // some built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
+    removeElementWhenItAppears('prm-library-card-menu'); // account button
+    removeElementWhenItAppears('.settings-container .my-search-history-ctm'); // search history
 
   });
 }
