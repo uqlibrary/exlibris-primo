@@ -15,115 +15,229 @@
     template: '<alert-list system="primo"></alert-list>'
   });
 
+  function getFeedbackButton() {
+    const options = {
+      title: 'Feedback',
+      link: 'https://support.my.uq.edu.au/app/library/feedback',
+      id: 'mylibrary-menu-feedback',
+      svgPath: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
+      subtext: '',
+      newWindow: true,
+      className: 'my-feedback-ctm',
+    };
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    !!path && (path.setAttribute('d', options.svgPath));
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    !!svg && (svg.width = '100%');
+    !!svg && (svg.height = '100%');
+    !!svg && svg.setAttribute('viewBox', '0 0 24 24');
+    !!svg && svg.setAttribute('focusable', 'false');
+    !!svg && !!path && svg.appendChild(path);
+
+    const imageholder = document.createElement('md-icon');
+    !!imageholder && (imageholder.role = 'presentation');
+    !!imageholder && (imageholder.className = 'md-primoExplore-theme');
+    !!imageholder && !!svg && imageholder.appendChild(svg);
+
+    const imagewrapper = document.createElement('prm-icon');
+    !!imagewrapper && imagewrapper.setAttribute('icon-type', 'svg');
+    !!imagewrapper && imagewrapper.setAttribute('svg-icon-set', 'primo-ui');
+    !!imagewrapper && imagewrapper.setAttribute('icon-definition', 'restore');
+    !!imagewrapper && !!imageholder && imagewrapper.appendChild(imageholder);
+
+    const optionTitle = document.createTextNode(options.title);
+    const span = document.createElement('span');
+    !!span && !!optionTitle && span.appendChild(optionTitle);
+
+    const ripple = document.createElement('div');
+    !!ripple && (ripple.className = 'md-ripple-container');
+
+    const button = document.createElement('button');
+    !!button && (button.className = 'button-with-icon md-button md-primoExplore-theme md-ink-ripple');
+    !!button && (button.type = 'button');
+    !!button && (button.role = 'menuitem');
+    !!button && button.setAttribute('aria-label', 'Provide feedback');
+    !!button && button.setAttribute('onclick', `location.href='${options.link}'`);
+    !!button &&
+    button.setAttribute(
+        'onclick',
+        !!options.newWindow ? `javascript:window.open('${options.link}', '_blank');` : `location.href='${options.link}'`
+    );
+    !!button && !!imagewrapper && button.appendChild(imagewrapper);
+    !!button && !!span && button.appendChild(span);
+    !!button && !!ripple && button.appendChild(ripple);
+
+    const buttonWrapper = document.createElement('md-menu-item');
+    !!buttonWrapper && !!options.className && (buttonWrapper.className = options.className);
+    !!buttonWrapper && !!button && buttonWrapper.appendChild(button);
+    return buttonWrapper;
+  }
+
   // const loggedInMenu = (hide, id='mylibrary-list') => `<ul id="${id}" class="mylibrary-list"${!!hide ? ' style="display:none"' : ''}` + '>\n' +
   // const loggedInMenu = '<ul id="mylibrary-list" class="mylibrary-list">\n' +
   // const loggedInMenu = (id, hide) => `<!--<ul id="${id}" class="mylibrary-list"` + '>\n-->' +
-  const loggedInMenu = (id, hide) => `<ul id="${id}" class="mylibrary-list"${!!hide ? ' style="display:none"' : ''}` + '>\n' +
-      '    <li>\n' +
-      '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-borrowing" aria-label="Go to Library account" role="menuitem" onclick="location.href=\'https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/account?vid=61UQ_DEV&amp;section=overview&amp;lang=en_US\'">\n' +
-      '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-      '                <path d="M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z"></path>\n' +
-      '            </svg>\n' +
-      '            <div class="textwrapper">\n' +
-      '                <span class="primaryText">Library account</span>\n' +
-      '                <span class="subtext">Loans, requests &amp; settings</span>\n' +
-      '            </div>\n' +
-      '        </button>\n' +
-      '    </li>\n' +
-      '    <li>\n' +
-      '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-saved-items" aria-label="Go to Favourites" role="menuitem" onclick="location.href=\'https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/favorites?vid=61UQ_DEV&amp;lang=en_US&amp;section=items\'">\n' +
-      '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-      '                <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>\n' +
-      '            </svg>\n' +
-      '            <div class="textwrapper">\n' +
-      '                <span class="primaryText">Favourites</span>\n' +
-      '                <span class="subtext">Saved items, searches &amp; search history</span>\n' +
-      '            </div>\n' +
-      '        </button>\n' +
-      '    </li>\n' +
-      '    <li>\n' +
-      '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
-      '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-      '                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"></path>\n' +
-      '            </svg>\n' +
-      '            <div class="textwrapper">\n' +
-      '                <span class="primaryText">Learning resources</span>\n' +
-      '                <span class="subtext">Course readings &amp; exam papers</span>\n' +
-      '            </div>\n' +
-      '        </button>\n' +
-      '    </li>\n' +
-      '    <li>\n' +
-      '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem" onclick="javascript:window.open(\'https://lib-print.library.uq.edu.au:9192/user\', \'_blank\');">\n' +
-      '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-      '                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"></path>\n' +
-      '            </svg>\n' +
-      '            <div class="textwrapper">\n' +
-      '                <span class="primaryText">Print balance</span>\n' +
-      '                <span class="subtext">Log in to your print account</span>\n' +
-      '            </div>\n' +
-      '        </button>\n' +
-      '    </li>\n' +
-      '    <li>\n' +
-      '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem" onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
-      '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-      '                <path d="M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z"></path>\n' +
-      '            </svg>\n' +
-      '            <div class="textwrapper">\n' +
-      '                <span class="primaryText">Book a room or desk</span>\n' +
-      '                <span class="subtext">Student meeting &amp; study spaces</span>\n' +
-      '            </div>\n' +
-      '        </button>\n' +
-      '    </li>\n' +
-      '    <li>\n' +
-      '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-feedback" aria-label="Go to Feedback" role="menuitem" onclick="javascript:window.open(\'https://support.my.uq.edu.au/app/library/feedback\', \'_blank\');">\n' +
-      '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-      '                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"></path>\n' +
-      '            </svg>\n' +
-      '            <div class="textwrapper">\n' +
-      '                <span class="primaryText">Feedback</span>\n' +
-      '                <span class="subtext"></span>\n' +
-      '            </div>\n' +
-      '        </button>\n' +
-      '    </li>\n' +
-      '</ul>';
+  const loggedInMenu = id => {
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+    const vid = params.vid || '61UQ';
+    const domain = window.location.hostname;
+    // THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
+    // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
+    return `<ul id="${id}" class="mylibrary-list" style="display:none"` + '>\n' +
+        '    <li>\n' +
+        `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-borrowing" aria-label="Go to Library account" role="menuitem" onclick="location.href='https://${domain}/primo-explore/account?vid=${vid}&section=overview&lang=en_US'">\n` +
+        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        '                <path d="M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z"></path>\n' +
+        '            </svg>\n' +
+        '            <div class="textwrapper">\n' +
+        '                <span class="primaryText">Library account</span>\n' +
+        '                <span class="subtext">Loans, requests &amp; settings</span>\n' +
+        '            </div>\n' +
+        '        </button>\n' +
+        '    </li>\n' +
+        '    <li>\n' +
+        `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-saved-items" aria-label="Go to Favourites" role="menuitem" onclick="location.href='https://${domain}/primo-explore/favorites?vid=${vid}&lang=en_US&section=items'">\n` +
+        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        '                <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>\n' +
+        '            </svg>\n' +
+        '            <div class="textwrapper">\n' +
+        '                <span class="primaryText">Favourites</span>\n' +
+        '                <span class="subtext">Saved items, searches &amp; search history</span>\n' +
+        '            </div>\n' +
+        '        </button>\n' +
+        '    </li>\n' +
+        '    <li>\n' +
+        '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
+        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        '                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"></path>\n' +
+        '            </svg>\n' +
+        '            <div class="textwrapper">\n' +
+        '                <span class="primaryText">Learning resources</span>\n' +
+        '                <span class="subtext">Course readings &amp; exam papers</span>\n' +
+        '            </div>\n' +
+        '        </button>\n' +
+        '    </li>\n' +
+        '    <li>\n' +
+        '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem" onclick="javascript:window.open(\'https://lib-print.library.uq.edu.au:9192/user\', \'_blank\');">\n' +
+        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        '                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"></path>\n' +
+        '            </svg>\n' +
+        '            <div class="textwrapper">\n' +
+        '                <span class="primaryText">Print balance</span>\n' +
+        '                <span class="subtext">Log in to your print account</span>\n' +
+        '            </div>\n' +
+        '        </button>\n' +
+        '    </li>\n' +
+        '    <li>\n' +
+        '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem" onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
+        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        '                <path d="M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z"></path>\n' +
+        '            </svg>\n' +
+        '            <div class="textwrapper">\n' +
+        '                <span class="primaryText">Book a room or desk</span>\n' +
+        '                <span class="subtext">Student meeting &amp; study spaces</span>\n' +
+        '            </div>\n' +
+        '        </button>\n' +
+        '    </li>\n' +
+        // getFeedbackButton() +
+        '    <li>\n' +
+        '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-feedback" aria-label="Go to Feedback" role="menuitem" onclick="javascript:window.open(\'https://support.my.uq.edu.au/app/library/feedback\', \'_blank\');">\n' +
+        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        '                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"></path>\n' +
+        '            </svg>\n' +
+        '            <div class="textwrapper">\n' +
+        '                <span class="primaryText">Feedback</span>\n' +
+        '                <span class="subtext"></span>\n' +
+        '            </div>\n' +
+        '        </button>\n' +
+        '    </li>\n' +
+        '</ul>';
+  }
 
   // prm-user-area-expandable-after
-  app.component('prmUserAreaExpandableAfter', { // this was as close to the correct spot as I could get, so it has to be moved whenever it loads
+  app.component('prmUserAreaExpandableAfter', {
+    // HANDLE LOGGED IN MENU
     controller: function($scope){
       setInterval(() => {
-        const sibling = document.querySelector('h2[translate="nui.menu"]');
-        const desiredParentDesktop = !!sibling && sibling.parentNode;
-        const usermenu = document.getElementById('mylibrary-list-desktop');
-        if (!!usermenu && !!desiredParentDesktop) {
-          const currentParent = usermenu.parentNode;
-          if (!!currentParent && desiredParentDesktop !== currentParent) {
-            // move all the items around
-            desiredParentDesktop.appendChild(usermenu);
+        const isLoggedOut = document.querySelector('.sign-in-btn-ctm');
+        if (!isLoggedOut) {
+          const mobilemenuId = 'mylibrary-list-mobile';
+          const sibling = document.querySelector('h2[translate="nui.menu"]');
+          const desiredParentDesktop = !!sibling && sibling.parentNode;
+          const existingDesktopMenu = document.getElementById('mylibrary-list');
+          const mobilesibling = document.querySelector('md-dialog-content prm-authentication'); // entry that only occurs in mobile menu
+          const existingmobileAccountLinksList = document.getElementById(mobilemenuId);
+          if (!!mobilesibling && !existingmobileAccountLinksList) {
+            console.log('LOGGEDIN:: is mobile');
+            // mobile menu is open - add the Account Links to the mobile menu and remove the links we dont want
+            const desiredParentMobile = mobilesibling.parentNode;
+            // mobile menu is only in the DOM when the menu-open-button has been clicked, so create a new menu each time
+            const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
+            const mobileusermenu = clonableUsermenu.cloneNode(true)
+            !!mobileusermenu && (mobileusermenu.id = mobilemenuId);
+            if (!!mobileusermenu && !!desiredParentMobile) {
+              const currentParent = mobileusermenu.parentNode;
+              if (desiredParentMobile !== currentParent) {
+                mobileusermenu.style.display = 'block';
+                // desiredParentMobile.appendChild(mobileusermenu);
+                mobilesibling.parentNode.insertBefore(mobileusermenu, mobilesibling);
 
-            // delete the items they provide because we have similar in our account links list
-            const deletionClassList = [
-              '.my-library-card-ctm',
-              '.my-loans-ctm',
-              '.my-requests-ctm',
-              '.my-favorties-ctm',
-              '.my-search-history-ctm',
-              '.my-PersonalDetails-ctm',
-            ];
-            deletionClassList.forEach(e => {
-              const elem = document.querySelector(e);
-              !!elem && elem.remove();
-            });
+                // delete primo-defined account items
+                const deletableItems = [
+                  'prm-library-card-menu',
+                ];
+                deletableItems.forEach(e => {
+                  const elem = document.querySelector(e);
+                  !!elem && elem.remove();
+                });
 
-            // remove one of the dividers, having removed all the contents of the block
-            const hr = document.querySelector('md-menu-divider')
-            !!hr && hr.remove();
+                // some built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
+                removeElementWhenItAppears('prm-library-card-menu'); // account button
+                removeElementWhenItAppears('.settings-container .my-search-history-ctm'); // search history
+
+                // delete any other items
+                removeElementWhenItAppears('.settings-container > div > div', false);
+              }
+            }
+          } else if (!existingDesktopMenu && !!desiredParentDesktop) { // is desktop menu
+            console.log('LOGGEDIN:: is desktop');
+            // handle logged in user
+            const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
+            const createdDesktopMenu = clonableUsermenu.cloneNode(true)
+            !!createdDesktopMenu && (createdDesktopMenu.id = 'mylibrary-list');
+            const currentParent = createdDesktopMenu.parentNode;
+            if (desiredParentDesktop !== currentParent) {
+              // move all the items around
+              desiredParentDesktop.appendChild(createdDesktopMenu);
+              createdDesktopMenu.style.display = 'block';
+
+              // delete the items they provide because we have similar in our account links list
+              const deletionClassList = [
+                '.my-library-card-ctm',
+                '.my-loans-ctm',
+                '.my-requests-ctm',
+                '.my-favorties-ctm',
+                '.my-search-history-ctm',
+                '.my-PersonalDetails-ctm',
+              ];
+              deletionClassList.forEach(e => {
+                const elem = document.querySelector(e);
+                !!elem && elem.remove();
+              });
+
+              // remove one of the dividers, having removed all the contents of the block
+              const hr = document.querySelector('md-menu-divider')
+              !!hr && hr.remove();
+            }
           }
         }
       }, 250);
     },
-    template: loggedInMenu('mylibrary-list-desktop', false)
+    template: loggedInMenu('mylibrary-list-clonable')
   });
-
 
   // there is a delayed load for a lot of items, but no guarantee that they will be provided on any given page, so only try so many times
   function removeElementWhenItAppears(selector, onlyOne = true, timeout = 100, maxLoops = 20) {
@@ -149,51 +263,70 @@
   }
 
   // prm-explore-footer-after
-  app.component('prmExploreFooterAfter', {
-    controller: function($scope){
-      setInterval(() => {
-        // mobile menu is only in the DOM when it has been opened
-        const sibling = document.querySelector('md-dialog-content prm-authentication'); // entry that only occurs in mobile menu
-        const usermenuId = 'mylibrary-list-mobile';
-        const existingmenu = document.getElementById(usermenuId);
-        if (!!sibling && !existingmenu) {
-          console.log('sibling=', sibling);
-          const desiredParentMobile = sibling.parentNode;
-          console.log('desiredParentMobile=', desiredParentMobile);
-          const clonableUsermenu = document.getElementById('mylibrary-list-mobile-cloneable');
-          const usermenu = clonableUsermenu.cloneNode(true)
-          !!usermenu && (usermenu.id = usermenuId);
-          console.log('usermenu=', usermenu);
-          if (!!usermenu && !!desiredParentMobile) {
-            const currentParent = usermenu.parentNode;
-            console.log('currentParent=', currentParent);
-            if (desiredParentMobile !== currentParent) {
-              // delete primo-defined account items
-              const deletableItems = [
-                'prm-library-card-menu',
-              ];
-              deletableItems.forEach(e => {
-                const elem = document.querySelector(e);
-                console.log('MENU:: 5/7 deleting', e, elem);
-                !!elem && elem.remove();
-              });
-
-              // some built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
-              removeElementWhenItAppears('prm-library-card-menu'); // account button
-              removeElementWhenItAppears('.settings-container .my-search-history-ctm'); // search history
-
-              // delete any other items
-              removeElementWhenItAppears('.settings-container > div > div', false);
-
-              usermenu.style.display = 'block';
-              desiredParentMobile.appendChild(usermenu);
-            }
-          }
-        }
-      }, 250);
-    },
-    template: loggedInMenu('mylibrary-list-mobile-cloneable', true)
-  });
+  // app.component('prmExploreFooterAfter', {
+  //   // HANDLE MOBILE MENU
+  //   controller: function($scope){
+  //     setInterval(() => {
+  //       // if the mobile menu is open,
+  //       const isLoggedOut = document.querySelector('.sign-in-btn-ctm');
+  //       const sibling = document.querySelector('md-dialog-content prm-authentication'); // entry that only occurs in mobile menu
+  //       const usermenuId = 'mylibrary-list-mobile';
+  //       const existingmenu = document.getElementById(usermenuId);
+  //       if (!!isLoggedOut) {
+  //         // handle logged out user - add a feedback link and remove the links we dont want
+  //         const checkFeedItem = document.querySelector('.my-feedback-ctm');
+  //         const mobilemenu = document.querySelector('.settings-container div');
+  //         if (!!mobilemenu && !checkFeedItem) {
+  //           const feedbackButtonElement = feedbackButton; // .cloneNode(true);
+  //           console.log('MOBILE: feedbackButtonElement=', feedbackButtonElement);
+  //           // !!feedbackButtonElement && !feedbackButtonElement.classList.contains('my-feedback-ctm') && feedbackButtonElement.classList.add('my-feedback-ctm');
+  //           // !!feedbackButtonElement && (feedbackButtonElement.className = 'my-feedback-ctm');
+  //           !!feedbackButtonElement && mobilemenu.appendChild(feedbackButtonElement);
+  //         }
+  //
+  //         removeElementWhenItAppears('.settings-container prm-authentication') // "Log in" menu item that duplicates "My account" function
+  //
+  //       } else if (!!sibling && !existingmenu) {
+  //         // handle logged in user - add the Account Links to the mobile menu and remove the links we dont want
+  //         console.log('sibling=', sibling);
+  //         const desiredParentMobile = sibling.parentNode;
+  //         console.log('desiredParentMobile=', desiredParentMobile);
+  //         // mobile menu is only in the DOM when the menu-open-button has been clicked
+  //         const clonableUsermenu = document.getElementById('mylibrary-list-mobile-cloneable');
+  //         const usermenu = clonableUsermenu.cloneNode(true)
+  //         !!usermenu && (usermenu.id = usermenuId);
+  //         console.log('usermenu=', usermenu);
+  //         if (!!usermenu && !!desiredParentMobile) {
+  //           const currentParent = usermenu.parentNode;
+  //           console.log('currentParent=', currentParent);
+  //           if (desiredParentMobile !== currentParent) {
+  //             usermenu.style.display = 'block';
+  //             // desiredParentMobile.appendChild(usermenu);
+  //             sibling.parentNode.insertBefore(usermenu, sibling);
+  //
+  //             // delete primo-defined account items
+  //             const deletableItems = [
+  //               'prm-library-card-menu',
+  //             ];
+  //             deletableItems.forEach(e => {
+  //               const elem = document.querySelector(e);
+  //               console.log('MENU:: 5/7 deleting', e, elem);
+  //               !!elem && elem.remove();
+  //             });
+  //
+  //             // some built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
+  //             removeElementWhenItAppears('prm-library-card-menu'); // account button
+  //             removeElementWhenItAppears('.settings-container .my-search-history-ctm'); // search history
+  //
+  //             // delete any other items
+  //             removeElementWhenItAppears('.settings-container > div > div', false);
+  //           }
+  //         }
+  //       }
+  //     }, 250);
+  //   },
+  //   template: loggedInMenu('mylibrary-list-mobile-cloneable')
+  // });
 
   app.component('prmSearchBookmarkFilterAfter', {
     controller: function($scope){
