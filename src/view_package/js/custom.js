@@ -24,9 +24,9 @@
     newWindow: true,
     // className: 'my-feedback-ctm',
   };
-  let loggedOutfeedbackButton = `<md-menu-item class="loggedout-feedback">\n` +
+  let loggedOutfeedbackButton = `<md-menu-item id="loggedout-feedback" class="loggedout-feedback" style="display: none">\n` +
       `    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}" role="menuitem" aria-label="Go to ${feedbackOptions.title}">\n` +
-      '        <prm-icon icon-type="svg" svg-icon-set="primo-ui" icon-definition="restore">\n' +
+      '        <prm-icon icon-type="svg">\n' +
       '            <md-icon role="presentation" class="md-primoExplore-theme">\n' +
       '                <svg width="100%" height="100%" viewBox="0 0 24 24" y="1032" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">\n' +
       `                    <path d="${feedbackOptions.svgPath}"></path>\n` +
@@ -228,67 +228,70 @@
   app.component('prmExploreFooterAfter', {
     // HANDLE LOGGED OUT VIEW
     controller: function($scope){
-      const vm = this;
-      vm.showFeedback = false;
-      const waitDivs = setInterval(() => {
+      const awaitLoggedout = setInterval(() => {
         const isLoggedOut = document.querySelector('.sign-in-btn-ctm');
         if (!!isLoggedOut) {
-          const desktopSibling = document.querySelector('h2[translate="nui.menu"]');
-          const desiredParentDesktop = !!desktopSibling && desktopSibling.parentNode;
-          const existingDesktopMenu = document.getElementById('mylibrary-list');
+          console.log('logged out');
+          const desktopmenubutton = document.querySelector('prm-user-area-expandable md-menu');
 
-          const mobilesibling = document.querySelector('prm-main-menu prm-library-card-menu'); // entry that only occurs in mobile logged out menu
-          const desiredParentMobile = !!mobilesibling && mobilesibling.parentNode;
-          const feedbackButtonClonable = document.querySelector('#loggedoutFeedbackButtonBlock .loggedout-feedback');
-          if (!!desiredParentMobile && !feedbackButtonClonable) {
+          const isMobile = document.querySelector('.mobile-menu-button');
+          if (!!isMobile)  {
             console.log('LOGGEDOUT:: is mobile');
-            clearInterval(waitDivs);
-            // mobile menu is open - add the Favouite link
-            //
-            // add the feedback link
-            // const waitForMobileFeedbackLink = setInterval(() => {
-              const originalMobileFeedbackParent = document.getElementById('loggedoutFeedbackButtonBlock');
-              console.log('LOGGEDOUT::originalMobileFeedbackParent=', originalMobileFeedbackParent);
-              if (!!originalMobileFeedbackParent) {
-                // dont clear, we have to add on every load?
-                // clearInterval(waitForMobileFeedbackLink);
+            clearInterval(awaitLoggedout);
+      //
+      //       console.log('LOGGEDOUT:: is mobile');
+            const awaitLoggedoutMobileMenu = setInterval(() => {
+              const mobilesibling = document.querySelector('prm-main-menu prm-library-card-menu'); // entry that only occurs in mobile logged out menu
+              const desiredParentMobile = !!mobilesibling && mobilesibling.parentNode;
+              console.log('desiredParentMobile=', desiredParentMobile);
+              const feedbackButtonClonable = document.getElementById('loggedout-feedback');
+              console.log('feedbackButtonClonable=', feedbackButtonClonable);
+              if (!!desiredParentMobile && !!feedbackButtonClonable) {
+                console.log('LOGGEDOUT:: mobile button open');
+
+                clearInterval(awaitLoggedoutMobileMenu); // do we clear this? does it need redraw every time?
 
                 // move block contents to end of menu area
-                if (!!feedbackButtonClonable) {
-                  const newfeedbackbutton = feedbackButtonClonable.cloneNode(true)
-                  !!newfeedbackbutton && desiredParentMobile.appendChild(feedbackButton);
-                }
+                const newfeedbackbutton = feedbackButtonClonable.cloneNode(true)
+                newfeedbackbutton.id = 'loggedout-mobile-feedback';
+                !!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
+                !!newfeedbackbutton && desiredParentMobile.appendChild(newfeedbackbutton);
+
+                removeElementWhenItAppears('.settings-container prm-authentication') // "Log in" menu item that duplicates "My account" function
               }
-            // }, 100);
-            vm.showFeedback = true;
+            }, 250);
 
-            removeElementWhenItAppears('.settings-container prm-authentication') // "Log in" menu item that duplicates "My account" function
-
-          } else if (!existingDesktopMenu && !!desiredParentDesktop) { // is desktop menu
-            clearInterval(waitDivs);
+          } else if (!!desktopmenubutton) { // is desktop menu
+            clearInterval(awaitLoggedout);
             console.log('LOGGEDOUT:: is desktop');
 
             const waitForDesktopFeedbackLink = setInterval(() => {
-              const feedbackButton = document.querySelector('#loggedoutFeedbackButtonBlock .loggedout-feedback');
-              console.log('LOGGEDOUT::desktop feedbackButton = ',feedbackButton);
-              if (!!feedbackButton) {
+              const desktopSibling = document.querySelector('h2[translate="nui.menu"]');
+              // const desiredParentDesktop = !!desktopSibling && desktopSibling.parentNode;
+              // const existingDesktopMenu = document.getElementById('mylibrary-list');
+              const feedbackButtonClonable = document.getElementById('loggedout-feedback');
+              console.log('LOGGEDOUT::desktop feedbackButtonClonable = ',feedbackButtonClonable);
+              if (!!feedbackButtonClonable) {
                 clearInterval(waitForDesktopFeedbackLink);
 
                 // move block contents to end of menu area
                 const plannedParent = document.querySelector('md-menu-content');
-                !!plannedParent && plannedParent.appendChild(feedbackButton);
+
+                const newfeedbackbutton = feedbackButtonClonable.cloneNode(true);
+                newfeedbackbutton.id = 'loggedout-desktop-feedback';
+                !!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
+                !!plannedParent && !!newfeedbackbutton && plannedParent.appendChild(newfeedbackbutton);
                 console.log('LOGGEDOUT::desktop moved to = ',plannedParent);
               }
             }, 100);
-            vm.showFeedback = true;
-            // console.log('desktopFeedbackButton=', desktopFeedbackButton);
+      //       // console.log('desktopFeedbackButton=', desktopFeedbackButton);
           } else {
             console.log('LOGGEDOUT:: neither mobile nor desktop');
           }
         }
       }, 250);
-    },// feedbackButton
-    template: `<div id="loggedoutFeedbackButtonBlock" ng-if="$ctrl.showFeedback">${loggedOutfeedbackButton}</div>`
+    },
+    template: `<div id="loggedoutFeedbackButtonBlock">${loggedOutfeedbackButton}</div>`
     // template: `<div id="idForDebug"><div ng-if="$ctrl.showMobileFeedback">${loggedOutfeedbackButton}</div><li ng-if="$ctrl.showDesktopFeedback">${desktopFeedbackButton}</li></div>`
   });
 
