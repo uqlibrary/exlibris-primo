@@ -15,70 +15,41 @@
     template: '<alert-list system="primo"></alert-list>'
   });
 
-  function getFeedbackButton() {
-    const options = {
-      title: 'Feedback',
-      link: 'https://support.my.uq.edu.au/app/library/feedback',
-      id: 'mylibrary-menu-feedback',
-      svgPath: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
-      subtext: '',
-      newWindow: true,
-      className: 'my-feedback-ctm',
-    };
+  const feedbackOptions = {
+    title: 'Feedback',
+    link: 'https://support.my.uq.edu.au/app/library/feedback',
+    id: 'mylibrary-menu-feedback',
+    svgPath: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
+    subtext: '',
+    newWindow: true,
+    // className: 'my-feedback-ctm',
+  };
+  let loggedOutfeedbackButton = `<md-menu-item class="loggedout-feedback">\n` +
+      `    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}" role="menuitem" aria-label="Go to ${feedbackOptions.title}">\n` +
+      '        <prm-icon icon-type="svg" svg-icon-set="primo-ui" icon-definition="restore">\n' +
+      '            <md-icon role="presentation" class="md-primoExplore-theme">\n' +
+      '                <svg width="100%" height="100%" viewBox="0 0 24 24" y="1032" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">\n' +
+      `                    <path d="${feedbackOptions.svgPath}"></path>\n` +
+      '                </svg>\n' +
+      '            </md-icon>\n' +
+      '            <prm-icon-after></prm-icon-after>\n' +
+      '        </prm-icon>\n' +
+      `        <span>${feedbackOptions.title}</span>\n` +
+      '        <div class="md-ripple-container" style=""></div>\n' +
+      '    </button>\n' +
+      '</md-menu-item>\n';
+  let loggedinFeedbackButton =
+      `<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" aria-label="Go to ${feedbackOptions.title}" role="menuitem" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
+      '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+      `                <path d="${feedbackOptions.svgPath}"></path>\n` +
+      '            </svg>\n' +
+      '            <div class="textwrapper">\n' +
+      `                <span class="primaryText">${feedbackOptions.title}</span>\n` +
+      `                <span class="subtext">${feedbackOptions.subtext}</span>\n` +
+      '            </div>\n' +
+      '        </button>\n';
 
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    !!path && (path.setAttribute('d', options.svgPath));
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    !!svg && (svg.width = '100%');
-    !!svg && (svg.height = '100%');
-    !!svg && svg.setAttribute('viewBox', '0 0 24 24');
-    !!svg && svg.setAttribute('focusable', 'false');
-    !!svg && !!path && svg.appendChild(path);
-
-    const imageholder = document.createElement('md-icon');
-    !!imageholder && (imageholder.role = 'presentation');
-    !!imageholder && (imageholder.className = 'md-primoExplore-theme');
-    !!imageholder && !!svg && imageholder.appendChild(svg);
-
-    const imagewrapper = document.createElement('prm-icon');
-    !!imagewrapper && imagewrapper.setAttribute('icon-type', 'svg');
-    !!imagewrapper && imagewrapper.setAttribute('svg-icon-set', 'primo-ui');
-    !!imagewrapper && imagewrapper.setAttribute('icon-definition', 'restore');
-    !!imagewrapper && !!imageholder && imagewrapper.appendChild(imageholder);
-
-    const optionTitle = document.createTextNode(options.title);
-    const span = document.createElement('span');
-    !!span && !!optionTitle && span.appendChild(optionTitle);
-
-    const ripple = document.createElement('div');
-    !!ripple && (ripple.className = 'md-ripple-container');
-
-    const button = document.createElement('button');
-    !!button && (button.className = 'button-with-icon md-button md-primoExplore-theme md-ink-ripple');
-    !!button && (button.type = 'button');
-    !!button && (button.role = 'menuitem');
-    !!button && button.setAttribute('aria-label', 'Provide feedback');
-    !!button && button.setAttribute('onclick', `location.href='${options.link}'`);
-    !!button &&
-    button.setAttribute(
-        'onclick',
-        !!options.newWindow ? `javascript:window.open('${options.link}', '_blank');` : `location.href='${options.link}'`
-    );
-    !!button && !!imagewrapper && button.appendChild(imagewrapper);
-    !!button && !!span && button.appendChild(span);
-    !!button && !!ripple && button.appendChild(ripple);
-
-    const buttonWrapper = document.createElement('md-menu-item');
-    !!buttonWrapper && !!options.className && (buttonWrapper.className = options.className);
-    !!buttonWrapper && !!button && buttonWrapper.appendChild(button);
-    return buttonWrapper;
-  }
-
-  // const loggedInMenu = (hide, id='mylibrary-list') => `<ul id="${id}" class="mylibrary-list"${!!hide ? ' style="display:none"' : ''}` + '>\n' +
-  // const loggedInMenu = '<ul id="mylibrary-list" class="mylibrary-list">\n' +
-  // const loggedInMenu = (id, hide) => `<!--<ul id="${id}" class="mylibrary-list"` + '>\n-->' +
-  const loggedInMenu = id => {
+  const loggedInMenu = (id, feedbackClass) => {
     const params = new Proxy(new URLSearchParams(window.location.search), {
       get: (searchParams, prop) => searchParams.get(prop),
     });
@@ -86,6 +57,7 @@
     const domain = window.location.hostname;
     // THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
     // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
+    let feedbackButton = loggedinFeedbackButton.replace('feedback-loggedin', feedbackClass);
     return `<ul id="${id}" class="mylibrary-list" style="display:none"` + '>\n' +
         '    <li>\n' +
         `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-borrowing" aria-label="Go to Library account" role="menuitem" onclick="location.href='https://${domain}/primo-explore/account?vid=${vid}&section=overview&lang=en_US'">\n` +
@@ -142,17 +114,8 @@
         '            </div>\n' +
         '        </button>\n' +
         '    </li>\n' +
-        // getFeedbackButton() +
         '    <li>\n' +
-        '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-feedback" aria-label="Go to Feedback" role="menuitem" onclick="javascript:window.open(\'https://support.my.uq.edu.au/app/library/feedback\', \'_blank\');">\n' +
-        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-        '                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"></path>\n' +
-        '            </svg>\n' +
-        '            <div class="textwrapper">\n' +
-        '                <span class="primaryText">Feedback</span>\n' +
-        '                <span class="subtext"></span>\n' +
-        '            </div>\n' +
-        '        </button>\n' +
+        feedbackButton +
         '    </li>\n' +
         '</ul>';
   }
@@ -236,7 +199,7 @@
         }
       }, 250);
     },
-    template: loggedInMenu('mylibrary-list-clonable')
+    template: loggedInMenu('mylibrary-list-clonable', 'loggedin-feedback-button')
   });
 
   // there is a delayed load for a lot of items, but no guarantee that they will be provided on any given page, so only try so many times
@@ -249,7 +212,6 @@
 
       const element = !!onlyOne ? document.querySelector(selector) : document.querySelectorAll(selector);
       if (!!element) {
-        console.log('MENU:: 8/7 remove element', selector, element);
         clearInterval(awaitButton);
 
         if (!!onlyOne) {
@@ -263,70 +225,72 @@
   }
 
   // prm-explore-footer-after
-  // app.component('prmExploreFooterAfter', {
-  //   // HANDLE MOBILE MENU
-  //   controller: function($scope){
-  //     setInterval(() => {
-  //       // if the mobile menu is open,
-  //       const isLoggedOut = document.querySelector('.sign-in-btn-ctm');
-  //       const sibling = document.querySelector('md-dialog-content prm-authentication'); // entry that only occurs in mobile menu
-  //       const usermenuId = 'mylibrary-list-mobile';
-  //       const existingmenu = document.getElementById(usermenuId);
-  //       if (!!isLoggedOut) {
-  //         // handle logged out user - add a feedback link and remove the links we dont want
-  //         const checkFeedItem = document.querySelector('.my-feedback-ctm');
-  //         const mobilemenu = document.querySelector('.settings-container div');
-  //         if (!!mobilemenu && !checkFeedItem) {
-  //           const feedbackButtonElement = feedbackButton; // .cloneNode(true);
-  //           console.log('MOBILE: feedbackButtonElement=', feedbackButtonElement);
-  //           // !!feedbackButtonElement && !feedbackButtonElement.classList.contains('my-feedback-ctm') && feedbackButtonElement.classList.add('my-feedback-ctm');
-  //           // !!feedbackButtonElement && (feedbackButtonElement.className = 'my-feedback-ctm');
-  //           !!feedbackButtonElement && mobilemenu.appendChild(feedbackButtonElement);
-  //         }
-  //
-  //         removeElementWhenItAppears('.settings-container prm-authentication') // "Log in" menu item that duplicates "My account" function
-  //
-  //       } else if (!!sibling && !existingmenu) {
-  //         // handle logged in user - add the Account Links to the mobile menu and remove the links we dont want
-  //         console.log('sibling=', sibling);
-  //         const desiredParentMobile = sibling.parentNode;
-  //         console.log('desiredParentMobile=', desiredParentMobile);
-  //         // mobile menu is only in the DOM when the menu-open-button has been clicked
-  //         const clonableUsermenu = document.getElementById('mylibrary-list-mobile-cloneable');
-  //         const usermenu = clonableUsermenu.cloneNode(true)
-  //         !!usermenu && (usermenu.id = usermenuId);
-  //         console.log('usermenu=', usermenu);
-  //         if (!!usermenu && !!desiredParentMobile) {
-  //           const currentParent = usermenu.parentNode;
-  //           console.log('currentParent=', currentParent);
-  //           if (desiredParentMobile !== currentParent) {
-  //             usermenu.style.display = 'block';
-  //             // desiredParentMobile.appendChild(usermenu);
-  //             sibling.parentNode.insertBefore(usermenu, sibling);
-  //
-  //             // delete primo-defined account items
-  //             const deletableItems = [
-  //               'prm-library-card-menu',
-  //             ];
-  //             deletableItems.forEach(e => {
-  //               const elem = document.querySelector(e);
-  //               console.log('MENU:: 5/7 deleting', e, elem);
-  //               !!elem && elem.remove();
-  //             });
-  //
-  //             // some built in items take a while to pop in - we need to remove the account button as the label is inappropriate and we are adding our own
-  //             removeElementWhenItAppears('prm-library-card-menu'); // account button
-  //             removeElementWhenItAppears('.settings-container .my-search-history-ctm'); // search history
-  //
-  //             // delete any other items
-  //             removeElementWhenItAppears('.settings-container > div > div', false);
-  //           }
-  //         }
-  //       }
-  //     }, 250);
-  //   },
-  //   template: loggedInMenu('mylibrary-list-mobile-cloneable')
-  // });
+  app.component('prmExploreFooterAfter', {
+    // HANDLE LOGGED OUT VIEW
+    controller: function($scope){
+      const vm = this;
+      vm.showFeedback = false;
+      const waitDivs = setInterval(() => {
+        const isLoggedOut = document.querySelector('.sign-in-btn-ctm');
+        if (!!isLoggedOut) {
+          const desktopSibling = document.querySelector('h2[translate="nui.menu"]');
+          const desiredParentDesktop = !!desktopSibling && desktopSibling.parentNode;
+          const existingDesktopMenu = document.getElementById('mylibrary-list');
+
+          const mobilesibling = document.querySelector('prm-main-menu prm-library-card-menu'); // entry that only occurs in mobile logged out menu
+          const desiredParentMobile = !!mobilesibling && mobilesibling.parentNode;
+          const feedbackButtonClonable = document.querySelector('#loggedoutFeedbackButtonBlock .loggedout-feedback');
+          if (!!desiredParentMobile && !feedbackButtonClonable) {
+            console.log('LOGGEDOUT:: is mobile');
+            clearInterval(waitDivs);
+            // mobile menu is open - add the Favouite link
+            //
+            // add the feedback link
+            // const waitForMobileFeedbackLink = setInterval(() => {
+              const originalMobileFeedbackParent = document.getElementById('loggedoutFeedbackButtonBlock');
+              console.log('LOGGEDOUT::originalMobileFeedbackParent=', originalMobileFeedbackParent);
+              if (!!originalMobileFeedbackParent) {
+                // dont clear, we have to add on every load?
+                // clearInterval(waitForMobileFeedbackLink);
+
+                // move block contents to end of menu area
+                if (!!feedbackButtonClonable) {
+                  const newfeedbackbutton = feedbackButtonClonable.cloneNode(true)
+                  !!newfeedbackbutton && desiredParentMobile.appendChild(feedbackButton);
+                }
+              }
+            // }, 100);
+            vm.showFeedback = true;
+
+            removeElementWhenItAppears('.settings-container prm-authentication') // "Log in" menu item that duplicates "My account" function
+
+          } else if (!existingDesktopMenu && !!desiredParentDesktop) { // is desktop menu
+            clearInterval(waitDivs);
+            console.log('LOGGEDOUT:: is desktop');
+
+            const waitForDesktopFeedbackLink = setInterval(() => {
+              const feedbackButton = document.querySelector('#loggedoutFeedbackButtonBlock .loggedout-feedback');
+              console.log('LOGGEDOUT::desktop feedbackButton = ',feedbackButton);
+              if (!!feedbackButton) {
+                clearInterval(waitForDesktopFeedbackLink);
+
+                // move block contents to end of menu area
+                const plannedParent = document.querySelector('md-menu-content');
+                !!plannedParent && plannedParent.appendChild(feedbackButton);
+                console.log('LOGGEDOUT::desktop moved to = ',plannedParent);
+              }
+            }, 100);
+            vm.showFeedback = true;
+            // console.log('desktopFeedbackButton=', desktopFeedbackButton);
+          } else {
+            console.log('LOGGEDOUT:: neither mobile nor desktop');
+          }
+        }
+      }, 250);
+    },// feedbackButton
+    template: `<div id="loggedoutFeedbackButtonBlock" ng-if="$ctrl.showFeedback">${loggedOutfeedbackButton}</div>`
+    // template: `<div id="idForDebug"><div ng-if="$ctrl.showMobileFeedback">${loggedOutfeedbackButton}</div><li ng-if="$ctrl.showDesktopFeedback">${desktopFeedbackButton}</li></div>`
+  });
 
   app.component('prmSearchBookmarkFilterAfter', {
     controller: function($scope){
