@@ -17,29 +17,27 @@
 
   const feedbackOptions = {
     title: 'Feedback',
+    ariaLabel: 'Provide feedback',
     link: 'https://support.my.uq.edu.au/app/library/feedback',
     id: 'mylibrary-menu-feedback',
     svgPath: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z',
     subtext: '',
     newWindow: true,
-    // className: 'my-feedback-ctm',
+    className: 'my-feedback-ctm',
   };
-  let loggedOutfeedbackButton = `<md-menu-item id="loggedout-feedback" class="loggedout-feedback" style="display: none">\n` +
-      `    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}" role="menuitem" aria-label="Go to ${feedbackOptions.title}">\n` +
-      '        <prm-icon icon-type="svg">\n' +
-      '            <md-icon role="presentation" class="md-primoExplore-theme">\n' +
-      '                <svg width="100%" height="100%" viewBox="0 0 24 24" y="1032" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">\n' +
-      `                    <path d="${feedbackOptions.svgPath}"></path>\n` +
-      '                </svg>\n' +
-      '            </md-icon>\n' +
-      '            <prm-icon-after></prm-icon-after>\n' +
-      '        </prm-icon>\n' +
-      `        <span>${feedbackOptions.title}</span>\n` +
-      '        <div class="md-ripple-container" style=""></div>\n' +
+  let loggedOutfeedbackButton = `<md-menu-item id="loggedout-feedback" class="${feedbackOptions.className}" style="display: none">\n` +
+      `    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}" role="menuitem" aria-label="${feedbackOptions.ariaLabel}"">\n` +
+      '        <span class="svgwrapper">\n' +
+      '            <svg width="100%" height="100%" viewBox="0 0 24 24" y="1032" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">\n' +
+      `                <path d="${feedbackOptions.svgPath}"></path>\n` +
+      '            </svg>\n' +
+      '        </span>\n' +
+      `        <span class="account-link-title">${feedbackOptions.title}</span>\n` +
+      '        <div class="md-ripple-container"></div>\n' +
       '    </button>\n' +
       '</md-menu-item>\n';
   let loggedinFeedbackButton =
-      `<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" aria-label="Go to ${feedbackOptions.title}" role="menuitem" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
+      `<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
       '            <svg viewBox="0 0 24 24" focusable="false">\n' +
       `                <path d="${feedbackOptions.svgPath}"></path>\n` +
       '            </svg>\n' +
@@ -145,8 +143,7 @@
               const currentParent = mobileusermenu.parentNode;
               if (desiredParentMobile !== currentParent) {
                 mobileusermenu.style.display = 'block';
-                // desiredParentMobile.appendChild(mobileusermenu);
-                mobilesibling.parentNode.insertBefore(mobileusermenu, mobilesibling);
+                desiredParentMobile.appendChild(mobileusermenu);
 
                 // delete primo-defined account items
                 const deletableItems = [
@@ -241,19 +238,20 @@
       //
       //       console.log('LOGGEDOUT:: is mobile');
             const awaitLoggedoutMobileMenu = setInterval(() => {
+              // dont clear this interval - we have to re add each time the menu opens :(
               const mobilesibling = document.querySelector('prm-main-menu prm-library-card-menu'); // entry that only occurs in mobile logged out menu
               const desiredParentMobile = !!mobilesibling && mobilesibling.parentNode;
               console.log('desiredParentMobile=', desiredParentMobile);
               const feedbackButtonClonable = document.getElementById('loggedout-feedback');
               console.log('feedbackButtonClonable=', feedbackButtonClonable);
-              if (!!desiredParentMobile && !!feedbackButtonClonable) {
+              let newfeedbackbuttonId = 'loggedout-mobile-feedback';
+              const newfeedbackbuttonFound = document.getElementById(newfeedbackbuttonId);
+              if (!newfeedbackbuttonFound && !!desiredParentMobile && !!feedbackButtonClonable) {
                 console.log('LOGGEDOUT:: mobile button open');
-
-                clearInterval(awaitLoggedoutMobileMenu); // do we clear this? does it need redraw every time?
 
                 // move block contents to end of menu area
                 const newfeedbackbutton = feedbackButtonClonable.cloneNode(true)
-                newfeedbackbutton.id = 'loggedout-mobile-feedback';
+                newfeedbackbutton.id = newfeedbackbuttonId;
                 !!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
                 !!newfeedbackbutton && desiredParentMobile.appendChild(newfeedbackbutton);
 
