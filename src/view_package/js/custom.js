@@ -15,6 +15,19 @@
     template: '<alert-list system="primo"></alert-list>'
   });
 
+  const accountLinkOptions = {
+    primoIdentifier: '.my-library-card-ctm',
+    title: 'Library account',
+    id: 'mylibrary-menu-borrowing',
+    subtext: 'Loans, requests & settings',
+  }
+  const favouriteLinkOptions = {
+    primoIdentifier: '.my-search-history-ctm',
+    title: 'Favourites',
+    id: 'mylibrary-menu-saved-items',
+    svgPath: 'm12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+    subtext: 'Saved items, searches & search history',
+  };
   const feedbackOptions = {
     title: 'Feedback',
     ariaLabel: 'Provide feedback',
@@ -58,28 +71,28 @@
     // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
     let feedbackButton = loggedinFeedbackButton.replace('feedback-loggedin', feedbackClass);
     return `<ul id="${id}" class="mylibrary-list" style="display:none"` + '>\n' +
-        '    <li>\n' +
-        `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-borrowing" aria-label="Go to Library account" role="menuitem" onclick="location.href='https://${domain}/primo-explore/account?vid=${vid}&section=overview&lang=en_US'">\n` +
-        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-        '                <path d="M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z"></path>\n' +
-        '            </svg>\n' +
-        '            <div class="textwrapper">\n' +
-        '                <span class="primaryText">Library account</span>\n' +
-        '                <span class="subtext">Loans, requests &amp; settings</span>\n' +
-        '            </div>\n' +
-        '        </button>\n' +
-        '    </li>\n' +
-        '    <li>\n' +
-        `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-saved-items" aria-label="Go to Favourites" role="menuitem" onclick="location.href='https://${domain}/primo-explore/favorites?vid=${vid}&lang=en_US&section=items'">\n` +
-        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
-        '                <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>\n' +
-        '            </svg>\n' +
-        '            <div class="textwrapper">\n' +
-        '                <span class="primaryText">Favourites</span>\n' +
-        '                <span class="subtext">Saved items, searches &amp; search history</span>\n' +
-        '            </div>\n' +
-        '        </button>\n' +
-        '    </li>\n' +
+        // '    <li>\n' +
+        // `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-borrowing" aria-label="Go to Library account" role="menuitem" onclick="location.href='https://${domain}/primo-explore/account?vid=${vid}&section=overview&lang=en_US'">\n` +
+        // '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        // '                <path d="M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z"></path>\n' +
+        // '            </svg>\n' +
+        // '            <div class="textwrapper">\n' +
+        // '                <span class="primaryText">Library account</span>\n' +
+        // '                <span class="subtext">Loans, requests &amp; settings</span>\n' +
+        // '            </div>\n' +
+        // '        </button>\n' +
+        // '    </li>\n' +
+        // '    <li>\n' +
+        // `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-saved-items" aria-label="Go to Favourites" role="menuitem" onclick="location.href='https://${domain}/primo-explore/favorites?vid=${vid}&lang=en_US&section=items'">\n` +
+        // '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        // '                <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>\n' +
+        // '            </svg>\n' +
+        // '            <div class="textwrapper">\n' +
+        // '                <span class="primaryText">Favourites</span>\n' +
+        // '                <span class="subtext">Saved items, searches &amp; search history</span>\n' +
+        // '            </div>\n' +
+        // '        </button>\n' +
+        // '    </li>\n' +
         '    <li>\n' +
         '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
         '            <svg viewBox="0 0 24 24" focusable="false">\n' +
@@ -119,7 +132,62 @@
         '</ul>';
   }
 
-  // prm-user-area-expandable-after
+  function rewriteProvidedPrimoButton(e) {
+    const button = document.querySelector(e.primoIdentifier + ' button');
+    // const button = document.querySelector('.my-library-card-ctm svg');
+    console.log('before button=', e.primoIdentifier + ' button', button, e);
+
+    const awaitSVG = setInterval(() => {
+      console.log('await svg', e.primoIdentifier + ' svg');
+      const cloneableSvg = document.querySelector(e.primoIdentifier + ' svg');
+      if (!!cloneableSvg) {
+        clearInterval(awaitSVG);
+
+        // we dont always like their icons, and sadly there is no big list of icons documented that we can just reference
+        !!e.svgPath && cloneableSvg.firstElementChild.setAttribute('d', e.svgPath);
+
+        const svg = cloneableSvg.cloneNode(true);
+
+        // move svg from inside md-icon to direct child of button
+        console.log('svg=', e.primoIdentifier + ' svg', svg);
+        !!button && !!svg && button.appendChild(svg);
+
+        // clean primo-provided insides of button
+        const removablePrm = document.querySelector(e.primoIdentifier + ' prm-icon');
+        !!removablePrm && removablePrm.remove();
+        const removableSpan = document.querySelector(e.primoIdentifier + ' span');
+        !!removableSpan && removableSpan.remove();
+        const removableDiv = document.querySelector(e.primoIdentifier + ' div');
+        !!removableDiv && removableDiv.remove();
+
+        // add our insides to the account button!
+        const primaryText = document.createTextNode(e.title);
+        console.log('primaryText=', primaryText);
+        const primaryTextBlock = document.createElement('span');
+        !!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
+        !!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
+        console.log('primaryTextBlock=', primaryTextBlock);
+
+        const textParent = document.createElement('div');
+        !!textParent && (textParent.className = 'textwrapper');
+        !!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
+        console.log('textParent=', textParent);
+
+        const subtext = document.createTextNode(e.subtext);
+        console.log('subtext=', subtext);
+        const subtextDiv = document.createElement('span');
+        !!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
+        !!subtextDiv && subtextDiv.appendChild(subtext);
+        console.log('subtextDiv=', subtextDiv);
+
+        !!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
+        !!button && !!textParent && button.appendChild(textParent);
+        console.log('after button=', button);
+      }
+    }, 250);
+  }
+
+// prm-user-area-expandable-after
   app.component('prmUserAreaExpandableAfter', {
     // HANDLE LOGGED IN MENU
     controller: function($scope){
@@ -164,8 +232,7 @@
                 removeElementWhenItAppears('.settings-container > div > div', false);
               }
             }
-          } else if (isDesktopMenuOpen) { // is desktop menu
-            // handle logged in user
+          } else if (isDesktopMenuOpen) {
             const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
             const createdDesktopMenu = clonableUsermenu.cloneNode(true)
             !!createdDesktopMenu && (createdDesktopMenu.id = 'mylibrary-list');
@@ -177,11 +244,11 @@
 
               // delete the items they provide because we have similar in our account links list
               const deletionClassList = [
-                '.my-library-card-ctm',
+                // '.my-library-card-ctm',
                 '.my-loans-ctm',
                 '.my-requests-ctm',
                 '.my-favorties-ctm',
-                '.my-search-history-ctm',
+                // '.my-search-history-ctm',
                 '.my-PersonalDetails-ctm',
               ];
               deletionClassList.forEach(e => {
@@ -189,9 +256,15 @@
                 !!elem && elem.remove();
               });
 
-              // remove one of the dividers, having removed all the contents of the block
-              const hr = document.querySelector('md-menu-divider')
-              !!hr && hr.remove();
+              rewriteProvidedPrimoButton(accountLinkOptions);
+
+              rewriteProvidedPrimoButton(favouriteLinkOptions);
+
+              // remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
+              const hr1 = document.querySelector('md-menu-divider')
+              !!hr1 && hr1.remove();
+              const hr2 = document.querySelector('md-menu-divider')
+              !!hr2 && hr2.remove();
             }
           }
         }
