@@ -16,13 +16,11 @@
   });
 
   const accountLinkOptions = {
-    primoIdentifier: '.my-library-card-ctm',
     title: 'Library account',
     id: 'mylibrary-menu-borrowing',
     subtext: 'Loans, requests & settings',
   }
   const favouriteLinkOptions = {
-    primoIdentifier: '.my-search-history-ctm',
     title: 'Favourites',
     id: 'mylibrary-menu-saved-items',
     svgPath: 'm12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
@@ -112,12 +110,7 @@
         '</ul>';
   }
 
-  function rewriteProvidedPrimoButton(e, primoClass = null) {
-    let primoIdentifier = primoClass;
-    if (primoClass === null) {
-      primoIdentifier = e.primoIdentifier;
-    }
-
+  function rewriteProvidedPrimoButton(e, primoIdentifier) {
     const button = document.querySelector(primoIdentifier + ' button');
 
     const awaitSVG = setInterval(() => {
@@ -206,13 +199,6 @@
 
                 // delete any other items
                 removeElementWhenItAppears('.settings-container > div > div', false);
-
-                // move the logout button to the bottom of the account links (rather than the middle of the list)
-                const logoutlink = document.querySelector('prm-authentication');
-                const newlogoutlink = !!logoutlink && logoutlink.cloneNode(true);
-                !!logoutlink && !!newlogoutlink && logoutlink.remove();
-                const newparent = document.querySelector('.mobile-main-menu-bg .settings-container>div');
-                !!newparent && !!newlogoutlink && newparent.appendChild(newlogoutlink);
               }
             }
           } else if (isDesktopMenuOpen) {
@@ -227,11 +213,9 @@
 
               // delete the items they provide because we have similar in our account links list
               const deletionClassList = [
-                // '.my-library-card-ctm',
                 '.my-loans-ctm',
                 '.my-requests-ctm',
                 '.my-favorties-ctm',
-                // '.my-search-history-ctm',
                 '.my-PersonalDetails-ctm',
               ];
               deletionClassList.forEach(e => {
@@ -239,9 +223,9 @@
                 !!elem && elem.remove();
               });
 
-              rewriteProvidedPrimoButton(accountLinkOptions);
+              rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
 
-              rewriteProvidedPrimoButton(favouriteLinkOptions);
+              rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-search-history-ctm');
 
               // remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
               const hr1 = document.querySelector('md-menu-divider')
