@@ -195,7 +195,7 @@
 
                 rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu');
 
-                rewriteProvidedPrimoButton(favouriteLinkOptions, '.settings-container .my-search-history-ctm');
+                rewriteProvidedPrimoButton(favouriteLinkOptions, '.settings-container .my-favorties-ctm');
 
                 // delete any other items
                 removeElementWhenItAppears('.settings-container > div > div', false);
@@ -215,7 +215,7 @@
               const deletionClassList = [
                 '.my-loans-ctm',
                 '.my-requests-ctm',
-                '.my-favorties-ctm',
+                '.my-search-history-ctm',
                 '.my-PersonalDetails-ctm',
               ];
               deletionClassList.forEach(e => {
@@ -225,7 +225,7 @@
 
               rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
 
-              rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-search-history-ctm');
+              rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
 
               // remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
               const hr1 = document.querySelector('md-menu-divider')
