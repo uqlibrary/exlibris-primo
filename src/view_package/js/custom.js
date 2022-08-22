@@ -1,7 +1,22 @@
+function whenPageLoaded(fn) {
+  if (document.readyState !== 'loading') {
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
+
 (function () {
   "use strict";
 
-  var app = angular.module('viewCustom', ['angularLoad']);
+  var app = angular.module('viewCustom', ['angularLoad'])
+      //per https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
+      // Whitelisting
+      .constant('AspireTrustBaseUrl', "https://uq.rl.talis.com/").config(['$sceDelegateProvider', 'AspireTrustBaseUrl', function ($sceDelegateProvider, AspireTrustBaseUrl) {
+        var urlWhitelist = $sceDelegateProvider.resourceUrlWhitelist();
+        urlWhitelist.push(AspireTrustBaseUrl + '**');
+        $sceDelegateProvider.resourceUrlWhitelist(urlWhitelist);
+      }]);
 
   app.component('prmTopBarBefore', {
     // we found it was more robust to insert the askus button in the different page location via primo angular, see below,
@@ -414,6 +429,173 @@
   app.component('prmSearchResultAvailabilityLineAfter', {
     bindings: { parentCtrl: '<' },
     template: '<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>'
+  });
+
+  function createCourseResourceIndicatorIcon(iconClassname) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    !!path && (path.setAttribute(
+        'd',
+        'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z', // MUI AccountBalance icon
+    ));
+
+    const svgCR = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    !!svgCR && svgCR.setAttribute('width', '100%');
+    !!svgCR && svgCR.setAttribute('height', '100%');
+    !!svgCR && svgCR.setAttribute('viewBox', '0 0 24 24');
+    !!svgCR && svgCR.setAttribute('focusable', 'false');
+    !!svgCR && svgCR.setAttribute('class', 'icon-after-icon');
+    !!svgCR && !!path && svgCR.appendChild(path);
+
+    const mdIcon = document.createElement('md-icon');
+    !!mdIcon && mdIcon.setAttribute('role', 'presentation');
+    !!mdIcon && (mdIcon.className = 'md-primoExplore-theme');
+    !!mdIcon && !!svgCR && mdIcon.appendChild(svgCR);
+
+    const prmIcon = document.createElement('span');
+    !!prmIcon && (prmIcon.className = 'readingListMarkIcon');
+    !!prmIcon && !!mdIcon && prmIcon.appendChild(mdIcon);
+
+    const contentLabel = document.createElement('span');
+    !!contentLabel && (contentLabel.className = 'readingListMarkLabel');
+    !!contentLabel && (contentLabel.innerHTML = 'COURSE READING LIST');
+
+    const CRLIconWrapper = document.createElement('span');
+    !!CRLIconWrapper && (CRLIconWrapper.className = iconClassname);
+    !!CRLIconWrapper && !!prmIcon && CRLIconWrapper.appendChild(prmIcon);
+    !!CRLIconWrapper && !!contentLabel && CRLIconWrapper.appendChild(contentLabel);
+
+    return CRLIconWrapper;
+  }
+
+  function addCourseResourceIndicatorToHeader(recordid) {
+    const CRLIconClassname = 'readingListMark';
+    [
+      `#SEARCH_RESULT_RECORDID_${recordid}_FULL_VIEW`, // full results page (single record)
+      `#SEARCH_RESULT_RECORDID_${recordid}` // brief results page (search results list)
+    ].forEach(id => {
+      const icon = !!recordid && document.querySelector(`${id} .${CRLIconClassname}`);
+      if (!!icon) {
+        return;
+      }
+
+      const CRLIcon = createCourseResourceIndicatorIcon(CRLIconClassname);
+      if (!CRLIcon) {
+        return;
+      }
+
+      let indicatorParent = false;
+      // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
+      const openAccessIndicator = document.querySelector(`${id} .open-access-mark`);
+      if (!!openAccessIndicator) {
+        indicatorParent = openAccessIndicator.parentNode;
+      }
+      if (!indicatorParent) {
+        const peerReviewedIndicator = document.querySelector(`${id} .peer-reviewed-mark`);
+        if (!!peerReviewedIndicator) {
+          indicatorParent = peerReviewedIndicator.parentNode;
+        }
+      }
+      if (!!indicatorParent) {
+        indicatorParent.appendChild(CRLIcon);
+      } else {
+        // no such icons? add it as a new line after the snippet
+        const snippet = document.querySelector(`${id} prm-snippet`);
+        if (!!snippet) {
+          snippet.parentNode.insertBefore(CRLIcon, snippet.nextSibling);
+        }
+      }
+    });
+    return true;
+  }
+
+  function getListTalisUrls(item) {
+    const TALIS_DOMAIN = 'https://uq.rl.talis.com/';
+    const list = [];
+
+    // LRN
+    if (!!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
+      item.pnx.search.addsrcrecordid.forEach(r => {
+        list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
+      })
+    }
+
+    // ISBN
+    if (!!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
+      item.pnx.addata.isbn.forEach(r => {
+        list.push(TALIS_DOMAIN + 'isbn/' + r + '/lists.json');
+      })
+    }
+
+    // ISSN
+    const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
+    // TBD: do we restrict to Journal?
+    if (materialtype === 'journal' &&
+        !!item?.pnx?.addata?.isbn &&
+        item.pnx.addata.issn.length > 0
+    ) {
+      item.pnx.addata.issn.forEach(r => {
+        list.push(TALIS_DOMAIN + 'issn/' + r + '/lists.json');
+      })
+    }
+
+    // DOI
+    if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
+      item.pnx.addata.doi.forEach(r => {
+        list.push(TALIS_DOMAIN + 'doi/' + r + '/lists.json');
+      })
+    }
+
+    return list;
+  }
+
+  // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
+  // check for a reading list in the full results page and add an indicator and list if so
+  app.component('prmServiceDetailsAfter', {
+    bindings: {parentCtrl: '<'},
+    controller: 'getTalisList',
+    template: '<div class="readingListCitations" ng-show="listsFound != null">' +
+        '<h4>Course reading lists</h4>' +
+        '<ul>' +
+        '<li ng-repeat="(url,listname) in listsFound">' +
+        '<a href="{{url}}" target="_blank">{{listname}} </a>' +
+        '</li>' +
+        '</ul>' +
+        '</div>'
+  });
+
+  // check for a reading list on each result in the brief result list (search results) and add an indicator if so
+  app.component('prmBriefResultContainerAfter', {
+    bindings: { parentCtrl: '<' },
+    controller: 'getTalisList',
+    template: ''
+  });
+
+  app.controller('getTalisList', function ($scope, $http) {
+    var vm = this;
+
+    $scope.listsFound = null;
+
+    function getTalisData(urlList) {
+      const url = listTalisUrls.shift();
+      url.startsWith('http') && $http.jsonp(url, {jsonpCallbackParam: 'cb'})
+          .then(function handleSuccess(response) {
+            $scope.listsFound = response.data || null;
+            if (!$scope.listsFound && urlList.length > 0) {
+              getTalisData(urlList);
+            }
+            if (!!$scope.listsFound) {
+              const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg     // eg 61UQ_ALMA51124881340003131
+              if (!!recordid) {
+                whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+              }
+            }
+          })
+          .catch(() => {
+            !$scope.listsFound && urlList.length > 0 && getTalisData(urlList);
+          });
+    }
+    const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+    !!listTalisUrls && listTalisUrls.length > 0 && getTalisData(listTalisUrls);
   });
 
   function insertScript(url) {
