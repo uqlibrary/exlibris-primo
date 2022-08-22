@@ -1,3 +1,11 @@
+function whenPageLoaded(fn) {
+  if (document.readyState !== 'loading') {
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
+
 (function () {
   "use strict";
 
@@ -333,6 +341,7 @@
 
       vm.targeturl = '';
 
+      console.log('RaP:: vm=', vm);
       var recordId = '';
       // no one knows what the TN actually means (per SVG), but in practice all the CDI records have it on their record id
       if (!!vm.parentCtrl?.item?.pnx?.control?.recordid &&
@@ -472,3 +481,27 @@
   insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
   insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
 })();
+
+// nov 2022 release updated from angular 1.6 to 1.8
+// sandbox june-2022 - nov-2022 allows addition of '?testAngularCompatibility=true to page params to turn on or off the new functionality
+// make Stacey's life easy and show this
+function addTestModeIndicator() {
+  const params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+  });
+  const isTestMode = !!params?.testAngularCompatibility && params.testAngularCompatibility === 'true';
+  const id = 'putatestindicatorinthetopcornerofthepage';
+  if (isTestMode && !document.getElementById(id)) {
+    const testIndicator = document.createElement('div');
+    !!testIndicator && (testIndicator.id = id);
+    !!testIndicator && (testIndicator.innerHTML = 'Upgrade Test Mode');
+    !!testIndicator && testIndicator.setAttribute(
+        'style',
+        'position:absolute; top: 0; right: 0; background-color: red; color: white; z-index: 999; padding: 0.5em;'
+    );
+
+    const root = document.querySelector('body');
+    !!root && root.appendChild(testIndicator);
+  }
+}
+whenPageLoaded(addTestModeIndicator)
