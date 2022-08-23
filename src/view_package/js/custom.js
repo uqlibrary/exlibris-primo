@@ -519,6 +519,13 @@ function whenPageLoaded(fn) {
       })
     }
 
+    // DOI
+    if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
+      item.pnx.addata.doi.forEach(r => {
+        list.push(TALIS_DOMAIN + 'doi/' + r + '/lists.json');
+      })
+    }
+
     // ISBN
     if (!!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
       item.pnx.addata.isbn.forEach(r => {
@@ -535,13 +542,6 @@ function whenPageLoaded(fn) {
     ) {
       item.pnx.addata.issn.forEach(r => {
         list.push(TALIS_DOMAIN + 'issn/' + r + '/lists.json');
-      })
-    }
-
-    // DOI
-    if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
-      item.pnx.addata.doi.forEach(r => {
-        list.push(TALIS_DOMAIN + 'doi/' + r + '/lists.json');
       })
     }
 
