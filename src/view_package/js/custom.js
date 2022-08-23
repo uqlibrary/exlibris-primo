@@ -338,52 +338,53 @@ function whenPageLoaded(fn) {
     bindings: {parentCtrl: '<'},
     controller: function($scope){
       var vm = this;
+      this.$onInit = function () {
+        vm.targeturl = '';
 
-      vm.targeturl = '';
-
-      console.log('RaP:: vm=', vm);
-      var recordId = '';
-      // no one knows what the TN actually means (per SVG), but in practice all the CDI records have it on their record id
-      if (!!vm.parentCtrl?.item?.pnx?.control?.recordid &&
-          vm.parentCtrl.item.pnx.control.recordid[0] && vm.parentCtrl.item.pnx.control.recordid[0].startsWith('TN')) {
-        recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid);
-      }
-      if (recordId === '') {
-        if (!!vm.parentCtrl?.item?.pnx?.search?.recordid) {
-          recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
+        var recordId = '';
+        // no one knows what the TN actually means (per SVG), but in practice all the CDI records have it on their record id
+        if (!!vm.parentCtrl?.item?.pnx?.control?.recordid &&
+            vm.parentCtrl.item.pnx.control.recordid[0] && vm.parentCtrl.item.pnx.control.recordid[0].startsWith('TN')) {
+          recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid);
         }
-      }
-      if (recordId === '') {
-        // from http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
-        var fieldname = 'docid';
-        var temp = encodeURIComponent((new RegExp('[?|&]' + fieldname + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
-        if (temp !== null) {
-          recordId = temp;
+        if (recordId === '') {
+          if (!!vm.parentCtrl?.item?.pnx?.search?.recordid) {
+            recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
+          }
         }
-      }
-
-      var recordTitle = '';
-      if (recordId !== '' && !!vm?.parentCtrl?.item?.pnx?.search?.title && !!vm.parentCtrl.item.pnx.search.title[0]) {
-        recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.search.title[0]);
-      }
-      if (recordTitle === '' && !!vm.parentCtrl?.item?.pnx?.display?.title && !!vm.parentCtrl.item.pnx.display.title[0]) {
-        recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.display.title[0]);
-      }
-      if (recordTitle !== '') {
-        var maxNumberCharCRMCanAccept = 239;
-        recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
-      }
-
-      var isIE11 = navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1;
-
-      // if we are not IE11 and can get a docid and a title - add a button
-      if (!isIE11 && recordId !== '' && recordTitle !== '') {
-        var crmDomain = 'https://uqcurrent--tst1.custhelp.com'; // we can probably return the live url for all when this is in prod
-        if (window.location.hostname === 'search.library.uq.edu.au') {
-          crmDomain = 'https://support.my.uq.edu.au';
+        if (recordId === '') {
+          const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+          });
+          const paramRecordId = !!params?.docid ? params.docid : null;
+          if (paramRecordId !== null) {
+            recordId = paramRecordId;
+          }
         }
 
-        vm.targeturl = crmDomain + "/app/library/contact/report_problem/true/incidents.subject/" + recordTitle + "/incidents.c$summary/" + recordId;
+        var recordTitle = '';
+        if (recordId !== '' && !!vm?.parentCtrl?.item?.pnx?.search?.title && !!vm.parentCtrl.item.pnx.search.title[0]) {
+          recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.search.title[0]);
+        }
+        if (recordTitle === '' && !!vm.parentCtrl?.item?.pnx?.display?.title && !!vm.parentCtrl.item.pnx.display.title[0]) {
+          recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.display.title[0]);
+        }
+        if (recordTitle !== '') {
+          var maxNumberCharCRMCanAccept = 239;
+          recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
+        }
+
+        var isIE11 = navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1;
+
+        // if we are not IE11 and can get a docid and a title - add a button
+        if (!isIE11 && recordId !== '' && recordTitle !== '') {
+          var crmDomain = 'https://uqcurrent--tst1.custhelp.com'; // we can probably return the live url for all when this is in prod
+          if (window.location.hostname === 'search.library.uq.edu.au') {
+            crmDomain = 'https://support.my.uq.edu.au';
+          }
+
+          vm.targeturl = crmDomain + "/app/library/contact/report_problem/true/incidents.subject/" + recordTitle + "/incidents.c$summary/" + recordId;
+        }
       }
     },
     template : '<div ng-if="$ctrl.targeturl"><getit-link-service>' +
