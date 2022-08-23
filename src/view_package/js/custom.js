@@ -575,29 +575,32 @@ function whenPageLoaded(fn) {
   app.controller('getTalisList', function ($scope, $http) {
     var vm = this;
 
-    $scope.listsFound = null;
+    this.$onInit = function () {
+      $scope.listsFound = null;
 
-    function getTalisData(urlList) {
-      const url = listTalisUrls.shift();
-      url.startsWith('http') && $http.jsonp(url, {jsonpCallbackParam: 'cb'})
-          .then(function handleSuccess(response) {
-            $scope.listsFound = response.data || null;
-            if (!$scope.listsFound && urlList.length > 0) {
-              getTalisData(urlList);
-            }
-            if (!!$scope.listsFound) {
-              const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg     // eg 61UQ_ALMA51124881340003131
-              if (!!recordid) {
-                whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+      function getTalisData(urlList) {
+        const url = listTalisUrls.shift();
+        url.startsWith('http') && $http.jsonp(url, {jsonpCallbackParam: 'cb'})
+            .then(function handleSuccess(response) {
+              $scope.listsFound = response.data || null;
+              if (!$scope.listsFound && urlList.length > 0) {
+                getTalisData(urlList);
               }
-            }
-          })
-          .catch(() => {
-            !$scope.listsFound && urlList.length > 0 && getTalisData(urlList);
-          });
+              if (!!$scope.listsFound) {
+                const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg     // eg 61UQ_ALMA51124881340003131
+                if (!!recordid) {
+                  whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+                }
+              }
+            })
+            .catch(() => {
+              !$scope.listsFound && urlList.length > 0 && getTalisData(urlList);
+            });
+      }
+
+      const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+      !!listTalisUrls && listTalisUrls.length > 0 && getTalisData(listTalisUrls);
     }
-    const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
-    !!listTalisUrls && listTalisUrls.length > 0 && getTalisData(listTalisUrls);
   });
 
   function insertScript(url) {
