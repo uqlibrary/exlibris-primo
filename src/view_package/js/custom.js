@@ -514,7 +514,7 @@ function whenPageLoaded(fn) {
     const TALIS_DOMAIN = 'https://uq.rl.talis.com/';
     const list = [];
 
-    // LRN
+    // LCN
     if (!!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
       item.pnx.search.addsrcrecordid.forEach(r => {
         list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
@@ -528,6 +528,13 @@ function whenPageLoaded(fn) {
       })
     }
 
+    // EISBN
+    if (!!item?.pnx?.addata?.eisbn && item.pnx.addata.eisbn.length > 0) {
+      item.pnx.addata.eisbn.forEach(r => {
+        list.push(TALIS_DOMAIN + 'eisbn/' + r + '/lists.json');
+      })
+    }
+
     // ISBN
     if (!!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
       item.pnx.addata.isbn.forEach(r => {
@@ -535,11 +542,21 @@ function whenPageLoaded(fn) {
       })
     }
 
-    // ISSN
     const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
-    // TBD: do we restrict to Journal?
+
+    // EISSN
     if (materialtype === 'journal' &&
-        !!item?.pnx?.addata?.isbn &&
+        !!item?.pnx?.addata?.eissn &&
+        item.pnx.addata.eissn.length > 0
+    ) {
+      item.pnx.addata.eissn.forEach(r => {
+        list.push(TALIS_DOMAIN + 'eissn/' + r + '/lists.json');
+      })
+    }
+
+    // ISSN
+    if (materialtype === 'journal' &&
+        !!item?.pnx?.addata?.issn &&
         item.pnx.addata.issn.length > 0
     ) {
       item.pnx.addata.issn.forEach(r => {
