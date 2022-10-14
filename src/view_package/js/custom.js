@@ -545,20 +545,14 @@ function whenPageLoaded(fn) {
     const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
 
     // EISSN
-    if (materialtype === 'journal' &&
-        !!item?.pnx?.addata?.eissn &&
-        item.pnx.addata.eissn.length > 0
-    ) {
+    if (materialtype === 'journal' && !!item?.pnx?.addata?.eissn && item.pnx.addata.eissn.length > 0) {
       item.pnx.addata.eissn.forEach(r => {
         list.push(TALIS_DOMAIN + 'eissn/' + r + '/lists.json');
       })
     }
 
     // ISSN
-    if (materialtype === 'journal' &&
-        !!item?.pnx?.addata?.issn &&
-        item.pnx.addata.issn.length > 0
-    ) {
+    if (materialtype === 'journal' && !!item?.pnx?.addata?.issn && item.pnx.addata.issn.length > 0) {
       item.pnx.addata.issn.forEach(r => {
         list.push(TALIS_DOMAIN + 'issn/' + r + '/lists.json');
       })
@@ -571,7 +565,57 @@ function whenPageLoaded(fn) {
   // check for a reading list in the full results page and add an indicator and list if so
   app.component('prmServiceDetailsAfter', {
     bindings: {parentCtrl: '<'},
-    controller: 'getTalisList',
+    controller: function ($scope, $http) {
+      var vm = this;
+
+      this.$onInit = function () {
+        $scope.listsFound = {};
+        let listsFound = {};
+
+        async function getTalisDataFromAllApiCalls(listUrls) {
+          const listUrlsToCall = listUrls.filter(url => url.startsWith('http'))
+          const promiseList = listUrlsToCall.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
+          await Promise.allSettled(promiseList)
+            .then(response => {
+              response.forEach(r => {
+                if (!r.status || r.status !== 'fulfilled' || !r.value || !r.value.data) {
+                  return;
+                }
+                for (let talisUrl in r.value.data) {
+                  const subjectCode = r.value.data[talisUrl];
+                  !listsFound[talisUrl] && (listsFound[talisUrl] = subjectCode);
+                }
+              })
+            })
+            .finally(() => {
+              const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+              if (!!listsFound && !!recordid) {
+                addCourseResourceIndicatorToHeader(recordid);
+              }
+
+              if (!!listsFound) {
+                // sort by course code for display
+                let sortable = [];
+                for (let talisUrl in listsFound) {
+                  const subjectCode = listsFound[talisUrl];
+                  sortable.push([talisUrl, subjectCode]);
+                }
+                sortable.sort(function(a, b) {
+                  return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : /* istanbul ignore next */ 0;
+                });
+                sortable.forEach((entry) => {
+                  const subjectCode = entry[1];
+                  const talisUrl = entry[0]
+                  $scope.listsFound[talisUrl] = subjectCode
+                })
+              }
+            });
+        }
+
+        const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+        !!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromAllApiCalls(listTalisUrls);
+      }
+    },
     template: '<div class="readingListCitations" ng-show="listsFound != null">' +
         '<h4>Course reading lists</h4>' +
         '<ul>' +
@@ -585,39 +629,37 @@ function whenPageLoaded(fn) {
   // check for a reading list on each result in the brief result list (search results) and add an indicator if so
   app.component('prmBriefResultContainerAfter', {
     bindings: { parentCtrl: '<' },
-    controller: 'getTalisList',
-    template: ''
-  });
+    controller: function ($scope, $http) {
+      var vm = this;
 
-  app.controller('getTalisList', function ($scope, $http) {
-    var vm = this;
+      this.$onInit = function () {
+        $scope.listsFound = null;
 
-    this.$onInit = function () {
-      $scope.listsFound = null;
-
-      function getTalisData(urlList) {
-        const url = listTalisUrls.shift();
-        url.startsWith('http') && $http.jsonp(url, {jsonpCallbackParam: 'cb'})
-            .then(function handleSuccess(response) {
-              $scope.listsFound = response.data || null;
-              if (!$scope.listsFound && urlList.length > 0) {
-                getTalisData(urlList);
-              }
-              if (!!$scope.listsFound) {
-                const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg     // eg 61UQ_ALMA51124881340003131
-                if (!!recordid) {
-                  whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+        function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall) {
+          const url = listTalisUrls.shift();
+          url.startsWith('http') && $http.jsonp(url, {jsonpCallbackParam: 'cb'})
+              .then(function handleSuccess(response) {
+                $scope.listsFound = response.data || null;
+                if (!$scope.listsFound && listUrlsToCall.length > 0) {
+                  getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
                 }
-              }
-            })
-            .catch(() => {
-              !$scope.listsFound && urlList.length > 0 && getTalisData(urlList);
-            });
-      }
+                if (!!$scope.listsFound) {
+                  const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
+                  if (!!recordid) {
+                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+                  }
+                }
+              })
+              .catch(() => {
+                !$scope.listsFound && listUrlsToCall.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+              });
+        }
 
-      const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
-      !!listTalisUrls && listTalisUrls.length > 0 && getTalisData(listTalisUrls);
-    }
+        const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+        !!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
+      }
+    },
+    template: ''
   });
 
   function insertScript(url) {
