@@ -27,6 +27,7 @@ function whenPageLoaded(fn) {
     title: 'Library account',
     id: 'mylibrary-menu-borrowing',
     subtext: 'Loans, requests & settings',
+    svgPath: 'M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z',
   }
   const favouriteLinkOptions = {
     title: 'Favourites',
@@ -68,17 +69,22 @@ function whenPageLoaded(fn) {
       '</button>\n';
 
   const loggedInMenu = (id, feedbackClass) => {
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop),
-    });
-    const vid = params.vid || '61UQ';
-    const domain = window.location.hostname;
     // THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
     // (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
     let feedbackButton = loggedinFeedbackButton.replace('feedback-loggedin', feedbackClass);
     return `<ul id="${id}" class="mylibrary-list" style="display:none"` + '>\n' +
         // Account link from variable accountLinkOptions, above, at #1
-        // Favourites from  variable favouriteLinkOptions, above, at #2
+        '    <li>\n' +
+        `        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}" role="menuitem" onclick="location.href='/primo-explore/favorites?vid=61UQ_DEV&amp;lang=en_US&amp;section=items'">\n` +
+        '            <svg viewBox="0 0 24 24" focusable="false">\n' +
+        `                 <path d="${favouriteLinkOptions.svgPath}"></path>\n` +
+        '            </svg>\n' +
+        '            <div class="textwrapper">\n' +
+        `                 <span class="primaryText">${favouriteLinkOptions.title}</span>\n` +
+        `                 <span class="subtext">${favouriteLinkOptions.subtext}</span>\n` +
+        '            </div>\n' +
+        '        </button>\n' +
+        '    </li>\n' +
         '    <li>\n' +
         '        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
         '            <svg viewBox="0 0 24 24" focusable="false">\n' +
@@ -118,15 +124,19 @@ function whenPageLoaded(fn) {
         '</ul>';
   }
 
+  // we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
+  // so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
   function rewriteProvidedPrimoButton(e, primoIdentifier) {
     const button = document.querySelector(primoIdentifier + ' button');
+    if (!button) {
+      return;
+    }
 
     const awaitSVG = setInterval(() => {
       const cloneableSvg = document.querySelector(primoIdentifier + ' svg');
       if (!!cloneableSvg) {
         clearInterval(awaitSVG);
 
-        // we dont always like their icons, and sadly there is no big list of icons documented that we can just reference
         !!e.svgPath && cloneableSvg.firstElementChild.setAttribute('d', e.svgPath);
 
         const svg = cloneableSvg.cloneNode(true);
@@ -163,93 +173,166 @@ function whenPageLoaded(fn) {
     }, 250);
   }
 
-// prm-user-area-expandable-after
+  function createLabelledButton(options) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    !!path && path.setAttribute('d', options.svgPath);
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    !!svg && svg.setAttribute('class', 'svgIcon');
+    !!svg && svg.setAttribute('focusable', 'false');
+    !!svg && svg.setAttribute('viewBox', '0 0 24 24');
+    !!svg && svg.setAttribute('ariaHidden', 'true');
+    !!svg && !!path && svg.appendChild(path);
+
+    const button = document.createElement('button');
+    !!button && (button.id = options.id);
+    !!button && !!svg && button.appendChild(svg);
+
+    // add our insides to the  button!
+    const primaryText = document.createTextNode(options.title);
+    const primaryTextBlock = document.createElement('span');
+    !!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
+    !!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
+
+    const textParent = document.createElement('div');
+    !!textParent && (textParent.className = 'textwrapper');
+    !!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
+
+    const subtext = document.createTextNode(options.subtext);
+    const subtextDiv = document.createElement('span');
+    !!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
+    !!subtextDiv && subtextDiv.appendChild(subtext);
+
+    !!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
+    !!button && !!textParent && button.appendChild(textParent);
+
+    return button;
+  }
+
+  // prm-user-area-expandable-after
   app.component('prmUserAreaExpandableAfter', {
     // HANDLE LOGGED IN MENU
     controller: function($scope){
       setInterval(() => {
         const isLoggedOut = document.querySelector('.sign-in-btn-ctm');
-        if (!isLoggedOut) {
-          const desktopSibling = document.querySelector('h2[translate="nui.menu"]');
-          const desiredParentDesktop = !!desktopSibling && desktopSibling.parentNode;
-          const existingDesktopMenu = document.getElementById('mylibrary-list');
-          const isDesktopMenuOpen = !existingDesktopMenu && !!desiredParentDesktop;
+        if (!!isLoggedOut) {
+          return;
+        }
 
-          const mobilemenuId = 'mylibrary-list-mobile';
-          const mobilesibling = document.querySelector('md-dialog-content prm-authentication'); // entry that only occurs in mobile menu
-          const existingmobileAccountLinksList = document.getElementById(mobilemenuId);
-          const isMobileMenuOpen = !!mobilesibling && !existingmobileAccountLinksList;
-          if (isMobileMenuOpen) {
-            // mobile menu is open - add the Account Links to the mobile menu and remove the links we dont want
-            const desiredParentMobile = mobilesibling.parentNode;
-            // mobile menu is only in the DOM when the menu-open-button has been clicked, so create a new menu each time
-            const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
-            const mobileusermenu = clonableUsermenu.cloneNode(true)
-            !!mobileusermenu && (mobileusermenu.id = mobilemenuId);
-            if (!!mobileusermenu && !!desiredParentMobile) {
-              const currentParent = mobileusermenu.parentNode;
-              if (desiredParentMobile !== currentParent) {
-                mobileusermenu.style.display = 'block';
-                desiredParentMobile.appendChild(mobileusermenu);
+        const desktopSibling = document.querySelector('h2[translate="nui.menu"]');
+        const desiredParentDesktop = !!desktopSibling && desktopSibling.parentNode;
+        const existingDesktopMenu = document.getElementById('mylibrary-list');
+        const isDesktopMenuOpen = !existingDesktopMenu && !!desiredParentDesktop;
 
-                // delete primo-defined account items
-                const deletableItems = [
-                  'prm-library-card-menu',
-                ];
-                deletableItems.forEach(e => {
-                  const elem = document.querySelector(e);
-                  !!elem && elem.remove();
-                });
+        const mobilemenuId = 'mylibrary-list-mobile';
+        const mobilesibling = document.querySelector('md-dialog-content prm-authentication'); // entry that only occurs in mobile menu
+        const existingmobileAccountLinksList = document.getElementById(mobilemenuId);
+        const isMobileMenuOpen = !!mobilesibling && !existingmobileAccountLinksList;
+        if (isMobileMenuOpen) {
+          // mobile menu is open - add the Account Links to the mobile menu and remove the links we dont want
+          const desiredParentMobile = mobilesibling.parentNode;
+          // mobile menu is only in the DOM when the menu-open-button has been clicked, so create a new menu each time
+          const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
+          const mobileusermenu = clonableUsermenu.cloneNode(true)
+          !!mobileusermenu && (mobileusermenu.id = mobilemenuId);
+          if (!!mobileusermenu && !!desiredParentMobile) {
+            const currentParent = mobileusermenu.parentNode;
+            if (desiredParentMobile !== currentParent) {
+              mobileusermenu.style.display = 'block';
+              desiredParentMobile.appendChild(mobileusermenu);
 
-                rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu');
-
-                rewriteProvidedPrimoButton(favouriteLinkOptions, '.settings-container .my-favorties-ctm');
-
-                // delete any other items
-                removeElementWhenItAppears('.settings-container > div > div', false);
-              }
-            }
-          } else if (isDesktopMenuOpen) {
-            const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
-            const createdDesktopMenu = clonableUsermenu.cloneNode(true);
-            !!createdDesktopMenu && (createdDesktopMenu.id = 'mylibrary-list');
-            const currentParent = createdDesktopMenu.parentNode;
-            if (desiredParentDesktop !== currentParent) {
-              // append new Account links to existing menu
-              desiredParentDesktop.appendChild(createdDesktopMenu);
-              createdDesktopMenu.style.display = 'block';
-
-              // delete the items they provide because we have similar in our account links list
-              const deletionClassList = [
-                '.my-loans-ctm',
-                '.my-requests-ctm',
-                '.my-search-history-ctm',
-                '.my-PersonalDetails-ctm',
+              // delete primo-defined account items
+              const deletableItems = [
+                'prm-library-card-menu',
               ];
-              deletionClassList.forEach(e => {
+              deletableItems.forEach(e => {
                 const elem = document.querySelector(e);
                 !!elem && elem.remove();
               });
 
-              rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
+              rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu');
 
-              rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
+              // delete the search history over and over and over....
+              removeElementWhenItAppears('.my-search-history-ctm');
 
-              // remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
-              const hr1 = document.querySelector('md-menu-divider')
-              !!hr1 && hr1.remove();
-              const hr2 = document.querySelector('md-menu-divider')
-              !!hr2 && hr2.remove();
+              // delete any other items
+              removeElementWhenItAppears('.settings-container > div > div', false);
             }
+
+            // if the mobile menu is closed then opened again, the built in account link goes away. Weird.
+            // Let's replace it manually.
+            const waitForBuiltInAccountButtonToFirstExist = setInterval(() => {
+              // we dont start waiting for the built in account button to be missing until it has actually appeared
+              const builtInAccountButtonFirst = document.querySelector('.mobile-main-menu-bg [aria-label="Go to library account"]');
+              if (!builtInAccountButtonFirst) {
+                return
+              }
+
+              // now the built in account button exists. Wait for it to _not_ exist.
+              // this implies the user has closed the mobile menu and then reopened (I mean... honestly!!! :( )
+              const ensureAccountButtonExists = setInterval(() => {
+                const replacementAccountButton = document.getElementById(accountLinkOptions.id);
+                const builtInAccountButton = document.querySelector('.mobile-main-menu-bg [aria-label="Go to library account"]');
+                if (!builtInAccountButton && !replacementAccountButton) {
+                  const plannedParent = document.querySelector('.mobile-main-menu-bg prm-authentication');
+
+                  const accountButton = createLabelledButton(accountLinkOptions);
+                  // wrap the button in a list, so we can apply the same styles to it as the other buttons
+                  const wrappingListItem = document.createElement('li')
+                  !!wrappingListItem && !!accountButton && wrappingListItem.appendChild(accountButton)
+                  const wrappingList = document.createElement('ul');
+                  !!wrappingList && (wrappingList.className = 'mylibrary-list');
+                  !!wrappingList && !!wrappingListItem && wrappingList.appendChild(wrappingListItem)
+                  !!wrappingList && !!plannedParent &&
+                    plannedParent.insertBefore(wrappingList, plannedParent.firstChild) &&
+                    clearInterval(waitForBuiltInAccountButtonToFirstExist)
+                  ;
+
+                }
+              }, 100); // never stop waiting, that second open may be a long time before it happens
+            }, 100);
+          }
+        } else if (isDesktopMenuOpen) {
+          const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
+          const createdDesktopMenu = clonableUsermenu.cloneNode(true);
+          !!createdDesktopMenu && (createdDesktopMenu.id = 'mylibrary-list');
+          const currentParent = createdDesktopMenu.parentNode;
+          if (desiredParentDesktop !== currentParent) {
+            // append new Account links to existing menu
+            desiredParentDesktop.appendChild(createdDesktopMenu);
+            createdDesktopMenu.style.display = 'block';
+
+            // delete the items they provide because we have similar in our account links list
+            const deletionClassList = [
+              '.my-loans-ctm',
+              '.my-requests-ctm',
+              '.my-search-history-ctm',
+              '.my-PersonalDetails-ctm',
+              '.my-favorties-ctm', // what they currently have as the class for My Favourites
+              '.my-favorites-ctm', // in case they fix the spelling quietly
+            ];
+            deletionClassList.forEach(e => {
+              const elem = document.querySelector(e);
+              !!elem && elem.remove();
+            });
+
+            rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
+
+            // remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
+            const hr1 = document.querySelector('md-menu-divider')
+            !!hr1 && hr1.remove();
+            const hr2 = document.querySelector('md-menu-divider')
+            !!hr2 && hr2.remove();
           }
         }
+
       }, 250);
     },
     template: loggedInMenu('mylibrary-list-clonable', 'loggedin-feedback-button')
   });
 
   // there is a delayed load for a lot of items, but no guarantee that they will be provided on any given page, so only try so many times
-  function removeElementWhenItAppears(selector, onlyOne = true, timeout = 100, maxLoops = 20) {
+  function removeElementWhenItAppears(selector, onlyOne = true, timeout = 100, maxLoops = 100) {
     let loopCount = 0;
     const awaitButton = setInterval(() => {
       if (loopCount > maxLoops) {
@@ -276,48 +359,50 @@ function whenPageLoaded(fn) {
     controller: function($scope){
       const awaitLoggedout = setInterval(() => {
         const isLoggedOut = document.querySelector('.sign-in-btn-ctm');
-        if (!!isLoggedOut) {
-          const isDesktopMenuOpen = document.querySelector('prm-user-area-expandable md-menu');
-          const isMobileMenuOpen = document.querySelector('.mobile-menu-button');
-          if (!!isMobileMenuOpen)  {
-            clearInterval(awaitLoggedout);
-            const awaitLoggedoutMobileMenu = setInterval(() => {
-              // dont clear this interval - we have to re add each time the menu opens :(
-              const mobilesibling = document.querySelector('prm-main-menu prm-library-card-menu'); // entry that only occurs in mobile logged out menu
-              const desiredParentMobile = !!mobilesibling && mobilesibling.parentNode;
-              const feedbackButtonClonable = document.getElementById('loggedout-feedback');
-              let newfeedbackbuttonId = 'loggedout-mobile-feedback';
-              const newfeedbackbuttonFound = document.getElementById(newfeedbackbuttonId);
-              if (!newfeedbackbuttonFound && !!desiredParentMobile && !!feedbackButtonClonable) {
+        if (!isLoggedOut) {
+          return;
+        }
 
-                // append feedback item to end of menu area
-                const newfeedbackbutton = feedbackButtonClonable.cloneNode(true)
-                newfeedbackbutton.id = newfeedbackbuttonId;
-                !!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
-                !!newfeedbackbutton && desiredParentMobile.appendChild(newfeedbackbutton);
+        const isDesktopMenuOpen = document.querySelector('prm-user-area-expandable md-menu');
+        const isMobileMenuOpen = document.querySelector('.mobile-menu-button');
+        if (!!isMobileMenuOpen)  {
+          clearInterval(awaitLoggedout);
+          const awaitLoggedoutMobileMenu = setInterval(() => {
+            // dont clear this interval - we have to re add each time the menu opens :(
+            const mobilesibling = document.querySelector('prm-main-menu prm-library-card-menu'); // entry that only occurs in mobile logged out menu
+            const desiredParentMobile = !!mobilesibling && mobilesibling.parentNode;
+            const feedbackButtonClonable = document.getElementById('loggedout-feedback');
+            let newfeedbackbuttonId = 'loggedout-mobile-feedback';
+            const newfeedbackbuttonFound = document.getElementById(newfeedbackbuttonId);
+            if (!newfeedbackbuttonFound && !!desiredParentMobile && !!feedbackButtonClonable) {
 
-                removeElementWhenItAppears('.settings-container prm-authentication') // "Log in" menu item that duplicates "My account" function
-              }
-            }, 250);
+              // append feedback item to end of menu area
+              const newfeedbackbutton = feedbackButtonClonable.cloneNode(true)
+              newfeedbackbutton.id = newfeedbackbuttonId;
+              !!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
+              !!newfeedbackbutton && desiredParentMobile.appendChild(newfeedbackbutton);
 
-          } else if (!!isDesktopMenuOpen) { // is desktop menu
-            clearInterval(awaitLoggedout);
+              removeElementWhenItAppears('.settings-container prm-authentication'); // "Log in" menu item that duplicates "My account" function
+            }
+          }, 250);
 
-            const waitForDesktopFeedbackLink = setInterval(() => {
-              const feedbackButtonClonable = document.getElementById('loggedout-feedback');
-              if (!!feedbackButtonClonable) {
-                clearInterval(waitForDesktopFeedbackLink);
+        } else if (!!isDesktopMenuOpen) { // is desktop menu
+          clearInterval(awaitLoggedout);
 
-                // insert new account links at end of menu area
-                const plannedParent = document.querySelector('md-menu-content');
+          const waitForDesktopFeedbackLink = setInterval(() => {
+            const feedbackButtonClonable = document.getElementById('loggedout-feedback');
+            if (!!feedbackButtonClonable) {
+              clearInterval(waitForDesktopFeedbackLink);
 
-                const newfeedbackbutton = feedbackButtonClonable.cloneNode(true);
-                newfeedbackbutton.id = 'loggedout-desktop-feedback';
-                !!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
-                !!plannedParent && !!newfeedbackbutton && plannedParent.appendChild(newfeedbackbutton);
-              }
-            }, 100);
-          }
+              // insert new account links at end of menu area
+              const plannedParent = document.querySelector('md-menu-content');
+
+              const newfeedbackbutton = feedbackButtonClonable.cloneNode(true);
+              newfeedbackbutton.id = 'loggedout-desktop-feedback';
+              !!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
+              !!plannedParent && !!newfeedbackbutton && plannedParent.appendChild(newfeedbackbutton);
+            }
+          }, 100);
         }
       }, 250);
     },
