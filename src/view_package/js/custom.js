@@ -590,4 +590,45 @@ function addTestModeIndicator() {
     !!root && root.appendChild(testIndicator);
   }
 }
-whenPageLoaded(addTestModeIndicator)
+
+// the Favourites Pin can have a help dialog floating below it
+// because we have added our header above and the askus on the right, the onload pin location had moved,
+// so the default dialog placement is wrong.
+// when the pin is in its load position, move the dialog to sit below it by adding a class
+// when the pin moves itself to the top corner (which is onscroll), remove our class
+// (tried to do this by listening to the scroll event, but it was flakey - this is robust)
+const favouritePinDialogTagName = 'prm-favorites-warning-message';
+const favouritesPinDialogInitialPositionClassName = 'favouritesDialogInitialPosition';
+function manageFavouritesPinDialogLocation() {
+  setInterval(() => {
+    const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
+    const favouritesPin = isFullDisplayPage
+      ? document.querySelector('.full-view-inner-container prm-brief-result-container:first-child prm-save-to-favorites-button')
+      : document.querySelector('prm-search-bookmark-filter [aria-label="Go to Favourites"]');
+    const pinLocation = !!favouritesPin && favouritesPin.getBoundingClientRect();
+    const favouritesDialog = document.querySelector(favouritePinDialogTagName);
+    if (!favouritesPin || !pinLocation || !favouritesDialog) {
+      !favouritesPin && console.log('pin not found');
+      !pinLocation && console.log('pinLocation not found');
+      !favouritesDialog && console.log('dialog not found');
+      return;
+    }
+    if (pinLocation.top > 50) {
+      // page is at brief-result initial load layout - the Dialog must be moved down from where exlibris puts it
+      // console.log(!!isFullDisplayPage ? 'full' : 'brief', 'position ', pinLocation.top, 'our class please');
+      !favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.add(favouritesPinDialogInitialPositionClassName);
+    } else {
+      // the page has been scrolled and the favourites pin has shifted up to the top of the page - use the built in exlibris dialog position
+      // console.log(!!isFullDisplayPage ? 'full' : 'brief', 'position ', pinLocation.top, 'default exlibris position');
+      !!favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.remove(favouritesPinDialogInitialPositionClassName);
+    }
+  }, 250)
+}
+
+function loadFunctions() {
+  manageFavouritesPinDialogLocation();
+
+  addTestModeIndicator();
+}
+
+whenPageLoaded(loadFunctions);
