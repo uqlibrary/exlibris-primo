@@ -571,6 +571,11 @@ function whenPageLoaded(fn) {
       this.$onInit = function () {
         $scope.listsFound = null;
 
+        const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
+        if (!isFullDisplayPage) {
+          return;
+        }
+
         let listsFound = {};
 
         async function getTalisDataFromAllApiCalls(listUrls) {
@@ -635,6 +640,11 @@ function whenPageLoaded(fn) {
 
       this.$onInit = function () {
         $scope.listsFound = null;
+
+        const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
+        if (!!isFullDisplayPage) {
+          return;
+        }
 
         function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall) {
           const url = listTalisUrls.shift();
