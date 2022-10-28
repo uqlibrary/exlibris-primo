@@ -569,7 +569,8 @@ function whenPageLoaded(fn) {
       var vm = this;
 
       this.$onInit = function () {
-        $scope.listsFound = {};
+        $scope.listsFound = null;
+
         let listsFound = {};
 
         async function getTalisDataFromAllApiCalls(listUrls) {
@@ -588,12 +589,12 @@ function whenPageLoaded(fn) {
               })
             })
             .finally(() => {
-              const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-              if (!!listsFound && !!recordid) {
-                addCourseResourceIndicatorToHeader(recordid);
-              }
-
-              if (!!listsFound) {
+              if (Object.keys(listsFound).length > 0) {
+                const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+                if (!!recordid) {
+                  addCourseResourceIndicatorToHeader(recordid);
+                }
+                $scope.listsFound = {};
                 // sort by course code for display
                 let sortable = [];
                 for (let talisUrl in listsFound) {
@@ -651,7 +652,9 @@ function whenPageLoaded(fn) {
                 }
               })
               .catch(() => {
-                !$scope.listsFound && listUrlsToCall.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+                if (!$scope.listsFound && listUrlsToCall.length > 0) {
+                  getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+                }
               });
         }
 
