@@ -475,6 +475,7 @@ function whenPageLoaded(fn) {
       `#SEARCH_RESULT_RECORDID_${recordid}_FULL_VIEW`, // full results page (single record)
       `#SEARCH_RESULT_RECORDID_${recordid}` // brief results page (search results list)
     ].forEach(id => {
+      // if we have already put the Course Resource Indicator here, don't put it again
       const icon = !!recordid && document.querySelector(`${id} .${CRLIconClassname}`);
       if (!!icon) {
         return;
@@ -561,7 +562,8 @@ function whenPageLoaded(fn) {
     return list;
   }
 
-  // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
+  // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
+  // and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
   // check for a reading list in the full results page and add an indicator and list if so
   app.component('prmServiceDetailsAfter', {
     bindings: {parentCtrl: '<'},
@@ -569,18 +571,20 @@ function whenPageLoaded(fn) {
       var vm = this;
 
       this.$onInit = function () {
-        $scope.listsFound = null;
+        $scope.talisCourses = [];
+        $scope.hasCourses = false;
 
         const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
         if (!isFullDisplayPage) {
           return;
         }
 
-        let listsFound = {};
+        let courseList = {}; // associative arrays are done in js as objects
 
         async function getTalisDataFromAllApiCalls(listUrls) {
           const listUrlsToCall = listUrls.filter(url => url.startsWith('http'))
           const promiseList = listUrlsToCall.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
+          // get all the urls then sort them into a non-repeating list
           await Promise.allSettled(promiseList)
             .then(response => {
               response.forEach(r => {
@@ -589,43 +593,48 @@ function whenPageLoaded(fn) {
                 }
                 for (let talisUrl in r.value.data) {
                   const subjectCode = r.value.data[talisUrl];
-                  !listsFound[talisUrl] && (listsFound[talisUrl] = subjectCode);
+                  !courseList[talisUrl] && (courseList[talisUrl] = subjectCode);
                 }
               })
             })
             .finally(() => {
-              if (Object.keys(listsFound).length > 0) {
+              if (Object.keys(courseList).length > 0) {
+                $scope.hasCourses = true;
+
                 const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
                 if (!!recordid) {
                   addCourseResourceIndicatorToHeader(recordid);
                 }
-                $scope.listsFound = {};
+
+                $scope.talisCourses = {};
                 // sort by course code for display
                 let sortable = [];
-                for (let talisUrl in listsFound) {
-                  const subjectCode = listsFound[talisUrl];
+                for (let talisUrl in courseList) {
+                  const subjectCode = courseList[talisUrl];
                   sortable.push([talisUrl, subjectCode]);
                 }
                 sortable.sort(function(a, b) {
-                  return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : /* istanbul ignore next */ 0;
+                  return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
                 });
                 sortable.forEach((entry) => {
                   const subjectCode = entry[1];
                   const talisUrl = entry[0]
-                  $scope.listsFound[talisUrl] = subjectCode
+                  $scope.talisCourses[talisUrl] = subjectCode
                 })
               }
             });
         }
 
         const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
-        !!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromAllApiCalls(listTalisUrls);
+        if (!!listTalisUrls && listTalisUrls.length > 0) {
+          getTalisDataFromAllApiCalls(listTalisUrls);
+        }
       }
     },
-    template: '<div class="readingListCitations" ng-show="listsFound != null">' +
+    template: '<div class="readingListCitations" ng-show="hasCourses">' +
         '<h4>Course reading lists</h4>' +
         '<ul>' +
-        '<li ng-repeat="(url,listname) in listsFound">' +
+        '<li ng-repeat="(url,listname) in talisCourses">' +
         '<a href="{{url}}" target="_blank">{{listname}} </a>' +
         '</li>' +
         '</ul>' +
