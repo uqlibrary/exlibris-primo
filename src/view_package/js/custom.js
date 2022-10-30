@@ -514,9 +514,10 @@ function whenPageLoaded(fn) {
   function getListTalisUrls(item) {
     const TALIS_DOMAIN = 'https://uq.rl.talis.com/';
     const list = [];
+    const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
 
     // LCN
-    if (!!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
+    if (materialtype !== 'book_chapter' && !!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
       item.pnx.search.addsrcrecordid.forEach(r => {
         list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
       })
@@ -530,20 +531,20 @@ function whenPageLoaded(fn) {
     }
 
     // EISBN
-    if (!!item?.pnx?.addata?.eisbn && item.pnx.addata.eisbn.length > 0) {
+    if (materialtype !== 'book_chapter' && !!item?.pnx?.addata?.eisbn && item.pnx.addata.eisbn.length > 0) {
       item.pnx.addata.eisbn.forEach(r => {
-        list.push(TALIS_DOMAIN + 'eisbn/' + r + '/lists.json');
+        const isbn = r.replace(/[^0-9X]+/gi, '');
+        [10, 13].includes(isbn.length) && list.push(TALIS_DOMAIN + 'eisbn/' + isbn + '/lists.json');
       })
     }
 
     // ISBN
-    if (!!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
+    if (materialtype !== 'book_chapter' && !!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
       item.pnx.addata.isbn.forEach(r => {
-        list.push(TALIS_DOMAIN + 'isbn/' + r + '/lists.json');
+        const isbn = r.replace(/[^0-9X]+/gi, '');
+        [10, 13].includes(isbn.length) && list.push(TALIS_DOMAIN + 'isbn/' + isbn + '/lists.json');
       })
     }
-
-    const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
 
     // EISSN
     if (materialtype === 'journal' && !!item?.pnx?.addata?.eissn && item.pnx.addata.eissn.length > 0) {
