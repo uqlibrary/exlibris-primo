@@ -454,7 +454,7 @@ function whenPageLoaded(fn) {
           }
         }
 
-        var recordTitle = '';
+        let recordTitle = '';
         if (recordId !== '' && !!vm?.parentCtrl?.item?.pnx?.search?.title && !!vm.parentCtrl.item.pnx.search.title[0]) {
           recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.search.title[0]);
         }
@@ -465,6 +465,17 @@ function whenPageLoaded(fn) {
           var maxNumberCharCRMCanAccept = 239;
           recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
         }
+
+        // we may have trimmed in the middle of an encoded char, eg sit%20down trimmed to sit%2
+        // which ends up with an 400 Bad Result as the url becomes rubbish
+        const maxLengthEncodedChar = '%E2%82%AC';
+        [...Array(maxLengthEncodedChar.length)].map((_, i) => {
+          try {
+            decodeURIComponent(recordTitle)
+          } catch {
+            recordTitle = recordTitle.slice(0, -1);
+          }
+        });
 
         var isIE11 = navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1;
 
@@ -867,9 +878,9 @@ function manageFavouritesPinDialogLocation() {
     const pinLocation = !!favouritesPin && favouritesPin.getBoundingClientRect();
     const favouritesDialog = document.querySelector(favouritePinDialogTagName);
     if (!favouritesPin || !pinLocation || !favouritesDialog) {
-      !favouritesPin && console.log('pin not found');
-      !pinLocation && console.log('pinLocation not found');
-      !favouritesDialog && console.log('dialog not found');
+      // !favouritesPin && console.log('pin not found');
+      // !pinLocation && console.log('pinLocation not found');
+      // !favouritesDialog && console.log('dialog not found');
       return;
     }
     if (pinLocation.top > 50) {
