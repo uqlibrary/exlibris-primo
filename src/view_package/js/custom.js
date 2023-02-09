@@ -529,11 +529,11 @@ function whenPageLoaded(fn) {
     template: '<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>'
   });
 
-  function createCourseResourceIndicatorIcon(iconClassname) {
+  function createCourseResourceIndicatorIcon(iconClassname, svgIcon, indicatorLabel) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     !!path && (path.setAttribute(
         'd',
-        'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z', // MUI AccountBalance icon
+        svgIcon, // MUI AccountBalance icon
     ));
 
     const svgCR = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -555,7 +555,7 @@ function whenPageLoaded(fn) {
 
     const contentLabel = document.createElement('span');
     !!contentLabel && (contentLabel.className = 'readingListMarkLabel');
-    !!contentLabel && (contentLabel.innerHTML = 'COURSE READING LIST');
+    !!contentLabel && (contentLabel.innerHTML = indicatorLabel);
 
     const CRLIconWrapper = document.createElement('span');
     !!CRLIconWrapper && (CRLIconWrapper.className = iconClassname);
@@ -565,45 +565,43 @@ function whenPageLoaded(fn) {
     return CRLIconWrapper;
   }
 
-  function addCourseResourceIndicatorToHeader(recordid) {
+  function addCourseResourceIndicatorToHeader(recordid, pageType) {
     const CRLIconClassname = 'readingListMark';
-    [
-      `#SEARCH_RESULT_RECORDID_${recordid}_FULL_VIEW`, // full results page (single record)
-      `#SEARCH_RESULT_RECORDID_${recordid}` // brief results page (search results list)
-    ].forEach(id => {
-      // if we have already put the Course Resource Indicator here, don't put it again
-      const icon = !!recordid && document.querySelector(`${id} .${CRLIconClassname}`);
-      if (!!icon) {
-        return;
-      }
+    const parentDOMid = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    // if we have already put the Course Resource Indicator here, don't put it again
+    const icon = !!recordid && document.querySelector(`#${parentDOMid} .${CRLIconClassname}`);
+    if (!!icon) {
+      return;
+    }
 
-      const CRLIcon = createCourseResourceIndicatorIcon(CRLIconClassname);
-      if (!CRLIcon) {
-        return;
-      }
+    const svgIcon = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z';
+    const indicatorLabel = 'COURSE READING LIST';
+    const createdIndicator = createCourseResourceIndicatorIcon(CRLIconClassname, svgIcon, indicatorLabel);
+    if (!createdIndicator) {
+      return;
+    }
 
-      let indicatorParent = false;
-      // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-      const openAccessIndicator = document.querySelector(`${id} .open-access-mark`);
-      if (!!openAccessIndicator) {
-        indicatorParent = openAccessIndicator.parentNode;
+    let indicatorParent = false;
+    // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
+    const openAccessIndicator = document.querySelector(`#${parentDOMid} .open-access-mark`);
+    if (!!openAccessIndicator) {
+      indicatorParent = openAccessIndicator.parentNode;
+    }
+    if (!indicatorParent) {
+      const peerReviewedIndicator = document.querySelector(`#${parentDOMid} .peer-reviewed-mark`);
+      if (!!peerReviewedIndicator) {
+        indicatorParent = peerReviewedIndicator.parentNode;
       }
-      if (!indicatorParent) {
-        const peerReviewedIndicator = document.querySelector(`${id} .peer-reviewed-mark`);
-        if (!!peerReviewedIndicator) {
-          indicatorParent = peerReviewedIndicator.parentNode;
-        }
+    }
+    if (!!indicatorParent) {
+      indicatorParent.appendChild(createdIndicator);
+    } else {
+      // no such icons? add it as a new line after the snippet
+      const snippet = document.querySelector(`#${parentDOMid} prm-snippet`);
+      if (!!snippet) {
+        snippet.parentNode.insertBefore(createdIndicator, snippet.nextSibling);
       }
-      if (!!indicatorParent) {
-        indicatorParent.appendChild(CRLIcon);
-      } else {
-        // no such icons? add it as a new line after the snippet
-        const snippet = document.querySelector(`${id} prm-snippet`);
-        if (!!snippet) {
-          snippet.parentNode.insertBefore(CRLIcon, snippet.nextSibling);
-        }
-      }
-    });
+    }
     return true;
   }
 
@@ -700,7 +698,7 @@ function whenPageLoaded(fn) {
 
                 const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
                 if (!!recordid) {
-                  addCourseResourceIndicatorToHeader(recordid);
+                  addCourseResourceIndicatorToHeader(recordid, 'full');
                 }
 
                 $scope.talisCourses = {};
@@ -763,7 +761,7 @@ function whenPageLoaded(fn) {
                 if (!!$scope.listsFound) {
                   const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
                   if (!!recordid) {
-                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid, 'brief'));
                   }
                 }
               })
