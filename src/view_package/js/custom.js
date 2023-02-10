@@ -602,6 +602,18 @@ function whenPageLoaded(fn) {
     }
   }
 
+  function addCulturalAdviceIndicatorToHeader(recordId, pageType) {
+    const className = 'culturalAdviceMark';
+    const thisIndicatorAbbrev = 'cultadv';
+    const svgPathValue = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'; // MUI Info icon
+    const labelText = 'CULTURAL ADVICE';
+
+    console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader start', recordId);
+    console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader pageType', pageType);
+
+    return addIndicatorToHeader(recordId, pageType, className, svgPathValue, labelText);
+  }
+
   function addCourseResourceIndicatorToHeader(recordId, pageType) {
     const CRLIconClassname = 'readingListMark';
     const svgPathValue = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z'; // MUI AccountBalance icon
@@ -729,6 +741,15 @@ function whenPageLoaded(fn) {
         if (!!listTalisUrls && listTalisUrls.length > 0) {
           getTalisDataFromAllApiCalls(listTalisUrls);
         }
+
+        // display the cultural advice indicator on appropriate records
+        const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+        console.log('CA::full recordId=', recordId);
+        const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // eg "Cultural advice - Aboriginal and Torres Strait Islander people"
+        if (!!culturalAdviceText && !!recordId) {
+          console.log('CA::full I would add a CA indicator on ', recordId);
+          addCulturalAdviceIndicatorToHeader(recordId, 'full');
+        }
       }
     },
     template: '<div class="readingListCitations" ng-show="hasCourses">' +
@@ -779,6 +800,21 @@ function whenPageLoaded(fn) {
 
         const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
         !!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
+
+        // display the cultural advice indicator on appropriate records
+        const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+        console.log('CA::brief recordId=', recordId);
+        console.log(vm?.parentCtrl?.item?.pnx);
+        console.log(vm?.parentCtrl?.resultUtil._updatedBulkSize);
+        const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : 'x'; // eg 61UQ_ALMA51124881340003131
+        console.log(vm?.parentCtrl);
+        const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+        console.log('CA::brief culturalAdviceText=', culturalAdviceText);
+        if (!!culturalAdviceText && !!recordId) {
+          console.log('CA::brief I am adding a CA indicator on ', recordId);
+          // whenPageLoaded(addCulturalAdviceIndicatorToHeader(recordId, 'brief'));
+          addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`);
+        }
       }
     },
     template: ''
