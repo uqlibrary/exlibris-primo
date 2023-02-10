@@ -435,22 +435,22 @@ function whenPageLoaded(fn) {
 
         var recordId = '';
         // no one knows what the TN actually means (per SVG), but in practice all the CDI records have it on their record id
-        if (!!vm.parentCtrl?.item?.pnx?.control?.recordid &&
-            vm.parentCtrl.item.pnx.control.recordid[0] && vm.parentCtrl.item.pnx.control.recordid[0].startsWith('TN')) {
-          recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid);
+        if (!!vm.parentCtrl?.item?.pnx?.control?.recordId &&
+            vm.parentCtrl.item.pnx.control.recordId[0] && vm.parentCtrl.item.pnx.control.recordId[0].startsWith('TN')) {
+          recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordId);
         }
         if (recordId === '') {
-          if (!!vm.parentCtrl?.item?.pnx?.search?.recordid) {
-            recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
+          if (!!vm.parentCtrl?.item?.pnx?.search?.recordId) {
+            recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordId);
           }
         }
         if (recordId === '') {
           const params = new Proxy(new URLSearchParams(window.location.search), {
             get: (searchParams, prop) => searchParams.get(prop),
           });
-          const paramRecordId = !!params?.docid ? params.docid : null;
-          if (paramRecordId !== null) {
-            recordId = paramRecordId;
+          const paramrecordId = !!params?.docid ? params.docid : null;
+          if (paramrecordId !== null) {
+            recordId = paramrecordId;
           }
         }
 
@@ -565,11 +565,11 @@ function whenPageLoaded(fn) {
     return CRLIconWrapper;
   }
 
-  function addCourseResourceIndicatorToHeader(recordid, pageType) {
+  function addCourseResourceIndicatorToHeader(recordId, pageType) {
     const CRLIconClassname = 'readingListMark';
-    const parentDOMid = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    const parentDOMid = `SEARCH_RESULT_recordId_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
     // if we have already put the Course Resource Indicator here, don't put it again
-    const icon = !!recordid && document.querySelector(`#${parentDOMid} .${CRLIconClassname}`);
+    const icon = !!recordId && document.querySelector(`#${parentDOMid} .${CRLIconClassname}`);
     if (!!icon) {
       return;
     }
@@ -611,8 +611,8 @@ function whenPageLoaded(fn) {
     const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
 
     // LCN
-    if (materialtype !== 'book_chapter' && !!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
-      item.pnx.search.addsrcrecordid.forEach(r => {
+    if (materialtype !== 'book_chapter' && !!item?.pnx?.search?.addsrcrecordId && item.pnx.search.addsrcrecordId.length > 0) {
+      item.pnx.search.addsrcrecordId.forEach(r => {
         list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
       })
     }
@@ -696,9 +696,9 @@ function whenPageLoaded(fn) {
               if (Object.keys(courseList).length > 0) {
                 $scope.hasCourses = true;
 
-                const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-                if (!!recordid) {
-                  addCourseResourceIndicatorToHeader(recordid, 'full');
+                const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordId && vm.parentCtrl.item.pnx.control.recordId; // eg 61UQ_ALMA51124881340003131
+                if (!!recordId) {
+                  addCourseResourceIndicatorToHeader(recordId, 'full');
                 }
 
                 $scope.talisCourses = {};
@@ -759,9 +759,9 @@ function whenPageLoaded(fn) {
                   getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
                 }
                 if (!!$scope.listsFound) {
-                  const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
-                  if (!!recordid) {
-                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid, 'brief'));
+                  const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordId && vm.parentCtrl.item.pnx.control.recordId; // 61UQ_ALMA51124881340003131
+                  if (!!recordId) {
+                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordId, 'brief'));
                   }
                 }
               })
