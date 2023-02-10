@@ -529,7 +529,7 @@ function whenPageLoaded(fn) {
     template: '<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>'
   });
 
-  function createCourseResourceIndicatorIcon(iconClassname) {
+  function createIndicatorIcon(iconClassname) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     !!path && (path.setAttribute(
         'd',
@@ -565,44 +565,48 @@ function whenPageLoaded(fn) {
     return CRLIconWrapper;
   }
 
+  function addIndicatorToHeader(recordid, parentDOMId, CRLIconClassname) {
+    // if we have already put the Course Resource Indicator here, don't put it again
+    const icon = !!recordid && document.querySelector(`${parentDOMId} .${CRLIconClassname}`);
+    if (!!icon) {
+      return;
+    }
+
+    const CRLIcon = createIndicatorIcon(CRLIconClassname);
+    if (!CRLIcon) {
+      return;
+    }
+
+    let indicatorParent = false;
+    // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
+    const openAccessIndicator = document.querySelector(`${parentDOMId} .open-access-mark`);
+    if (!!openAccessIndicator) {
+      indicatorParent = openAccessIndicator.parentNode;
+    }
+    if (!indicatorParent) {
+      const peerReviewedIndicator = document.querySelector(`${parentDOMId} .peer-reviewed-mark`);
+      if (!!peerReviewedIndicator) {
+        indicatorParent = peerReviewedIndicator.parentNode;
+      }
+    }
+    if (!!indicatorParent) {
+      indicatorParent.appendChild(CRLIcon);
+    } else {
+      // no such icons? add it as a new line after the snippet
+      const snippet = document.querySelector(`${parentDOMId} prm-snippet`);
+      if (!!snippet) {
+        snippet.parentNode.insertBefore(CRLIcon, snippet.nextSibling);
+      }
+    }
+  }
+
   function addCourseResourceIndicatorToHeader(recordid) {
     const CRLIconClassname = 'readingListMark';
     [
       `#SEARCH_RESULT_RECORDID_${recordid}_FULL_VIEW`, // full results page (single record)
       `#SEARCH_RESULT_RECORDID_${recordid}` // brief results page (search results list)
-    ].forEach(id => {
-      // if we have already put the Course Resource Indicator here, don't put it again
-      const icon = !!recordid && document.querySelector(`${id} .${CRLIconClassname}`);
-      if (!!icon) {
-        return;
-      }
-
-      const CRLIcon = createCourseResourceIndicatorIcon(CRLIconClassname);
-      if (!CRLIcon) {
-        return;
-      }
-
-      let indicatorParent = false;
-      // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-      const openAccessIndicator = document.querySelector(`${id} .open-access-mark`);
-      if (!!openAccessIndicator) {
-        indicatorParent = openAccessIndicator.parentNode;
-      }
-      if (!indicatorParent) {
-        const peerReviewedIndicator = document.querySelector(`${id} .peer-reviewed-mark`);
-        if (!!peerReviewedIndicator) {
-          indicatorParent = peerReviewedIndicator.parentNode;
-        }
-      }
-      if (!!indicatorParent) {
-        indicatorParent.appendChild(CRLIcon);
-      } else {
-        // no such icons? add it as a new line after the snippet
-        const snippet = document.querySelector(`${id} prm-snippet`);
-        if (!!snippet) {
-          snippet.parentNode.insertBefore(CRLIcon, snippet.nextSibling);
-        }
-      }
+    ].forEach(parentDOMId => {
+      addIndicatorToHeader(recordid, parentDOMId, CRLIconClassname);
     });
     return true;
   }
