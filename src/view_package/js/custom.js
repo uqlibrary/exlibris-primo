@@ -567,7 +567,7 @@ function whenPageLoaded(fn) {
 
   function addIndicatorToHeader(recordid, parentDOMId, CRLIconClassname) {
     // if we have already put the Course Resource Indicator here, don't put it again
-    const icon = !!recordid && document.querySelector(`${parentDOMId} .${CRLIconClassname}`);
+    const icon = !!recordid && document.querySelector(`#${parentDOMId} .${CRLIconClassname}`);
     if (!!icon) {
       return;
     }
@@ -579,12 +579,12 @@ function whenPageLoaded(fn) {
 
     let indicatorParent = false;
     // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-    const openAccessIndicator = document.querySelector(`${parentDOMId} .open-access-mark`);
+    const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
     if (!!openAccessIndicator) {
       indicatorParent = openAccessIndicator.parentNode;
     }
     if (!indicatorParent) {
-      const peerReviewedIndicator = document.querySelector(`${parentDOMId} .peer-reviewed-mark`);
+      const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
       if (!!peerReviewedIndicator) {
         indicatorParent = peerReviewedIndicator.parentNode;
       }
@@ -593,21 +593,17 @@ function whenPageLoaded(fn) {
       indicatorParent.appendChild(CRLIcon);
     } else {
       // no such icons? add it as a new line after the snippet
-      const snippet = document.querySelector(`${parentDOMId} prm-snippet`);
+      const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
       if (!!snippet) {
         snippet.parentNode.insertBefore(CRLIcon, snippet.nextSibling);
       }
     }
   }
 
-  function addCourseResourceIndicatorToHeader(recordid) {
+  function addCourseResourceIndicatorToHeader(recordId, pageType) {
     const CRLIconClassname = 'readingListMark';
-    [
-      `#SEARCH_RESULT_RECORDID_${recordid}_FULL_VIEW`, // full results page (single record)
-      `#SEARCH_RESULT_RECORDID_${recordid}` // brief results page (search results list)
-    ].forEach(parentDOMId => {
-      addIndicatorToHeader(recordid, parentDOMId, CRLIconClassname);
-    });
+    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    addIndicatorToHeader(recordId, parentDOMId, CRLIconClassname);
     return true;
   }
 
@@ -704,7 +700,7 @@ function whenPageLoaded(fn) {
 
                 const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
                 if (!!recordid) {
-                  addCourseResourceIndicatorToHeader(recordid);
+                  addCourseResourceIndicatorToHeader(recordid, 'full');
                 }
 
                 $scope.talisCourses = {};
@@ -767,7 +763,7 @@ function whenPageLoaded(fn) {
                 if (!!$scope.listsFound) {
                   const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
                   if (!!recordid) {
-                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid, 'brief'));
                   }
                 }
               })
