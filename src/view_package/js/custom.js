@@ -531,10 +531,7 @@ function whenPageLoaded(fn) {
 
   function createCourseResourceIndicatorIcon(iconClassname, svgIcon, indicatorLabel) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    !!path && (path.setAttribute(
-        'd',
-        svgIcon, // MUI AccountBalance icon
-    ));
+    !!path && (path.setAttribute('d',svgIcon));
 
     const svgCR = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     !!svgCR && svgCR.setAttribute('width', '100%');
@@ -567,6 +564,9 @@ function whenPageLoaded(fn) {
 
   function addCourseResourceIndicatorToHeader(recordId, pageType) {
     const CRLIconClassname = 'readingListMark';
+    const svgIcon = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z'; // MUI AccountBalance icon
+    const indicatorLabel = 'COURSE READING LIST';
+
     const parentDOMid = `SEARCH_RESULT_recordId_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
     // if we have already put the Course Resource Indicator here, don't put it again
     const icon = !!recordId && document.querySelector(`#${parentDOMid} .${CRLIconClassname}`);
@@ -574,8 +574,6 @@ function whenPageLoaded(fn) {
       return;
     }
 
-    const svgIcon = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z';
-    const indicatorLabel = 'COURSE READING LIST';
     const createdIndicator = createCourseResourceIndicatorIcon(CRLIconClassname, svgIcon, indicatorLabel);
     if (!createdIndicator) {
       return;
@@ -611,8 +609,8 @@ function whenPageLoaded(fn) {
     const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
 
     // LCN
-    if (materialtype !== 'book_chapter' && !!item?.pnx?.search?.addsrcrecordId && item.pnx.search.addsrcrecordId.length > 0) {
-      item.pnx.search.addsrcrecordId.forEach(r => {
+    if (materialtype !== 'book_chapter' && !!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
+      item.pnx.search.addsrcrecordid.forEach(r => {
         list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
       })
     }
@@ -696,9 +694,9 @@ function whenPageLoaded(fn) {
               if (Object.keys(courseList).length > 0) {
                 $scope.hasCourses = true;
 
-                const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordId && vm.parentCtrl.item.pnx.control.recordId; // eg 61UQ_ALMA51124881340003131
-                if (!!recordId) {
-                  addCourseResourceIndicatorToHeader(recordId, 'full');
+                const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+                if (!!recordid) {
+                  addCourseResourceIndicatorToHeader(recordid);
                 }
 
                 $scope.talisCourses = {};
@@ -759,9 +757,9 @@ function whenPageLoaded(fn) {
                   getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
                 }
                 if (!!$scope.listsFound) {
-                  const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordId && vm.parentCtrl.item.pnx.control.recordId; // 61UQ_ALMA51124881340003131
-                  if (!!recordId) {
-                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordId, 'brief'));
+                  const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
+                  if (!!recordid) {
+                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
                   }
                 }
               })
