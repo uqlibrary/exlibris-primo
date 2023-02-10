@@ -529,12 +529,11 @@ function whenPageLoaded(fn) {
     template: '<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>'
   });
 
-  function createIndicatorIcon(iconClassname) {
+  function createIndicator(svgPathValue, iconWrapperClassName, labelText) {
+
+    const iconClassName = `${iconWrapperClassName}Icon`;
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    !!path && (path.setAttribute(
-        'd',
-        'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z', // MUI AccountBalance icon
-    ));
+    !!path && (path.setAttribute('d', svgPathValue));
 
     const svgCR = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     !!svgCR && svgCR.setAttribute('width', '100%');
@@ -550,30 +549,33 @@ function whenPageLoaded(fn) {
     !!mdIcon && !!svgCR && mdIcon.appendChild(svgCR);
 
     const prmIcon = document.createElement('span');
-    !!prmIcon && (prmIcon.className = 'readingListMarkIcon');
+    !!prmIcon && (prmIcon.className = iconClassName);
     !!prmIcon && !!mdIcon && prmIcon.appendChild(mdIcon);
 
     const contentLabel = document.createElement('span');
-    !!contentLabel && (contentLabel.className = 'readingListMarkLabel');
-    !!contentLabel && (contentLabel.innerHTML = 'COURSE READING LIST');
+    !!contentLabel && (contentLabel.className = 'customIndicatorLabel');
+    !!contentLabel && (contentLabel.innerHTML = labelText);
 
-    const CRLIconWrapper = document.createElement('span');
-    !!CRLIconWrapper && (CRLIconWrapper.className = iconClassname);
-    !!CRLIconWrapper && !!prmIcon && CRLIconWrapper.appendChild(prmIcon);
-    !!CRLIconWrapper && !!contentLabel && CRLIconWrapper.appendChild(contentLabel);
+    const iconWrapper = document.createElement('span');
+    // !!CRLIconWrapper && (CRLIconWrapper.id = uniqueId);
+    !!iconWrapper && (iconWrapper.className = iconWrapperClassName);
+    !!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
+    !!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
 
-    return CRLIconWrapper;
+    return iconWrapper;
   }
 
-  function addIndicatorToHeader(recordid, parentDOMId, CRLIconClassname) {
-    // if we have already put the Course Resource Indicator here, don't put it again
-    const icon = !!recordid && document.querySelector(`#${parentDOMId} .${CRLIconClassname}`);
+  function addIndicatorToHeader(recordid, pageType, iconClassname, svgPathValue, labelText) {
+    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordid}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+
+    // if we have already put the Indicator here, don't put it again
+    const icon = !!recordid && document.querySelector(`#${parentDOMId} .${iconClassname}`);
     if (!!icon) {
       return;
     }
 
-    const CRLIcon = createIndicatorIcon(CRLIconClassname);
-    if (!CRLIcon) {
+    const createdIcon = createIndicator(svgPathValue, iconClassname, labelText);
+    if (!createdIcon) {
       return;
     }
 
@@ -590,20 +592,21 @@ function whenPageLoaded(fn) {
       }
     }
     if (!!indicatorParent) {
-      indicatorParent.appendChild(CRLIcon);
+      indicatorParent.appendChild(createdIcon);
     } else {
       // no such icons? add it as a new line after the snippet
       const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
       if (!!snippet) {
-        snippet.parentNode.insertBefore(CRLIcon, snippet.nextSibling);
+        snippet.parentNode.insertBefore(createdIcon, snippet.nextSibling);
       }
     }
   }
 
   function addCourseResourceIndicatorToHeader(recordId, pageType) {
     const CRLIconClassname = 'readingListMark';
-    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
-    addIndicatorToHeader(recordId, parentDOMId, CRLIconClassname);
+    const svgPathValue = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z'; // MUI AccountBalance icon
+    const labelText = 'COURSE READING LIST';
+    addIndicatorToHeader(recordId, pageType, CRLIconClassname, svgPathValue, labelText);
     return true;
   }
 
