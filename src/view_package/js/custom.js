@@ -557,7 +557,7 @@ function whenPageLoaded(fn) {
     !!contentLabel && (contentLabel.innerHTML = labelText);
 
     const iconWrapper = document.createElement('span');
-    !!CRLIconWrapper && (CRLIconWrapper.id = uniqueId);
+    !!iconWrapper && (iconWrapper.id = uniqueId);
     // !!iconWrapper && (iconWrapper.className = iconWrapperClassName);
     !!iconWrapper && (iconWrapper.className = 'customIndicator');
     !!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
@@ -566,9 +566,9 @@ function whenPageLoaded(fn) {
     return iconWrapper;
   }
 
-  function addIndicatorToHeader(recordid, pageType, iconClassname, svgPathValue, labelText) {
+  function addIndicatorToHeader(recordid, pageType, thisIndicatorAbbrev, iconClassname, svgPathValue, labelText) {
     const parentDOMId = `SEARCH_RESULT_RECORDID_${recordid}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
-    const uniqueId = `${parentDOMid}-${thisIndicatorAbbrev}-${pageType}`;
+    const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
     // if we have already put the Indicator here, don't put it again
     // const icon = !!recordid && document.querySelector(`#${parentDOMId} .${iconClassname}`);
@@ -576,13 +576,13 @@ function whenPageLoaded(fn) {
     //   return;
     // }
 
-    const createdIcon = createIndicator(svgPathValue, iconClassname, labelText, uniqueId);
-    if (!createdIcon) {
+    const createdIndicator = createIndicator(svgPathValue, iconClassname, labelText, uniqueId);
+    if (!createdIndicator) {
       return;
     }
 
     const waitforSnippetToExist = setInterval(() => {
-      const snippet = document.querySelector(`#${parentDOMid} prm-snippet`);
+      const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
       if (!!snippet) {
         clearInterval(waitforSnippetToExist); // we are hoping that once the snippet exists that any OA or PR Indicators are present
         const existingIndicator = document.getElementById(uniqueId);
@@ -604,12 +604,12 @@ function whenPageLoaded(fn) {
           }
         }
         if (!!indicatorParent) {
-          indicatorParent.appendChild(createdIcon);
+          indicatorParent.appendChild(createdIndicator);
         } else {
           // no such icons? add it as a new line after the snippet
           const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
           if (!!snippet) {
-            snippet.parentNode.insertBefore(createdIcon, snippet.nextSibling);
+            snippet.parentNode.insertBefore(createdIndicator, snippet.nextSibling);
           }
         }
       }
@@ -626,14 +626,14 @@ function whenPageLoaded(fn) {
     console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader start', recordId);
     console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader pageType', pageType);
 
-    return addIndicatorToHeader(recordId, pageType, className, svgPathValue, labelText);
+    return addIndicatorToHeader(recordId, pageType, thisIndicatorAbbrev, className, svgPathValue, labelText);
   }
 
   function addCourseResourceIndicatorToHeader(recordId, pageType) {
     const CRLIconClassname = 'readingListMark';
     const svgPathValue = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z'; // MUI AccountBalance icon
     const labelText = 'COURSE READING LIST';
-    addIndicatorToHeader(recordId, pageType, CRLIconClassname, svgPathValue, labelText);
+    addIndicatorToHeader(recordId, pageType, thisIndicatorAbbrev, CRLIconClassname, svgPathValue, labelText);
     return true;
   }
 
