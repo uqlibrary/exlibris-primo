@@ -529,7 +529,7 @@ function whenPageLoaded(fn) {
     template: '<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>'
   });
 
-  function createIndicator(svgPathValue, iconWrapperClassName, labelText) {
+  function createIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
 
     const iconClassName = `${iconWrapperClassName}Icon`;
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -549,7 +549,7 @@ function whenPageLoaded(fn) {
     !!mdIcon && !!svgCR && mdIcon.appendChild(svgCR);
 
     const prmIcon = document.createElement('span');
-    !!prmIcon && (prmIcon.className = iconClassName);
+    !!prmIcon && (prmIcon.className = `${iconClassName} indicatorIcon`);
     !!prmIcon && !!mdIcon && prmIcon.appendChild(mdIcon);
 
     const contentLabel = document.createElement('span');
@@ -557,8 +557,9 @@ function whenPageLoaded(fn) {
     !!contentLabel && (contentLabel.innerHTML = labelText);
 
     const iconWrapper = document.createElement('span');
-    // !!CRLIconWrapper && (CRLIconWrapper.id = uniqueId);
-    !!iconWrapper && (iconWrapper.className = iconWrapperClassName);
+    !!CRLIconWrapper && (CRLIconWrapper.id = uniqueId);
+    // !!iconWrapper && (iconWrapper.className = iconWrapperClassName);
+    !!iconWrapper && (iconWrapper.className = 'customIndicator');
     !!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
     !!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
 
@@ -567,39 +568,53 @@ function whenPageLoaded(fn) {
 
   function addIndicatorToHeader(recordid, pageType, iconClassname, svgPathValue, labelText) {
     const parentDOMId = `SEARCH_RESULT_RECORDID_${recordid}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    const uniqueId = `${parentDOMid}-${thisIndicatorAbbrev}-${pageType}`;
 
     // if we have already put the Indicator here, don't put it again
-    const icon = !!recordid && document.querySelector(`#${parentDOMId} .${iconClassname}`);
-    if (!!icon) {
-      return;
-    }
+    // const icon = !!recordid && document.querySelector(`#${parentDOMId} .${iconClassname}`);
+    // if (!!icon) {
+    //   return;
+    // }
 
-    const createdIcon = createIndicator(svgPathValue, iconClassname, labelText);
+    const createdIcon = createIndicator(svgPathValue, iconClassname, labelText, uniqueId);
     if (!createdIcon) {
       return;
     }
 
-    let indicatorParent = false;
-    // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-    const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
-    if (!!openAccessIndicator) {
-      indicatorParent = openAccessIndicator.parentNode;
-    }
-    if (!indicatorParent) {
-      const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
-      if (!!peerReviewedIndicator) {
-        indicatorParent = peerReviewedIndicator.parentNode;
-      }
-    }
-    if (!!indicatorParent) {
-      indicatorParent.appendChild(createdIcon);
-    } else {
-      // no such icons? add it as a new line after the snippet
-      const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
+    const waitforSnippetToExist = setInterval(() => {
+      const snippet = document.querySelector(`#${parentDOMid} prm-snippet`);
       if (!!snippet) {
-        snippet.parentNode.insertBefore(createdIcon, snippet.nextSibling);
+        clearInterval(waitforSnippetToExist); // we are hoping that once the snippet exists that any OA or PR Indicators are present
+        const existingIndicator = document.getElementById(uniqueId);
+        if (!!existingIndicator) {
+          console.log('addIndicatorToHeader: for ', pageType, ' bail because found ID: ', uniqueId);
+          return;
+        }
+
+        let indicatorParent = false;
+        // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
+        const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
+        if (!!openAccessIndicator) {
+          indicatorParent = openAccessIndicator.parentNode;
+        }
+        if (!indicatorParent) {
+          const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
+          if (!!peerReviewedIndicator) {
+            indicatorParent = peerReviewedIndicator.parentNode;
+          }
+        }
+        if (!!indicatorParent) {
+          indicatorParent.appendChild(createdIcon);
+        } else {
+          // no such icons? add it as a new line after the snippet
+          const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
+          if (!!snippet) {
+            snippet.parentNode.insertBefore(createdIcon, snippet.nextSibling);
+          }
+        }
       }
-    }
+    }, 100);
+    return true;
   }
 
   function addCulturalAdviceIndicatorToHeader(recordId, pageType) {
