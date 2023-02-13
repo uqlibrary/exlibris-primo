@@ -610,7 +610,7 @@ function whenPageLoaded(fn) {
           // no such icons? add it as a new line after the snippet
           // we have to make a wrapping div in case there is more than one Indicator, even though its rare
           // and of course we don't know if another Indicator creation has already happened....
-          let indicatorWrapper = document.querySelector(`#${parentDOMid} div.indicatorWrapper`);
+          let indicatorWrapper = document.querySelector(`#${parentDOMId} div.indicatorWrapper`);
           if (!indicatorWrapper) {
             indicatorWrapper = document.createElement('div');
             !!indicatorWrapper && (indicatorWrapper.className = 'indicatorWrapper');
