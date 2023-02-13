@@ -699,6 +699,10 @@ function whenPageLoaded(fn) {
     return list;
   }
 
+  function isFullDisplayPage() {
+    return window.location.pathname.includes('fulldisplay');
+  }
+
   // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
   // and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
   // check for a reading list in the full results page and add an indicator and list if so
@@ -711,8 +715,7 @@ function whenPageLoaded(fn) {
         $scope.talisCourses = [];
         $scope.hasCourses = false;
 
-        const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
-        if (!isFullDisplayPage) {
+        if (!isFullDisplayPage()) {
           return;
         }
 
@@ -796,8 +799,7 @@ function whenPageLoaded(fn) {
       this.$onInit = function () {
         $scope.listsFound = null;
 
-        const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
-        if (!!isFullDisplayPage) {
+        if (!!isFullDisplayPage()) {
           return;
         }
 
