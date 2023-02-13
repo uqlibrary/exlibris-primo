@@ -566,61 +566,39 @@ function whenPageLoaded(fn) {
     return iconWrapper;
   }
 
-  function addIndicatorToHeader(recordid, pageType, thisIndicatorAbbrev, iconClassname, svgPathValue, labelText) {
-    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordid}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
-    const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
-
-    // if we have already put the Indicator here, don't put it again
-    // const icon = !!recordid && document.querySelector(`#${parentDOMId} .${iconClassname}`);
-    // if (!!icon) {
-    //   return;
-    // }
-
-    const createdIndicator = createIndicator(svgPathValue, iconClassname, labelText, uniqueId);
-    if (!createdIndicator) {
+  function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator, snippet) {
+    const existingIndicator = document.getElementById(uniqueId);
+    if (!!existingIndicator) {
+      console.log('addIndicatorToHeader: for ', pageType, ' bail because found ID: ', uniqueId);
       return;
     }
 
-    const waitforSnippetToExist = setInterval(() => {
-      const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
-      if (!!snippet) { // we are hoping that once the snippet exists that any OA or PR Indicators are present
-        clearInterval(waitforSnippetToExist);
-
-        const existingIndicator = document.getElementById(uniqueId);
-        if (!!existingIndicator) {
-          console.log('addIndicatorToHeader: for ', pageType, ' bail because found ID: ', uniqueId);
-          return;
-        }
-
-        let indicatorParent = false;
-        // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-        const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
-        if (!!openAccessIndicator) {
-          indicatorParent = openAccessIndicator.parentNode;
-        }
-        if (!indicatorParent) {
-          const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
-          if (!!peerReviewedIndicator) {
-            indicatorParent = peerReviewedIndicator.parentNode;
-          }
-        }
-        if (!!indicatorParent) {
-          indicatorParent.appendChild(createdIndicator);
-        } else {
-          // no such icons? add it as a new line after the snippet
-          // we have to make a wrapping div in case there is more than one Indicator, even though its rare
-          // and of course we don't know if another Indicator creation has already happened....
-          let indicatorWrapper = document.querySelector(`#${parentDOMId} div.indicatorWrapper`);
-          if (!indicatorWrapper) {
-            indicatorWrapper = document.createElement('div');
-            !!indicatorWrapper && (indicatorWrapper.className = 'indicatorWrapper');
-            snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
-          }
-          !!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
-        }
+    let indicatorParent = false;
+    // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
+    const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
+    if (!!openAccessIndicator) {
+      indicatorParent = openAccessIndicator.parentNode;
+    }
+    if (!indicatorParent) {
+      const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
+      if (!!peerReviewedIndicator) {
+        indicatorParent = peerReviewedIndicator.parentNode;
       }
-    }, 100);
-    return true;
+    }
+    if (!!indicatorParent) {
+      indicatorParent.appendChild(createdIndicator);
+    } else {
+      // no such icons? add it as a new line after the snippet
+      // we have to make a wrapping div in case there is more than one Indicator, even though its rare
+      // and of course we don't know if another Indicator creation has already happened....
+      let indicatorWrapper = document.querySelector(`#${parentDOMId} div.indicatorWrapper`);
+      if (!indicatorWrapper) {
+        indicatorWrapper = document.createElement('div');
+        !!indicatorWrapper && (indicatorWrapper.className = 'indicatorWrapper');
+        snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
+      }
+      !!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
+    }
   }
 
   function addCulturalAdviceIndicatorToHeader(recordId, pageType) {
@@ -632,7 +610,22 @@ function whenPageLoaded(fn) {
     console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader start', recordId);
     console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader pageType', pageType);
 
-    return addIndicatorToHeader(recordId, pageType, thisIndicatorAbbrev, className, svgPathValue, labelText);
+    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
+
+    const createdIndicator = createIndicator(svgPathValue, className, labelText, uniqueId);
+    if (!createdIndicator) {
+      return;
+    }
+
+    const waitforSnippetToExist = setInterval(() => {
+      const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
+      if (!!snippet) { // we are hoping that once the snippet exists that any OA or PR Indicators are present
+        clearInterval(waitforSnippetToExist);
+        addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator, snippet);
+      }
+    }, 100);
+    return true;
   }
 
   function addCourseResourceIndicatorToHeader(recordId, pageType) {
@@ -640,7 +633,18 @@ function whenPageLoaded(fn) {
     const thisIndicatorAbbrev = 'courseres';
     const svgPathValue = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z'; // MUI AccountBalance icon
     const labelText = 'COURSE READING LIST';
-    return addIndicatorToHeader(recordId, pageType, thisIndicatorAbbrev, className, svgPathValue, labelText);
+
+    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
+
+    const createdIndicator = createIndicator(svgPathValue, className, labelText, uniqueId);
+    if (!createdIndicator) {
+      return;
+    }
+
+    const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
+    addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator, snippet);
+    return true;
   }
 
   function getListTalisUrls(item) {
