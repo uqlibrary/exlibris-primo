@@ -595,7 +595,7 @@ function whenPageLoaded(fn) {
       if (!indicatorWrapper) {
         indicatorWrapper = document.createElement('div');
         !!indicatorWrapper && (indicatorWrapper.className = 'indicatorWrapper');
-        snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
+        !!snippet && !!indicatorWrapper && snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
       }
       !!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
     }
