@@ -583,8 +583,9 @@ function whenPageLoaded(fn) {
 
     const waitforSnippetToExist = setInterval(() => {
       const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
-      if (!!snippet) {
-        clearInterval(waitforSnippetToExist); // we are hoping that once the snippet exists that any OA or PR Indicators are present
+      if (!!snippet) { // we are hoping that once the snippet exists that any OA or PR Indicators are present
+        clearInterval(waitforSnippetToExist);
+
         const existingIndicator = document.getElementById(uniqueId);
         if (!!existingIndicator) {
           console.log('addIndicatorToHeader: for ', pageType, ' bail because found ID: ', uniqueId);
@@ -607,10 +608,15 @@ function whenPageLoaded(fn) {
           indicatorParent.appendChild(createdIndicator);
         } else {
           // no such icons? add it as a new line after the snippet
-          const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
-          if (!!snippet) {
-            snippet.parentNode.insertBefore(createdIndicator, snippet.nextSibling);
+          // we have to make a wrapping div in case there is more than one Indicator, even though its rare
+          // and of course we don't know if another Indicator creation has already happened....
+          let indicatorWrapper = document.querySelector(`#${parentDOMid} div.indicatorWrapper`);
+          if (!indicatorWrapper) {
+            indicatorWrapper = document.createElement('div');
+            !!indicatorWrapper && (indicatorWrapper.className = 'indicatorWrapper');
+            snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
           }
+          !!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
         }
       }
     }, 100);
@@ -630,11 +636,11 @@ function whenPageLoaded(fn) {
   }
 
   function addCourseResourceIndicatorToHeader(recordId, pageType) {
-    const CRLIconClassname = 'readingListMark';
+    const className = 'readingListMark';
+    const thisIndicatorAbbrev = 'courseres';
     const svgPathValue = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z'; // MUI AccountBalance icon
     const labelText = 'COURSE READING LIST';
-    addIndicatorToHeader(recordId, pageType, thisIndicatorAbbrev, CRLIconClassname, svgPathValue, labelText);
-    return true;
+    return addIndicatorToHeader(recordId, pageType, thisIndicatorAbbrev, className, svgPathValue, labelText);
   }
 
   function getListTalisUrls(item) {
@@ -802,7 +808,8 @@ function whenPageLoaded(fn) {
                 if (!!$scope.listsFound) {
                   const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
                   if (!!recordid) {
-                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid, 'brief'));
+                    addCourseResourceIndicatorToHeader(recordid, 'brief');
+                    // whenPageLoaded(addCourseResourceIndicatorToHeader(recordid, 'brief'));
                   }
                 }
               })
