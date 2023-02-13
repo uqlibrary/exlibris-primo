@@ -703,6 +703,33 @@ function whenPageLoaded(fn) {
     return window.location.pathname.includes('fulldisplay');
   }
 
+  function addCulturalAdviceBanner(displayText) {
+    // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain images transcripts or names of Aboriginal and Torres Strait Islander people now deceased.  It may also contain historically and culturally sensitive words, terms, and descriptions."
+    const displayBlockClassName = 'culturalAdviceBanner';
+    const displayBlock = document.querySelector(`.${displayBlockClassName}`);
+    if (!!displayBlock) {
+      // block already exists - don't duplicate
+      console.log('CA::banner block already exists - dont duplicate');
+      return;
+    }
+
+    const para = document.createElement('p');
+    // move these styles to the reusable scss file when it looks right
+    !!para && (para.style.padding = '1em');
+    !!para && (para.style.borderColor = '#black');
+    !!para && (para.style.color = '1em');
+    !!para && (para.style.backgroundColor = '#bbd8f5');
+    !!para && (para.innerHTML = displayText);
+
+    const block = document.createElement('div');
+    !!block && (block.className = displayBlockClassName);
+    !!para && !!para && block.appendChild(para);
+
+    const siblingClass = '.search-result-availability-line-wrapper';
+    const appendToSibling = document.querySelector(siblingClass);
+    appendToSibling.insertAdjacentElement('afterend', block);
+  }
+
   // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
   // and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
   // check for a reading list in the full results page and add an indicator and list if so
@@ -777,6 +804,10 @@ function whenPageLoaded(fn) {
         if (!!culturalAdviceText && !!recordId) {
           console.log('CA::full I would add a CA indicator on ', recordId);
           addCulturalAdviceIndicatorToHeader(recordId, 'full');
+
+          const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.search?.lsr47 && vm.parentCtrl.item.pnx.search?.lsr47; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+          console.log('CA::banner would show ', culturalAdviceBody);
+          !!culturalAdviceBody && culturalAdviceBody.length > 0 && addCulturalAdviceBanner(culturalAdviceBody[0]);
         }
       }
     },
