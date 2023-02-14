@@ -735,6 +735,7 @@ function whenPageLoaded(fn) {
     !!para && (para.style.color = '#000');
     !!para && (para.style.backgroundColor = '#bbd8f5');
     !!para && (para.style.borderRadius = '3px');
+    !!para && (para.style.marginRight = '-2.50em');
     !!para && (para.innerHTML = displayText);
 
     const block = document.createElement('div');
