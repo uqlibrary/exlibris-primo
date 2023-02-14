@@ -566,7 +566,11 @@ function whenPageLoaded(fn) {
     return iconWrapper;
   }
 
-  function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator, snippet) {
+  function getSnippet(parentDOMId) {
+    return document.querySelector(`#${parentDOMId} prm-snippet`);
+  }
+
+  function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
     const existingIndicator = document.getElementById(uniqueId);
     if (!!existingIndicator) {
       console.log('addIndicatorToHeader: for ', pageType, ' bail because found ID: ', uniqueId);
@@ -595,34 +599,45 @@ function whenPageLoaded(fn) {
       if (!indicatorWrapper) {
         indicatorWrapper = document.createElement('div');
         !!indicatorWrapper && (indicatorWrapper.className = 'indicatorWrapper');
+        const snippet = getSnippet(parentDOMId);
         !!snippet && !!indicatorWrapper && snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
       }
       !!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
     }
   }
 
+  function getParentDomId(recordId) {
+    const selectorRoot = 'SEARCH_RESULT_RECORDID_';
+    let parentDOMId = `${selectorRoot}${recordId}_FULL_VIEW`;
+    const domCheck = document.querySelector(`#${parentDOMId}`);
+    if (!domCheck) {
+      parentDOMId = `${selectorRoot}${recordId}`;
+    }
+    return parentDOMId;
+  }
+
   function addCulturalAdviceIndicatorToHeader(recordId, pageType) {
     const className = 'culturalAdviceMark';
     const thisIndicatorAbbrev = 'cultadv';
-    const svgPathValue = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'; // MUI Info icon
+    const muiIconInfoSvgPath = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z';
     const labelText = 'CULTURAL ADVICE';
 
     console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader start', recordId);
     console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader pageType', pageType);
 
-    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    const parentDOMId = getParentDomId(recordId);
     const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-    const createdIndicator = createIndicator(svgPathValue, className, labelText, uniqueId);
+    const createdIndicator = createIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
     if (!createdIndicator) {
       return;
     }
 
     const waitforSnippetToExist = setInterval(() => {
-      const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
+      const snippet = getSnippet(parentDOMId);
       if (!!snippet) { // we are hoping that once the snippet exists that any OA or PR Indicators are present
         clearInterval(waitforSnippetToExist);
-        addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator, snippet);
+        addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
       }
     }, 100);
     return true;
@@ -631,19 +646,18 @@ function whenPageLoaded(fn) {
   function addCourseResourceIndicatorToHeader(recordId, pageType) {
     const className = 'readingListMark';
     const thisIndicatorAbbrev = 'courseres';
-    const svgPathValue = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z'; // MUI AccountBalance icon
+    const muiIconAccountBalanceSvgPath = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z';
     const labelText = 'COURSE READING LIST';
 
-    const parentDOMId = `SEARCH_RESULT_RECORDID_${recordId}${pageType === 'full' ? '_FULL_VIEW' : ''}`;
+    const parentDOMId = getParentDomId(recordId);
     const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-    const createdIndicator = createIndicator(svgPathValue, className, labelText, uniqueId);
+    const createdIndicator = createIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
     if (!createdIndicator) {
       return;
     }
 
-    const snippet = document.querySelector(`#${parentDOMId} prm-snippet`);
-    addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator, snippet);
+    addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
     return true;
   }
 
