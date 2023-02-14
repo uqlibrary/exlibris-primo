@@ -827,7 +827,7 @@ function whenPageLoaded(fn) {
 
           const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.search?.lsr47 && vm.parentCtrl.item.pnx.search?.lsr47; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
           console.log('CA::banner would show ', culturalAdviceBody);
-          !!culturalAdviceBody && culturalAdviceBody.length > 0 && addCulturalAdviceBanner(culturalAdviceBody[0]);
+          !!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
         }
       }
     },
