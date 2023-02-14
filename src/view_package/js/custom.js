@@ -634,6 +634,7 @@ function whenPageLoaded(fn) {
     }
 
     const waitforSnippetToExist = setInterval(() => {
+      const parentDOMId = getParentDomId(recordId);
       const snippet = getSnippet(parentDOMId);
       if (!!snippet) { // we are hoping that once the snippet exists that any OA or PR Indicators are present
         clearInterval(waitforSnippetToExist);
@@ -741,8 +742,11 @@ function whenPageLoaded(fn) {
     !!para && !!para && block.appendChild(para);
 
     const siblingClass = '.search-result-availability-line-wrapper';
-    const appendToSibling = document.querySelector(siblingClass);
-    appendToSibling.insertAdjacentElement('afterend', block);
+    const siblings = document.querySelectorAll(siblingClass);
+    siblings.forEach(appendToSibling => {
+      console.log('append ', appendToSibling);
+      appendToSibling.insertAdjacentElement('afterend', block)
+    });
   }
 
   // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
