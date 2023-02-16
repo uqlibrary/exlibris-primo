@@ -558,8 +558,8 @@ function whenPageLoaded(fn) {
 
     const iconWrapper = document.createElement('span');
     !!iconWrapper && (iconWrapper.id = uniqueId);
-    // !!iconWrapper && (iconWrapper.className = iconWrapperClassName);
-    !!iconWrapper && (iconWrapper.className = 'customIndicator');
+    // iconWrapperClassName is used to hide all non first-child entries
+    !!iconWrapper && (iconWrapper.className = `customIndicator ${iconWrapperClassName}`);
     !!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
     !!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
 
@@ -571,11 +571,53 @@ function whenPageLoaded(fn) {
   }
 
   function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
-    const existingIndicator = document.getElementById(uniqueId);
-    if (!!existingIndicator) {
+    console.log('addIndicatorToHeader parentDOMId=', parentDOMId);
+    console.log('addIndicatorToHeader uniqueId=', uniqueId);
+    // determine the 2 ids that might apply to an existing indicator, both with and without FULLVIEW
+    const check1 = uniqueId.replace('_FULL_VIEW', '');
+    let check2;
+    // create check2 to have fullview
+    if (check1 === uniqueId) {
+      // check 1 does not have fullview removed
+      // incoming uniquie === check 1
+      // therefore incoming unique did not have fullview
+      // so check 2  add 'fullview' to unique
+      if (uniqueId.includes('-cultadv')) {
+        check2 = uniqueId.replace('-cultadv', '_FULL_VIEW-cultadv')
+      } else {
+        check2 = uniqueId.replace('-courseres', '_FULL_VIEW-courseres')
+      }
+    } else {
+      // check 1 does not have fullview removed
+      // incoming unique !== check 1
+      // therefore incoming unique has full view
+      // so check 2 set to unique so it has full view
+      check2 = uniqueId;
+    }
+    const existingIndicatorElement1 = document.getElementById(check1);
+    const existingIndicatorElement2 = document.getElementById(check2);
+
+    console.log('addIndicatorToHeader check1=', check1, !!existingIndicatorElement1 ? 'exists' : 'new');
+    console.log('addIndicatorToHeader check2=', check2, !!existingIndicatorElement2 ? 'exists' : 'new');
+
+
+
+    // const uniqueIdCopy = uniqueId;
+    // const existingIndicator1 = uniqueId.replace('_FULL_VIEW', '');
+    // const existingIndicator1Element = document.querySelector(existingIndicator1);
+    // const existingIndicator2 = existingIndicator1 === uniqueIdCopy
+    // const existingIndicator2Element = document.querySelector(existingIndicator2);
+    // // SEARCH_RESULT_RECORDID_61UQ_ALMA21105913690003131-cultadv-full
+    // // SEARCH_RESULT_RECORDID_61UQ_ALMA21105913690003131_FULL_VIEW-cultadv-full
+
+    // const existingIndicator = document.getElementById(uniqueId);
+    if (!!existingIndicatorElement1 || !!existingIndicatorElement2) {
       console.log('addIndicatorToHeader: for ', pageType, ' bail because found ID: ', uniqueId);
+      console.log('----------------------------');
       return;
     }
+    console.log('addIndicatorToHeader: add it');
+    console.log('----------------------------');
 
     let indicatorParent = false;
     // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
@@ -606,12 +648,28 @@ function whenPageLoaded(fn) {
     }
   }
 
-  function getParentDomId(recordId) {
+  function getParentDomId(recordId, recursionCount = 0) {
+    console.log('getParentDomId::', recordId , ' start ', recursionCount);
     const selectorRoot = 'SEARCH_RESULT_RECORDID_';
     let parentDOMId = `${selectorRoot}${recordId}_FULL_VIEW`;
-    const domCheck = document.querySelector(`#${parentDOMId}`);
-    if (!domCheck) {
+    const domCheckFull = document.getElementById(`${parentDOMId}`);
+    if (!domCheckFull) {
+      console.log('getParentDomId::full record id NOT found, check brief view for ', recordId);
       parentDOMId = `${selectorRoot}${recordId}`;
+
+      // there are times when the page seems to be a full display, but we are on a brief results page.
+      // does the code load too fast and the url hasn't changed yet?
+      const domCheck = document.getElementById(`${parentDOMId}`)
+      if (!domCheck && recursionCount < 10) {
+        setTimeout(() => {
+          console.log('getParentDomId::domCheck doesnt exist either, wait then try again recursionCount=', recursionCount);
+          const result = getParentDomId(recordId, recursionCount + 1);
+          console.log('getParentDomId::domCheck returns, use=', result);
+          return result;
+        }, 100)
+      }
+    } else {
+      console.log('getParentDomId::full record id matched, use parentDOMId=',parentDOMId,' for ', recordId);
     }
     return parentDOMId;
   }
@@ -627,6 +685,8 @@ function whenPageLoaded(fn) {
 
     const parentDOMId = getParentDomId(recordId);
     const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
+    console.log('addCulturalAdviceIndicatorToHeader parentDOMId=', parentDOMId);
+    console.log('addCulturalAdviceIndicatorToHeader uniqueId=', uniqueId);
 
     const createdIndicator = createIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
     if (!createdIndicator) {
@@ -745,7 +805,7 @@ function whenPageLoaded(fn) {
     const siblingClass = '.search-result-availability-line-wrapper';
     const siblings = document.querySelectorAll(siblingClass);
     siblings.forEach(appendToSibling => {
-      console.log('append ', appendToSibling);
+      console.log('append to ', appendToSibling);
       appendToSibling.insertAdjacentElement('afterend', block)
     });
   }
@@ -762,7 +822,10 @@ function whenPageLoaded(fn) {
         $scope.talisCourses = [];
         $scope.hasCourses = false;
 
+        console.log('prmServiceDetailsAfter')
+
         if (!isFullDisplayPage()) {
+          console.log('this is not the full results page - bail from prmServiceDetailsAfter')
           return;
         }
 
@@ -850,7 +913,10 @@ function whenPageLoaded(fn) {
       this.$onInit = function () {
         $scope.listsFound = null;
 
+        console.log('prmBriefResultContainerAfter');
+
         if (!!isFullDisplayPage()) {
+          console.log('this is not the brief page - bail from prmBriefResultContainerAfter ', window.location.href)
           return;
         }
 
