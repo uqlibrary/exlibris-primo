@@ -571,53 +571,19 @@ function whenPageLoaded(fn) {
   }
 
   function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
-    console.log('addIndicatorToHeader parentDOMId=', parentDOMId);
-    console.log('addIndicatorToHeader uniqueId=', uniqueId);
-    // determine the 2 ids that might apply to an existing indicator, both with and without FULLVIEW
-    const check1 = uniqueId.replace('_FULL_VIEW', '');
-    let check2;
-    // create check2 to have fullview
-    if (check1 === uniqueId) {
-      // check 1 does not have fullview removed
-      // incoming uniquie === check 1
-      // therefore incoming unique did not have fullview
-      // so check 2  add 'fullview' to unique
+    // determine the 2 ids that might apply to an existing indicator, one with and one without FULLVIEW
+    const idSansFullview = uniqueId.replace('_FULL_VIEW', '');
+    const indicatorElementSANSfullview = document.getElementById(idSansFullview);
+
+    let idWithFullview = uniqueId;
+    if (idSansFullview === uniqueId) {
       if (uniqueId.includes('-cultadv')) {
-        check2 = uniqueId.replace('-cultadv', '_FULL_VIEW-cultadv')
+        idWithFullview = uniqueId.replace('-cultadv', '_FULL_VIEW-cultadv')
       } else {
-        check2 = uniqueId.replace('-courseres', '_FULL_VIEW-courseres')
+        idWithFullview = uniqueId.replace('-courseres', '_FULL_VIEW-courseres')
       }
-    } else {
-      // check 1 does not have fullview removed
-      // incoming unique !== check 1
-      // therefore incoming unique has full view
-      // so check 2 set to unique so it has full view
-      check2 = uniqueId;
     }
-    const existingIndicatorElement1 = document.getElementById(check1);
-    const existingIndicatorElement2 = document.getElementById(check2);
-
-    console.log('addIndicatorToHeader check1=', check1, !!existingIndicatorElement1 ? 'exists' : 'new');
-    console.log('addIndicatorToHeader check2=', check2, !!existingIndicatorElement2 ? 'exists' : 'new');
-
-
-
-    // const uniqueIdCopy = uniqueId;
-    // const existingIndicator1 = uniqueId.replace('_FULL_VIEW', '');
-    // const existingIndicator1Element = document.querySelector(existingIndicator1);
-    // const existingIndicator2 = existingIndicator1 === uniqueIdCopy
-    // const existingIndicator2Element = document.querySelector(existingIndicator2);
-    // // SEARCH_RESULT_RECORDID_61UQ_ALMA21105913690003131-cultadv-full
-    // // SEARCH_RESULT_RECORDID_61UQ_ALMA21105913690003131_FULL_VIEW-cultadv-full
-
-    // const existingIndicator = document.getElementById(uniqueId);
-    if (!!existingIndicatorElement1 || !!existingIndicatorElement2) {
-      console.log('addIndicatorToHeader: for ', pageType, ' bail because found ID: ', uniqueId);
-      console.log('----------------------------');
-      return;
-    }
-    console.log('addIndicatorToHeader: add it');
-    console.log('----------------------------');
+    const indicatorElementWITHfullview = document.getElementById(idWithFullview);
 
     let indicatorParent = false;
     // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
@@ -631,6 +597,13 @@ function whenPageLoaded(fn) {
         indicatorParent = peerReviewedIndicator.parentNode;
       }
     }
+
+    // do this check as late as possible - sometimes we get duplicate Indicators?!?
+    if (!!indicatorElementSANSfullview || !!indicatorElementWITHfullview) {
+      // the indicator exists - don't add
+      return;
+    }
+
     if (!!indicatorParent) {
       indicatorParent.appendChild(createdIndicator);
     } else {
@@ -649,27 +622,17 @@ function whenPageLoaded(fn) {
   }
 
   function getParentDomId(recordId, recursionCount = 0) {
-    console.log('getParentDomId::', recordId , ' start ', recursionCount);
     const selectorRoot = 'SEARCH_RESULT_RECORDID_';
     let parentDOMId = `${selectorRoot}${recordId}_FULL_VIEW`;
-    const domCheckFull = document.getElementById(`${parentDOMId}`);
+    const domCheckFull = document.getElementById(parentDOMId);
     if (!domCheckFull) {
-      console.log('getParentDomId::full record id NOT found, check brief view for ', recordId);
       parentDOMId = `${selectorRoot}${recordId}`;
-
-      // there are times when the page seems to be a full display, but we are on a brief results page.
-      // does the code load too fast and the url hasn't changed yet?
-      const domCheck = document.getElementById(`${parentDOMId}`)
+      const domCheck = document.getElementById(parentDOMId);
       if (!domCheck && recursionCount < 10) {
-        setTimeout(() => {
-          console.log('getParentDomId::domCheck doesnt exist either, wait then try again recursionCount=', recursionCount);
-          const result = getParentDomId(recordId, recursionCount + 1);
-          console.log('getParentDomId::domCheck returns, use=', result);
-          return result;
-        }, 100)
+        // there are times when the page seems to be a full display, but we are on a brief results page.
+        // does the code load too fast and the url hasn't changed yet?
+        setTimeout(() => getParentDomId(recordId, recursionCount + 1), 100)
       }
-    } else {
-      console.log('getParentDomId::full record id matched, use parentDOMId=',parentDOMId,' for ', recordId);
     }
     return parentDOMId;
   }
@@ -680,23 +643,20 @@ function whenPageLoaded(fn) {
     const muiIconInfoSvgPath = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z';
     const labelText = 'CULTURAL ADVICE';
 
-    console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader start', recordId);
-    console.log(thisIndicatorAbbrev, '::addCulturalAdviceIndicatorToHeader pageType', pageType);
-
     const parentDOMId = getParentDomId(recordId);
     const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
-    console.log('addCulturalAdviceIndicatorToHeader parentDOMId=', parentDOMId);
-    console.log('addCulturalAdviceIndicatorToHeader uniqueId=', uniqueId);
 
     const createdIndicator = createIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
     if (!createdIndicator) {
       return;
     }
 
+    // because CA is determined so quickly, the page hasn't drawn yet - wait on the item we want to be the parent
+    // snippet always eventually exists, even if its empty
     const waitforSnippetToExist = setInterval(() => {
-      const parentDOMId = getParentDomId(recordId);
+      const parentDOMId = getParentDomId(recordId); // doesn't work without the repeated line
       const snippet = getSnippet(parentDOMId);
-      if (!!snippet) { // we are hoping that once the snippet exists that any OA or PR Indicators are present
+      if (!!snippet) {
         clearInterval(waitforSnippetToExist);
         addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
       }
@@ -784,7 +744,6 @@ function whenPageLoaded(fn) {
     const displayBlock = document.querySelector(`.${displayBlockClassName}`);
     if (!!displayBlock) {
       // block already exists - don't duplicate
-      console.log('CA::banner block already exists - dont duplicate');
       return;
     }
 
@@ -804,10 +763,7 @@ function whenPageLoaded(fn) {
 
     const siblingClass = '.search-result-availability-line-wrapper';
     const siblings = document.querySelectorAll(siblingClass);
-    siblings.forEach(appendToSibling => {
-      console.log('append to ', appendToSibling);
-      appendToSibling.insertAdjacentElement('afterend', block)
-    });
+    siblings.forEach(appendToSibling => appendToSibling.insertAdjacentElement('afterend', block));
   }
 
   // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
@@ -822,10 +778,7 @@ function whenPageLoaded(fn) {
         $scope.talisCourses = [];
         $scope.hasCourses = false;
 
-        console.log('prmServiceDetailsAfter')
-
         if (!isFullDisplayPage()) {
-          console.log('this is not the full results page - bail from prmServiceDetailsAfter')
           return;
         }
 
@@ -882,14 +835,11 @@ function whenPageLoaded(fn) {
 
         // display the cultural advice indicator on appropriate records
         const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-        console.log('CA::full recordId=', recordId);
         const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // eg "Cultural advice - Aboriginal and Torres Strait Islander people"
         if (!!culturalAdviceText && !!recordId) {
-          console.log('CA::full I would add a CA indicator on ', recordId);
           addCulturalAdviceIndicatorToHeader(recordId, 'full');
 
           const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.search?.lsr47 && vm.parentCtrl.item.pnx.search?.lsr47; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
-          console.log('CA::banner would show ', culturalAdviceBody);
           !!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
         }
       }
@@ -913,10 +863,7 @@ function whenPageLoaded(fn) {
       this.$onInit = function () {
         $scope.listsFound = null;
 
-        console.log('prmBriefResultContainerAfter');
-
         if (!!isFullDisplayPage()) {
-          console.log('this is not the brief page - bail from prmBriefResultContainerAfter ', window.location.href)
           return;
         }
 
@@ -948,16 +895,9 @@ function whenPageLoaded(fn) {
 
         // display the cultural advice indicator on appropriate records
         const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-        console.log('CA::brief recordId=', recordId);
-        console.log(vm?.parentCtrl?.item?.pnx);
-        console.log(vm?.parentCtrl?.resultUtil._updatedBulkSize);
         const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : 'x'; // eg 61UQ_ALMA51124881340003131
-        console.log(vm?.parentCtrl);
         const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
-        console.log('CA::brief culturalAdviceText=', culturalAdviceText);
         if (!!culturalAdviceText && !!recordId) {
-          console.log('CA::brief I am adding a CA indicator on ', recordId);
-          // whenPageLoaded(addCulturalAdviceIndicatorToHeader(recordId, 'brief'));
           addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`);
         }
       }
@@ -1046,11 +986,9 @@ function manageFavouritesPinDialogLocation() {
     }
     if (pinLocation.top > 50) {
       // page is at brief-result initial load layout - the Dialog must be moved down from where exlibris puts it
-      // console.log(!!isFullDisplayPage ? 'full' : 'brief', 'position ', pinLocation.top, 'our class please');
       !favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.add(favouritesPinDialogInitialPositionClassName);
     } else {
       // the page has been scrolled and the favourites pin has shifted up to the top of the page - use the built in exlibris dialog position
-      // console.log(!!isFullDisplayPage ? 'full' : 'brief', 'position ', pinLocation.top, 'default exlibris position');
       !!favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.remove(favouritesPinDialogInitialPositionClassName);
     }
   }, 250)
