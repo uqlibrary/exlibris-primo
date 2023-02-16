@@ -454,7 +454,7 @@ function whenPageLoaded(fn) {
           }
         }
 
-        var recordTitle = '';
+        let recordTitle = '';
         if (recordId !== '' && !!vm?.parentCtrl?.item?.pnx?.search?.title && !!vm.parentCtrl.item.pnx.search.title[0]) {
           recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.search.title[0]);
         }
@@ -465,6 +465,17 @@ function whenPageLoaded(fn) {
           var maxNumberCharCRMCanAccept = 239;
           recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
         }
+
+        // we may have trimmed in the middle of an encoded char, eg sit%20down trimmed to sit%2
+        // which ends up with an 400 Bad Result as the url becomes rubbish
+        const maxLengthEncodedChar = '%E2%82%AC';
+        [...Array(maxLengthEncodedChar.length)].map((_, i) => {
+          try {
+            decodeURIComponent(recordTitle)
+          } catch {
+            recordTitle = recordTitle.slice(0, -1);
+          }
+        });
 
         var isIE11 = navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1;
 
@@ -518,12 +529,11 @@ function whenPageLoaded(fn) {
     template: '<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>'
   });
 
-  function createCourseResourceIndicatorIcon(iconClassname) {
+  function createIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
+
+    const iconClassName = `${iconWrapperClassName}Icon`;
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    !!path && (path.setAttribute(
-        'd',
-        'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z', // MUI AccountBalance icon
-    ));
+    !!path && (path.setAttribute('d', svgPathValue));
 
     const svgCR = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     !!svgCR && svgCR.setAttribute('width', '100%');
@@ -539,60 +549,136 @@ function whenPageLoaded(fn) {
     !!mdIcon && !!svgCR && mdIcon.appendChild(svgCR);
 
     const prmIcon = document.createElement('span');
-    !!prmIcon && (prmIcon.className = 'readingListMarkIcon');
+    !!prmIcon && (prmIcon.className = `${iconClassName} indicatorIcon`);
     !!prmIcon && !!mdIcon && prmIcon.appendChild(mdIcon);
 
     const contentLabel = document.createElement('span');
-    !!contentLabel && (contentLabel.className = 'readingListMarkLabel');
-    !!contentLabel && (contentLabel.innerHTML = 'COURSE READING LIST');
+    !!contentLabel && (contentLabel.className = 'customIndicatorLabel');
+    !!contentLabel && (contentLabel.innerHTML = labelText);
 
-    const CRLIconWrapper = document.createElement('span');
-    !!CRLIconWrapper && (CRLIconWrapper.className = iconClassname);
-    !!CRLIconWrapper && !!prmIcon && CRLIconWrapper.appendChild(prmIcon);
-    !!CRLIconWrapper && !!contentLabel && CRLIconWrapper.appendChild(contentLabel);
+    const iconWrapper = document.createElement('span');
+    !!iconWrapper && (iconWrapper.id = uniqueId);
+    // iconWrapperClassName is used to hide all non first-child entries
+    !!iconWrapper && (iconWrapper.className = `customIndicator ${iconWrapperClassName}`);
+    !!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
+    !!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
 
-    return CRLIconWrapper;
+    return iconWrapper;
   }
 
-  function addCourseResourceIndicatorToHeader(recordid) {
-    const CRLIconClassname = 'readingListMark';
-    [
-      `#SEARCH_RESULT_RECORDID_${recordid}_FULL_VIEW`, // full results page (single record)
-      `#SEARCH_RESULT_RECORDID_${recordid}` // brief results page (search results list)
-    ].forEach(id => {
-      // if we have already put the Course Resource Indicator here, don't put it again
-      const icon = !!recordid && document.querySelector(`${id} .${CRLIconClassname}`);
-      if (!!icon) {
-        return;
-      }
+  function getSnippet(parentDOMId) {
+    return document.querySelector(`#${parentDOMId} prm-snippet`);
+  }
 
-      const CRLIcon = createCourseResourceIndicatorIcon(CRLIconClassname);
-      if (!CRLIcon) {
-        return;
-      }
+  function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
+    // determine the 2 ids that might apply to an existing indicator, one with and one without FULLVIEW
+    const idSansFullview = uniqueId.replace('_FULL_VIEW', '');
+    const indicatorElementSANSfullview = document.getElementById(idSansFullview);
 
-      let indicatorParent = false;
-      // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-      const openAccessIndicator = document.querySelector(`${id} .open-access-mark`);
-      if (!!openAccessIndicator) {
-        indicatorParent = openAccessIndicator.parentNode;
-      }
-      if (!indicatorParent) {
-        const peerReviewedIndicator = document.querySelector(`${id} .peer-reviewed-mark`);
-        if (!!peerReviewedIndicator) {
-          indicatorParent = peerReviewedIndicator.parentNode;
-        }
-      }
-      if (!!indicatorParent) {
-        indicatorParent.appendChild(CRLIcon);
+    let idWithFullview = uniqueId;
+    if (idSansFullview === uniqueId) {
+      if (uniqueId.includes('-cultadv')) {
+        idWithFullview = uniqueId.replace('-cultadv', '_FULL_VIEW-cultadv')
       } else {
-        // no such icons? add it as a new line after the snippet
-        const snippet = document.querySelector(`${id} prm-snippet`);
-        if (!!snippet) {
-          snippet.parentNode.insertBefore(CRLIcon, snippet.nextSibling);
-        }
+        idWithFullview = uniqueId.replace('-courseres', '_FULL_VIEW-courseres')
       }
-    });
+    }
+    const indicatorElementWITHfullview = document.getElementById(idWithFullview);
+
+    let indicatorParent = false;
+    // if available, add it to the line of "Peer reviewed" "Open Access" etc icons
+    const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
+    if (!!openAccessIndicator) {
+      indicatorParent = openAccessIndicator.parentNode;
+    }
+    if (!indicatorParent) {
+      const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
+      if (!!peerReviewedIndicator) {
+        indicatorParent = peerReviewedIndicator.parentNode;
+      }
+    }
+
+    // do this check as late as possible - sometimes we get duplicate Indicators?!?
+    if (!!indicatorElementSANSfullview || !!indicatorElementWITHfullview) {
+      // the indicator exists - don't add
+      return;
+    }
+
+    if (!!indicatorParent) {
+      indicatorParent.appendChild(createdIndicator);
+    } else {
+      // no such icons? add it as a new line after the snippet
+      // we have to make a wrapping div in case there is more than one Indicator, even though its rare
+      // and of course we don't know if another Indicator creation has already happened....
+      let indicatorWrapper = document.querySelector(`#${parentDOMId} div.indicatorWrapper`);
+      if (!indicatorWrapper) {
+        indicatorWrapper = document.createElement('div');
+        !!indicatorWrapper && (indicatorWrapper.className = 'indicatorWrapper');
+        const snippet = getSnippet(parentDOMId);
+        !!snippet && !!indicatorWrapper && snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
+      }
+      !!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
+    }
+  }
+
+  function getParentDomId(recordId, recursionCount = 0) {
+    const selectorRoot = 'SEARCH_RESULT_RECORDID_';
+    let parentDOMId = `${selectorRoot}${recordId}_FULL_VIEW`;
+    const domCheckFull = document.getElementById(parentDOMId);
+    if (!domCheckFull) {
+      parentDOMId = `${selectorRoot}${recordId}`;
+      const domCheck = document.getElementById(parentDOMId);
+      if (!domCheck && recursionCount < 10) {
+        // there are times when the page seems to be a full display, but we are on a brief results page.
+        // does the code load too fast and the url hasn't changed yet?
+        setTimeout(() => getParentDomId(recordId, recursionCount + 1), 100)
+      }
+    }
+    return parentDOMId;
+  }
+
+  function addCulturalAdviceIndicatorToHeader(recordId, pageType) {
+    const className = 'culturalAdviceMark';
+    const thisIndicatorAbbrev = 'cultadv';
+    const muiIconInfoSvgPath = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z';
+    const labelText = 'CULTURAL ADVICE';
+
+    const parentDOMId = getParentDomId(recordId);
+    const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
+
+    const createdIndicator = createIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
+    if (!createdIndicator) {
+      return;
+    }
+
+    // because CA is determined so quickly, the page hasn't drawn yet - wait on the item we want to be the parent
+    // snippet always eventually exists, even if its empty
+    const waitforSnippetToExist = setInterval(() => {
+      const parentDOMId = getParentDomId(recordId); // doesn't work without the repeated line
+      const snippet = getSnippet(parentDOMId);
+      if (!!snippet) {
+        clearInterval(waitforSnippetToExist);
+        addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
+      }
+    }, 100);
+    return true;
+  }
+
+  function addCourseResourceIndicatorToHeader(recordId, pageType) {
+    const className = 'readingListMark';
+    const thisIndicatorAbbrev = 'courseres';
+    const muiIconAccountBalanceSvgPath = 'M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z';
+    const labelText = 'COURSE READING LIST';
+
+    const parentDOMId = getParentDomId(recordId);
+    const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
+
+    const createdIndicator = createIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
+    if (!createdIndicator) {
+      return;
+    }
+
+    addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
     return true;
   }
 
@@ -648,6 +734,38 @@ function whenPageLoaded(fn) {
     return list;
   }
 
+  function isFullDisplayPage() {
+    return window.location.pathname.includes('fulldisplay');
+  }
+
+  function addCulturalAdviceBanner(displayText) {
+    // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain images transcripts or names of Aboriginal and Torres Strait Islander people now deceased.  It may also contain historically and culturally sensitive words, terms, and descriptions."
+    const displayBlockClassName = 'culturalAdviceBanner';
+    const displayBlock = document.querySelector(`.${displayBlockClassName}`);
+    if (!!displayBlock) {
+      // block already exists - don't duplicate
+      return;
+    }
+
+    const para = document.createElement('p');
+    // move these styles to the reusable scss file when it looks right
+    !!para && (para.style.padding = '1em');
+    !!para && (para.style.borderColor = '#bbd8f5');
+    !!para && (para.style.color = '#000');
+    !!para && (para.style.backgroundColor = '#bbd8f5');
+    !!para && (para.style.borderRadius = '3px');
+    !!para && (para.style.marginRight = '-2.50em');
+    !!para && (para.innerHTML = displayText);
+
+    const block = document.createElement('div');
+    !!block && (block.className = displayBlockClassName);
+    !!para && !!para && block.appendChild(para);
+
+    const siblingClass = '.search-result-availability-line-wrapper';
+    const siblings = document.querySelectorAll(siblingClass);
+    siblings.forEach(appendToSibling => appendToSibling.insertAdjacentElement('afterend', block));
+  }
+
   // based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
   // and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
   // check for a reading list in the full results page and add an indicator and list if so
@@ -660,8 +778,7 @@ function whenPageLoaded(fn) {
         $scope.talisCourses = [];
         $scope.hasCourses = false;
 
-        const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
-        if (!isFullDisplayPage) {
+        if (!isFullDisplayPage()) {
           return;
         }
 
@@ -689,7 +806,7 @@ function whenPageLoaded(fn) {
 
                 const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
                 if (!!recordid) {
-                  addCourseResourceIndicatorToHeader(recordid);
+                  addCourseResourceIndicatorToHeader(recordid, 'full');
                 }
 
                 $scope.talisCourses = {};
@@ -715,6 +832,16 @@ function whenPageLoaded(fn) {
         if (!!listTalisUrls && listTalisUrls.length > 0) {
           getTalisDataFromAllApiCalls(listTalisUrls);
         }
+
+        // display the cultural advice indicator on appropriate records
+        const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+        const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // eg "Cultural advice - Aboriginal and Torres Strait Islander people"
+        if (!!culturalAdviceText && !!recordId) {
+          addCulturalAdviceIndicatorToHeader(recordId, 'full');
+
+          const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.search?.lsr47 && vm.parentCtrl.item.pnx.search?.lsr47; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+          !!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
+        }
       }
     },
     template: '<div class="readingListCitations" ng-show="hasCourses">' +
@@ -736,8 +863,7 @@ function whenPageLoaded(fn) {
       this.$onInit = function () {
         $scope.listsFound = null;
 
-        const isFullDisplayPage = window.location.pathname.includes('fulldisplay');
-        if (!!isFullDisplayPage) {
+        if (!!isFullDisplayPage()) {
           return;
         }
 
@@ -752,7 +878,8 @@ function whenPageLoaded(fn) {
                 if (!!$scope.listsFound) {
                   const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
                   if (!!recordid) {
-                    whenPageLoaded(addCourseResourceIndicatorToHeader(recordid));
+                    addCourseResourceIndicatorToHeader(recordid, 'brief');
+                    // whenPageLoaded(addCourseResourceIndicatorToHeader(recordid, 'brief'));
                   }
                 }
               })
@@ -765,6 +892,14 @@ function whenPageLoaded(fn) {
 
         const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
         !!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
+
+        // display the cultural advice indicator on appropriate records
+        const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+        const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : 'x'; // eg 61UQ_ALMA51124881340003131
+        const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+        if (!!culturalAdviceText && !!recordId) {
+          addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`);
+        }
       }
     },
     template: ''
@@ -827,29 +962,6 @@ function whenPageLoaded(fn) {
   insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
 })();
 
-// nov 2022 release updated from angular 1.6 to 1.8
-// sandbox june-2022 - nov-2022 allows addition of '?testAngularCompatibility=true to page params to turn on or off the new functionality
-// make Stacey's life easy and show this
-function addTestModeIndicator() {
-  const params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams, prop) => searchParams.get(prop),
-  });
-  const isTestMode = !!params?.testAngularCompatibility && params.testAngularCompatibility === 'true';
-  const id = 'putatestindicatorinthetopcornerofthepage';
-  if (isTestMode && !document.getElementById(id)) {
-    const testIndicator = document.createElement('div');
-    !!testIndicator && (testIndicator.id = id);
-    !!testIndicator && (testIndicator.innerHTML = 'Upgrade Test Mode');
-    !!testIndicator && testIndicator.setAttribute(
-        'style',
-        'position:absolute; top: 0; right: 0; background-color: red; color: white; z-index: 999; padding: 0.5em;'
-    );
-
-    const root = document.querySelector('body');
-    !!root && root.appendChild(testIndicator);
-  }
-}
-
 // the Favourites Pin can have a help dialog floating below it
 // because we have added our header above and the askus on the right, the onload pin location had moved,
 // so the default dialog placement is wrong.
@@ -867,18 +979,16 @@ function manageFavouritesPinDialogLocation() {
     const pinLocation = !!favouritesPin && favouritesPin.getBoundingClientRect();
     const favouritesDialog = document.querySelector(favouritePinDialogTagName);
     if (!favouritesPin || !pinLocation || !favouritesDialog) {
-      !favouritesPin && console.log('pin not found');
-      !pinLocation && console.log('pinLocation not found');
-      !favouritesDialog && console.log('dialog not found');
+      // !favouritesPin && console.log('pin not found');
+      // !pinLocation && console.log('pinLocation not found');
+      // !favouritesDialog && console.log('dialog not found');
       return;
     }
     if (pinLocation.top > 50) {
       // page is at brief-result initial load layout - the Dialog must be moved down from where exlibris puts it
-      // console.log(!!isFullDisplayPage ? 'full' : 'brief', 'position ', pinLocation.top, 'our class please');
       !favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.add(favouritesPinDialogInitialPositionClassName);
     } else {
       // the page has been scrolled and the favourites pin has shifted up to the top of the page - use the built in exlibris dialog position
-      // console.log(!!isFullDisplayPage ? 'full' : 'brief', 'position ', pinLocation.top, 'default exlibris position');
       !!favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.remove(favouritesPinDialogInitialPositionClassName);
     }
   }, 250)
@@ -886,8 +996,6 @@ function manageFavouritesPinDialogLocation() {
 
 function loadFunctions() {
   manageFavouritesPinDialogLocation();
-
-  addTestModeIndicator();
 }
 
 whenPageLoaded(loadFunctions);
