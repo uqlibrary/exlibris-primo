@@ -513,7 +513,7 @@ function whenPageLoaded(fn) {
 				false;
 			!!primoLoginBar && (primoLoginBar.style.marginTop = "-61px");
 		},
-		template: "<new-askus-button nopaneopacity></new-askus-button>",
+		template: "<askus-button nopaneopacity></askus-button>",
 	});
 
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
