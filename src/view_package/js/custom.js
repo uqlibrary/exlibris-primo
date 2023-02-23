@@ -31,6 +31,7 @@ function whenPageLoaded(fn) {
 			'<uq-gtm gtm="GTM-W4KK37"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
 			"<uq-site-header hideMyLibrary hideAskUs></uq-site-header>" +
+			"<cultural-advice-popup></cultural-advice-popup>" +
 			"<proactive-chat></proactive-chat>",
 	});
 
