@@ -316,9 +316,7 @@ function whenPageLoaded(fn) {
 									!!wrappingList && !!wrappingListItem && wrappingList.appendChild(wrappingListItem)
 									!!wrappingList && !!plannedParent &&
 									plannedParent.insertBefore(wrappingList, plannedParent.firstChild) &&
-									clearInterval(waitForBuiltInAccountButtonToFirstExist)
-									;
-
+									clearInterval(waitForBuiltInAccountButtonToFirstExist);
 								}
 							}, 100); // never stop waiting, that second open may be a long time before it happens
 						}, 100);
@@ -723,10 +721,30 @@ function whenPageLoaded(fn) {
 	function getListTalisUrls(item) {
 		const TALIS_DOMAIN = "https://uq.rl.talis.com/";
 		const list = [];
-		const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
+		const materialType = !!item?.pnx?.display?.type && item.pnx.display.type[0];
+		const restrictedCheckList = [
+			"article",
+			"book_chapter",
+			"conference_paper",
+			"conference_proceeding",
+			"dataset",
+			"design",
+			"government_document",
+			"market_research",
+			"newsletterarticle", // Talis currently using a non-standard format
+			"newsletter_article", // future-proof it
+			"newspaper_article",
+			"patent",
+			"reference_entry",
+			"report",
+			"review",
+			"web_resource",
+			"working_paper",
+		];
+		const isRestrictedCheckType = restrictedCheckList.includes(materialType);
 
 		// LCN
-		if (materialtype !== 'book_chapter' && !!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
+		if (!!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
 			item.pnx.search.addsrcrecordid.forEach(r => {
 				list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
 			})
@@ -740,7 +758,7 @@ function whenPageLoaded(fn) {
 		}
 
 		// EISBN
-		if (materialtype !== 'book_chapter' && !!item?.pnx?.addata?.eisbn && item.pnx.addata.eisbn.length > 0) {
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.eisbn && item.pnx.addata.eisbn.length > 0) {
 			item.pnx.addata.eisbn.forEach(r => {
 				const isbn = r.replace(/[^0-9X]+/gi, '');
 				[10, 13].includes(isbn.length) && list.push(TALIS_DOMAIN + 'eisbn/' + isbn + '/lists.json');
@@ -748,7 +766,7 @@ function whenPageLoaded(fn) {
 		}
 
 		// ISBN
-		if (materialtype !== 'book_chapter' && !!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
 			item.pnx.addata.isbn.forEach(r => {
 				const isbn = r.replace(/[^0-9X]+/gi, '');
 				[10, 13].includes(isbn.length) && list.push(TALIS_DOMAIN + 'isbn/' + isbn + '/lists.json');
@@ -756,14 +774,14 @@ function whenPageLoaded(fn) {
 		}
 
 		// EISSN
-		if (materialtype === 'journal' && !!item?.pnx?.addata?.eissn && item.pnx.addata.eissn.length > 0) {
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.eissn && item.pnx.addata.eissn.length > 0) {
 			item.pnx.addata.eissn.forEach(r => {
 				list.push(TALIS_DOMAIN + 'eissn/' + r + '/lists.json');
 			})
 		}
 
 		// ISSN
-		if (materialtype === 'journal' && !!item?.pnx?.addata?.issn && item.pnx.addata.issn.length > 0) {
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.issn && item.pnx.addata.issn.length > 0) {
 			item.pnx.addata.issn.forEach(r => {
 				list.push(TALIS_DOMAIN + 'issn/' + r + '/lists.json');
 			})
