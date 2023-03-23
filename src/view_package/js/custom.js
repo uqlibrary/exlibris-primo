@@ -201,6 +201,11 @@ function whenPageLoaded(fn) {
 
 				!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
 				!!button && !!textParent && button.appendChild(textParent);
+
+				// add an ID for GTM usage to the account button
+				const newAnalyticsId = 'mylibrary-menu-borrowing';
+				const accountMenuItem = document.querySelector(primoIdentifier + ' button');
+				!!accountMenuItem && accountMenuItem.setAttribute('data-testid', newAnalyticsId);
 			}
 		}, 250);
 	}
