@@ -39,6 +39,32 @@ function whenPageLoaded(fn) {
 		template: '<alert-list system="primo"></alert-list>',
 	});
 
+
+	// Making changes? User types need to be also created in repo homepage_react && reusable
+	const UNDERGRADUATE_GENERAL = 'UG';
+	const UNDERGRADUATE_REMOTE = 'REMUG';
+	const UNDERGRADUATE_TESOL = 'ICTE';
+	const UNDERGRADUATE_VOCATIONAL = 'VET';
+	const SHORT_FORM_CREDENTIAL_COURSE = 'SFC';
+	const SHORT_FORM_CREDENTIAL_COURSE_REMOTE = 'REMSFC';
+
+	const POSTGRAD_COURSEWORK = 'CWPG';
+	const POSTGRAD_COURSEWORK_REMOTE = 'REMCWPG';
+	const POSTGRAD_RESEARCH_REMOTE = 'REMRHD';
+	const POSTGRAD_RESEARCH = 'RHD';
+
+	const LIBRARY_STAFF = 'LIBRARYSTAFFB';
+	const OTHER_STAFF = 'STAFF';
+	const STAFF_AWAITING_AURION = 'AURION';
+
+	const EXTRAMURAL_COMMUNITY_PAID = 'COMMU';
+	const EXTRAMURAL_ALUMNI = 'ALUMNI';
+	const EXTRAMURAL_HOSPITAL = 'HOSP';
+	const EXTRAMURAL_ASSOCIATE = 'ASSOCIATE';
+	const EXTRAMURAL_FRYER = 'FRYVISITOR';
+	const EXTRAMURAL_HONORARY = 'HON';
+	const EXTRAMURAL_PROXY = 'PROXY';
+
 	const accountLinkOptions = {
 		title: "Library account",
 		id: "mylibrary-menu-borrowing",
@@ -89,7 +115,6 @@ function whenPageLoaded(fn) {
 
 	const loggedInMenu = (id, feedbackClass) => {
 		// THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
-		// (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
 		let feedbackButton = loggedinFeedbackButton.replace(
 			"feedback-loggedin",
 			feedbackClass
@@ -109,7 +134,7 @@ function whenPageLoaded(fn) {
 			"            </div>\n" +
 			"        </button>\n" +
 			"    </li>\n" +
-			"    <li>\n" +
+			'    <li id="mylibrary-menu-course-resources-listitem">\n' +
 			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			'                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"></path>\n' +
@@ -141,7 +166,18 @@ function whenPageLoaded(fn) {
 			'                <span class="subtext">Student meeting &amp; study spaces</span>\n' +
 			"            </div>\n" +
 			"        </button>\n" +
-			"    </li>\n" +
+			'    </li>\n' +
+			'    <li data-testid="mylibrary-espace" id="mylibrary-espace" role="menuitem" aria-disabled="false">\n' +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-espace-dashboard" aria-label="Go to espace dashboard" role="menuitem" onclick="javascript:window.open(\'https://espace.library.uq.edu.au/dashboard\', \'_blank\');">\n' +
+			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
+			'				<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>\n' +
+			'			</svg>\n' +
+			'            <div class="textwrapper">\n' +
+			'                <span class="primaryText">UQ eSpace dashboard</span>\n' +
+			'                <span class="subtext">Your UQ research & more</span>\n' +
+			"            </div>\n" +
+			'        </button>\n' +
+			'    </li>' +
 			"    <li>\n" +
 			feedbackButton +
 			"    </li>\n" +
@@ -149,7 +185,172 @@ function whenPageLoaded(fn) {
 		);
 	};
 
-	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
+	function getApiUrl(path) {
+		const searchParams = new URLSearchParams(window.location.search);
+		let apiVersion = 'staging';
+		if (window.location.hostname === "search.library.uq.edu.au" && searchParams.get('vid') === '61UQ') {
+			// primo prod gets prod api, everything else gets staging
+			apiVersion = 'v1';
+		}
+		return `https://api.library.uq.edu.au/${apiVersion}/${path}`;
+	}
+
+	function getCookieValue(name) {
+		const cookies = document.cookie.split(';');
+		for (let i = 0; i < cookies.length; ++i) {
+			const pair = cookies[i].trim().split('=');
+			if (!!pair[0] && pair[0] === name) {
+				return !!pair[1] ? pair[1] : undefined;
+			}
+		}
+		return undefined;
+	}
+
+	function getSessionCookie() {
+		// this cookie gets set by the returning api account call
+		const SESSION_COOKIE_NAME = 'UQLID';
+		return getCookieValue(SESSION_COOKIE_NAME);
+	}
+
+	function getLibraryGroupCookie() {
+		// I am guessing this field is used as a proxy for 'has a Library account, not just a general UQ login'
+		const SESSION_USER_GROUP_COOKIE_NAME = 'UQLID_USER_GROUP';
+		return getCookieValue(SESSION_USER_GROUP_COOKIE_NAME);
+	}
+
+	// we expect this to only be called when they are known to be logged in
+	async function loadAccountApi() {
+		const ACCOUNT_CALL_INCOMPLETE = 'incomplete';
+		const ACCOUNT_CALL_DONE = 'done';
+
+		// if (getSessionCookie() === undefined || getLibraryGroupCookie() === undefined) {
+		// 	// no cookie, force them to log in again
+		// 	return false;
+		// }
+
+		let accountCallStatus = ACCOUNT_CALL_INCOMPLETE;
+		let response = null;
+		return await fetchAPI(getApiUrl('account'), {}, true)
+			.then((returnedAccount) => {
+				console.log('loadAccountApi got returnedAccount', returnedAccount);
+				if (returnedAccount.hasOwnProperty('hasSession') && returnedAccount.hasSession === true) {
+					console.log('loadAccountApi has session');
+					response = {
+						account: returnedAccount
+					}
+					console.log('loadAccountApi got account response', response);
+					accountCallStatus = ACCOUNT_CALL_DONE;
+
+					return fetchAPI(getApiUrl('fez-authors'), {}, true);
+				} else {
+					console.log('loadAccountApi no session');
+					accountCallStatus = ACCOUNT_CALL_DONE;
+					return false;
+				}
+			})
+			.then((returnedAuthor) => {
+				console.log('loadAccountApi got autor', returnedAuthor);
+				const authorData = !!returnedAuthor && returnedAuthor.hasOwnProperty('data') && returnedAuthor.data.hasOwnProperty('aut_id') && returnedAuthor.data
+				if (!authorData) {
+					return response;
+				}
+				response = {
+					...response,
+					currentAuthor: authorData
+				}
+				console.log('loadAccountApi got autor response', response);
+				return response;
+			})
+			.catch((error) => {
+				console.log('loadAccountApi error', accountCallStatus, error);
+				if (accountCallStatus === ACCOUNT_CALL_INCOMPLETE) {
+					// it was the account call that had an error; authors was never called
+					return false;
+				}
+				return response;
+			});
+	}
+
+	async function fetchAPI(urlPath, headers = {}, tokenRequired = false, timestampRequired = false) {
+		let token = null
+		if (!!tokenRequired && getSessionCookie() !== undefined && getLibraryGroupCookie() !== undefined) {
+			token = { 'x-uql-token': getSessionCookie() };
+		}
+
+		const options = {
+			'Content-Type': 'application/json',
+			...token,
+			...headers,
+		};
+
+		const connector = urlPath.indexOf('?') > -1 ? '&' : '?';
+		const addTimestamp = !!timestampRequired ? `${connector}${new Date().getTime()}` : '';
+
+		// reference: https://dmitripavlutin.com/javascript-fetch-async-await/
+		const response = await fetch(`${urlPath}${addTimestamp}`, {
+			headers: options,
+		});
+		if (!response.ok) {
+			console.log(`fetchAPI console: An error has occurred: ${response.status} ${response.statusText}`);
+			const message = `fetchAPI: An error has occurred: ${response.status} ${response.statusText}`;
+			throw new Error(message);
+		}
+		return await response.json();
+	}
+
+	function removeEspaceMenuOptionWhenNotAuthor(userDetails) {
+		function canSeeEspace(account) {
+			return !!account && account.hasOwnProperty('currentAuthor') && !!account.currentAuthor.hasOwnProperty('aut_id');
+		}
+
+		const espaceitem = document.getElementById('mylibrary-espace');
+		if (!espaceitem) {
+			return;
+		}
+
+		!canSeeEspace(userDetails) && espaceitem.remove();
+	}
+
+	function removeLRMenuOptionWhenNoPriv(userDetails) {
+		// only certain user types can view Learning Resources
+		function canSeeLearningResources(storedUserDetails) {
+			const account = !!storedUserDetails && storedUserDetails.account;
+			!!account.user_group && console.log('user_group account=', account.user_group);
+			!account.user_group && console.log('account=', account);
+			return (
+				!!account &&
+				!!account.id &&
+				!!account.user_group &&
+				[
+					UNDERGRADUATE_GENERAL,
+					UNDERGRADUATE_REMOTE,
+					OTHER_STAFF,
+					LIBRARY_STAFF,
+					POSTGRAD_COURSEWORK,
+					POSTGRAD_COURSEWORK_REMOTE,
+					EXTRAMURAL_HONORARY,
+					SHORT_FORM_CREDENTIAL_COURSE,
+					SHORT_FORM_CREDENTIAL_COURSE_REMOTE,
+				].includes(account.user_group)
+			);
+		}
+
+		const LRitem = document.getElementById('mylibrary-menu-course-resources-listitem');
+		if (!LRitem) {
+			return;
+		}
+		!canSeeLearningResources(userDetails) && LRitem.remove();
+	}
+
+	async function personaliseMenuOptions() {
+		await loadAccountApi().then((userDetails) => {
+			console.log('personaliseMenuOptions userDetails=', userDetails);
+			removeEspaceMenuOptionWhenNotAuthor(userDetails);
+			removeLRMenuOptionWhenNoPriv(userDetails);
+		})
+	}
+
+	// we don't always like their icons, and sadly there is no big list of primo icons documented that we can just reference
 	// so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
 	function rewriteProvidedPrimoButton(e, primoIdentifier) {
 		const button = document.querySelector(primoIdentifier + " button");
@@ -225,7 +426,7 @@ function whenPageLoaded(fn) {
 		!!button && (button.id = options.id);
 		!!button && !!svg && button.appendChild(svg);
 
-		// add our insides to the  button!
+		// add our insides to the button!
 		const primaryText = document.createTextNode(options.title);
 		const primaryTextBlock = document.createElement("span");
 		!!primaryTextBlock && (primaryTextBlock.className = "primaryText");
@@ -303,6 +504,8 @@ function whenPageLoaded(fn) {
 								accountLinkOptions,
 								"prm-library-card-menu"
 							);
+
+							personaliseMenuOptions();
 
 							// delete the search history over and over and over....
 							removeElementWhenItAppears(".my-search-history-ctm");
@@ -392,6 +595,8 @@ function whenPageLoaded(fn) {
 							accountLinkOptions,
 							".my-library-card-ctm"
 						);
+
+						personaliseMenuOptions();
 
 						// remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
 						const hr1 = document.querySelector("md-menu-divider");
