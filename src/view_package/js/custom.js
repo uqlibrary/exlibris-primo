@@ -90,10 +90,7 @@ function whenPageLoaded(fn) {
 	const loggedInMenu = (id, feedbackClass) => {
 		// THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
 		// (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
-		let feedbackButton = loggedinFeedbackButton.replace(
-			"feedback-loggedin",
-			feedbackClass
-		);
+		let feedbackButton = loggedinFeedbackButton.replace("feedback-loggedin", feedbackClass);
 		return (
 			`<ul id="${id}" class="mylibrary-list" style="display:none"` +
 			">\n" +
@@ -162,8 +159,7 @@ function whenPageLoaded(fn) {
 			if (!!cloneableSvg) {
 				clearInterval(awaitSVG);
 
-				!!e.svgPath &&
-					cloneableSvg.firstElementChild.setAttribute("d", e.svgPath);
+				!!e.svgPath && cloneableSvg.firstElementChild.setAttribute('d', e.svgPath);
 
 				const svg = cloneableSvg.cloneNode(true);
 
@@ -171,32 +167,26 @@ function whenPageLoaded(fn) {
 				!!button && !!svg && button.appendChild(svg);
 
 				// clean primo-provided insides of button
-				const removablePrm = document.querySelector(
-					primoIdentifier + " prm-icon"
-				);
+				const removablePrm = document.querySelector(primoIdentifier + ' prm-icon');
 				!!removablePrm && removablePrm.remove();
-				const removableSpan = document.querySelector(primoIdentifier + " span");
+				const removableSpan = document.querySelector(primoIdentifier + ' span');
 				!!removableSpan && removableSpan.remove();
-				const removableDiv = document.querySelector(primoIdentifier + " div");
+				const removableDiv = document.querySelector(primoIdentifier + ' div');
 				!!removableDiv && removableDiv.remove();
 
 				// add our insides to the account button!
 				const primaryText = document.createTextNode(e.title);
-				const primaryTextBlock = document.createElement("span");
-				!!primaryTextBlock && (primaryTextBlock.className = "primaryText");
-				!!primaryTextBlock &&
-					!!primaryText &&
-					primaryTextBlock.appendChild(primaryText);
+				const primaryTextBlock = document.createElement('span');
+				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
+				!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
 
-				const textParent = document.createElement("div");
-				!!textParent && (textParent.className = "textwrapper");
-				!!textParent &&
-					!!primaryTextBlock &&
-					textParent.appendChild(primaryTextBlock);
+				const textParent = document.createElement('div');
+				!!textParent && (textParent.className = 'textwrapper');
+				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
 
 				const subtext = document.createTextNode(e.subtext);
-				const subtextDiv = document.createElement("span");
-				!!subtextDiv && !!subtext && (subtextDiv.className = "subtext");
+				const subtextDiv = document.createElement('span');
+				!!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
 				!!subtextDiv && subtextDiv.appendChild(subtext);
 
 				!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
@@ -260,31 +250,21 @@ function whenPageLoaded(fn) {
 					return;
 				}
 
-				const desktopSibling = document.querySelector(
-					'h2[translate="nui.menu"]'
-				);
-				const desiredParentDesktop =
-					!!desktopSibling && desktopSibling.parentNode;
-				const existingDesktopMenu = document.getElementById("mylibrary-list");
-				const isDesktopMenuOpen =
-					!existingDesktopMenu && !!desiredParentDesktop;
+				const desktopSibling = document.querySelector('h2[translate="nui.menu"]');
+				const desiredParentDesktop = !!desktopSibling && desktopSibling.parentNode;
+				const existingDesktopMenu = document.getElementById('mylibrary-list');
+				const isDesktopMenuOpen = !existingDesktopMenu && !!desiredParentDesktop;
 
-				const mobilemenuId = "mylibrary-list-mobile";
-				const mobilesibling = document.querySelector(
-					"md-dialog-content prm-authentication"
-				); // entry that only occurs in mobile menu
-				const existingmobileAccountLinksList =
-					document.getElementById(mobilemenuId);
-				const isMobileMenuOpen =
-					!!mobilesibling && !existingmobileAccountLinksList;
+				const mobilemenuId = 'mylibrary-list-mobile';
+				const mobilesibling = document.querySelector('md-dialog-content prm-authentication'); // entry that only occurs in mobile menu
+				const existingmobileAccountLinksList = document.getElementById(mobilemenuId);
+				const isMobileMenuOpen = !!mobilesibling && !existingmobileAccountLinksList;
 				if (isMobileMenuOpen) {
 					// mobile menu is open - add the Account Links to the mobile menu and remove the links we dont want
 					const desiredParentMobile = mobilesibling.parentNode;
 					// mobile menu is only in the DOM when the menu-open-button has been clicked, so create a new menu each time
-					const clonableUsermenu = document.getElementById(
-						"mylibrary-list-clonable"
-					);
-					const mobileusermenu = clonableUsermenu.cloneNode(true);
+					const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
+					const mobileusermenu = clonableUsermenu.cloneNode(true)
 					!!mobileusermenu && (mobileusermenu.id = mobilemenuId);
 					if (!!mobileusermenu && !!desiredParentMobile) {
 						const currentParent = mobileusermenu.parentNode;
@@ -299,25 +279,19 @@ function whenPageLoaded(fn) {
 								!!elem && elem.remove();
 							});
 
-							rewriteProvidedPrimoButton(
-								accountLinkOptions,
-								"prm-library-card-menu"
-							);
+							rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu');
 
 							// delete the search history over and over and over....
 							removeElementWhenItAppears(".my-search-history-ctm");
 
 							// delete any other items
-							removeElementWhenItAppears(
-								".settings-container > div > div",
-								false
-							);
+							removeElementWhenItAppears('.settings-container > div > div', false);
 						}
 
-						// if the mobile menu is closed then opened again, the built in account link goes away. Weird.
+						// if the mobile menu is closed then opened again, the built-in account link goes away. Weird.
 						// Let's replace it manually.
 						const waitForBuiltInAccountButtonToFirstExist = setInterval(() => {
-							// we dont start waiting for the built in account button to be missing until it has actually appeared
+							// we don't start waiting for the built-in account button to be missing until it has actually appeared
 							const builtInAccountButtonFirst = document.querySelector(
 								'.mobile-main-menu-bg [aria-label="Go to library account"]'
 							);
@@ -328,44 +302,27 @@ function whenPageLoaded(fn) {
 							// now the built in account button exists. Wait for it to _not_ exist.
 							// this implies the user has closed the mobile menu and then reopened (I mean... honestly!!! :( )
 							const ensureAccountButtonExists = setInterval(() => {
-								const replacementAccountButton = document.getElementById(
-									accountLinkOptions.id
-								);
-								const builtInAccountButton = document.querySelector(
-									'.mobile-main-menu-bg [aria-label="Go to library account"]'
-								);
+								const replacementAccountButton = document.getElementById(accountLinkOptions.id);
+								const builtInAccountButton = document.querySelector('.mobile-main-menu-bg [aria-label="Go to library account"]');
 								if (!builtInAccountButton && !replacementAccountButton) {
-									const plannedParent = document.querySelector(
-										".mobile-main-menu-bg prm-authentication"
-									);
+									const plannedParent = document.querySelector('.mobile-main-menu-bg prm-authentication');
 
-									const accountButton =
-										createLabelledButton(accountLinkOptions);
+									const accountButton = createLabelledButton(accountLinkOptions);
 									// wrap the button in a list, so we can apply the same styles to it as the other buttons
-									const wrappingListItem = document.createElement("li");
-									!!wrappingListItem &&
-										!!accountButton &&
-										wrappingListItem.appendChild(accountButton);
-									const wrappingList = document.createElement("ul");
-									!!wrappingList && (wrappingList.className = "mylibrary-list");
-									!!wrappingList &&
-										!!wrappingListItem &&
-										wrappingList.appendChild(wrappingListItem);
-									!!wrappingList &&
-										!!plannedParent &&
-										plannedParent.insertBefore(
-											wrappingList,
-											plannedParent.firstChild
-										) &&
-										clearInterval(waitForBuiltInAccountButtonToFirstExist);
+									const wrappingListItem = document.createElement('li')
+									!!wrappingListItem && !!accountButton && wrappingListItem.appendChild(accountButton)
+									const wrappingList = document.createElement('ul');
+									!!wrappingList && (wrappingList.className = 'mylibrary-list');
+									!!wrappingList && !!wrappingListItem && wrappingList.appendChild(wrappingListItem)
+									!!wrappingList && !!plannedParent &&
+									plannedParent.insertBefore(wrappingList, plannedParent.firstChild) &&
+									clearInterval(waitForBuiltInAccountButtonToFirstExist);
 								}
 							}, 100); // never stop waiting, that second open may be a long time before it happens
 						}, 100);
 					}
 				} else if (isDesktopMenuOpen) {
-					const clonableUsermenu = document.getElementById(
-						"mylibrary-list-clonable"
-					);
+					const clonableUsermenu = document.getElementById('mylibrary-list-clonable');
 					const createdDesktopMenu = clonableUsermenu.cloneNode(true);
 					!!createdDesktopMenu && (createdDesktopMenu.id = "mylibrary-list");
 					const currentParent = createdDesktopMenu.parentNode;
@@ -388,10 +345,7 @@ function whenPageLoaded(fn) {
 							!!elem && elem.remove();
 						});
 
-						rewriteProvidedPrimoButton(
-							accountLinkOptions,
-							".my-library-card-ctm"
-						);
+						rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
 
 						// remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
 						const hr1 = document.querySelector("md-menu-divider");
@@ -402,28 +356,18 @@ function whenPageLoaded(fn) {
 				}
 			}, 250);
 		},
-		template: loggedInMenu(
-			"mylibrary-list-clonable",
-			"loggedin-feedback-button"
-		),
+		template: loggedInMenu('mylibrary-list-clonable', 'loggedin-feedback-button')
 	});
 
 	// there is a delayed load for a lot of items, but no guarantee that they will be provided on any given page, so only try so many times
-	function removeElementWhenItAppears(
-		selector,
-		onlyOne = true,
-		timeout = 100,
-		maxLoops = 100
-	) {
+	function removeElementWhenItAppears(selector, onlyOne = true, timeout = 100, maxLoops = 100) {
 		let loopCount = 0;
 		const awaitButton = setInterval(() => {
 			if (loopCount > maxLoops) {
 				clearInterval(awaitButton);
 			}
 
-			const element = !!onlyOne
-				? document.querySelector(selector)
-				: document.querySelectorAll(selector);
+			const element = !!onlyOne ? document.querySelector(selector) : document.querySelectorAll(selector);
 			if (!!element) {
 				clearInterval(awaitButton);
 
@@ -447,49 +391,33 @@ function whenPageLoaded(fn) {
 					return;
 				}
 
-				const isDesktopMenuOpen = document.querySelector(
-					"prm-user-area-expandable md-menu"
-				);
-				const isMobileMenuOpen = document.querySelector(".mobile-menu-button");
-				if (!!isMobileMenuOpen) {
+				const isDesktopMenuOpen = document.querySelector('prm-user-area-expandable md-menu');
+				const isMobileMenuOpen = document.querySelector('.mobile-menu-button');
+				if (!!isMobileMenuOpen)  {
 					clearInterval(awaitLoggedout);
 					const awaitLoggedoutMobileMenu = setInterval(() => {
 						// dont clear this interval - we have to re add each time the menu opens :(
-						const mobilesibling = document.querySelector(
-							"prm-main-menu prm-library-card-menu"
-						); // entry that only occurs in mobile logged out menu
-						const desiredParentMobile =
-							!!mobilesibling && mobilesibling.parentNode;
-						const feedbackButtonClonable =
-							document.getElementById("loggedout-feedback");
-						let newfeedbackbuttonId = "loggedout-mobile-feedback";
-						const newfeedbackbuttonFound =
-							document.getElementById(newfeedbackbuttonId);
-						if (
-							!newfeedbackbuttonFound &&
-							!!desiredParentMobile &&
-							!!feedbackButtonClonable
-						) {
-							// append feedback item to end of menu area
-							const newfeedbackbutton = feedbackButtonClonable.cloneNode(true);
-							newfeedbackbutton.id = newfeedbackbuttonId;
-							!!newfeedbackbutton &&
-								(newfeedbackbutton.style.display = "block");
-							!!newfeedbackbutton &&
-								desiredParentMobile.appendChild(newfeedbackbutton);
+						const mobilesibling = document.querySelector('prm-main-menu prm-library-card-menu'); // entry that only occurs in mobile logged out menu
+						const desiredParentMobile = !!mobilesibling && mobilesibling.parentNode;
+						const feedbackButtonClonable = document.getElementById('loggedout-feedback');
+						let newfeedbackbuttonId = 'loggedout-mobile-feedback';
+						const newfeedbackbuttonFound = document.getElementById(newfeedbackbuttonId);
+						if (!newfeedbackbuttonFound && !!desiredParentMobile && !!feedbackButtonClonable) {
 
-							removeElementWhenItAppears(
-								".settings-container prm-authentication"
-							); // "Log in" menu item that duplicates "My account" function
+							// append feedback item to end of menu area
+							const newfeedbackbutton = feedbackButtonClonable.cloneNode(true)
+							newfeedbackbutton.id = newfeedbackbuttonId;
+							!!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
+							!!newfeedbackbutton && desiredParentMobile.appendChild(newfeedbackbutton);
+
+							removeElementWhenItAppears('.settings-container prm-authentication'); // "Log in" menu item that duplicates "My account" function
 						}
 					}, 250);
-				} else if (!!isDesktopMenuOpen) {
-					// is desktop menu
+				} else if (!!isDesktopMenuOpen) { // is desktop menu
 					clearInterval(awaitLoggedout);
 
 					const waitForDesktopFeedbackLink = setInterval(() => {
-						const feedbackButtonClonable =
-							document.getElementById("loggedout-feedback");
+						const feedbackButtonClonable = document.getElementById('loggedout-feedback');
 						if (!!feedbackButtonClonable) {
 							clearInterval(waitForDesktopFeedbackLink);
 
@@ -497,12 +425,9 @@ function whenPageLoaded(fn) {
 							const plannedParent = document.querySelector("md-menu-content");
 
 							const newfeedbackbutton = feedbackButtonClonable.cloneNode(true);
-							newfeedbackbutton.id = "loggedout-desktop-feedback";
-							!!newfeedbackbutton &&
-								(newfeedbackbutton.style.display = "block");
-							!!plannedParent &&
-								!!newfeedbackbutton &&
-								plannedParent.appendChild(newfeedbackbutton);
+							newfeedbackbutton.id = 'loggedout-desktop-feedback';
+							!!newfeedbackbutton && (newfeedbackbutton.style.display = 'block');
+							!!plannedParent && !!newfeedbackbutton && plannedParent.appendChild(newfeedbackbutton);
 						}
 					}, 100);
 				}
@@ -514,10 +439,8 @@ function whenPageLoaded(fn) {
 	app.component("prmSearchBookmarkFilterAfter", {
 		controller: function ($scope) {
 			// move the primo-login-bar up so it overlaps uq-site-header and is visually one bar
-			var primoLoginBar =
-				document.querySelector("prm-topbar>div.top-nav-bar.layout-row") ||
-				false;
-			!!primoLoginBar && (primoLoginBar.style.marginTop = "-61px");
+			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
+			!!primoLoginBar && (primoLoginBar.style.marginTop = '-61px');
 		},
 		template: "<askus-button nopaneopacity></askus-button>",
 	});
@@ -537,54 +460,33 @@ function whenPageLoaded(fn) {
 					vm.parentCtrl.item.pnx.control.recordid[0] &&
 					vm.parentCtrl.item.pnx.control.recordid[0].startsWith("TN")
 				) {
-					recordId = encodeURIComponent(
-						vm.parentCtrl.item.pnx.control.recordid
-					);
+					recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid);
 				}
 				if (recordId === "") {
 					if (!!vm.parentCtrl?.item?.pnx?.search?.recordid) {
-						recordId = encodeURIComponent(
-							vm.parentCtrl.item.pnx.search.recordid
-						);
+						recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
 					}
 				}
-				if (recordId === "") {
-					const params = new Proxy(
-						new URLSearchParams(window.location.search),
-						{
-							get: (searchParams, prop) => searchParams.get(prop),
-						}
-					);
+				if (recordId === '') {
+					const params = new Proxy(new URLSearchParams(window.location.search), {
+						get: (searchParams, prop) => searchParams.get(prop),
+					});
 					const paramRecordId = !!params?.docid ? params.docid : null;
 					if (paramRecordId !== null) {
 						recordId = paramRecordId;
 					}
 				}
 
-				let recordTitle = "";
-				if (
-					recordId !== "" &&
-					!!vm?.parentCtrl?.item?.pnx?.search?.title &&
-					!!vm.parentCtrl.item.pnx.search.title[0]
-				) {
-					recordTitle = encodeURIComponent(
-						vm.parentCtrl.item.pnx.search.title[0]
-					);
+				let recordTitle = '';
+				if (recordId !== '' && !!vm?.parentCtrl?.item?.pnx?.search?.title && !!vm.parentCtrl.item.pnx.search.title[0]) {
+					recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.search.title[0]);
 				}
-				if (
-					recordTitle === "" &&
-					!!vm.parentCtrl?.item?.pnx?.display?.title &&
-					!!vm.parentCtrl.item.pnx.display.title[0]
-				) {
-					recordTitle = encodeURIComponent(
-						vm.parentCtrl.item.pnx.display.title[0]
-					);
+				if (recordTitle === '' && !!vm.parentCtrl?.item?.pnx?.display?.title && !!vm.parentCtrl.item.pnx.display.title[0]) {
+					recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.display.title[0]);
 				}
-				if (recordTitle !== "") {
+				if (recordTitle !== '') {
 					var maxNumberCharCRMCanAccept = 239;
-					recordTitle = recordTitle
-						.trim()
-						.substring(0, maxNumberCharCRMCanAccept);
+					recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
 				}
 
 				// we may have trimmed in the middle of an encoded char, eg sit%20down trimmed to sit%2
@@ -598,9 +500,7 @@ function whenPageLoaded(fn) {
 					}
 				});
 
-				var isIE11 =
-					navigator.userAgent.indexOf("MSIE") !== -1 ||
-					navigator.appVersion.indexOf("Trident/") > -1;
+				var isIE11 = navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1;
 
 				// if we are not IE11 and can get a docid and a title - add a button
 				if (!isIE11 && recordId !== "" && recordTitle !== "") {
@@ -649,9 +549,7 @@ function whenPageLoaded(fn) {
 						vm.parentCtrl.result.pnx.display.type[0]) ||
 					"";
 				if (resourceType === "journal" || resourceType === "newspaper") {
-					vm.parentCtrl.isDirectLink = function () {
-						return false;
-					};
+					vm.parentCtrl.isDirectLink = function () {return false;};
 				}
 			};
 		},
@@ -666,12 +564,8 @@ function whenPageLoaded(fn) {
 			'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
 	});
 
-	function createIndicator(
-		svgPathValue,
-		iconWrapperClassName,
-		labelText,
-		uniqueId
-	) {
+	function createIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
+
 		const iconClassName = `${iconWrapperClassName}Icon`;
 		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 		!!path && path.setAttribute("d", svgPathValue);
@@ -700,8 +594,7 @@ function whenPageLoaded(fn) {
 		const iconWrapper = document.createElement("span");
 		!!iconWrapper && (iconWrapper.id = uniqueId);
 		// iconWrapperClassName is used to hide all non first-child entries
-		!!iconWrapper &&
-			(iconWrapper.className = `customIndicator ${iconWrapperClassName}`);
+		!!iconWrapper && (iconWrapper.className = `customIndicator ${iconWrapperClassName}`);
 		!!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
 		!!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
 
@@ -712,16 +605,10 @@ function whenPageLoaded(fn) {
 		return document.querySelector(`#${parentDOMId} prm-snippet`);
 	}
 
-	function addIndicatorToHeader(
-		uniqueId,
-		pageType,
-		parentDOMId,
-		createdIndicator
-	) {
+	function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
 		// determine the 2 ids that might apply to an existing indicator, one with and one without FULLVIEW
-		const idSansFullview = uniqueId.replace("_FULL_VIEW", "");
-		const indicatorElementSANSfullview =
-			document.getElementById(idSansFullview);
+		const idSansFullview = uniqueId.replace('_FULL_VIEW', '');
+		const indicatorElementSANSfullview = document.getElementById(idSansFullview);
 
 		let idWithFullview = uniqueId;
 		if (idSansFullview === uniqueId) {
@@ -731,21 +618,16 @@ function whenPageLoaded(fn) {
 				idWithFullview = uniqueId.replace("-courseres", "_FULL_VIEW-courseres");
 			}
 		}
-		const indicatorElementWITHfullview =
-			document.getElementById(idWithFullview);
+		const indicatorElementWITHfullview = document.getElementById(idWithFullview);
 
 		let indicatorParent = false;
 		// if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-		const openAccessIndicator = document.querySelector(
-			`#${parentDOMId} .open-access-mark`
-		);
+		const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
 		if (!!openAccessIndicator) {
 			indicatorParent = openAccessIndicator.parentNode;
 		}
 		if (!indicatorParent) {
-			const peerReviewedIndicator = document.querySelector(
-				`#${parentDOMId} .peer-reviewed-mark`
-			);
+			const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
 			if (!!peerReviewedIndicator) {
 				indicatorParent = peerReviewedIndicator.parentNode;
 			}
@@ -763,19 +645,12 @@ function whenPageLoaded(fn) {
 			// no such icons? add it as a new line after the snippet
 			// we have to make a wrapping div in case there is more than one Indicator, even though its rare
 			// and of course we don't know if another Indicator creation has already happened....
-			let indicatorWrapper = document.querySelector(
-				`#${parentDOMId} div.indicatorWrapper`
-			);
+			let indicatorWrapper = document.querySelector(`#${parentDOMId} div.indicatorWrapper`);
 			if (!indicatorWrapper) {
 				indicatorWrapper = document.createElement("div");
 				!!indicatorWrapper && (indicatorWrapper.className = "indicatorWrapper");
 				const snippet = getSnippet(parentDOMId);
-				!!snippet &&
-					!!indicatorWrapper &&
-					snippet.parentNode.insertBefore(
-						indicatorWrapper,
-						snippet.nextSibling
-					);
+				!!snippet && !!indicatorWrapper && snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
 			}
 			!!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
 		}
@@ -807,12 +682,7 @@ function whenPageLoaded(fn) {
 		const parentDOMId = getParentDomId(recordId);
 		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-		const createdIndicator = createIndicator(
-			muiIconInfoSvgPath,
-			className,
-			labelText,
-			uniqueId
-		);
+		const createdIndicator = createIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
 			return;
 		}
@@ -833,19 +703,13 @@ function whenPageLoaded(fn) {
 	function addCourseResourceIndicatorToHeader(recordId, pageType) {
 		const className = "readingListMark";
 		const thisIndicatorAbbrev = "courseres";
-		const muiIconAccountBalanceSvgPath =
-			"M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z";
+		const muiIconAccountBalanceSvgPath = "M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z";
 		const labelText = "COURSE READING LIST";
 
 		const parentDOMId = getParentDomId(recordId);
 		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-		const createdIndicator = createIndicator(
-			muiIconAccountBalanceSvgPath,
-			className,
-			labelText,
-			uniqueId
-		);
+		const createdIndicator = createIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
 			return;
 		}
@@ -857,72 +721,70 @@ function whenPageLoaded(fn) {
 	function getListTalisUrls(item) {
 		const TALIS_DOMAIN = "https://uq.rl.talis.com/";
 		const list = [];
-		const materialtype = !!item?.pnx?.display?.type && item.pnx.display.type[0];
+		const materialType = !!item?.pnx?.display?.type && item.pnx.display.type[0];
+		const restrictedCheckList = [
+			"article",
+			"book_chapter",
+			"conference_paper",
+			"conference_proceeding",
+			"dataset",
+			"design",
+			"government_document",
+			"market_research",
+			"newsletterarticle", // Talis currently using a non-standard format
+			"newsletter_article", // future-proof it
+			"newspaper_article",
+			"patent",
+			"reference_entry",
+			"report",
+			"review",
+			"web_resource",
+			"working_paper",
+		];
+		const isRestrictedCheckType = restrictedCheckList.includes(materialType);
 
 		// LCN
-		if (
-			materialtype !== "book_chapter" &&
-			!!item?.pnx?.search?.addsrcrecordid &&
-			item.pnx.search.addsrcrecordid.length > 0
-		) {
-			item.pnx.search.addsrcrecordid.forEach((r) => {
-				list.push(TALIS_DOMAIN + "lcn/" + r + "/lists.json");
-			});
+		if (!!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
+			item.pnx.search.addsrcrecordid.forEach(r => {
+				list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
+			})
 		}
 
 		// DOI
 		if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
-			item.pnx.addata.doi.forEach((r) => {
-				list.push(TALIS_DOMAIN + "doi/" + r + "/lists.json");
-			});
+			item.pnx.addata.doi.forEach(r => {
+				list.push(TALIS_DOMAIN + 'doi/' + r + '/lists.json');
+			})
 		}
 
 		// EISBN
-		if (
-			materialtype !== "book_chapter" &&
-			!!item?.pnx?.addata?.eisbn &&
-			item.pnx.addata.eisbn.length > 0
-		) {
-			item.pnx.addata.eisbn.forEach((r) => {
-				const isbn = r.replace(/[^0-9X]+/gi, "");
-				[10, 13].includes(isbn.length) &&
-					list.push(TALIS_DOMAIN + "eisbn/" + isbn + "/lists.json");
-			});
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.eisbn && item.pnx.addata.eisbn.length > 0) {
+			item.pnx.addata.eisbn.forEach(r => {
+				const isbn = r.replace(/[^0-9X]+/gi, '');
+				[10, 13].includes(isbn.length) && list.push(TALIS_DOMAIN + 'eisbn/' + isbn + '/lists.json');
+			})
 		}
 
 		// ISBN
-		if (
-			materialtype !== "book_chapter" &&
-			!!item?.pnx?.addata?.isbn &&
-			item.pnx.addata.isbn.length > 0
-		) {
-			item.pnx.addata.isbn.forEach((r) => {
-				const isbn = r.replace(/[^0-9X]+/gi, "");
-				[10, 13].includes(isbn.length) &&
-					list.push(TALIS_DOMAIN + "isbn/" + isbn + "/lists.json");
-			});
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.isbn && item.pnx.addata.isbn.length > 0) {
+			item.pnx.addata.isbn.forEach(r => {
+				const isbn = r.replace(/[^0-9X]+/gi, '');
+				[10, 13].includes(isbn.length) && list.push(TALIS_DOMAIN + 'isbn/' + isbn + '/lists.json');
+			})
 		}
 
 		// EISSN
-		if (
-			materialtype === "journal" &&
-			!!item?.pnx?.addata?.eissn &&
-			item.pnx.addata.eissn.length > 0
-		) {
-			item.pnx.addata.eissn.forEach((r) => {
-				list.push(TALIS_DOMAIN + "eissn/" + r + "/lists.json");
-			});
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.eissn && item.pnx.addata.eissn.length > 0) {
+			item.pnx.addata.eissn.forEach(r => {
+				list.push(TALIS_DOMAIN + 'eissn/' + r + '/lists.json');
+			})
 		}
 
 		// ISSN
-		if (
-			materialtype === "journal" &&
-			!!item?.pnx?.addata?.issn &&
-			item.pnx.addata.issn.length > 0
-		) {
-			item.pnx.addata.issn.forEach((r) => {
-				list.push(TALIS_DOMAIN + "issn/" + r + "/lists.json");
-			});
+		if (!isRestrictedCheckType && !!item?.pnx?.addata?.issn && item.pnx.addata.issn.length > 0) {
+			item.pnx.addata.issn.forEach(r => {
+				list.push(TALIS_DOMAIN + 'issn/' + r + '/lists.json');
+			})
 		}
 
 		return list;
@@ -957,9 +819,7 @@ function whenPageLoaded(fn) {
 
 		const siblingClass = ".search-result-availability-line-wrapper";
 		const siblings = document.querySelectorAll(siblingClass);
-		siblings.forEach((appendToSibling) =>
-			appendToSibling.insertAdjacentElement("afterend", block)
-		);
+		siblings.forEach(appendToSibling => appendToSibling.insertAdjacentElement('afterend', block));
 	}
 
 	// based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
@@ -981,22 +841,13 @@ function whenPageLoaded(fn) {
 				let courseList = {}; // associative arrays are done in js as objects
 
 				async function getTalisDataFromAllApiCalls(listUrls) {
-					const listUrlsToCall = listUrls.filter((url) =>
-						url.startsWith("http")
-					);
-					const promiseList = listUrlsToCall.map((url) =>
-						$http.jsonp(url, { jsonpCallbackParam: "cb" })
-					);
+					const listUrlsToCall = listUrls.filter(url => url.startsWith('http'))
+					const promiseList = listUrlsToCall.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
 					// get all the urls then sort them into a non-repeating list
 					await Promise.allSettled(promiseList)
-						.then((response) => {
-							response.forEach((r) => {
-								if (
-									!r.status ||
-									r.status !== "fulfilled" ||
-									!r.value ||
-									!r.value.data
-								) {
+						.then(response => {
+							response.forEach(r => {
+								if (!r.status || r.status !== 'fulfilled' || !r.value || !r.value.data) {
 									return;
 								}
 								for (let talisUrl in r.value.data) {
@@ -1009,9 +860,7 @@ function whenPageLoaded(fn) {
 							if (Object.keys(courseList).length > 0) {
 								$scope.hasCourses = true;
 
-								const recordid =
-									!!vm?.parentCtrl?.item?.pnx?.control?.recordid &&
-									vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 								if (!!recordid) {
 									addCourseResourceIndicatorToHeader(recordid, "full");
 								}
@@ -1023,7 +872,7 @@ function whenPageLoaded(fn) {
 									const subjectCode = courseList[talisUrl];
 									sortable.push([talisUrl, subjectCode]);
 								}
-								sortable.sort(function (a, b) {
+								sortable.sort(function(a, b) {
 									return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
 								});
 								sortable.forEach((entry) => {
@@ -1035,29 +884,19 @@ function whenPageLoaded(fn) {
 						});
 				}
 
-				const listTalisUrls =
-					vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
 				if (!!listTalisUrls && listTalisUrls.length > 0) {
 					getTalisDataFromAllApiCalls(listTalisUrls);
 				}
 
 				// display the cultural advice indicator on appropriate records
-				const recordId =
-					!!vm?.parentCtrl?.item?.pnx?.control?.recordid &&
-					vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-				const culturalAdviceText =
-					!!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 &&
-					vm.parentCtrl.item.pnx.facets?.lfc04; // eg "Cultural advice - Aboriginal and Torres Strait Islander people"
+				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // eg "Cultural advice - Aboriginal and Torres Strait Islander people"
 				if (!!culturalAdviceText && !!recordId) {
 					addCulturalAdviceIndicatorToHeader(recordId, "full");
 
-					const culturalAdviceBody =
-						!!vm?.parentCtrl?.item?.pnx?.search?.lsr47 &&
-						vm.parentCtrl.item.pnx.search?.lsr47; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
-					!!culturalAdviceBody &&
-						culturalAdviceBody.length > 0 &&
-						!!culturalAdviceBody[0] &&
-						addCulturalAdviceBanner(culturalAdviceBody[0]);
+					const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.search?.lsr47 && vm.parentCtrl.item.pnx.search?.lsr47; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+					!!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
 				}
 			};
 		},
@@ -1087,47 +926,33 @@ function whenPageLoaded(fn) {
 
 				function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall) {
 					const url = listTalisUrls.shift();
-					url.startsWith("http") &&
-						$http
-							.jsonp(url, { jsonpCallbackParam: "cb" })
-							.then(function handleSuccess(response) {
-								$scope.listsFound = response.data || null;
-								if (!$scope.listsFound && listUrlsToCall.length > 0) {
-									getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+					url.startsWith("http") && $http.jsonp(url, { jsonpCallbackParam: "cb" })
+						.then(function handleSuccess(response) {
+							$scope.listsFound = response.data || null;
+							if (!$scope.listsFound && listUrlsToCall.length > 0) {
+								getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+							}
+							if (!!$scope.listsFound) {
+								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
+								if (!!recordid) {
+									addCourseResourceIndicatorToHeader(recordid, "brief");
 								}
-								if (!!$scope.listsFound) {
-									const recordid =
-										!!vm?.parentCtrl?.item?.pnx?.control?.recordid &&
-										vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
-									if (!!recordid) {
-										addCourseResourceIndicatorToHeader(recordid, "brief");
-										// whenPageLoaded(addCourseResourceIndicatorToHeader(recordid, 'brief'));
-									}
-								}
-							})
-							.catch(() => {
-								if (!$scope.listsFound && listUrlsToCall.length > 0) {
-									getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
-								}
-							});
+							}
+						})
+						.catch(() => {
+							if (!$scope.listsFound && listUrlsToCall.length > 0) {
+								getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+							}
+						});
 				}
 
-				const listTalisUrls =
-					vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
-				!!listTalisUrls &&
-					listTalisUrls.length > 0 &&
-					getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
+				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+				!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
 
 				// display the cultural advice indicator on appropriate records
-				const recordId =
-					!!vm?.parentCtrl?.item?.pnx?.control?.recordid &&
-					vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize
-					? vm.parentCtrl.resultUtil._updatedBulkSize
-					: "x"; // eg 61UQ_ALMA51124881340003131
-				const culturalAdviceText =
-					!!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 &&
-					vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : 'x'; // eg 61UQ_ALMA51124881340003131
+				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
 				if (!!culturalAdviceText && !!recordId) {
 					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`);
 				}
@@ -1184,25 +1009,13 @@ function whenPageLoaded(fn) {
 	}
 
 	// this script should only be called on views that have UQ header showing
-	insertScript(
-		"https://assets.library.uq.edu.au/reusable-webcomponents" +
-			folder +
-			"uq-lib-reusable.min.js"
-	);
-	// we dont yet need this script, but if we do it should be in this location
+	insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'uq-lib-reusable.min.js');
+	// we don't yet need this script, but if we do it should be in this location
 	// insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/load.js');
-	insertStylesheet(
-		"https://assets.library.uq.edu.au/reusable-webcomponents" +
-			folder +
-			"applications/primo/custom-styles.css"
-	);
-	insertStylesheet("https://static.uq.net.au/v6/fonts/Roboto/roboto.css");
-	insertStylesheet(
-		"https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css"
-	);
-	insertStylesheet(
-		"https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css"
-	);
+	insertStylesheet('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/custom-styles.css');
+	insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
+	insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
+	insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
 })();
 
 // the Favourites Pin can have a help dialog floating below it
@@ -1212,20 +1025,14 @@ function whenPageLoaded(fn) {
 // when the pin moves itself to the top corner (which is onscroll), remove our class
 // (tried to do this by listening to the scroll event, but it was flakey - this is robust)
 const favouritePinDialogTagName = "prm-favorites-warning-message";
-const favouritesPinDialogInitialPositionClassName =
-	"favouritesDialogInitialPosition";
+const favouritesPinDialogInitialPositionClassName = "favouritesDialogInitialPosition";
 function manageFavouritesPinDialogLocation() {
 	setInterval(() => {
 		const isFullDisplayPage = window.location.pathname.includes("fulldisplay");
 		const favouritesPin = isFullDisplayPage
-			? document.querySelector(
-					".full-view-inner-container prm-brief-result-container:first-child prm-save-to-favorites-button"
-			  )
-			: document.querySelector(
-					'prm-search-bookmark-filter [aria-label="Go to Favourites"]'
-			  );
-		const pinLocation =
-			!!favouritesPin && favouritesPin.getBoundingClientRect();
+			? document.querySelector('.full-view-inner-container prm-brief-result-container:first-child prm-save-to-favorites-button')
+			: document.querySelector('prm-search-bookmark-filter [aria-label="Go to Favourites"]');
+		const pinLocation = !!favouritesPin && favouritesPin.getBoundingClientRect();
 		const favouritesDialog = document.querySelector(favouritePinDialogTagName);
 		if (!favouritesPin || !pinLocation || !favouritesDialog) {
 			// !favouritesPin && console.log('pin not found');
@@ -1235,20 +1042,10 @@ function manageFavouritesPinDialogLocation() {
 		}
 		if (pinLocation.top > 50) {
 			// page is at brief-result initial load layout - the Dialog must be moved down from where exlibris puts it
-			!favouritesDialog.classList.contains(
-				favouritesPinDialogInitialPositionClassName
-			) &&
-				favouritesDialog.classList.add(
-					favouritesPinDialogInitialPositionClassName
-				);
+			!favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.add(favouritesPinDialogInitialPositionClassName);
 		} else {
 			// the page has been scrolled and the favourites pin has shifted up to the top of the page - use the built in exlibris dialog position
-			!!favouritesDialog.classList.contains(
-				favouritesPinDialogInitialPositionClassName
-			) &&
-				favouritesDialog.classList.remove(
-					favouritesPinDialogInitialPositionClassName
-				);
+			!!favouritesDialog.classList.contains(favouritesPinDialogInitialPositionClassName) && favouritesDialog.classList.remove(favouritesPinDialogInitialPositionClassName);
 		}
 	}, 250);
 }

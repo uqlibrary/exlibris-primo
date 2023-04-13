@@ -17,7 +17,7 @@ There are 6 basic environments:
 | sandbox-dac | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DAC&sortby=rank) (ie vid=61UQ_DAC) | (uses primo-sandbox) | DAC's personal area. Keep it up to date with the others - deploy sandbox-dev changes here |
 | sandbox-otb | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DEV_LOGIN&sortby=rank) (ie vid=61UQ_DEV_LOGIN) | - | sandbox out of the box - it would be very unusual for us to make changes to this |
 
-The branch is set in [view_package/custom.js](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/js/custom.js) (there is no prod branch in this repo, we align search.library production with repo master branch. Maybe thats wrong... to be considered)
+The branch is set in [view_package/custom.js](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/js/custom.js) (down the bottom, look for `insertScript`)
 
 Primo UI is in active development. All releases are scheduled by Ex Libris and are available in Primo Sand Box a couple of weeks before going to production.
 
