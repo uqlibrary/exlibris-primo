@@ -66,7 +66,7 @@ function whenPageLoaded(fn) {
 	};
 	let loggedOutfeedbackButton =
 		`<md-menu-item id="loggedout-feedback" class="${feedbackOptions.className}" style="display: none">\n` +
-		`    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}" role="menuitem" aria-label="${feedbackOptions.ariaLabel}"">\n` +
+		`    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" data-analyticsid="${feedbackOptions.id}" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}" role="menuitem" aria-label="${feedbackOptions.ariaLabel}"">\n` +
 		'        <span class="svgwrapper">\n' +
 		'            <svg width="100%" height="100%" viewBox="0 0 24 24" y="1032" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">\n' +
 		`                <path d="${feedbackOptions.svgPath}"></path>\n` +
@@ -77,7 +77,7 @@ function whenPageLoaded(fn) {
 		"    </button>\n" +
 		"</md-menu-item>\n";
 	let loggedinFeedbackButton =
-		`<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
+		`<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${feedbackOptions.id}" data-analyticsid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
 		'    <svg viewBox="0 0 24 24" focusable="false">\n' +
 		`        <path d="${feedbackOptions.svgPath}"></path>\n` +
 		"    </svg>\n" +
@@ -96,7 +96,7 @@ function whenPageLoaded(fn) {
 			">\n" +
 			// Account link from variable accountLinkOptions, above, at #1
 			"    <li>\n" +
-			`        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}" role="menuitem" onclick="location.href='/primo-explore/favorites?vid=61UQ_DEV&amp;lang=en_US&amp;section=items'">\n` +
+			`        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="${favouriteLinkOptions.id}" data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}" role="menuitem" onclick="location.href='/primo-explore/favorites?vid=61UQ_DEV&amp;lang=en_US&amp;section=items'">\n` +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			`                 <path d="${favouriteLinkOptions.svgPath}"></path>\n` +
 			"            </svg>\n" +
@@ -107,7 +107,7 @@ function whenPageLoaded(fn) {
 			"        </button>\n" +
 			"    </li>\n" +
 			"    <li>\n" +
-			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-course-resources" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			'                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"></path>\n' +
 			"            </svg>\n" +
@@ -118,7 +118,7 @@ function whenPageLoaded(fn) {
 			"        </button>\n" +
 			"    </li>\n" +
 			"    <li>\n" +
-			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem" onclick="javascript:window.open(\'https://lib-print.library.uq.edu.au:9192/user\', \'_blank\');">\n' +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-print-balance" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem" onclick="javascript:window.open(\'https://lib-print.library.uq.edu.au:9192/user\', \'_blank\');">\n' +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			'                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"></path>\n' +
 			"            </svg>\n" +
@@ -129,7 +129,7 @@ function whenPageLoaded(fn) {
 			"        </button>\n" +
 			"    </li>\n" +
 			"    <li>\n" +
-			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem" onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-testid="mylibrary-menu-room-bookings" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem" onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			'                <path d="M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z"></path>\n' +
 			"            </svg>\n" +
@@ -196,6 +196,7 @@ function whenPageLoaded(fn) {
 				const newAnalyticsId = 'mylibrary-menu-borrowing';
 				const accountMenuItem = document.querySelector(primoIdentifier + ' button');
 				!!accountMenuItem && accountMenuItem.setAttribute('data-testid', newAnalyticsId);
+				!!accountMenuItem && accountMenuItem.setAttribute('data-analyticsid', newAnalyticsId);
 			}
 		}, 250);
 	}
