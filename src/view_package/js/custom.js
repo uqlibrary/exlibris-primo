@@ -96,7 +96,7 @@ function whenPageLoaded(fn) {
 			">\n" +
 			// Account link from variable accountLinkOptions, above, at #1
 			"    <li>\n" +
-			`        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}" role="menuitem" onclick="location.href='/primo-explore/favorites?vid=61UQ_DEV&amp;lang=en_US&amp;section=items'">\n` +
+			`        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}" role="menuitem" onclick="location.href='/primo-explore/favorites?vid=61UQ&amp;lang=en_US&amp;section=items'">\n` +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			`                 <path d="${favouriteLinkOptions.svgPath}"></path>\n` +
 			"            </svg>\n" +
