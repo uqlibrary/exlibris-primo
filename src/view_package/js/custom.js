@@ -879,8 +879,8 @@ function whenPageLoaded(fn) {
 								});
 								sortable.forEach((entry) => {
 									const subjectCode = entry[1];
-									const talisUrl = entry[0];
-									$scope.talisCourses[fixUnsafeReadingListUrl(talisUrl)] = subjectCode;
+									const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
+									$scope.talisCourses[talisUrl] = subjectCode;
 								});
 							}
 						});
@@ -889,6 +889,13 @@ function whenPageLoaded(fn) {
 				function fixUnsafeReadingListUrl(url)
 				{
 					return url.replace(unsafeReadingListBaseUrl, safeReadingListBaseUrl);
+				}
+
+				function addUrlParam(url, name, value)
+				{
+					const param = value !== undefined ? `${name}=${value}` : name;
+					const separator = url.includes('?') ? '&' : '?';
+					return `${url}${separator}${param}`;
 				}
 
 				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
