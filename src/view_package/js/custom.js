@@ -829,6 +829,8 @@ function whenPageLoaded(fn) {
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			var vm = this;
+			var unsafeReadingListBaseUrl = 'http://lr.library.uq.edu.au';
+			var safeReadingListBaseUrl = 'https://uq.rl.talis.com';
 
 			this.$onInit = function () {
 				$scope.talisCourses = [];
@@ -878,10 +880,15 @@ function whenPageLoaded(fn) {
 								sortable.forEach((entry) => {
 									const subjectCode = entry[1];
 									const talisUrl = entry[0];
-									$scope.talisCourses[talisUrl] = subjectCode;
+									$scope.talisCourses[fixUnsafeReadingListUrl(talisUrl)] = subjectCode;
 								});
 							}
 						});
+				}
+
+				function fixUnsafeReadingListUrl(url)
+				{
+					return url.replace(unsafeReadingListBaseUrl, safeReadingListBaseUrl);
 				}
 
 				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
