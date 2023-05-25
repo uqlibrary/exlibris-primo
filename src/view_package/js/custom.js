@@ -677,7 +677,7 @@ function whenPageLoaded(fn) {
 		return document.querySelector(`#${parentDOMId} prm-snippet`);
 	}
 
-	function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
+	function addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
 		// determine the 2 ids that might apply to an existing indicator, one with and one without FULLVIEW
 		const idSansFullview = uniqueId.replace('_FULL_VIEW', '');
 		const indicatorElementSANSfullview = document.getElementById(idSansFullview);
@@ -766,7 +766,7 @@ function whenPageLoaded(fn) {
 			const snippet = getSnippet(parentDOMId);
 			if (!!snippet) {
 				clearInterval(waitforSnippetToExist);
-				addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
+				addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
 			}
 		}, 100);
 		return true;
@@ -786,7 +786,7 @@ function whenPageLoaded(fn) {
 			return;
 		}
 
-		addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
+		addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
 		return true;
 	}
 
