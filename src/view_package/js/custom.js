@@ -587,7 +587,7 @@ function whenPageLoaded(fn) {
 	/**
 	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
 	 */
-	function addVidIndicator() {
+	function addNonProdEnvironmentIndicator() {
 		const urlParams = new URLSearchParams(window.location.search);
 		const vidParam = urlParams.get('vid');
 
@@ -596,11 +596,23 @@ function whenPageLoaded(fn) {
 			return;
 		}
 
-		const awaitReusableHeader = setInterval(() => {
+		const domainLabelText = isDomainProd() ? 'PROD' : 'SANDBOX';
+		const environmentTypeLabelText = vidParam.includes('61UQ_')
+			? vidParam.replace('61UQ_', '').toUpperCase()
+			: 'PROD';
+
+		const environmentIndicatorId = 'uql-env-indicator';
+
+		setInterval(() => {
 			const uqheader = document.querySelector('uq-site-header');
 			if (!!uqheader) {
-				clearInterval(awaitReusableHeader);
 				const shadowDom = !!uqheader && uqheader.shadowRoot;
+
+				const currentEnvironmentIndicator = !!shadowDom && shadowDom.getElementById(environmentIndicatorId);
+				if (!!currentEnvironmentIndicator) {
+					return;
+				}
+
 				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
 				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
 
@@ -612,13 +624,10 @@ function whenPageLoaded(fn) {
 					envIndicatorWrapper.style.marginLeft = '8px';
 					envIndicatorWrapper.style.fontWeight = 'bold';
 					envIndicatorWrapper.style.fontSize = '12px';
+					envIndicatorWrapper.id = environmentIndicatorId;
 
-					const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
-					const envType = vidParam.includes('61UQ_')
-						? vidParam.replace('61UQ_', '').toUpperCase()
-						: 'PROD';
-
-					const envLabel = !!domainLabel && !!envType && document.createTextNode(`${domainLabel} ${envType}`);
+					const envLabel = !!domainLabelText && !!environmentTypeLabelText
+						&& document.createTextNode(`${domainLabelText} ${environmentTypeLabelText}`);
 					!!envLabel && envIndicatorWrapper.appendChild(envLabel);
 
 					!!siteTitleParent && siteTitleParent.appendChild(envIndicatorWrapper);
@@ -1094,7 +1103,7 @@ function whenPageLoaded(fn) {
 	insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
 	insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
 
-	addVidIndicator();
+	addNonProdEnvironmentIndicator();
 })();
 
 // the Favourites Pin can have a help dialog floating below it
