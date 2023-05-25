@@ -614,7 +614,9 @@ function whenPageLoaded(fn) {
 					envIndicatorWrapper.style.fontSize = '12px';
 
 					const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
-					const envType = vidParam.replace('61UQ_', '').toUpperCase();
+					const envType = vidParam.includes('61UQ_')
+						? vidParam.replace('61UQ_', '').toUpperCase()
+						: 'PROD';
 
 					const envLabel = !!domainLabel && !!envType && document.createTextNode(`${domainLabel} ${envType}`);
 					!!envLabel && envIndicatorWrapper.appendChild(envLabel);
