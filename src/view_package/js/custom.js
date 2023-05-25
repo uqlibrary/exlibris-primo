@@ -465,47 +465,6 @@ function whenPageLoaded(fn) {
 		return window.location.hostname === "search.library.uq.edu.au";
 	}
 
-	/**
-	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
-	 */
-	function addVidIndicator() {
-		const urlParams = new URLSearchParams(window.location.search);
-		const vidParam = urlParams.get('vid');
-
-		if (isDomainProd() && vidParam === '61UQ') {
-			// this is not shown on prod-prod
-			return;
-		}
-
-		const awaitReusableHeader = setInterval(() => {
-			const uqheader = document.querySelector('uq-site-header');
-			if (!!uqheader) {
-				clearInterval(awaitReusableHeader);
-				const shadowDom = !!uqheader && uqheader.shadowRoot;
-				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
-				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
-
-				const envIndicatorWrapper = document.createElement('span');
-				if (!!envIndicatorWrapper) {
-					envIndicatorWrapper.style.color = 'white';
-					envIndicatorWrapper.style.backgroundColor = '#333';
-					envIndicatorWrapper.style.padding = '8px';
-					envIndicatorWrapper.style.marginLeft = '8px';
-					envIndicatorWrapper.style.fontWeight = 'bold';
-					envIndicatorWrapper.style.fontSize = '12px';
-
-					const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
-					const envType = vidParam.replace('61UQ_', '').toUpperCase();
-
-					const envLabel = !!domainLabel && !!envType && document.createTextNode(`${domainLabel} ${envType}`);
-					!!envLabel && envIndicatorWrapper.appendChild(envLabel);
-
-					!!siteTitleParent && siteTitleParent.appendChild(envIndicatorWrapper);
-				}
-			}
-		}, 500);
-	}
-
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
 	app.component("prmFullViewServiceContainerAfter", {
 		bindings: { parentCtrl: "<" },
@@ -625,7 +584,48 @@ function whenPageLoaded(fn) {
 			'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
 	});
 
-	function createIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
+	/**
+	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
+	 */
+	function addVidIndicator() {
+		const urlParams = new URLSearchParams(window.location.search);
+		const vidParam = urlParams.get('vid');
+
+		if (isDomainProd() && vidParam === '61UQ') {
+			// this is not shown on prod-prod
+			return;
+		}
+
+		const awaitReusableHeader = setInterval(() => {
+			const uqheader = document.querySelector('uq-site-header');
+			if (!!uqheader) {
+				clearInterval(awaitReusableHeader);
+				const shadowDom = !!uqheader && uqheader.shadowRoot;
+				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
+				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
+
+				const envIndicatorWrapper = document.createElement('span');
+				if (!!envIndicatorWrapper) {
+					envIndicatorWrapper.style.color = 'white';
+					envIndicatorWrapper.style.backgroundColor = '#333';
+					envIndicatorWrapper.style.padding = '8px';
+					envIndicatorWrapper.style.marginLeft = '8px';
+					envIndicatorWrapper.style.fontWeight = 'bold';
+					envIndicatorWrapper.style.fontSize = '12px';
+
+					const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
+					const envType = vidParam.replace('61UQ_', '').toUpperCase();
+
+					const envLabel = !!domainLabel && !!envType && document.createTextNode(`${domainLabel} ${envType}`);
+					!!envLabel && envIndicatorWrapper.appendChild(envLabel);
+
+					!!siteTitleParent && siteTitleParent.appendChild(envIndicatorWrapper);
+				}
+			}
+		}, 500);
+	}
+
+	function createCustomIconIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
 
 		const iconClassName = `${iconWrapperClassName}Icon`;
 		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -743,7 +743,7 @@ function whenPageLoaded(fn) {
 		const parentDOMId = getParentDomId(recordId);
 		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-		const createdIndicator = createIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
+		const createdIndicator = createCustomIconIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
 			return;
 		}
@@ -770,7 +770,7 @@ function whenPageLoaded(fn) {
 		const parentDOMId = getParentDomId(recordId);
 		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-		const createdIndicator = createIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
+		const createdIndicator = createCustomIconIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
 			return;
 		}
