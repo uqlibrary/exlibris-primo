@@ -96,7 +96,7 @@ function whenPageLoaded(fn) {
 		"</button>\n";
 
 	const loggedInMenu = (id, feedbackClass) => {
-		// THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
+		// THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS that don't check the account (ie not espace and not the admin links)
 		// (NOTE: because we can't do an account check in primo, we are not including the espace dashboard link here, nor the admin links)
 		let feedbackButton = loggedinFeedbackButton.replace("feedback-loggedin", feedbackClass);
 		return (
@@ -461,6 +461,51 @@ function whenPageLoaded(fn) {
 		template: "<askus-button nopaneopacity></askus-button>",
 	});
 
+	function isDomainProd() {
+		return window.location.hostname === "search.library.uq.edu.au";
+	}
+
+	/**
+	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
+	 */
+	function addVidIndicator() {
+		const urlParams = new URLSearchParams(window.location.search);
+		const vidParam = urlParams.get('vid');
+
+		if (isDomainProd() && vidParam === '61UQ') {
+			// this is not shown on prod-prod
+			return;
+		}
+
+		const awaitReusableHeader = setInterval(() => {
+			const uqheader = document.querySelector('uq-site-header');
+			if (!!uqheader) {
+				clearInterval(awaitReusableHeader);
+				const shadowDom = !!uqheader && uqheader.shadowRoot;
+				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
+				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
+
+				const envIndicatorWrapper = document.createElement('span');
+				if (!!envIndicatorWrapper) {
+					envIndicatorWrapper.style.color = 'white';
+					envIndicatorWrapper.style.backgroundColor = '#333';
+					envIndicatorWrapper.style.padding = '8px';
+					envIndicatorWrapper.style.marginLeft = '8px';
+					envIndicatorWrapper.style.fontWeight = 'bold';
+					envIndicatorWrapper.style.fontSize = '12px';
+
+					const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
+					const envType = vidParam.replace('61UQ_', '').toUpperCase();
+
+					const envLabel = !!domainLabel && !!envType && document.createTextNode(`${domainLabel} ${envType}`);
+					!!envLabel && envIndicatorWrapper.appendChild(envLabel);
+
+					!!siteTitleParent && siteTitleParent.appendChild(envIndicatorWrapper);
+				}
+			}
+		}, 500);
+	}
+
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
 	app.component("prmFullViewServiceContainerAfter", {
 		bindings: { parentCtrl: "<" },
@@ -521,7 +566,7 @@ function whenPageLoaded(fn) {
 				// if we are not IE11 and can get a docid and a title - add a button
 				if (!isIE11 && recordId !== "" && recordTitle !== "") {
 					var crmDomain = "https://uqcurrent--tst1.custhelp.com"; // we can probably return the live url for all when this is in prod
-					if (window.location.hostname === "search.library.uq.edu.au") {
+					if (isDomainProd()) {
 						crmDomain = "https://support.my.uq.edu.au";
 					}
 
@@ -1012,7 +1057,7 @@ function whenPageLoaded(fn) {
 
 	// this script should only be called on views that have UQ header showing
 	var folder = "/"; // default. Use for prod.
-	if (window.location.hostname === "search.library.uq.edu.au") {
+	if (isDomainProd()) {
 		if (/vid=61UQ_DEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
 		}
@@ -1032,6 +1077,8 @@ function whenPageLoaded(fn) {
 	insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
 	insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
 	insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
+
+	addVidIndicator();
 })();
 
 // the Favourites Pin can have a help dialog floating below it
