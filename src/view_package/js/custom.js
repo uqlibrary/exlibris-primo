@@ -39,6 +39,7 @@ function whenPageLoaded(fn) {
 		template: '<alert-list system="primo"></alert-list>',
 	});
 
+	// account options is a built in primo but that we alter, but cant directly offer the same functionality it does
 	const accountLinkOptions = {
 		title: "Library account",
 		id: "mylibrary-menu-borrowing",
@@ -46,12 +47,15 @@ function whenPageLoaded(fn) {
 		svgPath:
 			"M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z",
 	};
+	const urlParams = new URLSearchParams(window.location.search);
+	const vidParam = urlParams.get('vid');
 	const favouriteLinkOptions = {
 		title: "Favourites",
 		id: "mylibrary-menu-saved-items",
 		svgPath:
 			"m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
 		subtext: "Saved items, searches & search history",
+		link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=items`,
 	};
 	const feedbackOptions = {
 		title: "Feedback",
@@ -66,7 +70,9 @@ function whenPageLoaded(fn) {
 	};
 	let loggedOutfeedbackButton =
 		`<md-menu-item id="loggedout-feedback" class="${feedbackOptions.className}" style="display: none">\n` +
-		`    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="${feedbackOptions.id}" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}" role="menuitem" aria-label="${feedbackOptions.ariaLabel}"">\n` +
+		'    <button class="button-with-icon md-button md-primoExplore-theme md-ink-ripple" type="button"' +
+					` data-analyticsid="${feedbackOptions.id}" role="menuitem" aria-label="${feedbackOptions.ariaLabel}` +
+					` onclick="javascript:window.open('${feedbackOptions.link}', '_blank');" ui-sref-opts="{reload: true, inherit:false}">\n` +
 		'        <span class="svgwrapper">\n' +
 		'            <svg width="100%" height="100%" viewBox="0 0 24 24" y="1032" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">\n' +
 		`                <path d="${feedbackOptions.svgPath}"></path>\n` +
@@ -77,7 +83,9 @@ function whenPageLoaded(fn) {
 		"    </button>\n" +
 		"</md-menu-item>\n";
 	let loggedinFeedbackButton =
-		`<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem" onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
+		`<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button"` +
+				` data-analyticsid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem"` +
+				` onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
 		'    <svg viewBox="0 0 24 24" focusable="false">\n' +
 		`        <path d="${feedbackOptions.svgPath}"></path>\n` +
 		"    </svg>\n" +
@@ -88,15 +96,17 @@ function whenPageLoaded(fn) {
 		"</button>\n";
 
 	const loggedInMenu = (id, feedbackClass) => {
-		// THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS!
-		// (NOTE: due to complexity of an account check in primo, we are not including the espace dashboard link here atm)
+		// THESE LINKS MUST REPEAT THE REUSABLE-WEBCOMPONENT AUTHBUTTON LINKS that don't check the account (ie not espace and not the admin links)
+		// (NOTE: because we can't do an account check in primo, we are not including the espace dashboard link here, nor the admin links)
 		let feedbackButton = loggedinFeedbackButton.replace("feedback-loggedin", feedbackClass);
 		return (
 			`<ul id="${id}" class="mylibrary-list" style="display:none"` +
 			">\n" +
-			// Account link from variable accountLinkOptions, above, at #1
+			// Account link from variable accountLinkOptions, above, is placed as LI #1
 			"    <li>\n" +
-			`        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}" role="menuitem" onclick="location.href='/primo-explore/favorites?vid=61UQ&amp;lang=en_US&amp;section=items'">\n` +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			`				data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
+			`				role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			`                 <path d="${favouriteLinkOptions.svgPath}"></path>\n` +
 			"            </svg>\n" +
@@ -107,7 +117,9 @@ function whenPageLoaded(fn) {
 			"        </button>\n" +
 			"    </li>\n" +
 			"    <li>\n" +
-			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			'				data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources"' +
+			'				role="menuitem" onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			'                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"></path>\n' +
 			"            </svg>\n" +
@@ -118,7 +130,9 @@ function whenPageLoaded(fn) {
 			"        </button>\n" +
 			"    </li>\n" +
 			"    <li>\n" +
-			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem" onclick="javascript:window.open(\'https://lib-print.library.uq.edu.au:9192/user\', \'_blank\');">\n' +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			'				data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem"' +
+			'				onclick="javascript:window.open(\'https://lib-print.library.uq.edu.au:9192/user\', \'_blank\');">\n' +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			'                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"></path>\n' +
 			"            </svg>\n" +
@@ -129,7 +143,9 @@ function whenPageLoaded(fn) {
 			"        </button>\n" +
 			"    </li>\n" +
 			"    <li>\n" +
-			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem" onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
+			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			'				data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem"' +
+			'				onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
 			'            <svg viewBox="0 0 24 24" focusable="false">\n' +
 			'                <path d="M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z"></path>\n' +
 			"            </svg>\n" +
@@ -445,6 +461,10 @@ function whenPageLoaded(fn) {
 		template: "<askus-button nopaneopacity></askus-button>",
 	});
 
+	function isDomainProd() {
+		return window.location.hostname === "search.library.uq.edu.au";
+	}
+
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
 	app.component("prmFullViewServiceContainerAfter", {
 		bindings: { parentCtrl: "<" },
@@ -505,7 +525,7 @@ function whenPageLoaded(fn) {
 				// if we are not IE11 and can get a docid and a title - add a button
 				if (!isIE11 && recordId !== "" && recordTitle !== "") {
 					var crmDomain = "https://uqcurrent--tst1.custhelp.com"; // we can probably return the live url for all when this is in prod
-					if (window.location.hostname === "search.library.uq.edu.au") {
+					if (isDomainProd()) {
 						crmDomain = "https://support.my.uq.edu.au";
 					}
 
@@ -564,7 +584,50 @@ function whenPageLoaded(fn) {
 			'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
 	});
 
-	function createIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
+	/**
+	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
+	 */
+	function addVidIndicator() {
+		const urlParams = new URLSearchParams(window.location.search);
+		const vidParam = urlParams.get('vid');
+
+		if (isDomainProd() && vidParam === '61UQ') {
+			// this is not shown on prod-prod
+			return;
+		}
+
+		const awaitReusableHeader = setInterval(() => {
+			const uqheader = document.querySelector('uq-site-header');
+			if (!!uqheader) {
+				clearInterval(awaitReusableHeader);
+				const shadowDom = !!uqheader && uqheader.shadowRoot;
+				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
+				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
+
+				const envIndicatorWrapper = document.createElement('span');
+				if (!!envIndicatorWrapper) {
+					envIndicatorWrapper.style.color = 'white';
+					envIndicatorWrapper.style.backgroundColor = '#333';
+					envIndicatorWrapper.style.padding = '8px';
+					envIndicatorWrapper.style.marginLeft = '8px';
+					envIndicatorWrapper.style.fontWeight = 'bold';
+					envIndicatorWrapper.style.fontSize = '12px';
+
+					const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
+					const envType = vidParam.includes('61UQ_')
+						? vidParam.replace('61UQ_', '').toUpperCase()
+						: 'PROD';
+
+					const envLabel = !!domainLabel && !!envType && document.createTextNode(`${domainLabel} ${envType}`);
+					!!envLabel && envIndicatorWrapper.appendChild(envLabel);
+
+					!!siteTitleParent && siteTitleParent.appendChild(envIndicatorWrapper);
+				}
+			}
+		}, 500);
+	}
+
+	function createCustomIconIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
 
 		const iconClassName = `${iconWrapperClassName}Icon`;
 		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -682,7 +745,7 @@ function whenPageLoaded(fn) {
 		const parentDOMId = getParentDomId(recordId);
 		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-		const createdIndicator = createIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
+		const createdIndicator = createCustomIconIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
 			return;
 		}
@@ -709,7 +772,7 @@ function whenPageLoaded(fn) {
 		const parentDOMId = getParentDomId(recordId);
 		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
 
-		const createdIndicator = createIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
+		const createdIndicator = createCustomIconIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
 			return;
 		}
@@ -822,7 +885,7 @@ function whenPageLoaded(fn) {
 		siblings.forEach(appendToSibling => appendToSibling.insertAdjacentElement('afterend', block));
 	}
 
-	// based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
+	// loosely based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
 	// and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
 	// check for a reading list in the full results page and add an indicator and list if so
 	app.component("prmServiceDetailsAfter", {
@@ -965,7 +1028,7 @@ function whenPageLoaded(fn) {
 
 				// display the cultural advice indicator on appropriate records
 				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : 'x'; // eg 61UQ_ALMA51124881340003131
+				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
 				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
 				if (!!culturalAdviceText && !!recordId) {
 					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`);
@@ -1010,7 +1073,7 @@ function whenPageLoaded(fn) {
 
 	// this script should only be called on views that have UQ header showing
 	var folder = "/"; // default. Use for prod.
-	if (window.location.hostname === "search.library.uq.edu.au") {
+	if (isDomainProd()) {
 		if (/vid=61UQ_DEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
 		}
@@ -1030,6 +1093,8 @@ function whenPageLoaded(fn) {
 	insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
 	insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
 	insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
+
+	addVidIndicator();
 })();
 
 // the Favourites Pin can have a help dialog floating below it
