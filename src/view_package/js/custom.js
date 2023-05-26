@@ -587,7 +587,7 @@ function whenPageLoaded(fn) {
 	/**
 	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
 	 */
-	function addVidIndicator() {
+	function addNonProdEnvironmentIndicator() {
 		const urlParams = new URLSearchParams(window.location.search);
 		const vidParam = urlParams.get('vid');
 
@@ -596,11 +596,23 @@ function whenPageLoaded(fn) {
 			return;
 		}
 
-		const awaitReusableHeader = setInterval(() => {
+		const domainLabelText = isDomainProd() ? 'PROD' : 'SANDBOX';
+		const environmentTypeLabelText = vidParam.includes('61UQ_')
+			? vidParam.replace('61UQ_', '').toUpperCase()
+			: 'PROD';
+
+		const environmentIndicatorId = 'uql-env-indicator';
+
+		setInterval(() => {
 			const uqheader = document.querySelector('uq-site-header');
 			if (!!uqheader) {
-				clearInterval(awaitReusableHeader);
 				const shadowDom = !!uqheader && uqheader.shadowRoot;
+
+				const currentEnvironmentIndicator = !!shadowDom && shadowDom.getElementById(environmentIndicatorId);
+				if (!!currentEnvironmentIndicator) {
+					return;
+				}
+
 				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
 				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
 
@@ -612,13 +624,10 @@ function whenPageLoaded(fn) {
 					envIndicatorWrapper.style.marginLeft = '8px';
 					envIndicatorWrapper.style.fontWeight = 'bold';
 					envIndicatorWrapper.style.fontSize = '12px';
+					envIndicatorWrapper.id = environmentIndicatorId;
 
-					const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
-					const envType = vidParam.includes('61UQ_')
-						? vidParam.replace('61UQ_', '').toUpperCase()
-						: 'PROD';
-
-					const envLabel = !!domainLabel && !!envType && document.createTextNode(`${domainLabel} ${envType}`);
+					const envLabel = !!domainLabelText && !!environmentTypeLabelText
+						&& document.createTextNode(`${domainLabelText} ${environmentTypeLabelText}`);
 					!!envLabel && envIndicatorWrapper.appendChild(envLabel);
 
 					!!siteTitleParent && siteTitleParent.appendChild(envIndicatorWrapper);
@@ -668,7 +677,7 @@ function whenPageLoaded(fn) {
 		return document.querySelector(`#${parentDOMId} prm-snippet`);
 	}
 
-	function addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
+	function addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
 		// determine the 2 ids that might apply to an existing indicator, one with and one without FULLVIEW
 		const idSansFullview = uniqueId.replace('_FULL_VIEW', '');
 		const indicatorElementSANSfullview = document.getElementById(idSansFullview);
@@ -757,7 +766,7 @@ function whenPageLoaded(fn) {
 			const snippet = getSnippet(parentDOMId);
 			if (!!snippet) {
 				clearInterval(waitforSnippetToExist);
-				addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
+				addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
 			}
 		}, 100);
 		return true;
@@ -777,7 +786,7 @@ function whenPageLoaded(fn) {
 			return;
 		}
 
-		addIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
+		addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
 		return true;
 	}
 
@@ -892,6 +901,8 @@ function whenPageLoaded(fn) {
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			var vm = this;
+			var unsafeReadingListBaseUrl = 'http://lr.library.uq.edu.au';
+			var safeReadingListBaseUrl = 'https://uq.rl.talis.com';
 
 			this.$onInit = function () {
 				$scope.talisCourses = [];
@@ -940,11 +951,23 @@ function whenPageLoaded(fn) {
 								});
 								sortable.forEach((entry) => {
 									const subjectCode = entry[1];
-									const talisUrl = entry[0];
+									const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
 									$scope.talisCourses[talisUrl] = subjectCode;
 								});
 							}
 						});
+				}
+
+				function fixUnsafeReadingListUrl(url)
+				{
+					return url.replace(unsafeReadingListBaseUrl, safeReadingListBaseUrl);
+				}
+
+				function addUrlParam(url, name, value)
+				{
+					const param = value !== undefined ? `${name}=${value}` : name;
+					const separator = url.includes('?') ? '&' : '?';
+					return `${url}${separator}${param}`;
 				}
 
 				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
@@ -1080,7 +1103,7 @@ function whenPageLoaded(fn) {
 	insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
 	insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
 
-	addVidIndicator();
+	addNonProdEnvironmentIndicator();
 })();
 
 // the Favourites Pin can have a help dialog floating below it
