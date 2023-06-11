@@ -1086,11 +1086,11 @@ function whenPageLoaded(fn) {
 	// this script should only be called on views that have UQ header showing
 	var folder = "/"; // default. Use for prod.
 	if (isDomainProd()) {
-		if (/vid=61UQ_DEV/.test(window.location.href)) {
+		if (/vid=61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
 		}
 	} else {
-		if (/vid=61UQ_DEV/.test(window.location.href)) {
+		if (/vid=61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-sandbox-dev/";
 		} else if (/vid=61UQ/.test(window.location.href)) {
 			folder = "-development/primo-sandbox/";
