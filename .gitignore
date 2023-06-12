@@ -18,6 +18,7 @@ tmp
 src/**/*.css
 src/**/*.css.map
 src/**/*.zip
+src/custom.js
 
 */custom-styles.css
 */common-minimal-styles.css
