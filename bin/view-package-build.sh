@@ -4,7 +4,7 @@
 set -e
 
 if [ "$#" -lt 1 ]; then
-    printf "\e[31m\e[1mError:\e[0m\e[31m View name (e.g.: 61UQ_DEV) not specified.\e[0m\n"
+    printf "\e[31m\e[1mError:\e[0m\e[31m View name (e.g.: 61UQ_APPDEV) not specified.\e[0m\n"
     printf "Exiting...\n\n"
     exit 1
 fi

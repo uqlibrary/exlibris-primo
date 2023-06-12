@@ -103,7 +103,7 @@ function whenPageLoaded(fn) {
 			`<ul id="${id}" class="mylibrary-list" style="display:none"` +
 			">\n" +
 			// Account link from variable accountLinkOptions, above, is placed as LI #1
-			"    <li>\n" +
+			`    <li id="${favouriteLinkOptions.id}Wrapper">\n` +
 			'        <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			`				data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
 			`				role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
@@ -164,7 +164,7 @@ function whenPageLoaded(fn) {
 
 	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
 	// so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
-	function rewriteProvidedPrimoButton(e, primoIdentifier) {
+	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier) {
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
 			return;
@@ -175,7 +175,7 @@ function whenPageLoaded(fn) {
 			if (!!cloneableSvg) {
 				clearInterval(awaitSVG);
 
-				!!e.svgPath && cloneableSvg.firstElementChild.setAttribute('d', e.svgPath);
+				!!buttonOptions.svgPath && cloneableSvg.firstElementChild.setAttribute('d', buttonOptions.svgPath);
 
 				const svg = cloneableSvg.cloneNode(true);
 
@@ -191,7 +191,7 @@ function whenPageLoaded(fn) {
 				!!removableDiv && removableDiv.remove();
 
 				// add our insides to the account button!
-				const primaryText = document.createTextNode(e.title);
+				const primaryText = document.createTextNode(buttonOptions.title);
 				const primaryTextBlock = document.createElement('span');
 				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
 				!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
@@ -200,7 +200,7 @@ function whenPageLoaded(fn) {
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
 
-				const subtext = document.createTextNode(e.subtext);
+				const subtext = document.createTextNode(buttonOptions.subtext);
 				const subtextDiv = document.createElement('span');
 				!!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
 				!!subtextDiv && subtextDiv.appendChild(subtext);
@@ -208,10 +208,9 @@ function whenPageLoaded(fn) {
 				!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
 				!!button && !!textParent && button.appendChild(textParent);
 
-				// add an ID for GTM usage to the account button
-				const newAnalyticsId = 'mylibrary-menu-borrowing';
-				const accountMenuItem = document.querySelector(primoIdentifier + ' button');
-				!!accountMenuItem && accountMenuItem.setAttribute('data-analyticsid', newAnalyticsId);
+				// add an ID for GTM usage to the button
+				const menuItem = document.querySelector(primoIdentifier + ' button');
+				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
 			}
 		}, 250);
 	}
@@ -353,15 +352,19 @@ function whenPageLoaded(fn) {
 							".my-requests-ctm",
 							".my-search-history-ctm",
 							".my-PersonalDetails-ctm",
-							".my-favorties-ctm", // what they currently have as the class for My Favourites
-							".my-favorites-ctm", // in case they fix the spelling quietly
+
+							// in desktop, we delete our own favourites button in favour of the built in Primo one that fires a anaytics beacon
+							// (we don't do that in mobile because its very flakey :( )
+							`${favouriteLinkOptions.id}Wrapper`
 						];
 						deletionClassList.forEach((e) => {
-							const elem = document.querySelector(e);
+							const elem = e.startsWith('.') ? document.querySelector(e) : document.getElementById(e);
 							!!elem && elem.remove();
 						});
 
 						rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
+
+						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
 
 						// remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
 						const hr1 = document.querySelector("md-menu-divider");
@@ -1083,11 +1086,11 @@ function whenPageLoaded(fn) {
 	// this script should only be called on views that have UQ header showing
 	var folder = "/"; // default. Use for prod.
 	if (isDomainProd()) {
-		if (/vid=61UQ_DEV/.test(window.location.href)) {
+		if (/vid=61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
 		}
 	} else {
-		if (/vid=61UQ_DEV/.test(window.location.href)) {
+		if (/vid=61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-sandbox-dev/";
 		} else if (/vid=61UQ/.test(window.location.href)) {
 			folder = "-development/primo-sandbox/";
