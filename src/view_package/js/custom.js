@@ -1050,6 +1050,42 @@ function whenPageLoaded(fn) {
 		template: "",
 	});
 
+	app.component('prmFacetExactAfter', {
+		bindings: { parentCtrl: "<" },
+		controller: function ($scope, $http) {
+			const awaitOpenAccessEntry = setInterval(() => {
+				const openAccessEntry = document.querySelector('[title="Open Access"]');
+				if (!!openAccessEntry) {
+					clearInterval(awaitOpenAccessEntry);
+					const openAccessId = 'LTSaddedOpenAccessCount';
+					const addedOACountByLTSId = document.getElementById(openAccessId);
+					// if exlibris has already provided the OA count, it will have this class. Don't duplicate it.
+					const existingCountCheck  = !!openAccessEntry && openAccessEntry.parentNode.querySelector('.text-in-brackets');
+					if (!addedOACountByLTSId && !existingCountCheck) {
+						const openAccessParent = !!openAccessEntry && openAccessEntry.parentNode;
+						const ariaLabel = !!openAccessParent && openAccessParent.getAttribute('aria-label');
+						// This assumes an aria-label attribute of the format `Open Access 134,304 Search results`,
+						// which we strip down to '134,304'.
+						// Don't extract non-numerics in case Exlibris update the label to include a number - it would
+						// make all the displays wrong without being noticeable
+						const oaCount = !!ariaLabel && ariaLabel.replace('Open Access', '')
+							.replace('Search results', '')
+							.trim();
+						const textNode = !!oaCount && document.createTextNode(oaCount);
+						const wrapperSpan = !!textNode && document.createElement('span');
+						!!wrapperSpan && !!textNode && wrapperSpan.appendChild(textNode);
+						!!wrapperSpan && wrapperSpan.classList.add('text-italic', 'text-in-brackets', 'text-rtl', 'facet-counter');
+						!!wrapperSpan && (wrapperSpan.style.paddingLeft = '10px');
+						!!wrapperSpan && (wrapperSpan.id = openAccessId);
+
+						!!openAccessEntry && !!textNode && openAccessEntry.appendChild(wrapperSpan);
+					}
+				}
+			}, 500);
+		},
+		template: '',
+	});
+
 	function insertScript(url) {
 		var script = document.querySelector("script[src*='" + url + "']");
 		if (!script) {
