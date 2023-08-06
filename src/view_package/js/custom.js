@@ -892,9 +892,15 @@ function whenPageLoaded(fn) {
 		!!block && (block.className = displayBlockClassName);
 		!!para && !!para && block.appendChild(para);
 
-		const siblingClass = ".search-result-availability-line-wrapper";
-		const siblings = document.querySelectorAll(siblingClass);
-		siblings.forEach(appendToSibling => appendToSibling.insertAdjacentElement('afterend', block));
+		const waitforWrapperToExist = setInterval(() => {
+			const siblingClass = ".search-result-availability-line-wrapper";
+			const siblings = document.querySelectorAll(siblingClass);
+			if (!!siblings) {
+				clearInterval(waitforWrapperToExist);
+				siblings.forEach(appendToSibling => appendToSibling.insertAdjacentElement('afterend', block));
+			}
+		}, 100);
+
 	}
 
 	// loosely based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
