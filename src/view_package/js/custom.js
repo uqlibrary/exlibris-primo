@@ -796,6 +796,9 @@ function whenPageLoaded(fn) {
 	function getListTalisUrls(item) {
 		const TALIS_DOMAIN = "https://uq.rl.talis.com/";
 		const list = [];
+		// need to restrict a new type and don't know the exact name? Get an example url for the type and put a debug
+		// stop in the browser Source Inspection in getListTalisUrls, and check what is found at
+		// Local > item > pnx > type in the variable Scope
 		const materialType = !!item?.pnx?.display?.type && item.pnx.display.type[0];
 		const restrictedCheckList = [
 			"article",
@@ -805,11 +808,14 @@ function whenPageLoaded(fn) {
 			"dataset",
 			"design",
 			"government_document",
+			"magazinearticle", // Primo currently using a non-standard format
+			"magazine_article", // future-proof it
 			"market_research",
-			"newsletterarticle", // Talis currently using a non-standard format
+			"newsletterarticle", // Primo currently using a non-standard format
 			"newsletter_article", // future-proof it
 			"newspaper_article",
 			"patent",
+			"questionnaire",
 			"reference_entry",
 			"report",
 			"review",
