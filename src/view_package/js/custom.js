@@ -667,8 +667,7 @@ function whenPageLoaded(fn) {
 		!!contentLabel && (contentLabel.innerHTML = labelText);
 
 		const iconWrapper = document.createElement("span");
-		!!iconWrapper && (iconWrapper.id = uniqueId);
-		// iconWrapperClassName is used to hide all non first-child entries
+		// iconWrapperClassName is used to hide any duplicate icons, which shouldnt happen, but rarely there is a race condition
 		!!iconWrapper && (iconWrapper.className = `customIndicator ${iconWrapperClassName}`);
 		!!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
 		!!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
@@ -676,86 +675,69 @@ function whenPageLoaded(fn) {
 		return iconWrapper;
 	}
 
-	function getSnippet(parentDOMId) {
-		return document.querySelector(`#${parentDOMId} prm-snippet`);
+	function getSnippet(selectorParent) {
+		return document.querySelector(`${selectorParent} prm-snippet`);
 	}
 
-	function addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator) {
-		// determine the 2 ids that might apply to an existing indicator, one with and one without FULLVIEW
-		const idSansFullview = uniqueId.replace('_FULL_VIEW', '');
-		const indicatorElementSANSfullview = document.getElementById(idSansFullview);
-
-		let idWithFullview = uniqueId;
-		if (idSansFullview === uniqueId) {
-			if (uniqueId.includes("-cultadv")) {
-				idWithFullview = uniqueId.replace("-cultadv", "_FULL_VIEW-cultadv");
-			} else {
-				idWithFullview = uniqueId.replace("-courseres", "_FULL_VIEW-courseres");
-			}
-		}
-		const indicatorElementWITHfullview = document.getElementById(idWithFullview);
-
+	function addCustomIconIndicatorToHeader(uniqueId, pageType, selectorParent, createdIndicator) {
+		// if other icons ("Peer reviewed" "Open Access") are available, we will add it to that line
 		let indicatorParent = false;
-		// if available, add it to the line of "Peer reviewed" "Open Access" etc icons
-		const openAccessIndicator = document.querySelector(`#${parentDOMId} .open-access-mark`);
+		const openAccessIndicator = document.querySelector(`${selectorParent} .open-access-mark`);
 		if (!!openAccessIndicator) {
 			indicatorParent = openAccessIndicator.parentNode;
 		}
 		if (!indicatorParent) {
-			const peerReviewedIndicator = document.querySelector(`#${parentDOMId} .peer-reviewed-mark`);
+			const peerReviewedIndicator = document.querySelector(`${selectorParent} .peer-reviewed-mark`);
 			if (!!peerReviewedIndicator) {
 				indicatorParent = peerReviewedIndicator.parentNode;
 			}
 		}
 
-		// do this check as late as possible - sometimes we get duplicate Indicators?!?
-		if (!!indicatorElementSANSfullview || !!indicatorElementWITHfullview) {
-			// the indicator exists - don't add
-			return;
-		}
-
 		if (!!indicatorParent) {
 			indicatorParent.appendChild(createdIndicator);
 		} else {
-			// no such icons? add it as a new line after the snippet
+			// no exlibris-supplied icons on this entry? add it as a new line after the snippet
 			// we have to make a wrapping div in case there is more than one Indicator, even though its rare
 			// and of course we don't know if another Indicator creation has already happened....
-			let indicatorWrapper = document.querySelector(`#${parentDOMId} div.indicatorWrapper`);
+			let indicatorWrapper = document.querySelector(`${selectorParent} div.indicatorWrapper`);
 			if (!indicatorWrapper) {
 				indicatorWrapper = document.createElement("div");
 				!!indicatorWrapper && (indicatorWrapper.className = "indicatorWrapper");
-				const snippet = getSnippet(parentDOMId);
+				const snippet = getSnippet(selectorParent);
 				!!snippet && !!indicatorWrapper && snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
 			}
-			!!indicatorWrapper && indicatorWrapper.appendChild(createdIndicator);
+			if (!!indicatorWrapper) {
+				indicatorWrapper.appendChild(createdIndicator);
+			}
 		}
 	}
 
-	function getParentDomId(recordId, recursionCount = 0) {
+	function getSelectorParent(recordId, pageType = null, recursionCount = 0) {
 		const selectorRoot = "SEARCH_RESULT_RECORDID_";
 		let parentDOMId = `${selectorRoot}${recordId}_FULL_VIEW`;
 		const domCheckFull = document.getElementById(parentDOMId);
+		const specificClassName = pageType === 'specificversion' ? '.list-item-wrapper' : pageType === 'brief' ? '.list-item' : '';
 		if (!domCheckFull) {
 			parentDOMId = `${selectorRoot}${recordId}`;
 			const domCheck = document.getElementById(parentDOMId);
 			if (!domCheck && recursionCount < 10) {
 				// there are times when the page seems to be a full display, but we are on a brief results page.
 				// does the code load too fast and the url hasn't changed yet?
-				setTimeout(() => getParentDomId(recordId, recursionCount + 1), 100);
+				setTimeout(() => getSelectorParent(recordId, pageType, recursionCount + 1), 100);
 			}
 		}
-		return parentDOMId;
+		return `prm-brief-result-container${specificClassName} #${parentDOMId}`;
 	}
 
-	function addCulturalAdviceIndicatorToHeader(recordId, pageType) {
+	function addCulturalAdviceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full') {
 		const className = "culturalAdviceMark";
 		const thisIndicatorAbbrev = "cultadv";
 		const muiIconInfoSvgPath =
 			"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z";
 		const labelText = "CULTURAL ADVICE";
 
-		const parentDOMId = getParentDomId(recordId);
-		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
+		const selectorParent = getSelectorParent(recordId, pageType);
+		const uniqueId = `${selectorParent}-${thisIndicatorAbbrev}-${uniqueIdSuffix}`;
 
 		const createdIndicator = createCustomIconIndicator(muiIconInfoSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
@@ -765,31 +747,31 @@ function whenPageLoaded(fn) {
 		// because CA is determined so quickly, the page hasn't drawn yet - wait on the item we want to be the parent
 		// snippet always eventually exists, even if its empty
 		const waitforSnippetToExist = setInterval(() => {
-			const parentDOMId = getParentDomId(recordId); // doesn't work without the repeated line
-			const snippet = getSnippet(parentDOMId);
+			const selectorParent = getSelectorParent(recordId, pageType); // doesn't work without the repeated line
+			const snippet = getSnippet(selectorParent);
 			if (!!snippet) {
 				clearInterval(waitforSnippetToExist);
-				addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
+				addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParent, createdIndicator);
 			}
 		}, 100);
 		return true;
 	}
 
-	function addCourseResourceIndicatorToHeader(recordId, pageType) {
+	function addCourseResourceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full') {
 		const className = "readingListMark";
 		const thisIndicatorAbbrev = "courseres";
 		const muiIconAccountBalanceSvgPath = "M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z";
 		const labelText = "COURSE READING LIST";
 
-		const parentDOMId = getParentDomId(recordId);
-		const uniqueId = `${parentDOMId}-${thisIndicatorAbbrev}-${pageType}`;
+		const selectorParent = getSelectorParent(recordId, pageType);
+		const uniqueId = `${selectorParent}-${thisIndicatorAbbrev}-${uniqueIdSuffix}`;
 
 		const createdIndicator = createCustomIconIndicator(muiIconAccountBalanceSvgPath, className, labelText, uniqueId);
 		if (!createdIndicator) {
 			return;
 		}
 
-		addCustomIconIndicatorToHeader(uniqueId, pageType, parentDOMId, createdIndicator);
+		addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParent, createdIndicator);
 		return true;
 	}
 
@@ -1036,7 +1018,10 @@ function whenPageLoaded(fn) {
 							if (!!$scope.listsFound) {
 								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
 								if (!!recordid) {
-									addCourseResourceIndicatorToHeader(recordid, "brief");
+									const parentCtrl = $scope.$ctrl.parentCtrl;
+									const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
+									const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+									addCourseResourceIndicatorToHeader(recordid, "brief", pageType);
 								}
 							}
 						})
@@ -1051,11 +1036,14 @@ function whenPageLoaded(fn) {
 				!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
 
 				// display the cultural advice indicator on appropriate records
+				const parentCtrl = $scope.$ctrl.parentCtrl;
+				const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
+				const pageType = isSelectedVersion ? 'specificversion' : 'brief';
 				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
 				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
 				if (!!culturalAdviceText && !!recordId) {
-					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`);
+					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType);
 				}
 			};
 		},
