@@ -571,7 +571,11 @@ function whenPageLoaded(fn) {
 						vm.parentCtrl.result.pnx.display.type.length > 0 &&
 						vm.parentCtrl.result.pnx.display.type[0]) ||
 					"";
-				if (resourceType === "journal" || resourceType === "newspaper") {
+				if ([
+					"journal",
+					"newspaper",
+					"magazine",
+				].includes(resourceType)) {
 					vm.parentCtrl.isDirectLink = function () {return false;};
 				}
 			};
