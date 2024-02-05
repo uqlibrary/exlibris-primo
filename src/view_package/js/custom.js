@@ -1087,28 +1087,28 @@ function whenPageLoaded(fn) {
 	});
 
 	// prm-quick-link-after
-	app.component("prmQuickLinkAfter", {
-		controller: function ($scope) {
-			const theLinkBlock = document.querySelector('prm-quick-link span[translate="fulldisplay.unpaywall.noLinks"]');
-			const theContent = !!theLinkBlock && theLinkBlock.innerText;
-			if (theContent === 'No links are available for this record') {
-				// delete the "Link" button from the sidebar
-				const sidebarButtonLabel = document.querySelector('span[translate="nui.brief.results.tabs.links"]');
-				const sidebarButton = !!sidebarButtonLabel && sidebarButtonLabel.parentNode;
-				!!sidebarButton && sidebarButton.remove();
+	// app.component("prmQuickLinkAfter", {
+	// 	controller: function ($scope) {
+	// 		const theLinkBlock = document.querySelector('prm-quick-link span[translate="fulldisplay.unpaywall.noLinks"]');
+	// 		const theContent = !!theLinkBlock && theLinkBlock.innerText;
+	// 		if (theContent === 'No links are available for this record') {
+	// 			// delete the "Link" button from the sidebar
+	// 			const sidebarButtonLabel = document.querySelector('span[translate="nui.brief.results.tabs.links"]');
+	// 			const sidebarButton = !!sidebarButtonLabel && sidebarButtonLabel.parentNode;
+	// 			!!sidebarButton && sidebarButton.remove();
 
-				// delete the section with the found text
-				let theParent = theLinkBlock.parentNode;
-				while (theParent) {
-					if (theParent.classList && theParent.classList.contains('full-view-section-content')) {
-						break;
-					}
-					theParent = theParent.parentNode;
-				}
-				theParent.remove();
-			}
-		}
-	});
+	// 			// delete the section with the found text
+	// 			let theParent = theLinkBlock.parentNode;
+	// 			while (theParent) {
+	// 				if (theParent.classList && theParent.classList.contains('full-view-section-content')) {
+	// 					break;
+	// 				}
+	// 				theParent = theParent.parentNode;
+	// 			}
+	// 			theParent.remove();
+	// 		}
+	// 	}
+	// });
 
 	function insertScript(url) {
 		var script = document.querySelector("script[src*='" + url + "']");
