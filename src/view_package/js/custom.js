@@ -628,6 +628,7 @@ function whenPageLoaded(fn) {
 					envIndicatorWrapper.style.fontWeight = 'bold';
 					envIndicatorWrapper.style.fontSize = '12px';
 					envIndicatorWrapper.id = environmentIndicatorId;
+					envIndicatorWrapper.setAttribute("data-testid", environmentIndicatorId);
 
 					const envLabel = !!domainLabelText && !!environmentTypeLabelText
 						&& document.createTextNode(`${domainLabelText} ${environmentTypeLabelText}`);
@@ -1078,7 +1079,7 @@ function whenPageLoaded(fn) {
 						!!wrapperSpan && (wrapperSpan.style.paddingLeft = '10px');
 						!!wrapperSpan && (wrapperSpan.id = openAccessId);
 
-						!!openAccessEntry && !!textNode && openAccessEntry.appendChild(wrapperSpan);
+						!!openAccessEntry && !!wrapperSpan && openAccessEntry.appendChild(wrapperSpan);
 					}
 				}
 			}, 500);
