@@ -54,11 +54,29 @@ Here is a workflow that covers both of these:
   * [Upload package](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md) to back office if an angular change
     * You can run `npm run viewzip <viewname>` where `<viewname>` is `61UQ`, `61UQ_APPDEV` or `61UQ_DAC` to create the zipfile
 * Eventually, get acceptance from DAC that she wants it live - now you need to put any changes to the primo package in the 3 other environments, so they all match
-* For each of the 3 other branches (where there is an change to the primo package):
+* For each of the 3 other branches (where there is a change to the primo package):
   * Merge in, preferably from master
   * Recommit
   * if angular changes involved, [Zip](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md) and Upload the package
   * Commit & Push (to store an angular change)
+
+### Deployment
+
+Branch summary:
+
+- branch primo-sandbox, deploy to
+  - sandbox 61UQ
+  - sandbox 61UQ_DAC
+  - sandbox 61UQ_CANARY
+- branch primo-sandbox-dev, deploy to
+  - sandbox 61UQ_APPDEV
+- branch primo-prod-dev, deploy to
+  - prod 61UQ_APPDEV
+- branch production, deploy to
+  - prod 61UQ 
+  - prod 61UQ_DAC
+
+so merge your change to each branch, push, the build the zip and deploy
 
 ## Alma Styling
 
