@@ -1026,7 +1026,7 @@ function whenPageLoaded(fn) {
 	});
 
 	// check for a reading list on each result in the brief result list (search results) and add an indicator if so
-	app.component("prmBriefResultContainerAfter", {
+	app.component("prmBriefResultAfter", {
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			var vm = this;
@@ -1050,8 +1050,9 @@ function whenPageLoaded(fn) {
 								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
 								if (!!recordid) {
 									const parentCtrl = $scope.$ctrl.parentCtrl;
-									const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-									const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+									// const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
+									// const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+									const pageType = 'brief';
 									addCourseResourceIndicatorToHeader(recordid, "brief", pageType);
 								}
 							}
@@ -1068,8 +1069,10 @@ function whenPageLoaded(fn) {
 
 				// display the cultural advice indicator on appropriate records
 				const parentCtrl = $scope.$ctrl.parentCtrl;
-				const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-				const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+				console.log('parentCtrl=', parentCtrl);
+				// const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
+				// const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+				const pageType = 'brief';
 				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
 				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
