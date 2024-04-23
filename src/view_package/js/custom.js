@@ -745,9 +745,9 @@ function whenPageLoaded(fn) {
 
 	function getSelectorParent(recordId, pageType = null, recursionCount = 0) {
 		const selectorRoot = "SEARCH_RESULT_RECORDID_";
+		const specificClassName = pageType === 'specificversion' ? '.list-item-wrapper' : pageType === 'brief' ? '.list-item' : '';
 		let parentDOMId = `${selectorRoot}${recordId}_FULL_VIEW`;
 		const domCheckFull = document.getElementById(parentDOMId);
-		const specificClassName = pageType === 'specificversion' ? '.list-item-wrapper' : pageType === 'brief' ? '.list-item' : '';
 		if (!domCheckFull) {
 			parentDOMId = `${selectorRoot}${recordId}`;
 			const domCheck = document.getElementById(parentDOMId);
@@ -760,7 +760,32 @@ function whenPageLoaded(fn) {
 		return `prm-brief-result-container${specificClassName} #${parentDOMId}`;
 	}
 
-	function addCulturalAdviceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full') {
+	// some records have an entry like
+	// "2 versions of this item See all versions"
+	// on them and when its clicked, it opens up a list view that has an extra record at the top
+	// this code detects the existence of that block
+	function aSpecificVersionBlockExists(linkToLookFor, classNameByIndicatorType) {
+		let response = false;
+		// the link to look for comes through not completely url encoded (spaces aren't %20 and who knows what else?)
+		const [baseUrl, queryString] = linkToLookFor.split('?');
+		const encodedQueryString = queryString.split('&').map(param => {
+			const [key, value] = param.split('=');
+			return `${encodeURIComponent(decodeURIComponent(key))}=${encodeURIComponent(decodeURIComponent(value))}`;
+		}).join('&');
+		const encodedLinkToLookFor = `${baseUrl}?${encodedQueryString}`;
+
+		const checkForExists = document.querySelectorAll(`prm-brief-result-container.list-item-wrapper:not(:has(.${classNameByIndicatorType}))`);
+		// might be more than one?
+		checkForExists.forEach(elem => {
+			const link = elem.querySelector('prm-brief-result h3 a');
+			if (link?.href === encodedLinkToLookFor) {
+				response = true;
+			}
+		});
+		return response;
+	}
+
+	function addCulturalAdviceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full', linkCheck = null) {
 		const className = "culturalAdviceMark";
 		const thisIndicatorAbbrev = "cultadv";
 		const muiIconInfoSvgPath =
@@ -783,12 +808,19 @@ function whenPageLoaded(fn) {
 			if (!!snippet) {
 				clearInterval(waitforSnippetToExist);
 				addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParent, createdIndicator);
+
+				// if we are on a Selected Version page, we need to also add the icon to the Selected Version heading div
+				if (!!linkCheck && aSpecificVersionBlockExists(linkCheck, 'culturalAdviceMark')) {
+					// it's a matching element - also attach an icon to it!
+					const selectorParentSpecific = getSelectorParent(recordId, 'specificversion');
+					addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParentSpecific, createdIndicator);
+				}
 			}
 		}, 100);
 		return true;
 	}
 
-	function addCourseResourceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full') {
+	function addCourseResourceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full', linkCheck = null) {
 		const className = "readingListMark";
 		const thisIndicatorAbbrev = "courseres";
 		const muiIconAccountBalanceSvgPath = "M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z";
@@ -803,6 +835,14 @@ function whenPageLoaded(fn) {
 		}
 
 		addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParent, createdIndicator);
+
+		// if we are on a Selected Version page, we need to add the icon to the Selected Version heading div
+		if (!!linkCheck && aSpecificVersionBlockExists(linkCheck, 'readingListMark')) {
+			// it's a matching element - also attach an icon to it!
+			const selectorParentSpecific = getSelectorParent(recordId, 'specificversion');
+			addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParentSpecific, createdIndicator);
+		}
+
 		return true;
 	}
 
@@ -1050,10 +1090,7 @@ function whenPageLoaded(fn) {
 								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
 								if (!!recordid) {
 									const parentCtrl = $scope.$ctrl.parentCtrl;
-									// const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-									// const pageType = isSelectedVersion ? 'specificversion' : 'brief';
-									const pageType = 'brief';
-									addCourseResourceIndicatorToHeader(recordid, "brief", pageType);
+									addCourseResourceIndicatorToHeader(recordid, "brief", "brief", parentCtrl?.deepLink);
 								}
 							}
 						})
@@ -1069,15 +1106,11 @@ function whenPageLoaded(fn) {
 
 				// display the cultural advice indicator on appropriate records
 				const parentCtrl = $scope.$ctrl.parentCtrl;
-				console.log('parentCtrl=', parentCtrl);
-				// const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-				// const pageType = isSelectedVersion ? 'specificversion' : 'brief';
-				const pageType = 'brief';
 				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
 				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
 				if (!!culturalAdviceText && !!recordId) {
-					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType);
+					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, 'brief', parentCtrl?.deepLink);
 				}
 			};
 		},
