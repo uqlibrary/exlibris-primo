@@ -28,7 +28,7 @@ function whenPageLoaded(fn) {
 		// we found it was more robust to insert the askus button in the different page location via primo angular, see below,
 		// so completely skip inserting elements "by attribute"
 		template:
-			'<uq-gtm gtm="GTM-W4KK37"></uq-gtm>' +
+			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
 			"<uq-site-header hideMyLibrary hideAskUs></uq-site-header>" +
 			"<cultural-advice-popup></cultural-advice-popup>" +
