@@ -466,8 +466,30 @@ function whenPageLoaded(fn) {
 	app.component("prmSearchBookmarkFilterAfter", {
 		controller: function ($scope) {
 			// move the primo-login-bar up so it overlaps uq-site-header and is visually one bar
-			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
-			!!primoLoginBar && (primoLoginBar.style.marginTop = '-61px');
+			const primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
+			// they've added a non-standard entry to the classlist, so classlist.add doesn't work :(
+			const tempclassname = !!primoLoginBar && primoLoginBar.className;
+			!!primoLoginBar && tempclassname && (primoLoginBar.className = `${tempclassname} mergeup`);
+
+			const awaitUtilityAreaButtons = setInterval(() => {
+				console.log('prmSearchBookmarkFilterAfter start');
+				const qrCodeRipple = document.querySelector('prm-search-bookmark-filter button');
+				if (!!qrCodeRipple) {
+					// add labels to the built-in primo utility area buttons (will be restyled with css)
+					console.log('prmSearchBookmarkFilterAfter qrCodeRipple=', qrCodeRipple);
+					const copyLabel = document.createElement('span');
+					!!copyLabel && (copyLabel.textContent = 'Copy');
+					!!copyLabel && !!qrCodeRipple && qrCodeRipple.appendChild(copyLabel)
+
+					const favouritesRipple = document.querySelector('prm-search-bookmark-filter div#fixed-buttons-holder a');
+					console.log('prmSearchBookmarkFilterAfter favouritesRipple=', favouritesRipple);
+					const favouritesLabel = document.createElement('span');
+					!!favouritesLabel && (favouritesLabel.textContent = 'Favourites');
+					!!favouritesLabel && !!favouritesRipple && favouritesRipple.appendChild(favouritesLabel)
+
+					clearInterval(awaitUtilityAreaButtons);
+				}
+			}, 100);
 		},
 		template: "<askus-button nopaneopacity></askus-button>",
 	});
