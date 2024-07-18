@@ -471,23 +471,29 @@ function whenPageLoaded(fn) {
 			const tempclassname = !!primoLoginBar && primoLoginBar.className;
 			!!primoLoginBar && tempclassname && (primoLoginBar.className = `${tempclassname} mergeup`);
 
-			const awaitUtilityAreaButtons = setInterval(() => {
-				console.log('prmSearchBookmarkFilterAfter start');
-				const qrCodeRipple = document.querySelector('prm-search-bookmark-filter button');
-				if (!!qrCodeRipple) {
-					// add labels to the built-in primo utility area buttons (will be restyled with css)
-					console.log('prmSearchBookmarkFilterAfter qrCodeRipple=', qrCodeRipple);
+			// add label to qrcode button in built-in primo utility area buttons (will be restyled with css)
+			const awaitQrCodeButton = setInterval(() => {
+				const qrCodeButton = document.querySelector('prm-search-bookmark-filter button');
+				if (!!qrCodeButton) {
 					const copyLabel = document.createElement('span');
 					!!copyLabel && (copyLabel.textContent = 'Copy');
-					!!copyLabel && !!qrCodeRipple && qrCodeRipple.appendChild(copyLabel)
+					!!copyLabel && !!qrCodeButton && qrCodeButton.appendChild(copyLabel)
 
-					const favouritesRipple = document.querySelector('prm-search-bookmark-filter div#fixed-buttons-holder a');
-					console.log('prmSearchBookmarkFilterAfter favouritesRipple=', favouritesRipple);
+					clearInterval(awaitQrCodeButton);
+				}
+			}, 100);
+
+			// add label to favourites link in built-in primo utility area buttons (will be restyled with css)
+			// replace whenever unavailable
+			const favouriteslabelId = 'favouritesLinklabel';
+			setInterval(() => {
+				const favouritesLabel = document.getElementById(favouriteslabelId);
+				if (!favouritesLabel) {
+					const favouritesLink = document.querySelector('prm-search-bookmark-filter div#fixed-buttons-holder a');
 					const favouritesLabel = document.createElement('span');
+					!!favouritesLabel && (favouritesLabel.id = favouriteslabelId);
 					!!favouritesLabel && (favouritesLabel.textContent = 'Favourites');
-					!!favouritesLabel && !!favouritesRipple && favouritesRipple.appendChild(favouritesLabel)
-
-					clearInterval(awaitUtilityAreaButtons);
+					!!favouritesLabel && !!favouritesLink && favouritesLink.appendChild(favouritesLabel)
 				}
 			}, 100);
 		},
