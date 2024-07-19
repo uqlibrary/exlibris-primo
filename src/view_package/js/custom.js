@@ -476,7 +476,7 @@ function whenPageLoaded(fn) {
 				const qrCodeButton = document.querySelector('prm-search-bookmark-filter button');
 				if (!!qrCodeButton) {
 					const copyLabel = document.createElement('span');
-					!!copyLabel && (copyLabel.textContent = 'Copy');
+					!!copyLabel && (copyLabel.textContent = 'QR');
 					!!copyLabel && !!qrCodeButton && qrCodeButton.appendChild(copyLabel)
 
 					clearInterval(awaitQrCodeButton);
