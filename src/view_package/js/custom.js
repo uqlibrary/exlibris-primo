@@ -37,7 +37,7 @@ function whenPageLoaded(fn) {
 	// 61UQ_DAC        => "DAC"
 	// 61UQ_CANARY     => "CANARY"
 	let labelModifier = vidParam === '61UQ' ? 'PROD' : vidParam.replace('61UQ_', '');
-	labelModifier = isDomainProd() && vidParam === '61UQ' ? '' : ` ${labelModifier}`; // no modifier on prod-prod
+	labelModifier = isPublicEnvironment() ? '' : ` ${labelModifier}`; // no modifier on prod-prod
 	const primoHomepageLabel = isDomainProd() ? `Library Search${labelModifier}` : `Library SANDBOX${labelModifier}`;
 	app.component("prmTopBarBefore", {
 		// we found it was more robust to insert the askus button in the different page location via primo angular, see below,
@@ -490,10 +490,14 @@ function whenPageLoaded(fn) {
 				const favouritesLabel = document.getElementById(favouriteslabelId);
 				if (!favouritesLabel) {
 					const favouritesLink = document.querySelector('prm-search-bookmark-filter div#fixed-buttons-holder a');
-					const favouritesLabel = document.createElement('span');
-					!!favouritesLabel && (favouritesLabel.id = favouriteslabelId);
-					!!favouritesLabel && (favouritesLabel.textContent = 'Favourites');
-					!!favouritesLabel && !!favouritesLink && favouritesLink.appendChild(favouritesLabel)
+					const favouritesLabelElement = document.createElement('span');
+					const ariaLabelText = !!favouritesLabelElement && favouritesLabelElement.ariaLabel;
+					!!favouritesLabelElement && (favouritesLabelElement.id = favouriteslabelId);
+					const suppliedButtonLabel = !!ariaLabelText ? ariaLabelText.replace('Go to ', '') : null;
+					const defaultButtonLabel = document.location.pathname === '/primo-explore/favorites' ? 'Search' : 'Favourites'
+					!!favouritesLabelElement
+						&& (favouritesLabelElement.textContent = suppliedButtonLabel || defaultButtonLabel);
+					!!favouritesLabelElement && !!favouritesLink && favouritesLink.appendChild(favouritesLabelElement)
 				}
 			}, 100);
 		},
