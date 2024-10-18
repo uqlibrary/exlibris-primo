@@ -345,7 +345,7 @@ function whenPageLoaded(fn) {
 					}
 				} else if (isDesktopMenuOpen) {
 					const createdMenuItem = document.getElementById(DESKTOP_LOGGED_IN_FEEDBACK_ID);
-					if (!createdMenuItem) {
+					if (!createdMenuItem && !!desiredParentDesktop) {
 
 						// append new Account links to existing menu
 						// note: we use the native favourites on desktop
@@ -353,6 +353,10 @@ function whenPageLoaded(fn) {
 						desiredParentDesktop.insertAdjacentHTML('beforeend', ourPrintBalanceMenuItem());
 						desiredParentDesktop.insertAdjacentHTML('beforeend', ourRoomBookingMenuItem());
 						desiredParentDesktop.insertAdjacentHTML('beforeend', ourFeedbackMenuItem(DESKTOP_LOGGED_IN_FEEDBACK_ID));
+
+						// move the logout button to the bottom
+						const logoutButton = document.querySelector('md-menu-item .user-menu-header button');
+						!!logoutButton && desiredParentDesktop.appendChild(logoutButton);
 
 						// delete the items they provide because we have similar in our account links list
 						const deletionClassList = [
