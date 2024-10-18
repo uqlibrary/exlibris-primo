@@ -45,7 +45,7 @@ function whenPageLoaded(fn) {
 		template:
 			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
-			`<uq-site-header hideMyLibrary hideAskUs secondleveltitle="${primoHomepageLabel}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
+			`<uq-site-header hideMyLibrary secondleveltitle="${primoHomepageLabel}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
 			"<cultural-advice-popup></cultural-advice-popup>" +
 			"<proactive-chat></proactive-chat>",
 	});
@@ -471,7 +471,7 @@ function whenPageLoaded(fn) {
 			const tempclassname = !!primoLoginBar && primoLoginBar.className;
 			!!primoLoginBar && tempclassname && (primoLoginBar.className = `${tempclassname} mergeup`);
 		},
-		template: "<askus-button nopaneopacity></askus-button>",
+		template: "",
 	});
 
 	function isDomainProd() {
