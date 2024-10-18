@@ -38,7 +38,7 @@ function whenPageLoaded(fn) {
 	// 61UQ_CANARY     => "CANARY"
 	let labelModifier = vidParam === '61UQ' ? 'PROD' : vidParam.replace('61UQ_', '');
 	labelModifier = isPublicEnvironment() ? '' : ` ${labelModifier}`; // no modifier on prod-prod
-	const primoHomepageLabel = isDomainProd() ? `Library Search${labelModifier}` : `Library SANDBOX${labelModifier}`;
+	const primoHomepageLabel = isDomainProd() ? `Search${labelModifier}` : `SANDBOX${labelModifier}`;
 	app.component("prmTopBarBefore", {
 		// we found it was more robust to insert the askus button in the different page location via primo angular, see below,
 		// so completely skip inserting elements "by attribute"
