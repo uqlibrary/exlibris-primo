@@ -470,36 +470,6 @@ function whenPageLoaded(fn) {
 			// they've added a non-standard entry to the classlist, so classlist.add doesn't work :(
 			const tempclassname = !!primoLoginBar && primoLoginBar.className;
 			!!primoLoginBar && tempclassname && (primoLoginBar.className = `${tempclassname} mergeup`);
-
-			// add label to qrcode button in built-in primo utility area buttons (will be restyled with css)
-			const awaitQrCodeButton = setInterval(() => {
-				const qrCodeButton = document.querySelector('prm-search-bookmark-filter button');
-				if (!!qrCodeButton) {
-					const copyLabel = document.createElement('span');
-					!!copyLabel && (copyLabel.textContent = 'QR');
-					!!copyLabel && !!qrCodeButton && qrCodeButton.appendChild(copyLabel)
-
-					clearInterval(awaitQrCodeButton);
-				}
-			}, 100);
-
-			// add label to favourites link in built-in primo utility area buttons (will be restyled with css)
-			// replace whenever unavailable
-			const favouriteslabelId = 'favouritesLinklabel';
-			setInterval(() => {
-				const favouritesLabel = document.getElementById(favouriteslabelId);
-				if (!favouritesLabel) {
-					const favouritesLink = document.querySelector('prm-search-bookmark-filter div#fixed-buttons-holder a');
-					const favouritesLabelElement = document.createElement('span');
-					const ariaLabelText = !!favouritesLabelElement && favouritesLabelElement.ariaLabel;
-					!!favouritesLabelElement && (favouritesLabelElement.id = favouriteslabelId);
-					const suppliedButtonLabel = !!ariaLabelText ? ariaLabelText.replace('Go to ', '') : null;
-					const defaultButtonLabel = document.location.pathname === '/primo-explore/favorites' ? 'Search' : 'Favourites'
-					!!favouritesLabelElement
-						&& (favouritesLabelElement.textContent = suppliedButtonLabel || defaultButtonLabel);
-					!!favouritesLabelElement && !!favouritesLink && favouritesLink.appendChild(favouritesLabelElement)
-				}
-			}, 100);
 		},
 		template: "<askus-button nopaneopacity></askus-button>",
 	});
