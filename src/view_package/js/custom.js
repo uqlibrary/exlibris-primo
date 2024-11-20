@@ -61,27 +61,32 @@ function whenPageLoaded(fn) {
 		ariaLabel: "Provide feedback",
 		link: "https://support.my.uq.edu.au/app/library/feedback",
 		id: "mylibrary-menu-feedback",
-		svgPath:
-			"M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z",
-		subtext: "",
+		// svgPath:
+		// 	"M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z",
+		// subtext: "",
 		newWindow: true,
 		className: "my-feedback-ctm",
+		svgString: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
+			'<rect width="24" height="24"></rect>\n' +
+			'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
+			'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
+			'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
+			"</svg>",
 	};
 
 	function ourFeedbackMenuItem(feedbackId) {
-		return `<md-menu-item id="${feedbackId}" data-testid="${feedbackId}" class="uql-account-menu-option">\n` +
+		const s = `<md-menu-item id="${feedbackId}" data-testid="${feedbackId}" class="uql-account-menu-option">\n` +
 			`<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button"` +
 			`        data-analyticsid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem"` +
 			`        onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
-			'    <svg viewBox="0 0 24 24" focusable="false">\n' +
-			`        <path d="${feedbackOptions.svgPath}"></path>\n` +
-			"    </svg>\n" +
+			feedbackOptions.svgString + "\n" +
 			'    <div class="textwrapper">\n' +
 			`        <span class="primaryText">${feedbackOptions.title}</span>\n` +
-			`        <span class="subtext">${feedbackOptions.subtext}</span>\n` +
 			"    </div>\n" +
 			"</button>\n" +
 			"</md-menu-item>\n";
+		console.log('ourFeedbackMenuItem', s);
+		return s;
 	}
 
 	const favouritesItemId = `${favouriteLinkOptions.id}Wrapper`;
