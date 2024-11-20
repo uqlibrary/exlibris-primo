@@ -24,13 +24,28 @@ function whenPageLoaded(fn) {
 			},
 		]);
 
+	function getSearchParam(name) {
+		const urlParams = new URLSearchParams(window.location.search);
+		return urlParams.get(name);
+	}
+	const vidParam = getSearchParam('vid');
+	const primoHomepageLink = `https://${window.location.hostname}/primo-explore/search?vid=${vidParam}&sortby=rank`;
+
+	// modifier possibilities:
+	// 61UQ            => "PROD" (unless public domain)
+	// 61UQ_APPDEV     => "APPDEV"
+	// 61UQ_DAC        => "DAC"
+	// 61UQ_CANARY     => "CANARY"
+	let labelModifier = vidParam === '61UQ' ? 'PROD' : vidParam.replace('61UQ_', '');
+	labelModifier = isPublicEnvironment() ? '' : ` ${labelModifier}`; // no modifier on prod-prod
+	const primoHomepageLabel = isDomainProd() ? `Library Search${labelModifier}` : `Library SANDBOX${labelModifier}`;
 	app.component("prmTopBarBefore", {
 		// we found it was more robust to insert the askus button in the different page location via primo angular, see below,
 		// so completely skip inserting elements "by attribute"
 		template:
 			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
-			"<uq-site-header hideMyLibrary hideAskUs></uq-site-header>" +
+			`<uq-site-header hideMyLibrary secondleveltitle="${primoHomepageLabel}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
 			"<cultural-advice-popup></cultural-advice-popup>" +
 			"<proactive-chat></proactive-chat>",
 	});
@@ -47,7 +62,6 @@ function whenPageLoaded(fn) {
 		svgPath:
 			"M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z",
 	};
-	const vidParam = getSearchParam('vid');
 	const favouriteLinkOptions = {
 		title: "Favourites",
 		id: "mylibrary-menu-saved-items",
@@ -230,14 +244,14 @@ function whenPageLoaded(fn) {
 		const primaryTextBlock = document.createElement("span");
 		!!primaryTextBlock && (primaryTextBlock.className = "primaryText");
 		!!primaryTextBlock &&
-		!!primaryText &&
-		primaryTextBlock.appendChild(primaryText);
+			!!primaryText &&
+			primaryTextBlock.appendChild(primaryText);
 
 		const textParent = document.createElement("div");
 		!!textParent && (textParent.className = "textwrapper");
 		!!textParent &&
-		!!primaryTextBlock &&
-		textParent.appendChild(primaryTextBlock);
+			!!primaryTextBlock &&
+			textParent.appendChild(primaryTextBlock);
 
 		const subtext = document.createTextNode(options.subtext);
 		const subtextDiv = document.createElement("span");
@@ -460,48 +474,17 @@ function whenPageLoaded(fn) {
 			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
 			!!primoLoginBar && (primoLoginBar.style.marginTop = '-61px');
 		},
-		template: "<askus-button nopaneopacity></askus-button>",
+		template: "",
 	});
 
 	function isDomainProd() {
 		return window.location.hostname === "search.library.uq.edu.au";
 	}
 
-	function getPageVidValue() {
-		const urlParams = new URLSearchParams(window.location.search);
-		return urlParams.get('vid');
-	}
-
 	// determine if we are in the public environment, colloquially referred to as prod-prod
 	// (to distinguish it from prod-dev and sandbox-prod)
 	function isPublicEnvironment() {
-		return isDomainProd() && getPageVidValue() === '61UQ';
-	}
-
-	function getSearchParam(name) {
-		const urlParams = new URLSearchParams(window.location.search);
-		return urlParams.get(name);
-	}
-
-	function getEnvironmentLabel() {
-		if (isPublicEnvironment()) {
-			return ''; //should never reach here
-		}
-		const vidParam = getPageVidValue();
-
-		// 61UQ            => "PROD" (unless public domain)
-		// 61UQ_APPDEV     => "APPDEV"
-		// 61UQ_DAC        => "DAC"
-		// SANDBOX_CANARY  => "SANDBOX CANARY" (no longer used)
-		// 61UQ_CANARY     => "CANARY"
-		let envLabel =  vidParam === '61UQ' ? 'PROD' : vidParam;
-		envLabel = envLabel.replace('61UQ_', '')
-			.replace('_', ' ')
-			.toUpperCase();
-
-		const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
-
-		return `${domainLabel} ${envLabel}`;
+		return isDomainProd() && getSearchParam('vid') === '61UQ';
 	}
 
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
@@ -626,54 +609,6 @@ function whenPageLoaded(fn) {
 		template:
 			'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
 	});
-
-	/**
-	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
-	 */
-	function addNonProdEnvironmentIndicator() {
-		// this environment indicator label is not shown on prod-prod
-		if (isPublicEnvironment()) {
-			return;
-		}
-
-		const environmentIndicatorId = 'uql-env-indicator';
-
-		const envInd = setInterval(() => {
-			const uqheader = document.querySelector('uq-site-header');
-			if (!!uqheader) {
-				const shadowDom = !!uqheader && uqheader.shadowRoot;
-
-				const currentEnvironmentIndicator = !!shadowDom && shadowDom.getElementById(environmentIndicatorId);
-				if (!!currentEnvironmentIndicator) {
-					clearInterval(envInd);
-					return;
-				}
-
-				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
-				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
-
-				const envIndicatorWrapper = document.createElement('span');
-				if (!!envIndicatorWrapper && !!siteTitleParent) {
-					clearInterval(envInd);
-
-					envIndicatorWrapper.style.color = 'white';
-					envIndicatorWrapper.style.backgroundColor = '#333';
-					envIndicatorWrapper.style.padding = '8px';
-					envIndicatorWrapper.style.marginLeft = '8px';
-					envIndicatorWrapper.style.fontWeight = 'bold';
-					envIndicatorWrapper.style.fontSize = '12px';
-					envIndicatorWrapper.id = environmentIndicatorId;
-					envIndicatorWrapper.setAttribute("data-testid", environmentIndicatorId);
-
-					const environmentLabel = getEnvironmentLabel();
-					const labelNode = !!environmentLabel && document.createTextNode(environmentLabel);
-					!!labelNode && envIndicatorWrapper.appendChild(labelNode);
-
-					siteTitleParent.appendChild(envIndicatorWrapper);
-				}
-			}
-		}, 500);
-	}
 
 	// There are 3 places we add the custom indicators:
 	// - on lists of search results
@@ -1208,8 +1143,6 @@ function whenPageLoaded(fn) {
 	insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
 	insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
 	insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
-
-	addNonProdEnvironmentIndicator();
 })();
 
 // the Favourites Pin can have a help dialog floating below it
