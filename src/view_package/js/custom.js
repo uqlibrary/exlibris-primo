@@ -61,24 +61,18 @@ function whenPageLoaded(fn) {
 	const accountLinkOptions = {
 		title: "Library account",
 		id: "mylibrary-menu-borrowing",
-		// svgPath:
-		// 	"M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z",
-		svgString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">\n' +
-		'<rect width="24" height="24" transform="translate(0 1)"></rect>\n' +
-		'<path d="M12 4C14.2222 4 16 5.77778 16 8C16 10.2222 14.2222 12 12 12C9.77778 12 8 10.2222 8 8C8 5.77778 9.77778 4 12 4Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-		'<path d="M4.59961 21.5716C4.59961 17.4685 7.91578 14.1523 12.0188 14.1523C16.1219 14.1523 19.438 17.4685 19.438 21.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-		'</svg>'
+		svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+			'<path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'</svg>',
 	};
 	const favouriteLinkOptions = {
 		title: "Favourites",
 		id: "mylibrary-menu-saved-items",
-		// svgPath:
-		// 	"m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
 		link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=items`,
-		svgString: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">\n' +
-			'<rect width="24" height="24"></rect>\n' +
-			'<path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8.10063 15.1345 8.17369C15.2344 8.24675 15.3516 8.29235 15.4746 8.30597L20.3461 9.02767C20.4871 9.04581 20.6201 9.1037 20.7294 9.19458C20.8388 9.28545 20.9201 9.40559 20.9639 9.54094C21.0074 9.67627 21.0117 9.82125 20.9761 9.95891C20.9404 10.0966 20.8663 10.2213 20.7625 10.3184L17.2511 13.802C17.1615 13.8857 17.0942 13.9905 17.0554 14.1069C17.0167 14.2232 17.0075 14.3474 17.0291 14.4682L17.8757 19.3674C17.9001 19.5081 17.8847 19.653 17.831 19.7854C17.7771 19.9178 17.6873 20.0325 17.5717 20.1163C17.456 20.2003 17.3191 20.25 17.1765 20.2598C17.0339 20.2698 16.8915 20.2394 16.7654 20.1724L12.3796 17.8546C12.2673 17.7995 12.1439 17.7708 12.0188 17.7708C11.8936 17.7708 11.7702 17.7995 11.6579 17.8546L7.27219 20.1724C7.14601 20.2394 7.00355 20.2698 6.861 20.2598C6.71845 20.25 6.58153 20.2003 6.46585 20.1163C6.35016 20.0325 6.26034 19.9178 6.2066 19.7854C6.15286 19.653 6.13737 19.5081 6.16188 19.3674L7.00849 14.4127C7.02995 14.2919 7.02087 14.1677 6.98209 14.0514C6.9433 13.935 6.87604 13.8302 6.78643 13.7465L3.23344 10.3184C3.12833 10.2186 3.05441 10.0905 3.02063 9.94953C2.98686 9.80858 2.99468 9.66085 3.04315 9.52425C3.09162 9.38766 3.17866 9.26805 3.29372 9.17991C3.40879 9.09178 3.54694 9.0389 3.69145 9.02767L8.56292 8.30597C8.68589 8.29235 8.80314 8.24675 8.90298 8.17369C9.00281 8.10063 9.08177 8.00269 9.13195 7.8896L11.3387 3.43449C11.3988 3.30474 11.4947 3.19489 11.6153 3.1179C11.7358 3.04091 11.8758 3 12.0188 3C12.1617 3 12.3018 3.04091 12.4223 3.1179C12.5428 3.19489 12.6387 3.30474 12.6988 3.43449Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			"</svg>\n",
+		svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+			'<path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8.10063 15.1345 8.17369C15.2344 8.24675 15.3516 8.29235 15.4746 8.30597L20.3461 9.02767C20.4871 9.04581 20.6201 9.1037 20.7294 9.19458C20.8388 9.28545 20.9201 9.40559 20.9639 9.54094C21.0074 9.67627 21.0117 9.82125 20.9761 9.95891C20.9404 10.0966 20.8663 10.2213 20.7625 10.3184L17.2511 13.802C17.1615 13.8857 17.0942 13.9905 17.0554 14.1069C17.0167 14.2232 17.0075 14.3474 17.0291 14.4682L17.8757 19.3674C17.9001 19.5081 17.8847 19.653 17.831 19.7854C17.7771 19.9178 17.6873 20.0325 17.5717 20.1163C17.456 20.2003 17.3191 20.25 17.1765 20.2598C17.0339 20.2698 16.8915 20.2394 16.7654 20.1724L12.3796 17.8546C12.2673 17.7995 12.1439 17.7708 12.0188 17.7708C11.8936 17.7708 11.7702 17.7995 11.6579 17.8546L7.27219 20.1724C7.14601 20.2394 7.00355 20.2698 6.861 20.2598C6.71845 20.25 6.58153 20.2003 6.46585 20.1163C6.35016 20.0325 6.26034 19.9178 6.2066 19.7854C6.15286 19.653 6.13737 19.5081 6.16188 19.3674L7.00849 14.4127C7.02995 14.2919 7.02087 14.1677 6.98209 14.0514C6.9433 13.935 6.87604 13.8302 6.78643 13.7465L3.23344 10.3184C3.12833 10.2186 3.05441 10.0905 3.02063 9.94953C2.98686 9.80858 2.99468 9.66085 3.04315 9.52425C3.09162 9.38766 3.17866 9.26805 3.29372 9.17991C3.40879 9.09178 3.54694 9.0389 3.69145 9.02767L8.56292 8.30597C8.68589 8.29235 8.80314 8.24675 8.90298 8.17369C9.00281 8.10063 9.08177 8.00269 9.13195 7.8896L11.3387 3.43449C11.3988 3.30474 11.4947 3.19489 11.6153 3.1179C11.7358 3.04091 11.8758 3 12.0188 3C12.1617 3 12.3018 3.04091 12.4223 3.1179C12.5428 3.19489 12.6387 3.30474 12.6988 3.43449Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'</svg>\n',
 	};
 	const feedbackOptions = {
 		title: "Feedback",
@@ -89,12 +83,11 @@ function whenPageLoaded(fn) {
 		// 	"M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z",
 		newWindow: true,
 		className: "my-feedback-ctm",
-		svgString: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
-			'<rect width="24" height="24"></rect>\n' +
-			'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			"</svg>",
+		svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+			'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'</svg>',
 	};
 
 	function ourFeedbackMenuItem(feedbackId) {
@@ -127,7 +120,6 @@ function whenPageLoaded(fn) {
 	}
 
 	function ourLearningResourceMenuItem() {
-		const ICON_SVG_ACADEMIC_HAT = 'M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z';
 		return '<md-menu-item data-testid="uqlLearningResourceMenuItem" class="uql-account-menu-option">\n' +
 			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			'			data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem"' +
@@ -148,25 +140,23 @@ function whenPageLoaded(fn) {
 	}
 
 	function ourPrintBalanceMenuItem() {
-		const ICON_SVG_PRINTER = 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z';
 		return '<md-menu-item data-testid="ourPrintBalanceMenuItem" class="uql-account-menu-option">\n' +
 			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			'			data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem"' +
 			'			onclick="javascript:window.open(\'https://web.library.uq.edu.au/library-services/it/print-scan-copy/your-printing-account\', \'_blank\');">\n' +
-			'        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">\<n></n>' +
-			'	        <rect width="24" height="24"></rect>\n' +
-			'	        <g clip-path="url(#clip0_1654_1998)">\n' +
-			'		        <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'    		    <path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'		        <path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'		        <path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'	        </g>\n' +
-			'	        <defs>\n' +
-			'		        <clipPath id="clip0_1654_1998">\n' +
-			'    			    <rect width="20" height="20" transform="translate(2 2)"></rect>\n' +
-			'		        </clipPath>\n' +
-			'    	    </defs>\n' +
-			"        </svg>\n" +
+			'        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">\n' +
+			'            <g clip-path="url(#clip0_1723_14098)">\n' +
+			'                <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
+			'                <path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
+			'                <path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
+			'                <path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
+			'            </g>\n' +
+			'            <defs>\n' +
+			'                <clipPath id="clip0_1723_14098">\n' +
+			'                    <rect width="20" height="20" fill="white" transform="translate(2 2)"/>\n' +
+			'                </clipPath>\n' +
+			'            </defs>\n' +
+			'        </svg>\n' +
 			'        <div class="textwrapper">\n' +
 			'            <span class="primaryText">Print balance</span>\n' +
 			"        </div>\n" +
@@ -195,7 +185,7 @@ function whenPageLoaded(fn) {
 
 	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
 	// so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
-	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier) {
+	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier, debugLocation) {
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
 			return;
@@ -204,16 +194,10 @@ function whenPageLoaded(fn) {
 		const awaitSVG = setInterval(() => {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'cloneableSvg', cloneableSvg)
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'buttonOptions.svgString', buttonOptions.svgString)
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'cloneableSvg', cloneableSvg)
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'buttonOptions.svgString', buttonOptions.svgString)
+
 				clearInterval(awaitSVG);
-
-				!!buttonOptions.svgString && cloneableSvg.firstElementChild.setAttribute('d', buttonOptions.svgString);
-
-				const svg = cloneableSvg.cloneNode(true);
-
-				// move svg from inside md-icon to direct child of button
-				!!button && !!svg && button.appendChild(svg);
 
 				// clean primo-provided insides of button
 				const removablePrm = document.querySelector(primoIdentifier + ' prm-icon');
@@ -223,23 +207,33 @@ function whenPageLoaded(fn) {
 				const removableDiv = document.querySelector(primoIdentifier + ' div');
 				!!removableDiv && removableDiv.remove();
 
-				// add our insides to the account button!
+				// add our icon
+				const svgTemplate = document.createElement('template');
+				svgTemplate.innerHTML = buttonOptions.svgString.trim();
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate=', svgTemplate)
+
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate.content.firstChild=', svgTemplate.content.firstChild)
+				!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' button=', button)
+
+				// add our label to the button
 				const primaryText = document.createTextNode(buttonOptions.title);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryText', primaryText);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'primaryText', primaryText);
 				const primaryTextBlock = document.createElement('span');
 				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
 				!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryTextBlock', primaryTextBlock);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'primaryTextBlock', primaryTextBlock);
 
 				const textParent = document.createElement('div');
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'textParent', textParent);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'textParent', textParent);
+				!!button && !!textParent && button.appendChild(textParent);
 
 				// add an ID for GTM usage to the button
 				const menuItem = document.querySelector(primoIdentifier + ' button');
 				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'menuItem', menuItem);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
 			}
 		}, 250);
 	}
@@ -312,7 +306,8 @@ function whenPageLoaded(fn) {
 							!!elem && elem.remove();
 						});
 
-						rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu');
+						rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu', 'mobile');
+						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm', 'mobile');
 
 						// delete the search history over and over and over....
 						removeElementWhenItAppears(".my-search-history-ctm");
@@ -377,9 +372,9 @@ function whenPageLoaded(fn) {
 							!!elem && elem.remove();
 						});
 
-						rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
+						rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm', 'desktop');
 
-						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
+						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm', 'desktop');
 
 						// remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
 						const hr1 = document.querySelector("md-menu-divider");
