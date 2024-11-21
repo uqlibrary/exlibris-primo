@@ -54,25 +54,22 @@ function whenPageLoaded(fn) {
 		template: '<alert-list system="primo"></alert-list>',
 	});
 
-	// set up the user's account menu
-	// note: mobile and desktop menus are _completely different_ :(
-
 	// account options is a built in primo but that we alter, but cant directly offer the same functionality it does
 	const accountLinkOptions = {
 		title: "Library account",
 		id: "mylibrary-menu-borrowing",
-		svgPathString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+		svgString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
 			'<path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'<path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'</svg>',
+			'</svg>'
 	};
 	const favouriteLinkOptions = {
 		title: "Favourites",
 		id: "mylibrary-menu-saved-items",
 		link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=items`,
-		svgPathString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+		svgString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
 			'<path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8.10063 15.1345 8.17369C15.2344 8.24675 15.3516 8.29235 15.4746 8.30597L20.3461 9.02767C20.4871 9.04581 20.6201 9.1037 20.7294 9.19458C20.8388 9.28545 20.9201 9.40559 20.9639 9.54094C21.0074 9.67627 21.0117 9.82125 20.9761 9.95891C20.9404 10.0966 20.8663 10.2213 20.7625 10.3184L17.2511 13.802C17.1615 13.8857 17.0942 13.9905 17.0554 14.1069C17.0167 14.2232 17.0075 14.3474 17.0291 14.4682L17.8757 19.3674C17.9001 19.5081 17.8847 19.653 17.831 19.7854C17.7771 19.9178 17.6873 20.0325 17.5717 20.1163C17.456 20.2003 17.3191 20.25 17.1765 20.2598C17.0339 20.2698 16.8915 20.2394 16.7654 20.1724L12.3796 17.8546C12.2673 17.7995 12.1439 17.7708 12.0188 17.7708C11.8936 17.7708 11.7702 17.7995 11.6579 17.8546L7.27219 20.1724C7.14601 20.2394 7.00355 20.2698 6.861 20.2598C6.71845 20.25 6.58153 20.2003 6.46585 20.1163C6.35016 20.0325 6.26034 19.9178 6.2066 19.7854C6.15286 19.653 6.13737 19.5081 6.16188 19.3674L7.00849 14.4127C7.02995 14.2919 7.02087 14.1677 6.98209 14.0514C6.9433 13.935 6.87604 13.8302 6.78643 13.7465L3.23344 10.3184C3.12833 10.2186 3.05441 10.0905 3.02063 9.94953C2.98686 9.80858 2.99468 9.66085 3.04315 9.52425C3.09162 9.38766 3.17866 9.26805 3.29372 9.17991C3.40879 9.09178 3.54694 9.0389 3.69145 9.02767L8.56292 8.30597C8.68589 8.29235 8.80314 8.24675 8.90298 8.17369C9.00281 8.10063 9.08177 8.00269 9.13195 7.8896L11.3387 3.43449C11.3988 3.30474 11.4947 3.19489 11.6153 3.1179C11.7358 3.04091 11.8758 3 12.0188 3C12.1617 3 12.3018 3.04091 12.4223 3.1179C12.5428 3.19489 12.6387 3.30474 12.6988 3.43449Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'</svg>\n',
+			'</svg>',
 	};
 
 	function ourFeedbackMenuItem(feedbackId) {
@@ -131,6 +128,7 @@ function whenPageLoaded(fn) {
 	}
 
 	function ourPrintBalanceMenuItem() {
+		const ICON_SVG_PRINTER = 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z';
 		return '<md-menu-item data-testid="ourPrintBalanceMenuItem" class="uql-account-menu-option">\n' +
 			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			' data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem"' +
@@ -175,7 +173,6 @@ function whenPageLoaded(fn) {
 
 	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
 	// so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
-	// for Account and Favourites we MUST keep the provided primo link because it has primo analytics attached that we cant reproduce
 	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier, debugLocation) {
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
@@ -185,12 +182,9 @@ function whenPageLoaded(fn) {
 		const awaitSVG = setInterval(() => {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'cloneableSvg', cloneableSvg)
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'buttonOptions.svgPathString', buttonOptions.svgPathString)
-
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'cloneableSvg', cloneableSvg)
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'buttonOptions.svgPath', buttonOptions.svgPath)
 				clearInterval(awaitSVG);
-				const menuItem = document.querySelector(primoIdentifier + ' button');
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
 
 				// clean primo-provided insides of button
 				const removablePrm = document.querySelector(primoIdentifier + ' prm-icon');
@@ -199,40 +193,32 @@ function whenPageLoaded(fn) {
 				!!removableSpan && removableSpan.remove();
 				const removableDiv = document.querySelector(primoIdentifier + ' div');
 				!!removableDiv && removableDiv.remove();
-				console.log('search for ', primoIdentifier + ' svg')
-				const removableSvg = document.querySelector(primoIdentifier + ' svg');
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'removableSvg', removableSvg);
-				// !!removableSvg && removableSvg.remove();
 
 				// add our icon
 				const svgTemplate = document.createElement('template');
-				const wrappedSvgPathString = '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-					buttonOptions.svgPathString.trim() +
-					'</svg>';
-				svgTemplate.innerHTML = wrappedSvgPathString;
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate=', svgTemplate)
-
+				svgTemplate.innerHTML = buttonOptions.svgString.trim();
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate.content.firstChild=', svgTemplate.content.firstChild)
-				// !!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' button=', button)
+				!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' button=', button);
 
-				// add our label to the button
+				// add our insides to the account button!
 				const primaryText = document.createTextNode(buttonOptions.title);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryText', primaryText);
 				const primaryTextBlock = document.createElement('span');
 				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
 				!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'primaryTextBlock', primaryTextBlock);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryTextBlock', primaryTextBlock);
 
 				const textParent = document.createElement('div');
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'textParent', textParent);
 				!!button && !!textParent && button.appendChild(textParent);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'textParent', textParent);
 
 				// add an ID for GTM usage to the button
-				// const menuItem = document.querySelector(primoIdentifier + ' button');
+				const menuItem = document.querySelector(primoIdentifier + ' button');
 				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'menuItem', menuItem);
 			}
 		}, 250);
 	}
@@ -242,10 +228,7 @@ function whenPageLoaded(fn) {
 		!!path && path.setAttribute("d", options.svgPath);
 
 		const svgTemplate = document.createElement('template');
-		svgTemplate.innerHTML =
-			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-			buttonOptions.svgPathString.trim() +
-			'</svg>';
+		svgTemplate.innerHTML = options.svgString.trim();
 
 		const button = document.createElement("button");
 		!!button && (button.id = options.id);
@@ -256,12 +239,17 @@ function whenPageLoaded(fn) {
 		const primaryTextBlock = document.createElement("span");
 		!!primaryTextBlock && (primaryTextBlock.className = "primaryText");
 		!!primaryTextBlock &&
-			!!primaryText &&
-			primaryTextBlock.appendChild(primaryText);
+		!!primaryText &&
+		primaryTextBlock.appendChild(primaryText);
 
 		const textParent = document.createElement("div");
 		!!textParent && (textParent.className = "textwrapper");
-		!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
+		!!textParent &&
+		!!primaryTextBlock &&
+		textParent.appendChild(primaryTextBlock);
+
+		!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
+		!!button && !!textParent && button.appendChild(textParent);
 
 		return button;
 	}
@@ -331,8 +319,6 @@ function whenPageLoaded(fn) {
 
 							// now the built in account button exists. Wait for it to _not_ exist.
 							// this implies the user has closed the mobile menu and then reopened (I mean... honestly!!! :( )
-							// (this is an edge case, because a created account button doesn't have the proper tracking?
-							// but we have to have an account button!)
 							const ensureAccountButtonExists = setInterval(() => {
 								const replacementAccountButton = document.getElementById(accountLinkOptions.id);
 								const builtInAccountButton = document.querySelector('.mobile-main-menu-bg [aria-label="Go to library account"]');
