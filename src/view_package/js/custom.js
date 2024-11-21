@@ -201,7 +201,7 @@ function whenPageLoaded(fn) {
 				!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' button=', button);
 
-				// add our insides to the account button!
+				// add our label
 				const primaryText = document.createTextNode(buttonOptions.title);
 				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryText', primaryText);
 				const primaryTextBlock = document.createElement('span');
@@ -297,14 +297,13 @@ function whenPageLoaded(fn) {
 						});
 
 						rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu', 'mobile');
-						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm', 'mobile');
+						// rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm', 'mobile');
 
 						// delete the search history over and over and over....
 						removeElementWhenItAppears(".my-search-history-ctm");
 
 						// delete any other items
 						removeElementWhenItAppears('.settings-container > div > div', false);
-
 
 						// if the mobile menu is closed then opened again, the built-in account link goes away. Weird.
 						// Let's replace it manually.
