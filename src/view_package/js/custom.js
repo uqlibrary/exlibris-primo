@@ -185,6 +185,7 @@ function whenPageLoaded(fn) {
 
 	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
 	// so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
+	// for Account and Favourites we MUST keep the provided primo link because it has primo analytics attached that we cant reproduce
 	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier, debugLocation) {
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
@@ -198,6 +199,8 @@ function whenPageLoaded(fn) {
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'buttonOptions.svgString', buttonOptions.svgString)
 
 				clearInterval(awaitSVG);
+				const menuItem = document.querySelector(primoIdentifier + ' button');
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
 
 				// clean primo-provided insides of button
 				const removablePrm = document.querySelector(primoIdentifier + ' prm-icon');
@@ -206,6 +209,10 @@ function whenPageLoaded(fn) {
 				!!removableSpan && removableSpan.remove();
 				const removableDiv = document.querySelector(primoIdentifier + ' div');
 				!!removableDiv && removableDiv.remove();
+				console.log('search for ', primoIdentifier + ' svg')
+				const removableSvg = document.querySelector(primoIdentifier + ' svg');
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'removableSvg', removableSvg);
+				// !!removableSvg && removableSvg.remove();
 
 				// add our icon
 				const svgTemplate = document.createElement('template');
@@ -213,12 +220,11 @@ function whenPageLoaded(fn) {
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate=', svgTemplate)
 
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate.content.firstChild=', svgTemplate.content.firstChild)
-				!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
+				// !!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' button=', button)
 
 				// add our label to the button
 				const primaryText = document.createTextNode(buttonOptions.title);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'primaryText', primaryText);
 				const primaryTextBlock = document.createElement('span');
 				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
 				!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
@@ -230,10 +236,10 @@ function whenPageLoaded(fn) {
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'textParent', textParent);
 				!!button && !!textParent && button.appendChild(textParent);
 
-				// add an ID for GTM usage to the button
-				const menuItem = document.querySelector(primoIdentifier + ' button');
-				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
+				// // add an ID for GTM usage to the button
+				// // const menuItem = document.querySelector(primoIdentifier + ' button');
+				// !!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
+				// console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
 			}
 		}, 250);
 	}
