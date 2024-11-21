@@ -54,6 +54,9 @@ function whenPageLoaded(fn) {
 		template: '<alert-list system="primo"></alert-list>',
 	});
 
+	// set up the user's account menu
+	// note: mobile and desktop menus are _completely different_ :(
+
 	// account options is a built in primo but that we alter, but cant directly offer the same functionality it does
 	const accountLinkOptions = {
 		title: "Library account",
@@ -202,10 +205,10 @@ function whenPageLoaded(fn) {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
 				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'cloneableSvg', cloneableSvg)
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'buttonOptions.svgPath', buttonOptions.svgPath)
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'buttonOptions.svgString', buttonOptions.svgString)
 				clearInterval(awaitSVG);
 
-				!!buttonOptions.svgPath && cloneableSvg.firstElementChild.setAttribute('d', buttonOptions.svgPath);
+				!!buttonOptions.svgString && cloneableSvg.firstElementChild.setAttribute('d', buttonOptions.svgString);
 
 				const svg = cloneableSvg.cloneNode(true);
 
@@ -262,12 +265,7 @@ function whenPageLoaded(fn) {
 
 		const textParent = document.createElement("div");
 		!!textParent && (textParent.className = "textwrapper");
-		!!textParent &&
-			!!primaryTextBlock &&
-			textParent.appendChild(primaryTextBlock);
-
-		!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
-		!!button && !!textParent && button.appendChild(textParent);
+		!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
 
 		return button;
 	}
