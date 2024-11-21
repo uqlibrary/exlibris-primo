@@ -99,9 +99,7 @@ function whenPageLoaded(fn) {
 			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			` data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
 			` role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
-			'<svg viewBox="0 0 24 24" focusable="false">\n' +
-			`<path d="${favouriteLinkOptions.svgPath}"></path>\n` +
-			"</svg>\n" +
+			`${favouriteLinkOptions.svgString}\n` +
 			'<div class="textwrapper">\n' +
 			`<span class="primaryText">${favouriteLinkOptions.title}</span>\n` +
 			"</div>\n" +
@@ -173,8 +171,8 @@ function whenPageLoaded(fn) {
 			"</md-menu-item>";
 	}
 
-	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
-	// so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
+	// we don't always like their icons, and sadly there is no big list of primo icons documented that we can just reference
+	// so we just remove their icon and insert one we like
 	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier, debugLocation) {
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
@@ -185,7 +183,6 @@ function whenPageLoaded(fn) {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
 				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'cloneableSvg', cloneableSvg)
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'buttonOptions.svgPath', buttonOptions.svgPath)
 				clearInterval(awaitSVG);
 
 				// clean primo-provided insides of button
@@ -193,15 +190,13 @@ function whenPageLoaded(fn) {
 				!!removablePrm && removablePrm.remove();
 				const removableSpan = document.querySelector(primoIdentifier + ' span');
 				!!removableSpan && removableSpan.remove();
-				const removableDiv = document.querySelector(primoIdentifier + ' div');
-				!!removableDiv && removableDiv.remove();
+				const removableDiv = document.querySelectorAll(primoIdentifier + ' div');
+				!!removableDiv && removableDiv.forEach(d => d.remove());
 
 				// add our icon
 				const svgTemplate = document.createElement('template');
 				svgTemplate.innerHTML = buttonOptions.svgString.trim();
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate.content.firstChild=', svgTemplate.content.firstChild)
 				!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' button=', button);
 
 				// add our label
 				const primaryText = document.createTextNode(buttonOptions.title);
@@ -225,7 +220,7 @@ function whenPageLoaded(fn) {
 		}, 250);
 	}
 
-	// for reasons that aren't clear, when we needed to use svgs that didnt have just a single path
+	// for reasons that aren't clear, when we needed to use svgs that didn't have just a single path
 	// element, the favourites item on mobile would not update (it would end up with <path d="undefined">)
 	// fortunately it still had a single path element, so have reverted to the old code for this one entry :(
 	function rewriteProvidedPrimoFavouritesButtonSpecial(buttonOptions, primoIdentifier) {
@@ -251,8 +246,8 @@ function whenPageLoaded(fn) {
 				!!removablePrm && removablePrm.remove();
 				const removableSpan = document.querySelector(primoIdentifier + ' span');
 				!!removableSpan && removableSpan.remove();
-				const removableDiv = document.querySelector(primoIdentifier + ' div');
-				!!removableDiv && removableDiv.remove();
+				const removableDiv = document.querySelectorAll(primoIdentifier + ' div');
+				!!removableDiv && removableDiv.forEach(d => d.remove());
 
 				// add our insides to the account button!
 				const primaryText = document.createTextNode(buttonOptions.title);
@@ -263,13 +258,6 @@ function whenPageLoaded(fn) {
 				const textParent = document.createElement('div');
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
-
-				const subtext = document.createTextNode(buttonOptions.subtext);
-				const subtextDiv = document.createElement('span');
-				!!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
-				!!subtextDiv && subtextDiv.appendChild(subtext);
-
-				!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
 				!!button && !!textParent && button.appendChild(textParent);
 
 				// add an ID for GTM usage to the button
@@ -279,32 +267,24 @@ function whenPageLoaded(fn) {
 		}, 250);
 	}
 
-	function createLabelledButton(options) {
-		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-		!!path && path.setAttribute("d", options.svgPath);
-
-		const svgTemplate = document.createElement('template');
-		svgTemplate.innerHTML = options.svgString.trim();
-
+	function createLabelledButton(buttonOptions) {
 		const button = document.createElement("button");
-		!!button && (button.id = options.id);
+
+		// add our icon
+		const svgTemplate = document.createElement('template');
+		svgTemplate.innerHTML = buttonOptions.svgString.trim();
+		!!button && (button.id = buttonOptions.id);
 		!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
 
-		// add our insides to the  button!
-		const primaryText = document.createTextNode(options.title);
+		// add our label
+		const primaryText = document.createTextNode(buttonOptions.title);
 		const primaryTextBlock = document.createElement("span");
 		!!primaryTextBlock && (primaryTextBlock.className = "primaryText");
-		!!primaryTextBlock &&
-		!!primaryText &&
-		primaryTextBlock.appendChild(primaryText);
+		!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
 
 		const textParent = document.createElement("div");
 		!!textParent && (textParent.className = "textwrapper");
-		!!textParent &&
-		!!primaryTextBlock &&
-		textParent.appendChild(primaryTextBlock);
-
-		!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
+		!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
 		!!button && !!textParent && button.appendChild(textParent);
 
 		return button;
