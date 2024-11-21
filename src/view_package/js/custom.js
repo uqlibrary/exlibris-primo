@@ -61,7 +61,7 @@ function whenPageLoaded(fn) {
 	const accountLinkOptions = {
 		title: "Library account",
 		id: "mylibrary-menu-borrowing",
-		svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+		svgPathString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
 			'<path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'<path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'</svg>',
@@ -70,35 +70,26 @@ function whenPageLoaded(fn) {
 		title: "Favourites",
 		id: "mylibrary-menu-saved-items",
 		link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=items`,
-		svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+		svgPathString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
 			'<path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8.10063 15.1345 8.17369C15.2344 8.24675 15.3516 8.29235 15.4746 8.30597L20.3461 9.02767C20.4871 9.04581 20.6201 9.1037 20.7294 9.19458C20.8388 9.28545 20.9201 9.40559 20.9639 9.54094C21.0074 9.67627 21.0117 9.82125 20.9761 9.95891C20.9404 10.0966 20.8663 10.2213 20.7625 10.3184L17.2511 13.802C17.1615 13.8857 17.0942 13.9905 17.0554 14.1069C17.0167 14.2232 17.0075 14.3474 17.0291 14.4682L17.8757 19.3674C17.9001 19.5081 17.8847 19.653 17.831 19.7854C17.7771 19.9178 17.6873 20.0325 17.5717 20.1163C17.456 20.2003 17.3191 20.25 17.1765 20.2598C17.0339 20.2698 16.8915 20.2394 16.7654 20.1724L12.3796 17.8546C12.2673 17.7995 12.1439 17.7708 12.0188 17.7708C11.8936 17.7708 11.7702 17.7995 11.6579 17.8546L7.27219 20.1724C7.14601 20.2394 7.00355 20.2698 6.861 20.2598C6.71845 20.25 6.58153 20.2003 6.46585 20.1163C6.35016 20.0325 6.26034 19.9178 6.2066 19.7854C6.15286 19.653 6.13737 19.5081 6.16188 19.3674L7.00849 14.4127C7.02995 14.2919 7.02087 14.1677 6.98209 14.0514C6.9433 13.935 6.87604 13.8302 6.78643 13.7465L3.23344 10.3184C3.12833 10.2186 3.05441 10.0905 3.02063 9.94953C2.98686 9.80858 2.99468 9.66085 3.04315 9.52425C3.09162 9.38766 3.17866 9.26805 3.29372 9.17991C3.40879 9.09178 3.54694 9.0389 3.69145 9.02767L8.56292 8.30597C8.68589 8.29235 8.80314 8.24675 8.90298 8.17369C9.00281 8.10063 9.08177 8.00269 9.13195 7.8896L11.3387 3.43449C11.3988 3.30474 11.4947 3.19489 11.6153 3.1179C11.7358 3.04091 11.8758 3 12.0188 3C12.1617 3 12.3018 3.04091 12.4223 3.1179C12.5428 3.19489 12.6387 3.30474 12.6988 3.43449Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'</svg>\n',
-	};
-	const feedbackOptions = {
-		title: "Feedback",
-		ariaLabel: "Provide feedback",
-		link: "https://support.my.uq.edu.au/app/library/feedback",
-		id: "mylibrary-menu-feedback",
-		// svgPath:
-		// 	"M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z",
-		newWindow: true,
-		className: "my-feedback-ctm",
-		svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
-			'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'</svg>',
 	};
 
 	function ourFeedbackMenuItem(feedbackId) {
 		return `<md-menu-item id="${feedbackId}" data-testid="${feedbackId}" class="uql-account-menu-option">\n` +
 			`<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button"` +
-			`        data-analyticsid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem"` +
-			`        onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
-			feedbackOptions.svgString + "\n" +
-			'    <div class="textwrapper">\n' +
-			`        <span class="primaryText">${feedbackOptions.title}</span>\n` +
-			"    </div>\n" +
+			` data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" role="menuitem"` +
+			` onclick="javascript:window.open('https://support.my.uq.edu.au/app/library/feedback', '_blank');">\n` +
+			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+			'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'</svg>' + "\n" +
+			'</svg>\n' +
+			'<div class="textwrapper">' +
+			`<span class="primaryText">Feedback</span>` +
+			'</div>\n' +
 			"</button>\n" +
 			"</md-menu-item>\n";
 	}
@@ -106,81 +97,80 @@ function whenPageLoaded(fn) {
 	const favouritesItemId = `${favouriteLinkOptions.id}Wrapper`;
 	function ourFavouritesMenuItem() {
 		return `<md-menu-item id="${favouritesItemId}" data-testid="${favouritesItemId}" class="uql-account-menu-option">\n` +
-			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
-			`			data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
-			`			role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
-			'        <svg viewBox="0 0 24 24" focusable="false">\n' +
-			`            <path d="${favouriteLinkOptions.svgPath}"></path>\n` +
-			"        </svg>\n" +
-			'        <div class="textwrapper">\n' +
-			`             <span class="primaryText">${favouriteLinkOptions.title}</span>\n` +
-			"        </div>\n" +
-			"    </button>\n" +
+			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			` data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
+			` role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
+			'<svg viewBox="0 0 24 24" focusable="false">\n' +
+			`<path d="${favouriteLinkOptions.svgPath}"></path>\n` +
+			"</svg>\n" +
+			'<div class="textwrapper">\n' +
+			`<span class="primaryText">${favouriteLinkOptions.title}</span>\n` +
+			"</div>\n" +
+			"</button>\n" +
 			"</md-menu-item>\n";
 	}
 
 	function ourLearningResourceMenuItem() {
 		return '<md-menu-item data-testid="uqlLearningResourceMenuItem" class="uql-account-menu-option">\n' +
-			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
-			'			data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem"' +
-			'			onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
-			'       <svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">\n' +
-			'			<path d="M11.9999 21.4003V6.78587C11.9999 6.78587 9.94278 4.51443 2.99986 4.42871C2.87129 4.42871 2.78558 4.47157 2.69986 4.55728C2.61415 4.643 2.57129 4.72871 2.57129 4.85729V18.5717C2.57129 18.786 2.74272 19.0003 2.99986 19.0003C9.94278 19.1288 11.9999 21.4003 11.9999 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'  		   	<path d="M9.46999 12.2291C8.05569 11.7577 6.55568 11.4577 5.05566 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'			<path d="M9.46999 15.7428C8.05569 15.2713 6.55568 14.9713 5.05566 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'			<path d="M14.5293 12.2291C15.9436 11.7577 17.4436 11.4577 18.9436 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'			<path d="M14.5293 15.7428C15.9436 15.2713 17.4436 14.9713 18.9436 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'			<path d="M12.001 21.4003V6.78587C12.001 6.78587 14.0581 4.51443 21.001 4.42871C21.1296 4.42871 21.2153 4.47157 21.3011 4.55728C21.3868 4.643 21.4296 4.72871 21.4296 4.85729V18.5717C21.4296 18.786 21.2582 19.0003 21.001 19.0003C14.0581 19.1288 12.001 21.4003 12.001 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			"		</svg>\n" +
-			'        <div class="textwrapper">\n' +
-			'            <span class="primaryText">Learning resources</span>\n' +
-			"        </div>\n" +
-			"    </button>\n" +
+			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			' data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem"' +
+			' onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
+			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+			'<path d="M11.9999 21.4003V6.78587C11.9999 6.78587 9.94278 4.51443 2.99986 4.42871C2.87129 4.42871 2.78558 4.47157 2.69986 4.55728C2.61415 4.643 2.57129 4.72871 2.57129 4.85729V18.5717C2.57129 18.786 2.74272 19.0003 2.99986 19.0003C9.94278 19.1288 11.9999 21.4003 11.9999 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M9.46999 12.2291C8.05569 11.7577 6.55568 11.4577 5.05566 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M9.46999 15.7428C8.05569 15.2713 6.55568 14.9713 5.05566 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M14.5293 12.2291C15.9436 11.7577 17.4436 11.4577 18.9436 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M14.5293 15.7428C15.9436 15.2713 17.4436 14.9713 18.9436 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M12.001 21.4003V6.78587C12.001 6.78587 14.0581 4.51443 21.001 4.42871C21.1296 4.42871 21.2153 4.47157 21.3011 4.55728C21.3868 4.643 21.4296 4.72871 21.4296 4.85729V18.5717C21.4296 18.786 21.2582 19.0003 21.001 19.0003C14.0581 19.1288 12.001 21.4003 12.001 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			"</svg>\n" +
+			'<div class="textwrapper">' +
+			'<span class="primaryText">Learning resources</span>' +
+			"</div>\n" +
+			"</button>\n" +
 			"</md-menu-item>\n";
 	}
 
 	function ourPrintBalanceMenuItem() {
 		return '<md-menu-item data-testid="ourPrintBalanceMenuItem" class="uql-account-menu-option">\n' +
-			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
-			'			data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem"' +
-			'			onclick="javascript:window.open(\'https://web.library.uq.edu.au/library-services/it/print-scan-copy/your-printing-account\', \'_blank\');">\n' +
-			'        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">\n' +
-			'            <g clip-path="url(#clip0_1723_14098)">\n' +
-			'                <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
-			'                <path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
-			'                <path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
-			'                <path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>\n' +
-			'            </g>\n' +
-			'            <defs>\n' +
-			'                <clipPath id="clip0_1723_14098">\n' +
-			'                    <rect width="20" height="20" fill="white" transform="translate(2 2)"/>\n' +
-			'                </clipPath>\n' +
-			'            </defs>\n' +
-			'        </svg>\n' +
-			'        <div class="textwrapper">\n' +
-			'            <span class="primaryText">Print balance</span>\n' +
-			"        </div>\n" +
-			"    </button>\n" +
-			"</md-menu-item>\n";
+			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			' data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem"' +
+			' onclick="javascript:window.open(\'https://web.library.uq.edu.au/library-services/it/print-scan-copy/your-printing-account\', \'_blank\');">\n' +
+			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+			'<g clip-path="url(#clip0_1723_14098)">' +
+			'<path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'<path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'</g>' +
+			'<defs>' +
+			'<clipPath id="clip0_1723_14098">' +
+			'<rect width="20" height="20" fill="white" transform="translate(2 2)"/>' +
+			'</clipPath>' +
+			'</defs>' +
+			'</svg>\n' +
+			'<div class="textwrapper">\n' +
+			'<span class="primaryText">Print balance</span>\n' +
+			'</div>\n' +
+			'</button>\n' +
+			'</md-menu-item>';
 	}
 
 	function ourRoomBookingMenuItem() {
-		const ICON_SVG_HOTEL_DESK_BELL = 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z';
-		return '    <md-menu-item data-testid="uqlRoomBookingMenuItem" class="uql-account-menu-option">\n' +
-			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
-			'			data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem"' +
-			'			onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
-			'        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">\n' +
-			'        	<path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'        	<path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'        	<path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			'        	<path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>\n' +
-			"        </svg>\n" +
-			'        <div class="textwrapper">\n' +
-			'            <span class="primaryText">Book a room or desk</span>\n' +
-			"        </div>\n" +
-			"    </button>\n" +
-			"</md-menu-item>\n";
+		return '<md-menu-item data-testid="uqlRoomBookingMenuItem" class="uql-account-menu-option">\n' +
+			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			' data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem"' +
+			' onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
+			'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+			'<path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			'<path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
+			"</svg>" +
+			'<div class="textwrapper">' +
+			'<span class="primaryText">Book a room or desk</span>' +
+			"</div>\n" +
+			"</button>\n" +
+			"</md-menu-item>";
 	}
 
 	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
@@ -196,7 +186,7 @@ function whenPageLoaded(fn) {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'cloneableSvg', cloneableSvg)
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'buttonOptions.svgString', buttonOptions.svgString)
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'buttonOptions.svgPathString', buttonOptions.svgPathString)
 
 				clearInterval(awaitSVG);
 				const menuItem = document.querySelector(primoIdentifier + ' button');
@@ -216,7 +206,10 @@ function whenPageLoaded(fn) {
 
 				// add our icon
 				const svgTemplate = document.createElement('template');
-				svgTemplate.innerHTML = buttonOptions.svgString.trim();
+				const wrappedSvgPathString = '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+					buttonOptions.svgPathString.trim() +
+					'</svg>';
+				svgTemplate.innerHTML = wrappedSvgPathString;
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate=', svgTemplate)
 
 				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, ' svgTemplate.content.firstChild=', svgTemplate.content.firstChild)
@@ -233,13 +226,13 @@ function whenPageLoaded(fn) {
 				const textParent = document.createElement('div');
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
-				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'textParent', textParent);
 				!!button && !!textParent && button.appendChild(textParent);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'textParent', textParent);
 
-				// // add an ID for GTM usage to the button
-				// // const menuItem = document.querySelector(primoIdentifier + ' button');
-				// !!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
-				// console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
+				// add an ID for GTM usage to the button
+				// const menuItem = document.querySelector(primoIdentifier + ' button');
+				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
+				console.log('rewriteProvidedPrimoButton', buttonOptions.title, debugLocation, 'menuItem', menuItem);
 			}
 		}, 250);
 	}
@@ -249,7 +242,10 @@ function whenPageLoaded(fn) {
 		!!path && path.setAttribute("d", options.svgPath);
 
 		const svgTemplate = document.createElement('template');
-		svgTemplate.innerHTML = options.svgString.trim();
+		svgTemplate.innerHTML =
+			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+			buttonOptions.svgPathString.trim() +
+			'</svg>';
 
 		const button = document.createElement("button");
 		!!button && (button.id = options.id);
@@ -335,6 +331,8 @@ function whenPageLoaded(fn) {
 
 							// now the built in account button exists. Wait for it to _not_ exist.
 							// this implies the user has closed the mobile menu and then reopened (I mean... honestly!!! :( )
+							// (this is an edge case, because a created account button doesn't have the proper tracking?
+							// but we have to have an account button!)
 							const ensureAccountButtonExists = setInterval(() => {
 								const replacementAccountButton = document.getElementById(accountLinkOptions.id);
 								const builtInAccountButton = document.querySelector('.mobile-main-menu-bg [aria-label="Go to library account"]');
