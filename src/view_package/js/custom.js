@@ -78,7 +78,6 @@ function whenPageLoaded(fn) {
 			` data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" role="menuitem"` +
 			` onclick="javascript:window.open('https://support.my.uq.edu.au/app/library/feedback', '_blank');">\n` +
 			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
 			'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
@@ -180,7 +179,7 @@ function whenPageLoaded(fn) {
 		const awaitSVG = setInterval(() => {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'cloneableSvg', cloneableSvg)
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'cloneableSvg', cloneableSvg, debugLocation)
 				clearInterval(awaitSVG);
 
 				// clean primo-provided insides of button
@@ -198,22 +197,22 @@ function whenPageLoaded(fn) {
 
 				// add our label
 				const primaryText = document.createTextNode(buttonOptions.title);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryText', primaryText);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryText', primaryText, debugLocation);
 				const primaryTextBlock = document.createElement('span');
 				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
 				!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryTextBlock', primaryTextBlock);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryTextBlock', primaryTextBlock, debugLocation);
 
 				const textParent = document.createElement('div');
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'textParent', textParent);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'textParent', textParent, debugLocation);
 				!!button && !!textParent && button.appendChild(textParent);
 
 				// add an ID for GTM usage to the button
 				const menuItem = document.querySelector(primoIdentifier + ' button');
 				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'menuItem', menuItem);
+				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'menuItem', menuItem, debugLocation);
 			}
 		}, 250);
 	}
@@ -435,6 +434,8 @@ function whenPageLoaded(fn) {
 						const feedbackButton = document.getElementById(DESKTOP_LOGGED_OUT_FEEDBACK_ID);
 						if (!feedbackButton) {
 							clearInterval(waitForDesktopFeedbackLink);
+
+							rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm', 'desktop logged out');
 
 							// insert new account links at end of menu area
 							const plannedParent = document.querySelector("md-menu-content");
