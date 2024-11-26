@@ -93,7 +93,7 @@ function whenPageLoaded(fn) {
 	const favouritesItemId = `${favouriteLinkOptions.id}Wrapper`;
 	function ourFavouritesMenuItem() {
 		return `<md-menu-item id="${favouritesItemId}" data-testid="${favouritesItemId}" class="uql-account-menu-option">\n` +
-			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			'<button class="favourites button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			` data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
 			` role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
 			`${favouriteLinkOptions.svgString}\n` +
@@ -106,7 +106,7 @@ function whenPageLoaded(fn) {
 
 	function ourLearningResourceMenuItem() {
 		return '<md-menu-item data-testid="uqlLearningResourceMenuItem" class="uql-account-menu-option">\n' +
-			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			'<button class="learning-resources button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			' data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" role="menuitem"' +
 			' onclick="javascript:window.open(\'https://www.library.uq.edu.au/learning-resources\', \'_blank\');">\n' +
 			'<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
@@ -127,7 +127,7 @@ function whenPageLoaded(fn) {
 	function ourPrintBalanceMenuItem() {
 		const ICON_SVG_PRINTER = 'M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z';
 		return '<md-menu-item data-testid="ourPrintBalanceMenuItem" class="uql-account-menu-option">\n' +
-			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			'<button class="print-balance button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			' data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" role="menuitem"' +
 			' onclick="javascript:window.open(\'https://web.library.uq.edu.au/library-services/it/print-scan-copy/your-printing-account\', \'_blank\');">\n' +
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
@@ -152,7 +152,7 @@ function whenPageLoaded(fn) {
 
 	function ourRoomBookingMenuItem() {
 		return '<md-menu-item data-testid="uqlRoomBookingMenuItem" class="uql-account-menu-option">\n' +
-			'<button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
+			'<button class="room-booking button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			' data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem"' +
 			' onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
 			'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
@@ -170,7 +170,7 @@ function whenPageLoaded(fn) {
 
 	// we don't always like their icons, and sadly there is no big list of primo icons documented that we can just reference
 	// so we just remove their icon and insert one we like
-	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier, debugLocation) {
+	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier) {
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
 			return;
@@ -179,7 +179,6 @@ function whenPageLoaded(fn) {
 		const awaitSVG = setInterval(() => {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'cloneableSvg', cloneableSvg, debugLocation)
 				clearInterval(awaitSVG);
 
 				// clean primo-provided insides of button
@@ -197,22 +196,18 @@ function whenPageLoaded(fn) {
 
 				// add our label
 				const primaryText = document.createTextNode(buttonOptions.title);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryText', primaryText, debugLocation);
 				const primaryTextBlock = document.createElement('span');
 				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
 				!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'primaryTextBlock', primaryTextBlock, debugLocation);
 
 				const textParent = document.createElement('div');
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'textParent', textParent, debugLocation);
 				!!button && !!textParent && button.appendChild(textParent);
 
 				// add an ID for GTM usage to the button
 				const menuItem = document.querySelector(primoIdentifier + ' button');
 				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
-				console.log('rewriteProvidedPrimoButton', primoIdentifier, 'menuItem', menuItem, debugLocation);
 			}
 		}, 250);
 	}
@@ -282,8 +277,8 @@ function whenPageLoaded(fn) {
 							!!elem && elem.remove();
 						});
 
-						rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu', 'mobile');
-						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm', 'mobile');
+						rewriteProvidedPrimoButton(accountLinkOptions, 'prm-library-card-menu');
+						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
 
 						// delete the search history over and over and over....
 						removeElementWhenItAppears(".my-search-history-ctm");
@@ -335,9 +330,14 @@ function whenPageLoaded(fn) {
 						desiredParentDesktop.insertAdjacentHTML('beforeend', ourRoomBookingMenuItem());
 						desiredParentDesktop.insertAdjacentHTML('beforeend', ourFeedbackMenuItem(DESKTOP_LOGGED_IN_FEEDBACK_ID));
 
-						// move the logout button to the bottom
+						// move the logout button to the bottom. in a wrapper
 						const logoutButton = document.querySelector('md-menu-item .user-menu-header button');
-						!!logoutButton && desiredParentDesktop.appendChild(logoutButton);
+						const logoutWrapper = document.createElement("md-menu-item");
+						!!logoutWrapper && logoutWrapper.classList.add('uql-account-menu-option');
+						!!logoutWrapper && logoutWrapper.classList.add('logout-option');
+
+						!!logoutWrapper && !!logoutButton && logoutWrapper.appendChild(logoutButton);
+						!!desiredParentDesktop && !!logoutWrapper && desiredParentDesktop.appendChild(logoutWrapper);
 
 						// remove the "logged in as [name]" notice
 						const nameNotice = document.querySelector('md-menu-content md-menu-item');
@@ -355,9 +355,9 @@ function whenPageLoaded(fn) {
 							!!elem && elem.remove();
 						});
 
-						rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm', 'desktop');
+						rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
 
-						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm', 'desktop');
+						rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
 
 						// remove the dividers, having removed all the contents of the block (TODO change to querySelectorAll)
 						const hr1 = document.querySelector("md-menu-divider");
@@ -433,7 +433,7 @@ function whenPageLoaded(fn) {
 					const waitForDesktopFeedbackLink = setInterval(() => {
 						const feedbackButton = document.getElementById(DESKTOP_LOGGED_OUT_FEEDBACK_ID);
 						if (!feedbackButton) {
-							clearInterval(waitForDesktopFeedbackLink);
+							// don't clear this interval - we have to re add each time the menu opens :(
 
 							rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm', 'desktop logged out');
 
