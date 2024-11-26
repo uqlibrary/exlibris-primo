@@ -430,7 +430,7 @@ function whenPageLoaded(fn) {
 					const waitForDesktopFeedbackLink = setInterval(() => {
 						const feedbackButton = document.getElementById(DESKTOP_LOGGED_OUT_FEEDBACK_ID);
 						if (!feedbackButton) {
-							clearInterval(waitForDesktopFeedbackLink);
+							// don't clear this interval - we have to re add each time the menu opens :(
 
 							// insert new account links at end of menu area
 							const plannedParent = document.querySelector("md-menu-content");
