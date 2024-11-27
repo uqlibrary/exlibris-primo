@@ -92,7 +92,7 @@ function whenPageLoaded(fn) {
 
 	const favouritesItemId = `${favouriteLinkOptions.id}Wrapper`;
 	function ourFavouritesMenuItem() {
-		return `<md-menu-item id="${favouritesItemId}" data-testid="${favouritesItemId}" class="uql-account-menu-option">\n` +
+		return `<md-menu-item id="${favouritesItemId}" data-testid="${favouritesItemId}" class="uql-account-menu-option favourites">\n` +
 			'<button class="favourites button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			` data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
 			` role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
@@ -285,6 +285,10 @@ function whenPageLoaded(fn) {
 
 						// delete any other items
 						removeElementWhenItAppears('.settings-container > div > div', false);
+
+						// delete the user name area
+						const userNameArea = document.querySelector('.mobile-main-menu-bg .user-menu-header')
+						!!userNameArea && userNameArea.remove()
 
 						// if the mobile menu is closed then opened again, the built-in account link goes away. Weird.
 						// Let's replace it manually.
