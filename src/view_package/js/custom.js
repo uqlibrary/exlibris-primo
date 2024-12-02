@@ -454,7 +454,7 @@ function whenPageLoaded(fn) {
 					const waitForDesktopFeedbackLink = setInterval(() => {
 						const feedbackButton = document.getElementById(DESKTOP_LOGGED_OUT_FEEDBACK_ID);
 						if (!feedbackButton) {
-							// don't clear this interval - we have to re add each time the menu opens :(
+							clearInterval(waitForDesktopFeedbackLink);
 
 							rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
 							rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
