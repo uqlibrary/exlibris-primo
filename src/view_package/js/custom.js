@@ -177,11 +177,6 @@ function whenPageLoaded(fn) {
 			if (!!cloneableSvg) {
 				clearInterval(awaitSVG);
 
-				const svg = cloneableSvg.cloneNode(true);
-
-				// move svg from inside md-icon to direct child of button
-				!!button && !!svg && button.appendChild(svg);
-
 				// clean primo-provided insides of button
 				const removablePrm = document.querySelector(primoIdentifier + ' prm-icon');
 				!!removablePrm && removablePrm.remove();
@@ -190,7 +185,12 @@ function whenPageLoaded(fn) {
 				const removableDiv = document.querySelector(primoIdentifier + ' div');
 				!!removableDiv && removableDiv.remove();
 
-				// add our insides to the account button!
+				// add our icon
+				const svgTemplate = document.createElement('template');
+				svgTemplate.innerHTML = buttonOptions.svgString.trim();
+				!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
+
+				// add our label
 				const primaryText = document.createTextNode(buttonOptions.title);
 				const primaryTextBlock = document.createElement('span');
 				!!primaryTextBlock && (primaryTextBlock.className = 'primaryText');
