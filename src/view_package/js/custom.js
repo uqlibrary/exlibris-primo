@@ -434,6 +434,10 @@ function whenPageLoaded(fn) {
 						if (!feedbackButton) {
 							clearInterval(waitForDesktopFeedbackLink);
 
+							rewriteProvidedPrimoButton(accountLinkOptions, '.my-library-card-ctm');
+
+							rewriteProvidedPrimoButton(favouriteLinkOptions, '.my-favorties-ctm');
+
 							// insert new account links at end of menu area
 							const plannedParent = document.querySelector("md-menu-content");
 
