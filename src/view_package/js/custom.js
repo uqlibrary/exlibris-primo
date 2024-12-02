@@ -43,17 +43,17 @@ function whenPageLoaded(fn) {
 	const accountLinkOptions = {
 		title: "Library account",
 		id: "mylibrary-menu-borrowing",
-		subtext: "Loans, requests & settings",
-		svgPath:
-			"M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z",
+		svgString: '<svg id="account-card-details_cache21" width="100%" height="100%" viewBox="0 0 24 24" y="1176" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">' +
+			'<path d="M2,3H22C23.05,3 24,3.95 24,5V19C24,20.05 23.05,21 22,21H2C0.95,21 0,20.05 0,19V5C0,3.95 0.95,3 2,3M14,6V7H22V6H14M14,8V9H21.5L22,9V8H14M14,10V11H21V10H14M8,13.91C6,13.91 2,15 2,17V18H14V17C14,15 10,13.91 8,13.91M8,6A3,3 0 0,0 5,9A3,3 0 0,0 8,12A3,3 0 0,0 11,9A3,3 0 0,0 8,6Z"></path>' +
+			'</svg>'
 	};
 	const vidParam = getSearchParam('vid');
 	const favouriteLinkOptions = {
 		title: "Favourites",
 		id: "mylibrary-menu-saved-items",
-		svgPath:
-			"m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
-		subtext: "Saved items, searches & search history",
+		svgString: '<svg id="prm_pin_cache22" width="100%" height="100%" viewBox="0 0 24 24" y="0" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">' +
+			'<path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>' +
+			'</svg>',
 		link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=items`,
 	};
 	const feedbackOptions = {
@@ -61,9 +61,9 @@ function whenPageLoaded(fn) {
 		ariaLabel: "Provide feedback",
 		link: "https://support.my.uq.edu.au/app/library/feedback",
 		id: "mylibrary-menu-feedback",
-		svgPath:
-			"M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z",
-		subtext: "",
+		svgString: '    <svg viewBox="0 0 24 24" focusable="false">' +
+			`        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4"></path>` +
+			"    </svg>",
 		newWindow: true,
 		className: "my-feedback-ctm",
 	};
@@ -73,12 +73,9 @@ function whenPageLoaded(fn) {
 			`<button class="desktop-feedback button-with-icon md-primoExplore-theme md-ink-ripple" type="button"` +
 			`        data-analyticsid="${feedbackOptions.id}" aria-label="${feedbackOptions.ariaLabel}" role="menuitem"` +
 			`        onclick="javascript:window.open('${feedbackOptions.link}', '_blank');">\n` +
-			'    <svg viewBox="0 0 24 24" focusable="false">\n' +
-			`        <path d="${feedbackOptions.svgPath}"></path>\n` +
-			"    </svg>\n" +
+			feedbackOptions.svgString +
 			'    <div class="textwrapper">\n' +
 			`        <span class="primaryText">${feedbackOptions.title}</span>\n` +
-			`        <span class="subtext">${feedbackOptions.subtext}</span>\n` +
 			"    </div>\n" +
 			"</button>\n" +
 			"</md-menu-item>\n";
@@ -90,12 +87,9 @@ function whenPageLoaded(fn) {
 			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
 			`			data-analyticsid="${favouriteLinkOptions.id}" aria-label="Go to ${favouriteLinkOptions.title}"` +
 			`			role="menuitem" onclick="location.href='${favouriteLinkOptions.link}'">\n` +
-			'        <svg viewBox="0 0 24 24" focusable="false">\n' +
-			`            <path d="${favouriteLinkOptions.svgPath}"></path>\n` +
-			"        </svg>\n" +
+			favouriteLinkOptions.svgString +
 			'        <div class="textwrapper">\n' +
 			`             <span class="primaryText">${favouriteLinkOptions.title}</span>\n` +
-			`             <span class="subtext">${favouriteLinkOptions.subtext}</span>\n` +
 			"        </div>\n" +
 			"    </button>\n" +
 			"</md-menu-item>\n";
@@ -112,7 +106,6 @@ function whenPageLoaded(fn) {
 			"        </svg>\n" +
 			'        <div class="textwrapper">\n' +
 			'            <span class="primaryText">Learning resources</span>\n' +
-			'            <span class="subtext">Course readings &amp; exam papers</span>\n' +
 			"        </div>\n" +
 			"    </button>\n" +
 			"</md-menu-item>\n";
@@ -129,7 +122,6 @@ function whenPageLoaded(fn) {
 			"        </svg>\n" +
 			'        <div class="textwrapper">\n' +
 			'            <span class="primaryText">Print balance</span>\n' +
-			'            <span class="subtext">How to check your balance and top up</span>\n' +
 			"        </div>\n" +
 			"    </button>\n" +
 			"</md-menu-item>\n";
@@ -146,14 +138,13 @@ function whenPageLoaded(fn) {
 			"        </svg>\n" +
 			'        <div class="textwrapper">\n' +
 			'            <span class="primaryText">Book a room or desk</span>\n' +
-			'            <span class="subtext">Student meeting &amp; study spaces</span>\n' +
 			"        </div>\n" +
 			"    </button>\n" +
 			"</md-menu-item>\n";
 	}
 
-	// we dont always like their icons, and sadly there is no big list of primo icons documented that we can just reference
-	// so we just remove their icon and insert one we like, having gotten the path for the svg from the mui icon list
+	// we dont always like their icons, so we just remove their icon
+	// and insert one we like, having gotten the path for the svg from the mui icon list
 	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier) {
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
@@ -164,8 +155,6 @@ function whenPageLoaded(fn) {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
 				clearInterval(awaitSVG);
-
-				!!buttonOptions.svgPath && cloneableSvg.firstElementChild.setAttribute('d', buttonOptions.svgPath);
 
 				const svg = cloneableSvg.cloneNode(true);
 
@@ -189,13 +178,6 @@ function whenPageLoaded(fn) {
 				const textParent = document.createElement('div');
 				!!textParent && (textParent.className = 'textwrapper');
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
-
-				const subtext = document.createTextNode(buttonOptions.subtext);
-				const subtextDiv = document.createElement('span');
-				!!subtextDiv && !!subtext && (subtextDiv.className = 'subtext');
-				!!subtextDiv && subtextDiv.appendChild(subtext);
-
-				!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
 				!!button && !!textParent && button.appendChild(textParent);
 
 				// add an ID for GTM usage to the button
@@ -205,41 +187,24 @@ function whenPageLoaded(fn) {
 		}, 250);
 	}
 
-	function createLabelledButton(options) {
-		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-		!!path && path.setAttribute("d", options.svgPath);
-
-		const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-		!!svg && svg.setAttribute("class", "svgIcon");
-		!!svg && svg.setAttribute("focusable", "false");
-		!!svg && svg.setAttribute("viewBox", "0 0 24 24");
-		!!svg && svg.setAttribute("ariaHidden", "true");
-		!!svg && !!path && svg.appendChild(path);
-
+	function createLabelledButton(buttonOptions) {
 		const button = document.createElement("button");
-		!!button && (button.id = options.id);
-		!!button && !!svg && button.appendChild(svg);
+
+		// add our icon
+		const svgTemplate = document.createElement('template');
+		svgTemplate.innerHTML = buttonOptions.svgString.trim();
+		!!button && (button.id = buttonOptions.id);
+		!!button && !!svgTemplate && button.appendChild(svgTemplate.content.firstChild);
 
 		// add our insides to the  button!
-		const primaryText = document.createTextNode(options.title);
+		const primaryText = document.createTextNode(buttonOptions.title);
 		const primaryTextBlock = document.createElement("span");
 		!!primaryTextBlock && (primaryTextBlock.className = "primaryText");
-		!!primaryTextBlock &&
-			!!primaryText &&
-			primaryTextBlock.appendChild(primaryText);
+		!!primaryTextBlock && !!primaryText && primaryTextBlock.appendChild(primaryText);
 
 		const textParent = document.createElement("div");
 		!!textParent && (textParent.className = "textwrapper");
-		!!textParent &&
-			!!primaryTextBlock &&
-			textParent.appendChild(primaryTextBlock);
-
-		const subtext = document.createTextNode(options.subtext);
-		const subtextDiv = document.createElement("span");
-		!!subtextDiv && !!subtext && (subtextDiv.className = "subtext");
-		!!subtextDiv && subtextDiv.appendChild(subtext);
-
-		!!textParent && !!subtextDiv && textParent.appendChild(subtextDiv);
+		!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
 		!!button && !!textParent && button.appendChild(textParent);
 
 		return button;
