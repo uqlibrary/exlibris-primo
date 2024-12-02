@@ -305,6 +305,19 @@ function whenPageLoaded(fn) {
 						desiredParentDesktop.insertAdjacentHTML('beforeend', ourRoomBookingMenuItem());
 						desiredParentDesktop.insertAdjacentHTML('beforeend', ourFeedbackMenuItem(DESKTOP_LOGGED_IN_FEEDBACK_ID));
 
+						// move the logout button to the bottom. in a wrapper
+						const logoutButton = document.querySelector('md-menu-item .user-menu-header button');
+						const logoutWrapper = document.createElement("md-menu-item");
+						!!logoutWrapper && logoutWrapper.classList.add('uql-account-menu-option');
+						!!logoutWrapper && logoutWrapper.classList.add('logout-option');
+
+						!!logoutWrapper && !!logoutButton && logoutWrapper.appendChild(logoutButton);
+						!!desiredParentDesktop && !!logoutWrapper && desiredParentDesktop.appendChild(logoutWrapper);
+
+						// remove the "logged in as [name]" notice
+						const nameNotice = document.querySelector('md-menu-content md-menu-item');
+						!!nameNotice && nameNotice.remove();
+
 						// delete the items they provide because we have similar in our account links list
 						const deletionClassList = [
 							".my-loans-ctm",
