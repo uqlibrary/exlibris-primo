@@ -405,8 +405,8 @@ function whenPageLoaded(fn) {
 		}, timeout);
 	}
 
-	// prm-explore-footer-after
-	app.component("prmExploreFooterAfter", {
+	// prm-explore-main-after
+	app.component("prmExploreMainAfter", {
 		// HANDLE LOGGED OUT VIEW
 		controller: function ($scope) {
 			const awaitLoggedout = setInterval(() => {
