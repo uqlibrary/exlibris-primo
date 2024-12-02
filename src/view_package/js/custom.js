@@ -24,13 +24,28 @@ function whenPageLoaded(fn) {
 			},
 		]);
 
+	function getSearchParam(name) {
+		const urlParams = new URLSearchParams(window.location.search);
+		return urlParams.get(name);
+	}
+	const vidParam = getSearchParam('vid');
+	const primoHomepageLink = `https://${window.location.hostname}/primo-explore/search?vid=${vidParam}&sortby=rank`;
+
+	// modifier possibilities:
+	// 61UQ            => "PROD" (unless public domain)
+	// 61UQ_APPDEV     => "APPDEV"
+	// 61UQ_DAC        => "DAC"
+	// 61UQ_CANARY     => "CANARY"
+	let labelModifier = vidParam === '61UQ' ? 'PROD' : vidParam.replace('61UQ_', '');
+	labelModifier = isPublicEnvironment() ? '' : ` ${labelModifier}`; // no modifier on prod-prod
+	const primoHomepageLabel = isDomainProd() ? `Library Search${labelModifier}` : `SANDBOX${labelModifier}`;
 	app.component("prmTopBarBefore", {
 		// we found it was more robust to insert the askus button in the different page location via primo angular, see below,
 		// so completely skip inserting elements "by attribute"
 		template:
 			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
-			"<uq-site-header hideMyLibrary hideAskUs></uq-site-header>" +
+			`<uq-site-header secondleveltitle="${primoHomepageLabel}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
 			"<cultural-advice-popup></cultural-advice-popup>" +
 			"<proactive-chat></proactive-chat>",
 	});
@@ -48,7 +63,6 @@ function whenPageLoaded(fn) {
 			'<path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'</svg>'
 	};
-	const vidParam = getSearchParam('vid');
 	const favouriteLinkOptions = {
 		title: "Favourites",
 		id: "mylibrary-menu-saved-items",
@@ -468,41 +482,10 @@ function whenPageLoaded(fn) {
 		return window.location.hostname === "search.library.uq.edu.au";
 	}
 
-	function getPageVidValue() {
-		const urlParams = new URLSearchParams(window.location.search);
-		return urlParams.get('vid');
-	}
-
 	// determine if we are in the public environment, colloquially referred to as prod-prod
 	// (to distinguish it from prod-dev and sandbox-prod)
 	function isPublicEnvironment() {
-		return isDomainProd() && getPageVidValue() === '61UQ';
-	}
-
-	function getSearchParam(name) {
-		const urlParams = new URLSearchParams(window.location.search);
-		return urlParams.get(name);
-	}
-
-	function getEnvironmentLabel() {
-		if (isPublicEnvironment()) {
-			return ''; //should never reach here
-		}
-		const vidParam = getPageVidValue();
-
-		// 61UQ            => "PROD" (unless public domain)
-		// 61UQ_APPDEV     => "APPDEV"
-		// 61UQ_DAC        => "DAC"
-		// SANDBOX_CANARY  => "SANDBOX CANARY" (no longer used)
-		// 61UQ_CANARY     => "CANARY"
-		let envLabel =  vidParam === '61UQ' ? 'PROD' : vidParam;
-		envLabel = envLabel.replace('61UQ_', '')
-			.replace('_', ' ')
-			.toUpperCase();
-
-		const domainLabel = isDomainProd() ? 'PROD' : 'SANDBOX';
-
-		return `${domainLabel} ${envLabel}`;
+		return isDomainProd() && getSearchParam('vid') === '61UQ';
 	}
 
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
@@ -627,54 +610,6 @@ function whenPageLoaded(fn) {
 		template:
 			'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
 	});
-
-	/**
-	 * show a little marker beside the "library homepage" link to indicate the current environment when not in prod-prod
-	 */
-	function addNonProdEnvironmentIndicator() {
-		// this environment indicator label is not shown on prod-prod
-		if (isPublicEnvironment()) {
-			return;
-		}
-
-		const environmentIndicatorId = 'uql-env-indicator';
-
-		const envInd = setInterval(() => {
-			const uqheader = document.querySelector('uq-site-header');
-			if (!!uqheader) {
-				const shadowDom = !!uqheader && uqheader.shadowRoot;
-
-				const currentEnvironmentIndicator = !!shadowDom && shadowDom.getElementById(environmentIndicatorId);
-				if (!!currentEnvironmentIndicator) {
-					clearInterval(envInd);
-					return;
-				}
-
-				const siteTitle = !!shadowDom && shadowDom.getElementById('site-title');
-				const siteTitleParent = !!siteTitle && siteTitle.parentNode;
-
-				const envIndicatorWrapper = document.createElement('span');
-				if (!!envIndicatorWrapper && !!siteTitleParent) {
-                    clearInterval(envInd);
-
-					envIndicatorWrapper.style.color = 'white';
-					envIndicatorWrapper.style.backgroundColor = '#333';
-					envIndicatorWrapper.style.padding = '8px';
-					envIndicatorWrapper.style.marginLeft = '8px';
-					envIndicatorWrapper.style.fontWeight = 'bold';
-					envIndicatorWrapper.style.fontSize = '12px';
-					envIndicatorWrapper.id = environmentIndicatorId;
-					envIndicatorWrapper.setAttribute("data-testid", environmentIndicatorId);
-
-					const environmentLabel = getEnvironmentLabel();
-					const labelNode = !!environmentLabel && document.createTextNode(environmentLabel);
-					!!labelNode && envIndicatorWrapper.appendChild(labelNode);
-
-					siteTitleParent.appendChild(envIndicatorWrapper);
-				}
-			}
-		}, 500);
-	}
 
 	// There are 3 places we add the custom indicators:
 	// - on lists of search results
@@ -1209,8 +1144,6 @@ function whenPageLoaded(fn) {
 	insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
 	insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
 	insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
-
-	addNonProdEnvironmentIndicator();
 })();
 
 // the Favourites Pin can have a help dialog floating below it
