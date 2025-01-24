@@ -974,11 +974,11 @@ function whenPageLoaded(fn) {
 
 				// display the cultural advice indicator on appropriate records
 				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // eg "Cultural advice - Aboriginal and Torres Strait Islander people"
-				if (!!culturalAdviceText && !!recordId) {
+				const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
+				if (!!culturalAdviceDisplayRequired && !!recordId) {
 					addCulturalAdviceIndicatorToHeader(recordId, "full");
 
-					const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.search?.lsr47 && vm.parentCtrl.item.pnx.search?.lsr47; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+					const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.display?.lds04 && vm.parentCtrl.item.pnx.display?.lds04; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
 					!!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
 				}
 			};
@@ -1041,8 +1041,8 @@ function whenPageLoaded(fn) {
 				const pageType = isSelectedVersion ? 'specificversion' : 'brief';
 				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
-				const culturalAdviceText = !!vm?.parentCtrl?.item?.pnx?.facets?.lfc04 && vm.parentCtrl.item.pnx.facets?.lfc04; // "eg Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
-				if (!!culturalAdviceText && !!recordId) {
+				const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
+				if (!!culturalAdviceDisplayRequired && !!recordId) {
 					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType);
 				}
 			};
