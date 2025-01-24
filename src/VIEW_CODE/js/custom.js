@@ -31,21 +31,32 @@ function whenPageLoaded(fn) {
 	const vidParam = getSearchParam('vid');
 	const primoHomepageLink = `https://${window.location.hostname}/primo-explore/search?vid=${vidParam}&sortby=rank`;
 
-	// modifier possibilities:
-	// 61UQ_INST:61UQ            => "PROD" (unless public domain)
-	// 61UQ_INST:61UQ_APPDEV     => "APPDEV"
-	// 61UQ_INST:61UQ_DALTS      => "DALTS" (formerly DAC)
-	// 61UQ_INST:61UQ_CANARY     => "CANARY"
-	let labelModifier = vidParam === '61UQ_INST:61UQ' ? 'PROD' : vidParam.replace('61UQ_INST:61UQ_', '');
-	labelModifier = isPublicEnvironment() ? '' : ` ${labelModifier}`; // no modifier on prod-prod
-	const primoHomepageLabel = isDomainProd() ? `Library Search${labelModifier}` : `SANDBOX${labelModifier}`;
+	function getPrimoHomepageLabel() {
+		// modifier possibilities:
+		// 61UQ_INST:61UQ            => "PROD" (unless public domain)
+		// 61UQ_INST:61UQ_APPDEV     => "APPDEV"
+		// 61UQ_INST:61UQ_DALTS      => "DALTS" (formerly DAC)
+		// 61UQ_INST:61UQ_CANARY     => "CANARY"
+		const labelModifier = isPubliclyViewable() ? '' : vidParam.replace('61UQ_INST:61UQ_', ' ');
+		let primoHomepageLabel;
+		if (isDomainProd()) {
+			primoHomepageLabel = `Library Search${labelModifier}`
+			// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
+		} else if (window.location.hostname === "uq.primo.exlibrisgroup.com") {
+			primoHomepageLabel = `PRIMO VE TEST${labelModifier}`;
+		} else {
+			primoHomepageLabel = `SANDBOX${labelModifier}`;
+		}
+		return primoHomepageLabel;
+	}
+
 	app.component("prmTopBarBefore", {
 		// we found it was more robust to insert the askus button in the different page location via primo angular, see below,
 		// so completely skip inserting elements "by attribute"
 		template:
 			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
-			`<uq-site-header secondleveltitle="${primoHomepageLabel}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
+			`<uq-site-header secondleveltitle="${(getPrimoHomepageLabel())}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
 			"<cultural-advice-popup></cultural-advice-popup>" +
 			"<proactive-chat></proactive-chat>",
 	});
@@ -494,8 +505,8 @@ function whenPageLoaded(fn) {
 
 	// determine if we are in the public environment, colloquially referred to as prod-prod
 	// (to distinguish it from prod-dev and sandbox-prod)
-	function isPublicEnvironment() {
-		return isDomainProd() && getSearchParam('vid') === '61UQ_INST:61UQ_APPDEV';
+	function isPubliclyViewable() {
+		return isDomainProd() && getSearchParam('vid') === '61UQ_INST:61UQ';
 	}
 
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
