@@ -11,14 +11,13 @@ fi
 
 # Read arguments
 PRIMO_VIEW="$1"
-
 cd ./src
 rm -rf ./$1 ./$1.zip
-cp -r ./view_package ./$1
-npx bestzip $1.zip $1/
+cp -r ./VIEW_CODE ./$1
+npx bestzip 61UQ_INST-$1.zip $1/
 
 echo " "
-echo "File $1.zip saved in file://$PWD"
+echo "File 61UQ_INST-$1.zip saved in file://$PWD"
 
 printf "\nCleaning up...  "
 rm -rf $1
