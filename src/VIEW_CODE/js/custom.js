@@ -32,11 +32,11 @@ function whenPageLoaded(fn) {
 	const primoHomepageLink = `https://${window.location.hostname}/primo-explore/search?vid=${vidParam}&sortby=rank`;
 
 	// modifier possibilities:
-	// 61UQ            => "PROD" (unless public domain)
-	// 61UQ_APPDEV     => "APPDEV"
-	// 61UQ_DAC        => "DAC"
-	// 61UQ_CANARY     => "CANARY"
-	let labelModifier = vidParam === '61UQ' ? 'PROD' : vidParam.replace('61UQ_', '');
+	// 61UQ_INST:61UQ            => "PROD" (unless public domain)
+	// 61UQ_INST:61UQ_APPDEV     => "APPDEV"
+	// 61UQ_INST:61UQ_DALTS      => "DALTS" (formerly DAC)
+	// 61UQ_INST:61UQ_CANARY     => "CANARY"
+	let labelModifier = vidParam === '61UQ_INST:61UQ' ? 'PROD' : vidParam.replace('61UQ_INST:61UQ_', '');
 	labelModifier = isPublicEnvironment() ? '' : ` ${labelModifier}`; // no modifier on prod-prod
 	const primoHomepageLabel = isDomainProd() ? `Library Search${labelModifier}` : `SANDBOX${labelModifier}`;
 	app.component("prmTopBarBefore", {
@@ -495,7 +495,7 @@ function whenPageLoaded(fn) {
 	// determine if we are in the public environment, colloquially referred to as prod-prod
 	// (to distinguish it from prod-dev and sandbox-prod)
 	function isPublicEnvironment() {
-		return isDomainProd() && getSearchParam('vid') === '61UQ';
+		return isDomainProd() && getSearchParam('vid') === '61UQ_INST:61UQ_APPDEV';
 	}
 
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
@@ -1135,13 +1135,13 @@ function whenPageLoaded(fn) {
 	// this script should only be called on views that have UQ header showing
 	var folder = "/"; // default. Use for prod.
 	if (isDomainProd()) {
-		if (/vid=61UQ_APPDEV/.test(window.location.href)) {
+		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
 		}
 	} else {
-		if (/vid=61UQ_APPDEV/.test(window.location.href)) {
+		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-sandbox-dev/";
-		} else if (/vid=61UQ/.test(window.location.href)) {
+		} else if (/vid=61UQ_INST:61UQ/.test(window.location.href)) {
 			folder = "-development/primo-sandbox/";
 		}
 	}
