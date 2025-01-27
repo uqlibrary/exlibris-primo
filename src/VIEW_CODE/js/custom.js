@@ -682,12 +682,12 @@ function whenPageLoaded(fn) {
 	function addCustomIconIndicatorToHeader(uniqueId, pageType, selectorParent, createdIndicator) {
 		// if other icons ("Peer reviewed" "Open Access") are available, we will add it to that line
 		let indicatorParent = false;
-		const openAccessIndicator = document.querySelector(`${selectorParent} .open-access-mark`);
+		const openAccessIndicator = document.querySelector(`${selectorParent} [icon-definition="open-access"]`);
 		if (!!openAccessIndicator) {
 			indicatorParent = openAccessIndicator.parentNode;
 		}
 		if (!indicatorParent) {
-			const peerReviewedIndicator = document.querySelector(`${selectorParent} .peer-reviewed-mark`);
+			const peerReviewedIndicator = document.querySelector(`${selectorParent} [icon-definition="peer-reviewed"]`);
 			if (!!peerReviewedIndicator) {
 				indicatorParent = peerReviewedIndicator.parentNode;
 			}
