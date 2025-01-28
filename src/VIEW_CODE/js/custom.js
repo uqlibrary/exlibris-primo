@@ -614,8 +614,8 @@ function whenPageLoaded(fn) {
 					"";
 				if ([
 					"journals",
-					"newspaper",
-					"magazine",
+					"newspapers",
+					"magazines",
 				].includes(resourceType)) {
 					vm.parentCtrl.isDirectLink = function () {return false;};
 				}
