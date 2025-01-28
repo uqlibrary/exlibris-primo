@@ -613,7 +613,7 @@ function whenPageLoaded(fn) {
 						vm.parentCtrl.result.pnx.display.type[0]) ||
 					"";
 				if ([
-					"journal",
+					"journals",
 					"newspaper",
 					"magazine",
 				].includes(resourceType)) {
