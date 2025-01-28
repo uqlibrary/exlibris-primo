@@ -867,13 +867,6 @@ function whenPageLoaded(fn) {
 		}
 
 		const para = document.createElement("p");
-		// move these styles to the reusable scss file when it looks right
-		!!para && (para.style.padding = "1em");
-		!!para && (para.style.borderColor = "#bbd8f5");
-		!!para && (para.style.color = "#000");
-		!!para && (para.style.backgroundColor = "#bbd8f5");
-		!!para && (para.style.borderRadius = "3px");
-		!!para && (para.style.marginRight = "-2.50em");
 		!!para && (para.innerHTML = displayText);
 
 		const block = document.createElement("div");
