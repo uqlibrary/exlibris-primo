@@ -600,6 +600,8 @@ function whenPageLoaded(fn) {
 
 	// if the record is one of certain types, the 'Available Online' link should open View It, instead of jumping straight to the resource
 	// (this is because there are usually multiple resources, and the default one may not be the best)
+	// UPDATE! While in Primo VE this doesn't allow the record to link to the full result, removing it makes the other
+	// record types not hav an availability type, which is truly strange!
 	app.controller("prmOpenSpecificTypesInFullController", [
 		function () {
 			var vm = this;
