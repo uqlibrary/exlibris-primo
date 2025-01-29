@@ -46,7 +46,7 @@ function whenPageLoaded(fn) {
 			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
 			`<uq-site-header secondleveltitle="${primoHomepageLabel}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
-			"<cultural-advice-popup></cultural-advice-popup>" +
+			"<cultural-advice></cultural-advice>" +
 			"<proactive-chat></proactive-chat>",
 	});
 
