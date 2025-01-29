@@ -1083,6 +1083,25 @@ function whenPageLoaded(fn) {
 		template: '',
 	});
 
+	app.component('prmAdvancedSearchAfter', {
+		bindings: { parentCtrl: "<" },
+		controller: function ($scope, $http) {
+			function clearLanguageOption(languageLabel) {
+				const languageWrapper = !!languageLabel && languageLabel.parentNode;
+				!!languageWrapper && languageWrapper.remove();
+			}
+
+			const awaitMenuOption = setInterval(() => {
+				const languageLabel = document.querySelector('prm-advanced-search #advancedSearchLanguage');
+				if (!!languageLabel) {
+					clearInterval(awaitMenuOption);
+					clearLanguageOption(languageLabel);
+				}
+			}, 100);
+		},
+		template: '',
+	});
+
 	// prm-quick-link-after
 	// app.component("prmQuickLinkAfter", {
 	// 	controller: function ($scope) {
