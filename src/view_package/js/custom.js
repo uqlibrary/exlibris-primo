@@ -46,12 +46,14 @@ function whenPageLoaded(fn) {
 			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
 			`<uq-site-header secondleveltitle="${primoHomepageLabel}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
-			"<cultural-advice></cultural-advice>" +
 			"<proactive-chat></proactive-chat>",
 	});
 
 	app.component("prmTopbarAfter", {
-		template: '<alert-list system="primo"></alert-list>',
+		template:
+			'<alert-list system="primo"></alert-list>' +
+			'<cultural-advice></cultural-advice>'
+		,
 	});
 
 	// account options is a built in primo but that we alter, but cant directly offer the same functionality it does
