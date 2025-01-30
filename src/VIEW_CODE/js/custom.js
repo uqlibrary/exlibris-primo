@@ -1079,23 +1079,24 @@ function whenPageLoaded(fn) {
 					clearInterval(awaitAvailabilityEntries); // short delay to let it load
 
 					// get the entries that are in the Show only facet section
-					const facetLabel = 'Show only';
-					const elementList = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space:not(:has(.manual-count))`);
-					if (!!elementList && elementList.length > 0) {
-						elementList.forEach((element) => {
-							const checkById = `prm-facet-group:has([title="${facetLabel}"]) ` + getNewItemId(element);
-							const checkByIdElement = document.querySelector(checkById);
-							const existingCountCheck = element?.parentNode?.querySelector('.text-in-brackets');
-							if (!checkByIdElement && // our code hasn't been run before for this item
-								!existingCountCheck // primo haven't started supplying the number
-							) {
-								const recordCount = !!element?.parentNode && !!element?.textContent && extractRecordCount(element?.parentNode, element.textContent);
-								const numericRecordCount = parseInt(recordCount.replace(',', ''), 10);
-								const newDisplayElement = !!recordCount && numericRecordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
-								!!newDisplayElement && element.appendChild(newDisplayElement);
-							}
-						});
-					}
+					['Show only'].map(facetLabel => {
+						const elementList = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space:not(:has(.manual-count))`);
+						if (!!elementList && elementList.length > 0) {
+							elementList.forEach((element) => {
+								const checkById = `prm-facet-group:has([title="${facetLabel}"]) ` + getNewItemId(element);
+								const checkByIdElement = document.querySelector(checkById);
+								const existingCountCheck = element?.parentNode?.querySelector('.text-in-brackets');
+								if (!checkByIdElement && // our code hasn't been run before for this item
+									!existingCountCheck // primo haven't started supplying the number
+								) {
+									const recordCount = !!element?.parentNode && !!element?.textContent && extractRecordCount(element?.parentNode, element.textContent);
+									const numericRecordCount = parseInt(recordCount.replace(',', ''), 10);
+									const newDisplayElement = !!recordCount && numericRecordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
+									!!newDisplayElement && element.appendChild(newDisplayElement);
+								}
+							});
+						}
+					})
 				}, 500);
 			}
 		},
