@@ -1050,35 +1050,53 @@ function whenPageLoaded(fn) {
 	app.component('prmFacetExactAfter', {
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
-			const awaitOpenAccessEntry = setInterval(() => {
-				const openAccessEntry = document.querySelector('[title="Open Access"]');
-				if (!!openAccessEntry) {
-					clearInterval(awaitOpenAccessEntry);
-					const openAccessId = 'LTSaddedOpenAccessCount';
-					const addedOACountByLTSId = document.getElementById(openAccessId);
-					// if exlibris has already provided the OA count, it will have this class. Don't duplicate it.
-					const existingCountCheck  = !!openAccessEntry && openAccessEntry.parentNode.querySelector('.text-in-brackets');
-					if (!addedOACountByLTSId && !existingCountCheck) {
-						const openAccessParent = !!openAccessEntry && openAccessEntry.parentNode;
-						const ariaLabel = !!openAccessParent && openAccessParent.getAttribute('aria-label');
-						// This assumes an aria-label attribute of the format `Open Access 134,304 Search results`,
-						// which we strip down to '134,304'.
-						// Don't extract non-numerics in case Exlibris update the label to include a number - it would
-						// make all the displays wrong without being noticeable
-						const oaCount = !!ariaLabel && ariaLabel.replace('Open Access', '')
-							.replace('Search results', '')
-							.trim();
-						const textNode = !!oaCount && document.createTextNode(oaCount);
-						const wrapperSpan = !!textNode && document.createElement('span');
-						!!wrapperSpan && !!textNode && wrapperSpan.appendChild(textNode);
-						!!wrapperSpan && wrapperSpan.classList.add('text-italic', 'text-in-brackets', 'text-rtl', 'facet-counter');
-						!!wrapperSpan && (wrapperSpan.style.paddingLeft = '10px');
-						!!wrapperSpan && (wrapperSpan.id = openAccessId);
-
-						!!openAccessEntry && !!wrapperSpan && openAccessEntry.appendChild(wrapperSpan);
-					}
+			const vm = this;
+			this.$onInit = function () {
+				function extractRecordCount(parentElement, label) {
+					const ariaLabel = !!parentElement && parentElement.getAttribute('aria-label');
+					return !!ariaLabel && ariaLabel.replace(label, '')
+						.replace(/[^\d,]/g, '')
+						.trim();
 				}
-			}, 500);
+
+				function createCountTextNode(recordCount, elementId) {
+					const wrapperSpan = document.createElement('span');
+					!!wrapperSpan && wrapperSpan.classList.add('text-italic', 'text-in-brackets', 'text-rtl', 'facet-counter', 'manual-count');
+					!!wrapperSpan && (wrapperSpan.style.paddingLeft = '10px');
+					!!wrapperSpan && (wrapperSpan.id = elementId);
+					const textNode = !!recordCount && document.createTextNode(recordCount);
+					!!wrapperSpan && !!textNode && wrapperSpan.appendChild(textNode);
+					return wrapperSpan;
+				}
+
+				function getNewItemId(element) {
+					let newId = element?.textContent?.toLowerCase().replace(/[^a-zA-Z]/g, '');
+					newId += 'Count';
+					return newId;
+				}
+
+				const awaitAvailabilityEntries = setInterval(() => {
+					clearInterval(awaitAvailabilityEntries); // short delay to let it load
+
+					// get the entries that are in the Show only facet section
+					const facetLabel = 'Show only';
+					const elementList = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space:not(:has(.manual-count))`);
+					if (!!elementList && elementList.length > 0) {
+						elementList.forEach((element) => {
+							const checkById = `prm-facet-group:has([title="${facetLabel}"]) ` + getNewItemId(element);
+							const checkByIdElement = document.querySelector(checkById);
+							const existingCountCheck = element?.parentNode?.querySelector('.text-in-brackets');
+							if (!checkByIdElement && // our code hasn't been run before for this item
+								!existingCountCheck // primo haven't started supplying the number
+							) {
+								const recordCount = !!parentElement && !!element?.textContent && extractRecordCount(parentElement, element.textContent);
+								const newDisplayElement = !!recordCount && recordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
+								!!newDisplayElement && element.appendChild(newDisplayElement);
+							}
+						});
+					}
+				}, 500);
+			}
 		},
 		template: '',
 	});
