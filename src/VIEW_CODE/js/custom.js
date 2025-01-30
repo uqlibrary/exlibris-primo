@@ -1078,8 +1078,8 @@ function whenPageLoaded(fn) {
 				const awaitAvailabilityEntries = setInterval(() => {
 					clearInterval(awaitAvailabilityEntries); // short delay to let it load
 
-					// get the entries that are in the Show only facet section
-					['Show only'].map(facetLabel => {
+					// get the entries that are in certain facet sections
+					['Show only', 'New records'].map(facetLabel => {
 						const elementList = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space:not(:has(.manual-count))`);
 						if (!!elementList && elementList.length > 0) {
 							elementList.forEach((element) => {
