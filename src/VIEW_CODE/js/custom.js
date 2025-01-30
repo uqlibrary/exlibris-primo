@@ -1089,8 +1089,9 @@ function whenPageLoaded(fn) {
 							if (!checkByIdElement && // our code hasn't been run before for this item
 								!existingCountCheck // primo haven't started supplying the number
 							) {
-								const recordCount = !!parentElement && !!element?.textContent && extractRecordCount(parentElement, element.textContent);
-								const newDisplayElement = !!recordCount && recordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
+								const recordCount = !!element?.parentNode && !!element?.textContent && extractRecordCount(element?.parentNode, element.textContent);
+								const numericRecordCount = parseInt(recordCount.replace(',', ''), 10);
+								const newDisplayElement = !!recordCount && numericRecordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
 								!!newDisplayElement && element.appendChild(newDisplayElement);
 							}
 						});
