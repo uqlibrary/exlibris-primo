@@ -1155,7 +1155,8 @@ function whenPageLoaded(fn) {
 	app.component("prmAlmaViewitItemsAfter", {
 		controller: function ($scope) {
 			const awaitViewItEntries = setInterval(() => {
-				const listViewItEntries = document.querySelectorAll('prm-full-view prm-full-view-service-container prm-alma-viewit .item-title.md-primoExplore-theme');
+				const listViewItParent = document.querySelector('prm-full-view prm-full-view-service-container prm-alma-viewit prm-alma-viewit-items:first-of-type');
+				const listViewItEntries = !!listViewItParent && listViewItParent.querySelectorAll('.item-title.md-primoExplore-theme');
 				if (!listViewItEntries || listViewItEntries.length === 0) {
 					return;
 				}
@@ -1163,12 +1164,16 @@ function whenPageLoaded(fn) {
 				clearInterval(awaitViewItEntries);
 
 				listViewItEntries.forEach((element) => {
-					// <span class="internalTitle">View online: </span>
-					const labelText = document.createTextNode('View online: ');
-					const labelTextBlock = document.createElement('span');
-					!!labelTextBlock && (labelTextBlock.className = 'internalTitle');
-					!!labelTextBlock && !!labelText && labelTextBlock.appendChild(labelText);
-					!!element && !!labelTextBlock && element.parentNode.insertBefore(labelTextBlock, element);
+					const prependText = 'View online';
+					if (!element?.parentNode?.textContent.includes(prependText) &&
+						!element?.parentNode?.textContent.startsWith('UQ eSpace')
+					) {
+						const labelText = document.createTextNode(`${prependText}: `);
+						const labelTextBlock = document.createElement('span');
+						!!labelTextBlock && labelTextBlock.classList.add('internalTitle');
+						!!labelTextBlock && !!labelText && labelTextBlock.appendChild(labelText);
+						!!element && !!labelTextBlock && element.parentNode.insertBefore(labelTextBlock, element);
+					}
 				})
 			}, 100);
 		}
