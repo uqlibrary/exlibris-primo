@@ -1102,7 +1102,7 @@ function whenPageLoaded(fn) {
 							});
 						}
 					})
-				}, 500);
+				}, 100);
 			}
 		},
 		template: '',
