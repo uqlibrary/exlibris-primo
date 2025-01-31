@@ -31,6 +31,11 @@ function whenPageLoaded(fn) {
 	const vidParam = getSearchParam('vid');
 	const primoHomepageLink = `https://${window.location.hostname}/discovery/search?vid=${vidParam}&offset=0`;
 
+	// this should only be needed for primo ve test - we should be back to 2 domains when VE goes live
+	function isDomainPrimoVETest() {
+		return window.location.hostname === "uq.primo.exlibrisgroup.com";
+	}
+
 	function getPrimoHomepageLabel() {
 		// modifier possibilities:
 		// 61UQ_INST:61UQ            => "PROD" (unless public domain)
@@ -42,7 +47,7 @@ function whenPageLoaded(fn) {
 		if (isDomainProd()) {
 			primoHomepageLabel = `Library Search${labelModifier}`
 			// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
-		} else if (window.location.hostname === "uq.primo.exlibrisgroup.com") {
+		} else if (isDomainPrimoVETest()) {
 			primoHomepageLabel = `PRIMO VE TEST${labelModifier}`;
 		} else {
 			primoHomepageLabel = `SANDBOX${labelModifier}`;
@@ -1184,6 +1189,13 @@ function whenPageLoaded(fn) {
 	if (isDomainProd()) {
 		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
+		}
+		// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
+	} else if (isDomainPrimoVETest()) {
+		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
+			folder = "-development/primo-prod-dev/";
+		} else {
+			folder = "-development/primo-prod/";
 		}
 	} else {
 		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
