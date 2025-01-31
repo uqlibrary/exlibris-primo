@@ -1151,6 +1151,29 @@ function whenPageLoaded(fn) {
 	// 	}
 	// });
 
+	// prm-alma-viewit-items
+	app.component("prmAlmaViewitItemsAfter", {
+		controller: function ($scope) {
+			const awaitViewItEntries = setInterval(() => {
+				const listViewItEntries = document.querySelectorAll('prm-full-view prm-full-view-service-container prm-alma-viewit .item-title.md-primoExplore-theme');
+				if (!listViewItEntries || listViewItEntries.length === 0) {
+					return;
+				}
+
+				clearInterval(awaitViewItEntries);
+
+				listViewItEntries.forEach((element) => {
+					// <span class="internalTitle">View online: </span>
+					const labelText = document.createTextNode('View online: ');
+					const labelTextBlock = document.createElement('span');
+					!!labelTextBlock && (labelTextBlock.className = 'internalTitle');
+					!!labelTextBlock && !!labelText && labelTextBlock.appendChild(labelText);
+					!!element && !!labelTextBlock && element.parentNode.insertBefore(labelTextBlock, element);
+				})
+			}, 100);
+		}
+	});
+
 	function insertScript(url) {
 		var script = document.querySelector("script[src*='" + url + "']");
 		if (!script) {
