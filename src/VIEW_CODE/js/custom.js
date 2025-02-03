@@ -591,9 +591,7 @@ function whenPageLoaded(fn) {
 		},
 		template:
 			'<div ng-if="$ctrl.targeturl"><getit-link-service>' +
-			'<button class="help-button md-button md-primoExplore-theme md-ink-ripple" type="button" data-ng-click="buttonPressed($event)" aria-label="Report a Problem" aria-hidden="false">' +
-			'<a ng-href="{{$ctrl.targeturl}}" target="_blank">Report a Problem</a>' +
-			"</button>" +
+			'<a ng-href="{{$ctrl.targeturl}}" target="_blank" class="report-a-problem">Report a Problem</a>' +
 			"</getit-link-service></div>",
 	});
 
@@ -1175,6 +1173,74 @@ function whenPageLoaded(fn) {
 						!!element && !!labelTextBlock && element.parentNode.insertBefore(labelTextBlock, element);
 					}
 				})
+			}, 100);
+		}
+	});
+
+	const linkOutIconTemplate = () =>
+`<prm-icon icon-type="svg" svg-icon-set="primo-ui" icon-definition="open-in-new">
+    <md-icon md-svg-icon="primo-ui:open-in-new" role="presentation" class="md-primoExplore-theme">
+        <svg id="open-in-new_cache36" width="100%" height="100%" viewBox="0 0 24 24" y="504" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+            <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>
+        </svg>
+    </md-icon>
+</prm-icon>`;
+
+	function createOutLink(linkDetails, stylingId) {
+		const label = document.createTextNode(linkDetails.title);
+
+		const innerStylingSpan = document.createElement('span');
+		!!innerStylingSpan && (innerStylingSpan.id = stylingId);
+		!!innerStylingSpan && !!label && innerStylingSpan.appendChild(label);
+
+		const link = document.createElement('a');
+		if (!link) {
+			return;
+		}
+		link.href = linkDetails.url;
+		link.target = '_blank';
+		link.setAttribute('aria-labelledby', stylingId);
+		link.classList.add('button-as-link', 'button-external-link', 'inline-button', 'md-button', 'md-primoExplore-theme');
+		!!innerStylingSpan && link.appendChild(innerStylingSpan);
+
+		link.insertAdjacentHTML('beforeend', linkOutIconTemplate());
+
+		return link;
+	}
+
+	// prm-fines
+	app.component("prmFinesAfter", {
+		controller: function ($scope) {
+			setInterval(() => {
+				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
+				const displayArea = document.querySelector('prm-fines .header-subtitle');
+				if (!displayArea) {
+					return;
+				}
+
+				const wrapperId = 'fines-links';
+				const insertionPointCheck = displayArea.querySelector(`#${wrapperId}`);
+				if (!!insertionPointCheck) {
+					// our links currently exist
+					return;
+				}
+
+				const insertionPoint = document.createElement('span');
+				if (!insertionPoint) {
+					return;
+				}
+				insertionPoint.id = wrapperId;
+				displayArea.insertBefore(insertionPoint, displayArea.firstChild);
+
+				[
+					{
+						url: 'https://web.library.uq.edu.au/find-and-borrow/borrow-library/borrowing-rules-and-charges#overdue',
+						title: 'About overdue charges',
+					}
+				].map((link, i) => {
+					const outLink = createOutLink(link, `fine${i}`);
+					!!outLink && insertionPoint.appendChild(outLink);
+				});
 			}, 100);
 		}
 	});
