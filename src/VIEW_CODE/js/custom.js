@@ -1208,6 +1208,47 @@ function whenPageLoaded(fn) {
 		return link;
 	}
 
+	// prm-requests
+	app.component("prmRequestsAfter", {
+		controller: function ($scope) {
+			setInterval(() => {
+				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
+				const displayArea = document.querySelector('prm-requests');
+				if (!displayArea) {
+					return;
+				}
+
+				const wrapperId = 'requests-links';
+				const insertionPointCheck = displayArea.querySelector(`#${wrapperId}`);
+				if (!!insertionPointCheck) {
+					// our links currently exist
+					return;
+				}
+
+				const insertionPoint = document.createElement('div');
+				if (!insertionPoint) {
+					return;
+				}
+				insertionPoint.id = wrapperId;
+				insertionPoint.setAttribute('style', 'padding-block: 1em');
+				displayArea.insertBefore(insertionPoint, displayArea.firstChild);
+
+				[
+					{
+						url: 'https://web.library.uq.edu.au/find-and-borrow/request-items',
+						title: 'Help for requests',
+					}, {
+						url: 'https://auth.library.uq.edu.au/login?relais_return=1',
+						title: 'Document Delivery Portal',
+					}
+				].map((linkDetail, i) => {
+					const outLink = createOutLink(linkDetail, `request${i}`);
+					!!outLink && insertionPoint.appendChild(outLink);
+				})
+			}, 100);
+		}
+	});
+
 	// prm-fines
 	app.component("prmFinesAfter", {
 		controller: function ($scope) {
