@@ -1186,8 +1186,8 @@ function whenPageLoaded(fn) {
     </md-icon>
 </prm-icon>`;
 
-	function createOutLink(linkDetails, stylingId) {
-		const label = document.createTextNode(linkDetails.title);
+	function createOutLink(linkUrl, linkTitle, stylingId) {
+		const label = document.createTextNode(linkTitle);
 
 		const innerStylingSpan = document.createElement('span');
 		!!innerStylingSpan && (innerStylingSpan.id = stylingId);
@@ -1197,10 +1197,10 @@ function whenPageLoaded(fn) {
 		if (!link) {
 			return;
 		}
-		link.href = linkDetails.url;
+		link.href = linkUrl;
 		link.target = '_blank';
 		link.setAttribute('aria-labelledby', stylingId);
-		link.classList.add('button-as-link', 'button-external-link', 'inline-button', 'md-button', 'md-primoExplore-theme');
+		link.classList.add('button-as-link', 'button-external-link', 'inline-button', 'md-button', 'md-primoExplore-theme', 'stackable-link-entry');
 		!!innerStylingSpan && link.appendChild(innerStylingSpan);
 
 		link.insertAdjacentHTML('beforeend', linkOutIconTemplate());
@@ -1209,9 +1209,10 @@ function whenPageLoaded(fn) {
 	}
 
 	// we have custom links that should appear under the heading on most tabs on the Library account page
-	function addLinksToAccountArea(tabType, elementType, displayLinks) {
+	function addLinksToAccountArea(tabType, hasLinksAlready, displayLinkList) {
 		const wrapperId = `${tabType}s-links`;
 		const elementName = tabType === 'personal-info' ? `prm-${tabType}` : `prm-${tabType}s`;
+		const elementType = !!hasLinksAlready ? 'div' : 'span';
 		const displayAreaSelector = `${elementName} .header-subtitle`;
 		const displayArea = document.querySelector(displayAreaSelector);
 		if (!displayArea) {
@@ -1232,8 +1233,8 @@ function whenPageLoaded(fn) {
 		insertionPoint.classList.add('stackable-links', `stackable-links-${tabType}s`);
 		displayArea.insertBefore(insertionPoint, displayArea.firstChild);
 
-		displayLinks.map((link, i) => {
-			const outLink = createOutLink(link, `${tabType}${i}`);
+		displayLinkList.map((link, i) => {
+			const outLink = createOutLink(link.url, link.title, `${tabType}-${i}`);
 			!!outLink && insertionPoint.appendChild(outLink);
 		});
 	}
@@ -1252,7 +1253,7 @@ function whenPageLoaded(fn) {
 						title: 'Document Delivery Portal',
 					}
 				];
-				addLinksToAccountArea('request', 'div', displayLinks);
+				addLinksToAccountArea('request', true, displayLinks);
 			}, 100);
 		}
 	});
@@ -1269,7 +1270,7 @@ function whenPageLoaded(fn) {
 					}
 				];
 
-				addLinksToAccountArea('fine', 'span', displayLinks);
+				addLinksToAccountArea('fine', false, displayLinks);
 			}, 100);
 		}
 	});
@@ -1286,7 +1287,7 @@ function whenPageLoaded(fn) {
 					}
 				];
 
-				addLinksToAccountArea('loan', 'span', displayLinks);
+				addLinksToAccountArea('loan', false, displayLinks);
 			}, 100);
 		}
 	});
@@ -1303,7 +1304,7 @@ function whenPageLoaded(fn) {
 					}
 				];
 
-				addLinksToAccountArea('messages-and-block', 'span', displayLinks);
+				addLinksToAccountArea('messages-and-block', false, displayLinks);
 			}, 100);
 		}
 	});
@@ -1323,7 +1324,7 @@ function whenPageLoaded(fn) {
 					}
 				];
 
-				addLinksToAccountArea('personal-info', 'span', displayLinks);
+				addLinksToAccountArea('personal-info', false, displayLinks);
 			}, 100);
 		}
 	});
