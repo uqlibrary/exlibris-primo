@@ -1208,32 +1208,41 @@ function whenPageLoaded(fn) {
 		return link;
 	}
 
+	// we have custom links that should appear under the heading on most tabs on the Library account page
+	function addLinksToAccountArea(tabType, elementType, displayLinks) {
+		const wrapperId = `${tabType}s-links`;
+		const displayAreaSelector = `prm-${tabType}s .header-subtitle`;
+		const displayArea = document.querySelector(displayAreaSelector);
+		if (!displayArea) {
+			return;
+		}
+
+		const insertionPointCheck = displayArea.querySelector(`#${wrapperId}`);
+		if (!!insertionPointCheck) {
+			// our links currently exist
+			return;
+		}
+
+		const insertionPoint = document.createElement(elementType);
+		if (!insertionPoint) {
+			return;
+		}
+		insertionPoint.id = wrapperId;
+		insertionPoint.classList.add('stackable-links', `stackable-links-${tabType}s`);
+		displayArea.insertBefore(insertionPoint, displayArea.firstChild);
+
+		displayLinks.map((link, i) => {
+			const outLink = createOutLink(link, `${tabType}${i}`);
+			!!outLink && insertionPoint.appendChild(outLink);
+		});
+	}
+
 	// prm-requests
 	app.component("prmRequestsAfter", {
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
-				const displayArea = document.querySelector('prm-requests .header-subtitle');
-				if (!displayArea) {
-					return;
-				}
-
-				const wrapperId = 'requests-links';
-				const insertionPointCheck = displayArea.querySelector(`#${wrapperId}`);
-				if (!!insertionPointCheck) {
-					// our links currently exist
-					return;
-				}
-
-				const insertionPoint = document.createElement('div');
-				if (!insertionPoint) {
-					return;
-				}
-				insertionPoint.id = wrapperId;
-				insertionPoint.classList.add('stackable-links', 'stackable-links-requests');
-				displayArea.insertBefore(insertionPoint, displayArea.firstChild);
-
-				[
+				const displayLinks = [
 					{
 						url: 'https://web.library.uq.edu.au/find-and-borrow/request-items',
 						title: 'Help for requests',
@@ -1241,10 +1250,8 @@ function whenPageLoaded(fn) {
 						url: 'https://auth.library.uq.edu.au/login?relais_return=1',
 						title: 'Document Delivery Portal',
 					}
-				].map((linkDetail, i) => {
-					const outLink = createOutLink(linkDetail, `request${i}`);
-					!!outLink && insertionPoint.appendChild(outLink);
-				})
+				];
+				addLinksToAccountArea('request', 'div', displayLinks);
 			}, 100);
 		}
 	});
@@ -1254,35 +1261,14 @@ function whenPageLoaded(fn) {
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
-				const displayArea = document.querySelector('prm-fines .header-subtitle');
-				if (!displayArea) {
-					return;
-				}
-
-				const wrapperId = 'fines-links';
-				const insertionPointCheck = displayArea.querySelector(`#${wrapperId}`);
-				if (!!insertionPointCheck) {
-					// our links currently exist
-					return;
-				}
-
-				const insertionPoint = document.createElement('span');
-				if (!insertionPoint) {
-					return;
-				}
-				insertionPoint.id = wrapperId;
-				insertionPoint.classList.add('stackable-links', 'stackable-links-fines');
-				displayArea.insertBefore(insertionPoint, displayArea.firstChild);
-
-				[
+				const displayLinks = [
 					{
 						url: 'https://web.library.uq.edu.au/find-and-borrow/borrow-library/borrowing-rules-and-charges#overdue',
 						title: 'About overdue charges',
 					}
-				].map((link, i) => {
-					const outLink = createOutLink(link, `fine${i}`);
-					!!outLink && insertionPoint.appendChild(outLink);
-				});
+				];
+
+				addLinksToAccountArea('fine', 'span', displayLinks);
 			}, 100);
 		}
 	});
