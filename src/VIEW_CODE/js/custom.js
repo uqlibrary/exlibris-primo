@@ -246,6 +246,7 @@ function whenPageLoaded(fn) {
 				// add an ID for GTM usage to the button
 				const menuItem = document.querySelector(primoIdentifier + ' button');
 				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
+				!!menuItem && menuItem.setAttribute('data-testid', buttonOptions.id);
 			}
 		}, 250);
 	}
@@ -1231,6 +1232,7 @@ function whenPageLoaded(fn) {
 		}
 		insertionPoint.id = wrapperId;
 		insertionPoint.classList.add('stackable-links', `stackable-links-${tabType}s`);
+		insertionPoint.setAttribute( 'data-testid', `stackable-links-${tabType}s`);
 		displayArea.insertBefore(insertionPoint, displayArea.firstChild);
 
 		displayLinkList.map((link, i) => {
