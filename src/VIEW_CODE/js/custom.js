@@ -1211,7 +1211,8 @@ function whenPageLoaded(fn) {
 	// we have custom links that should appear under the heading on most tabs on the Library account page
 	function addLinksToAccountArea(tabType, elementType, displayLinks) {
 		const wrapperId = `${tabType}s-links`;
-		const displayAreaSelector = `prm-${tabType}s .header-subtitle`;
+		const elementName = tabType === 'personal-info' ? `prm-${tabType}` : `prm-${tabType}s`;
+		const displayAreaSelector = `${elementName} .header-subtitle`;
 		const displayArea = document.querySelector(displayAreaSelector);
 		if (!displayArea) {
 			return;
@@ -1269,6 +1270,60 @@ function whenPageLoaded(fn) {
 				];
 
 				addLinksToAccountArea('fine', 'span', displayLinks);
+			}, 100);
+		}
+	});
+
+	// prm-loans
+	app.component("prmLoansAfter", {
+		controller: function ($scope) {
+			setInterval(() => {
+				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
+				const displayLinks = [
+					{
+						url: 'https://web.library.uq.edu.au/find-and-borrow/borrow-library',
+						title: 'Help for loans, renewing, recalls, and returns',
+					}
+				];
+
+				addLinksToAccountArea('loan', 'span', displayLinks);
+			}, 100);
+		}
+	});
+
+	// prm-messages-and-blocks
+	app.component("prmMessagesAndBlocksAfter", {
+		controller: function ($scope) {
+			setInterval(() => {
+				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
+				const displayLinks = [
+					{
+						url: 'https://web.library.uq.edu.au/find-and-borrow/borrow-library/borrowing-rules-and-charges',
+						title: 'Borrowing rules',
+					}
+				];
+
+				addLinksToAccountArea('messages-and-block', 'span', displayLinks);
+			}, 100);
+		}
+	});
+
+	// prm-personal-info
+	app.component("prmPersonalInfoAfter", {
+		controller: function ($scope) {
+			setInterval(() => {
+				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
+				const displayLinks = [
+					{
+						url: 'https://web.library.uq.edu.au/find-and-borrow/library-memberships',
+						title: 'Update your details',
+					}, {
+						url: 'https://guides.library.uq.edu.au/how-to-find/using-library-search/save-options-and-alerts#s-lg-box-22848997',
+						title: 'Information on search history',
+					}
+				];
+
+				addLinksToAccountArea('personal-info', 'span', displayLinks);
 			}, 100);
 		}
 	});
