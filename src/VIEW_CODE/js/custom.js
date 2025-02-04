@@ -1213,7 +1213,7 @@ function whenPageLoaded(fn) {
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
-				const displayArea = document.querySelector('prm-requests');
+				const displayArea = document.querySelector('prm-requests .header-subtitle');
 				if (!displayArea) {
 					return;
 				}
@@ -1230,7 +1230,7 @@ function whenPageLoaded(fn) {
 					return;
 				}
 				insertionPoint.id = wrapperId;
-				insertionPoint.setAttribute('style', 'padding-block: 1em');
+				insertionPoint.classList.add('stackable-links', 'stackable-links-requests');
 				displayArea.insertBefore(insertionPoint, displayArea.firstChild);
 
 				[
@@ -1271,6 +1271,7 @@ function whenPageLoaded(fn) {
 					return;
 				}
 				insertionPoint.id = wrapperId;
+				insertionPoint.classList.add('stackable-links', 'stackable-links-fines');
 				displayArea.insertBefore(insertionPoint, displayArea.firstChild);
 
 				[
