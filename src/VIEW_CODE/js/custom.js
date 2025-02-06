@@ -209,14 +209,18 @@ function whenPageLoaded(fn) {
 	// we dont always like their icons, so we just remove their icon and insert one we like
 	// icons provided by OMC
 	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier) {
+        console.log('rewriteProvidedPrimoButton', `(${primoIdentifier})`, buttonOptions);
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
+            console.log('rewriteProvidedPrimoButton no button, return', `(${primoIdentifier})`);
 			return;
 		}
 
 		const awaitSVG = setInterval(() => {
+            console.log('rewriteProvidedPrimoButton awaitSVG', `(${primoIdentifier})`);
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
+                console.log('rewriteProvidedPrimoButton awaitSVG found', `(${primoIdentifier})`);
 				clearInterval(awaitSVG);
 
 				// clean primo-provided insides of button
@@ -247,6 +251,7 @@ function whenPageLoaded(fn) {
 				const menuItem = document.querySelector(primoIdentifier + ' button');
 				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
 				!!menuItem && menuItem.setAttribute('data-testid', buttonOptions.id);
+                console.log('rewriteProvidedPrimoButton awaitSVG done', `(${primoIdentifier})`);
 			}
 		}, 250);
 	}
@@ -1153,27 +1158,37 @@ function whenPageLoaded(fn) {
 	// prm-alma-viewit-items
 	app.component("prmAlmaViewitItemsAfter", {
 		controller: function ($scope) {
-			const awaitViewItEntries = setInterval(() => {
-				const listViewItParent = document.querySelector('prm-full-view prm-full-view-service-container prm-alma-viewit prm-alma-viewit-items:first-of-type');
-				const listViewItEntries = !!listViewItParent && listViewItParent.querySelectorAll('.item-title.md-primoExplore-theme');
-				if (!listViewItEntries || listViewItEntries.length === 0) {
-					return;
-				}
-
-				clearInterval(awaitViewItEntries);
-
+			function addPrefixToLinks(listViewItEntries) {
 				listViewItEntries.forEach((element) => {
-					const prependText = 'View online';
-					if (!element?.parentNode?.textContent.includes(prependText) &&
-						!element?.parentNode?.textContent.startsWith('UQ eSpace')
+					if (!element?.parentNode?.textContent.includes('View online') &&
+						!element?.parentNode?.textContent.startsWith('View') &&
+						!element?.parentNode?.textContent.startsWith('UQ eSpace') &&
+						!element?.parentNode?.textContent.startsWith('Information ')
 					) {
-						const labelText = document.createTextNode(`${prependText}: `);
+						const labelText = document.createTextNode(`View online: `);
 						const labelTextBlock = document.createElement('span');
 						!!labelTextBlock && labelTextBlock.classList.add('internalTitle');
 						!!labelTextBlock && !!labelText && labelTextBlock.appendChild(labelText);
 						!!element && !!labelTextBlock && element.parentNode.insertBefore(labelTextBlock, element);
 					}
 				})
+			}
+
+			// add "View online" to selected items
+			const awaitViewItEntries = setInterval(() => {
+				const listViewItParent = document.querySelector('prm-full-view prm-full-view-service-container prm-alma-viewit prm-alma-viewit-items:first-of-type');
+				const listViewItEntries = !!listViewItParent && listViewItParent.querySelectorAll('.item-title.md-primoExplore-theme');
+				if (!listViewItEntries || listViewItEntries.length === 0) {
+					return;
+				}
+				clearInterval(awaitViewItEntries);
+
+				addPrefixToLinks(listViewItEntries);
+
+				const listViewItAdditionalParent = document.querySelector('prm-full-view prm-full-view-service-container prm-alma-viewit prm-alma-viewit-items:nth-of-type(2)');
+				const listViewItAdditionalEntries = !!listViewItAdditionalParent && listViewItAdditionalParent.querySelectorAll('.item-title.md-primoExplore-theme');
+				addPrefixToLinks(listViewItAdditionalEntries);
+
 			}, 100);
 		}
 	});
