@@ -1084,13 +1084,18 @@ function whenPageLoaded(fn) {
 					return newId;
 				}
 
-				const awaitAvailabilityEntries = setInterval(() => {
-					clearInterval(awaitAvailabilityEntries); // short delay to let it load
-
-					// get the entries that are in certain facet sections
-					['Show only', 'New records'].map(facetLabel => {
+				['Show only', 'New records'].map(facetLabel => {
+					const awaitFacetGroup = setInterval(() => {
+						// wait for this facet section to load
+						const facetGroup = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space`);
+						if (!facetGroup) {
+							return; // sidebar not available yet
+						}
+						// get any that don't have our manual-count class yet
 						const elementList = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space:not(:has(.manual-count))`);
 						if (!!elementList && elementList.length > 0) {
+							clearInterval(awaitFacetGroup);
+
 							elementList.forEach((element) => {
 								const checkById = `prm-facet-group:has([title="${facetLabel}"]) ` + getNewItemId(element);
 								const checkByIdElement = document.querySelector(checkById);
@@ -1105,8 +1110,8 @@ function whenPageLoaded(fn) {
 								}
 							});
 						}
-					})
-				}, 100);
+					}, 100);
+				})
 			}
 		},
 		template: '',
