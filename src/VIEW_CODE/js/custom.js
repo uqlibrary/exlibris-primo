@@ -507,7 +507,7 @@ function whenPageLoaded(fn) {
 		controller: function ($scope) {
 			// move the primo-login-bar up so it overlaps uq-site-header and is visually one bar
 			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
-			!!primoLoginBar && (primoLoginBar.style.marginTop = '-61px');
+			!!primoLoginBar && primoLoginBar.classList.add('mergeup');
 		},
 		template: "",
 	});
@@ -597,7 +597,7 @@ function whenPageLoaded(fn) {
 		},
 		template:
 			'<div ng-if="$ctrl.targeturl"><getit-link-service>' +
-			'<a ng-href="{{$ctrl.targeturl}}" target="_blank" class="report-a-problem">Report a Problem</a>' +
+			'<a ng-href="{{$ctrl.targeturl}}" target="_blank" class="md-button md-primary report-a-problem">Report a Problem</a>' +
 			"</getit-link-service></div>",
 	});
 
@@ -1164,7 +1164,7 @@ function whenPageLoaded(fn) {
 	app.component("prmAlmaViewitItemsAfter", {
 		controller: function ($scope) {
 			function addPrefixToLinks(listViewItEntries) {
-				listViewItEntries.forEach((element) => {
+				listViewItEntries?.forEach((element) => {
 					if (!element?.parentNode?.textContent.includes('View online') &&
 						!element?.parentNode?.textContent.startsWith('View') &&
 						!element?.parentNode?.textContent.startsWith('UQ eSpace') &&
