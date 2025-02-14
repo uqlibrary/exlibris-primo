@@ -32,7 +32,7 @@ function whenPageLoaded(fn) {
 	const primoHomepageLink = `https://${window.location.hostname}/discovery/search?vid=${vidParam}&offset=0`;
 
 	// this should only be needed for primo ve test - we should be back to 2 domains when VE goes live
-	function isDomainPrimoVETest() {
+	function isDomainPrimoProdVE() {
 		return window.location.hostname === "uq.primo.exlibrisgroup.com";
 	}
 
@@ -47,7 +47,7 @@ function whenPageLoaded(fn) {
 		if (isDomainProd()) {
 			primoHomepageLabel = `Library Search${labelModifier}`
 			// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
-		} else if (isDomainPrimoVETest()) {
+		} else if (isDomainPrimoProdVE()) {
 			primoHomepageLabel = `PRIMO VE TEST${labelModifier}`;
 		} else {
 			primoHomepageLabel = `SANDBOX${labelModifier}`;
@@ -1391,13 +1391,12 @@ function whenPageLoaded(fn) {
 			folder = "-development/primo-prod-dev/";
 		}
 		// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
-	} else if (isDomainPrimoVETest()) {
+	} else if (isDomainPrimoProdVE()) {
 		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
-		} else {
-			folder = "-development/primo-prod/";
 		}
 	} else {
+		// covers both pre-VE sandbox and VE sandbox
 		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-sandbox-dev/";
 		} else if (/vid=61UQ_INST:61UQ/.test(window.location.href)) {
