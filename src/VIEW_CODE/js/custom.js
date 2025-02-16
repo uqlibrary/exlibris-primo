@@ -32,7 +32,7 @@ function whenPageLoaded(fn) {
 	const primoHomepageLink = `https://${window.location.hostname}/discovery/search?vid=${vidParam}&offset=0`;
 
 	// this should only be needed for primo ve test - we should be back to 2 domains when VE goes live
-	function isDomainPrimoProdVE() {
+	function isDomainPrimoVETest() {
 		return window.location.hostname === "uq.primo.exlibrisgroup.com";
 	}
 
@@ -47,7 +47,7 @@ function whenPageLoaded(fn) {
 		if (isDomainProd()) {
 			primoHomepageLabel = `Library Search${labelModifier}`
 			// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
-		} else if (isDomainPrimoProdVE()) {
+		} else if (isDomainPrimoVETest()) {
 			primoHomepageLabel = `PRIMO VE TEST${labelModifier}`;
 		} else {
 			primoHomepageLabel = `SANDBOX${labelModifier}`;
@@ -206,21 +206,16 @@ function whenPageLoaded(fn) {
 			"</md-menu-item>\n";
 	}
 
-	// we dont always like their icons, so we just remove their icon and insert one we like
-	// icons provided by OMC
+	// remove their icon and insert one we like - icons provided by OMC
 	function rewriteProvidedPrimoButton(buttonOptions, primoIdentifier) {
-        console.log('rewriteProvidedPrimoButton', `(${primoIdentifier})`, buttonOptions);
 		const button = document.querySelector(primoIdentifier + " button");
 		if (!button) {
-            console.log('rewriteProvidedPrimoButton no button, return', `(${primoIdentifier})`);
 			return;
 		}
 
 		const awaitSVG = setInterval(() => {
-            console.log('rewriteProvidedPrimoButton awaitSVG', `(${primoIdentifier})`);
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
-                console.log('rewriteProvidedPrimoButton awaitSVG found', `(${primoIdentifier})`);
 				clearInterval(awaitSVG);
 
 				// clean primo-provided insides of button
@@ -251,7 +246,6 @@ function whenPageLoaded(fn) {
 				const menuItem = document.querySelector(primoIdentifier + ' button');
 				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
 				!!menuItem && menuItem.setAttribute('data-testid', buttonOptions.id);
-                console.log('rewriteProvidedPrimoButton awaitSVG done', `(${primoIdentifier})`);
 			}
 		}, 250);
 	}
@@ -1387,19 +1381,18 @@ function whenPageLoaded(fn) {
 	// this script should only be called on views that have UQ header showing
 	var folder = "/"; // default. Use for prod.
 	if (isDomainProd()) {
-		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
+		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-prod-dev/";
 		}
 		// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
-	} else if (isDomainPrimoProdVE()) {
-		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
+	} else if (isDomainPrimoVETest()) {
+		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-prod-dev/";
 		}
 	} else {
-		// covers both pre-VE sandbox and VE sandbox
-		if (/vid=61UQ_INST:61UQ_APPDEV/.test(window.location.href)) {
+		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-sandbox-dev/";
-		} else if (/vid=61UQ_INST:61UQ/.test(window.location.href)) {
+		} else if (vidParam === '61UQ_INST:61UQ') {
 			folder = "-development/primo-sandbox/";
 		}
 	}
