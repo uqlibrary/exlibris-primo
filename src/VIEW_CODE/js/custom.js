@@ -497,11 +497,11 @@ function whenPageLoaded(fn) {
 		},
 	});
 
-	app.component("prmSearchBookmarkFilterAfter", {
+	app.component("prmSearchBookmarkFilterAfter", { // prm-search-bookmark-filter-after
 		controller: function ($scope) {
 			// move the primo-login-bar up so it overlaps uq-site-header and is visually one bar
 			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
-			!!primoLoginBar && primoLoginBar.classList.add('mergeup');
+			!!primoLoginBar && !primoLoginBar.classList.contains('mergeup') && primoLoginBar.classList.add('mergeup');
 		},
 		template: "",
 	});
@@ -891,10 +891,22 @@ function whenPageLoaded(fn) {
 
 	}
 
+	const unavailableStatusClass = 'uql-availability-status-unavailable';
+	function highlightUnavailableResources(availabilityElement) {
+		const textContent = availabilityElement.textContent;
+		if ((textContent.includes("Check availability") || textContent.includes("Access conditions apply")) &&
+			!availabilityElement.classList.contains(unavailableStatusClass)
+		) {
+			availabilityElement.classList.add(unavailableStatusClass);
+			return true;
+		}
+		return false;
+	}
+
 	// loosely based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
 	// and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
 	// check for a reading list in the full results page and add an indicator and list if so
-	app.component("prmServiceDetailsAfter", {
+	app.component("prmServiceDetailsAfter", { // prm-service-details-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			var vm = this;
@@ -908,6 +920,21 @@ function whenPageLoaded(fn) {
 				if (!isFullDisplayPage()) {
 					return;
 				}
+				// Adjust FULL results display
+
+				// style the availability line
+				const waitForAvailability = setInterval(() => {
+					const availabilityElement = document.querySelector(`prm-full-view-service-container prm-search-result-availability-line .availability-status:not(.${unavailableStatusClass})`);
+					if (!availabilityElement) {
+						return;
+					}
+					const updated = highlightUnavailableResources(availabilityElement);
+
+					// there can be multiple availability lines, although only one will be need this unavailable status, so we cant always clear yet
+					if (!!updated || availabilityElement.textContent.startsWith("Available at")) {
+						clearInterval(waitForAvailability);
+					}
+				}, 100);
 
 				let courseList = {}; // associative arrays are done in js as objects
 
@@ -994,8 +1021,8 @@ function whenPageLoaded(fn) {
 			"</div>",
 	});
 
-	// check for a reading list on each result in the brief result list (search results) and add an indicator if so
-	app.component("prmBriefResultContainerAfter", {
+	// brief result in list may have additional icons and styled availability
+	app.component("prmBriefResultContainerAfter", { // prm-brief-result-container-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			var vm = this;
@@ -1006,6 +1033,8 @@ function whenPageLoaded(fn) {
 				if (!!isFullDisplayPage()) {
 					return;
 				}
+
+				// Adjust repeating BRIEF results display
 
 				function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall) {
 					const url = listTalisUrls.shift();
@@ -1032,6 +1061,7 @@ function whenPageLoaded(fn) {
 						});
 				}
 
+				// check for a reading list on each result in the brief result list (search results) and add an indicator if so
 				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
 				!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
 
@@ -1045,6 +1075,18 @@ function whenPageLoaded(fn) {
 				if (!!culturalAdviceDisplayRequired && !!recordId) {
 					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType);
 				}
+
+				// style the availability statement to spec (grey when unavailable)
+				const availabilityLoad = setInterval(() => {
+					const sectionWrapper = parentCtrl.$element[0];
+					const availabilityElement = !!sectionWrapper && sectionWrapper.querySelector('.search-result-availability-line-wrapper span.availability-status');
+					if (!availabilityElement) {
+						return;
+					}
+
+					clearInterval(availabilityLoad);
+					!!availabilityElement && highlightUnavailableResources(availabilityElement);
+				}, 100);
 			};
 		},
 		template: "",
@@ -1158,7 +1200,11 @@ function whenPageLoaded(fn) {
 	app.component("prmAlmaViewitItemsAfter", {
 		controller: function ($scope) {
 			function addPrefixToLinks(listViewItEntries) {
-				listViewItEntries?.forEach((element) => {
+				!!listViewItEntries &&
+				Array.isArray(listViewItEntries) &&
+				listViewItEntries.length > 0 &&
+				listViewItEntries.forEach((element) =>
+				{
 					if (!element?.parentNode?.textContent.includes('View online') &&
 						!element?.parentNode?.textContent.startsWith('View') &&
 						!element?.parentNode?.textContent.startsWith('UQ eSpace') &&
