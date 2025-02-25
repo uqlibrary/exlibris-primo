@@ -591,7 +591,9 @@ function whenPageLoaded(fn) {
 		},
 		template:
 			'<div ng-if="$ctrl.targeturl"><getit-link-service>' +
-			'<a ng-href="{{$ctrl.targeturl}}" target="_blank" class="md-button md-primary report-a-problem">Report a Problem</a>' +
+			'<a ng-href="{{$ctrl.targeturl}}" target="_blank" class="md-button md-primary report-a-problem">' +
+			'<span>Report a Problem</span>' +
+			'</a>' +
 			"</getit-link-service></div>",
 	});
 
