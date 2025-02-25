@@ -1202,8 +1202,7 @@ function whenPageLoaded(fn) {
 	app.component("prmAlmaViewitItemsAfter", {
 		controller: function ($scope) {
 			function addPrefixToLinks(listViewItEntries) {
-				!!listViewItEntries &&
-				Array.isArray(listViewItEntries) &&
+                !!listViewItEntries &&
 				listViewItEntries.length > 0 &&
 				listViewItEntries.forEach((element) =>
 				{
