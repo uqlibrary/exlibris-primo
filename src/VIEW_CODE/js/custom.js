@@ -938,6 +938,32 @@ function whenPageLoaded(fn) {
 					}
 				}, 100);
 
+				function addCRLButtontoSidebar() {
+					// show the label in two spans so we can make it look wrapped
+					const label1 = document.createTextNode('Course Reading');
+					const span1 = document.createElement('span');
+					!!label1 && !!span1 && span1.appendChild(label1);
+					const label2 = document.createTextNode('Lists');
+					const span2 = document.createElement('span');
+					!!span2 && (span2.style.display = 'block');
+					!!span2 && (span2.style.marginTop = '-16px');
+					!!label2 && !!span2 && span2.appendChild(label2);
+
+					const crlSidebarButton = document.createElement('button');
+					!!crlSidebarButton && crlSidebarButton.classList.add('zero-margin', 'button-right-align', 'button-link', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple');
+					!!crlSidebarButton && (crlSidebarButton.onclick = function () {
+						document.getElementById('full-view-section-courseReadingLists').scrollIntoView({behavior: 'smooth'});
+					});
+					!!crlSidebarButton && (crlSidebarButton.type = 'button');
+					!!crlSidebarButton && (crlSidebarButton.ariaLabel = "Course Reading Lists");
+					!!span1 && !!crlSidebarButton && crlSidebarButton.appendChild(span1);
+					!!span2 && !!crlSidebarButton && crlSidebarButton.appendChild(span2);
+
+					// add our new button immediately after the details button so it is in the same order as the main panel
+					const detailsButton = document.querySelector('button:has([translate="brief.results.tabs.details"])');
+					detailsButton.insertAdjacentElement('afterend', crlSidebarButton);
+				}
+
 				let courseList = {}; // associative arrays are done in js as objects
 
 				async function getTalisDataFromAllApiCalls(listUrls) {
@@ -980,6 +1006,8 @@ function whenPageLoaded(fn) {
 									const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
 									$scope.talisCourses[talisUrl] = subjectCode;
 								});
+
+								addCRLButtontoSidebar();
 							}
 						});
 				}
@@ -1013,8 +1041,11 @@ function whenPageLoaded(fn) {
 			};
 		},
 		template:
-			'<div class="readingListCitations" ng-show="hasCourses">' +
-			"<h4>Course reading lists</h4>" +
+			'<div class="full-view-section readingListCitations" ng-show="hasCourses">' +
+			'<div layout="row" layout-align="center center" class="layout-align-center-center layout-row">' +
+				'<h4 id="full-view-section-courseReadingLists" class="section-title md-title light-text" style="font-weight: 300; margin-left: -30px;">Course reading lists</h4>' +
+				'<md-divider flex="" class="md-primoExplore-theme flex"></md-divider>' +
+			'</div>' +
 			"<ul>" +
 			'<li ng-repeat="(url,listname) in talisCourses">' +
 			'<a href="{{url}}" target="_blank">{{listname}} </a>' +
