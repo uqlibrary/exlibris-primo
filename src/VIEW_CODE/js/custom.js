@@ -990,9 +990,13 @@ function whenPageLoaded(fn) {
 								'<div class="section-body">' +
 									'<div>' +
 										'<prm-service-details>' +
-											"<ul>";
+											'<ul class="course-resource-list">';
                     for (const [url, displayName] of Object.entries(talisCourses)) {
-                        htmlContent += `<li><a href="${url}" target="_blank">${displayName}</a></li>`;
+                        htmlContent += `<li>' +
+											'<a class="button-as-link link-alt-color md-button md-primoExplore-theme md-ink-ripple" href="${url}" target="_blank">' + 
+												'<span>${displayName}</span>' + 
+											'</a>' + 
+										'</li>`;
                     }
 					htmlContent += '' +
 											"</ul>" +
