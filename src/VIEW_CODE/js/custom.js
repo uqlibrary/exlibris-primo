@@ -916,8 +916,7 @@ function whenPageLoaded(fn) {
 			var safeReadingListBaseUrl = 'https://uq.rl.talis.com';
 
 			this.$onInit = function () {
-				$scope.talisCourses = [];
-				$scope.hasCourses = false;
+				const talisCourses  = {};
 
 				if (!isFullDisplayPage()) {
 					return;
@@ -951,17 +950,67 @@ function whenPageLoaded(fn) {
 
 					const crlSidebarButton = document.createElement('button');
 					!!crlSidebarButton && crlSidebarButton.classList.add('zero-margin', 'button-right-align', 'button-link', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple');
-					!!crlSidebarButton && (crlSidebarButton.onclick = function () {
-						document.getElementById('full-view-section-courseReadingLists').scrollIntoView({behavior: 'smooth'});
-					});
 					!!crlSidebarButton && (crlSidebarButton.type = 'button');
 					!!crlSidebarButton && (crlSidebarButton.ariaLabel = "Course Reading Lists");
 					!!span1 && !!crlSidebarButton && crlSidebarButton.appendChild(span1);
 					!!span2 && !!crlSidebarButton && crlSidebarButton.appendChild(span2);
+					!!crlSidebarButton && (crlSidebarButton.onclick = function () {
+						document.querySelector('#full-view-section-courseReadingLists h4').scrollIntoView({behavior: 'smooth'});
+
+						// put big left bracket style on CRL block
+						const crlSection = document.getElementById('full-view-section-courseReadingLists');
+						!!crlSection && crlSection.classList.add('section-focused');
+
+						// let the big bracket fade out after one second
+						setTimeout(() => {
+							!!crlSection && crlSection.classList.contains('section-focused') && crlSection.classList.remove('section-focused');
+						}, 1000);
+					});
 
 					// add our new button immediately after the details button so it is in the same order as the main panel
 					const detailsButton = document.querySelector('button:has([translate="brief.results.tabs.details"])');
 					detailsButton.insertAdjacentElement('afterend', crlSidebarButton);
+                }
+
+                function createAndAppendCourseList() {
+                    const targetElement = document.querySelector('div#details');
+
+                    let htmlContent = '' +
+						'<div class="full-view-section-content">' +
+							'<prm-full-view-service-container>' +
+								'<div class="section-head">' +
+									'<prm-service-header>' +
+										'<div layout="row" layout-align="center center" class="layout-align-center-center layout-row">' +
+											'<h4 class="section-title md-title light-text">Course reading lists</h4>' +
+											'<md-divider flex="" class="md-primoExplore-theme flex"></md-divider>' +
+										'</div>' +
+										'<prm-service-header-after parent-ctrl="$ctrl"></prm-service-header-after>' +
+									'</prm-service-header>' +
+								'</div>' +
+								'<div class="section-body">' +
+									'<div>' +
+										'<prm-service-details>' +
+											"<ul>";
+                    for (const [url, displayName] of Object.entries(talisCourses)) {
+                        htmlContent += `<li><a href="${url}" target="_blank">${displayName}</a></li>`;
+                    }
+					htmlContent += '' +
+											"</ul>" +
+										'</prm-service-details>' +
+									'</div>' +
+								'</div>' +
+							'</prm-full-view-service-container>' +
+						'</div>';
+
+                    // Create a temporary container to attach the HTML
+                    const tempContainer = document.createElement('div');
+                    !!tempContainer && tempContainer.classList.add('full-view-section', 'readingListCitations');
+                    !!tempContainer && (tempContainer.id = "full-view-section-courseReadingLists");
+                    !!tempContainer && (tempContainer.tabindex = "-1");
+                    tempContainer.innerHTML = htmlContent;
+
+                    // Insert the course list as the first child of the target element
+					targetElement.insertAdjacentElement("afterend", tempContainer);
 				}
 
 				let courseList = {}; // associative arrays are done in js as objects
@@ -984,14 +1033,11 @@ function whenPageLoaded(fn) {
 						})
 						.finally(() => {
 							if (Object.keys(courseList).length > 0) {
-								$scope.hasCourses = true;
-
 								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 								if (!!recordid) {
 									addCourseResourceIndicatorToHeader(recordid, "full");
 								}
 
-								$scope.talisCourses = {};
 								// sort by course code for display
 								let sortable = [];
 								for (let talisUrl in courseList) {
@@ -1004,16 +1050,17 @@ function whenPageLoaded(fn) {
 								sortable.forEach((entry) => {
 									const subjectCode = entry[1];
 									const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
-									$scope.talisCourses[talisUrl] = subjectCode;
+									talisCourses[talisUrl] = subjectCode;
 								});
+
+                                createAndAppendCourseList();
 
 								addCRLButtontoSidebar();
 							}
 						});
 				}
 
-				function fixUnsafeReadingListUrl(url)
-				{
+                function fixUnsafeReadingListUrl(url) {
 					return url.replace(unsafeReadingListBaseUrl, safeReadingListBaseUrl);
 				}
 
@@ -1040,18 +1087,7 @@ function whenPageLoaded(fn) {
 				}
 			};
 		},
-		template:
-			'<div class="full-view-section readingListCitations" ng-show="hasCourses">' +
-			'<div layout="row" layout-align="center center" class="layout-align-center-center layout-row">' +
-				'<h4 id="full-view-section-courseReadingLists" class="section-title md-title light-text" style="font-weight: 300; margin-left: -30px;">Course reading lists</h4>' +
-				'<md-divider flex="" class="md-primoExplore-theme flex"></md-divider>' +
-			'</div>' +
-			"<ul>" +
-			'<li ng-repeat="(url,listname) in talisCourses">' +
-			'<a href="{{url}}" target="_blank">{{listname}} </a>' +
-			"</li>" +
-			"</ul>" +
-			"</div>",
+        template: '',
 	});
 
 	// brief result in list may have additional icons and styled availability
