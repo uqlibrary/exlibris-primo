@@ -992,11 +992,11 @@ function whenPageLoaded(fn) {
 										'<prm-service-details>' +
 											'<ul class="course-resource-list">';
                     for (const [url, displayName] of Object.entries(talisCourses)) {
-                        htmlContent += `<li>' +
-											'<a class="button-as-link link-alt-color md-button md-primoExplore-theme md-ink-ripple" href="${url}" target="_blank">' + 
-												'<span>${displayName}</span>' + 
+                        htmlContent += '<li>' +
+											`<a class="button-as-link link-alt-color md-button md-primoExplore-theme md-ink-ripple" href="${url}" target="_blank">` +
+												`<span>${displayName}</span>` +
 											'</a>' + 
-										'</li>`;
+										'</li>';
                     }
 					htmlContent += '' +
 											"</ul>" +
