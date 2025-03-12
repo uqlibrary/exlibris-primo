@@ -1098,7 +1098,6 @@ function whenPageLoaded(fn) {
 	app.component("prmBriefResultContainerAfter", { // prm-brief-result-container-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
-			console.log('### prmBriefResultContainerAfter start');
 			var vm = this;
 
 			this.$onInit = function () {
@@ -1107,21 +1106,37 @@ function whenPageLoaded(fn) {
 				const parentCtrl = $scope.$ctrl.parentCtrl;
 				const sectionWrapper = parentCtrl.$element[0];
 
-				function showsLabel(element, searchText) {
-					const walker = document.createTreeWalker(
-						element,
-						NodeFilter.SHOW_TEXT,
-						null
-					);
+				function getSvgIcon(element) {
+					const muiIconHighlightOff = '<path d="M14.59 8 12 10.59 9.41 8 8 9.41 10.59 12 8 14.59 9.41 16 12 13.41 14.59 16 16 14.59 13.41 12 16 9.41zM12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path>';
+					const muiIconRemoveCircleOutline = '<path d="M7 11v2h10v-2zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path>';
+					const muiIconReview = '<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.17L4 17.17V4h16z"></path><path d="m12 15 1.57-3.43L17 10l-3.43-1.57L12 5l-1.57 3.43L7 10l3.43 1.57z"></path>';
 
-					let currentNode;
-					while (currentNode = walker.nextNode()) {
-						if (currentNode.textContent.trim() === searchText) {
-							return true;
-						}
+					const isPreprint = element.querySelector('span[translate="attribute.preprint"]');
+					const isPrimarySource = element.querySelector('span[translate="attribute.primary_source"]');
+					const isReviewArticle = element.querySelector('span[translate="attribute.review_article"]');
+
+					const isPublicationWithAddendum = element.querySelector('span[translate="attribute.publication_addendum"]');
+					const isPublicationExpressionConcern = element.querySelector('span[translate="attribute.publication_exp_concern"]');
+					const isPublicationWithCorrigendum = element.querySelector('span[translate="attribute.publication_corrigendum"]');
+
+					const isRetractedPublication = element.querySelector('span[translate="attribute.retracted_publication"]');
+					const isRetractionNotice = element.querySelector('span[translate="attribute.retraction_notice"]');
+					const isWithdrawnNotice = element.querySelector('span[translate="attribute.withdrawal_notice"]');
+					const isWithdrawnPublication = element.querySelector('span[translate="attribute.withdrawn_publication"]');
+
+					let childSvg = null;
+					if (isRetractionNotice || isRetractedPublication || isWithdrawnNotice || isWithdrawnPublication) {
+						childSvg = '<svg class="retracted" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconHighlightOff + '</svg>';
 					}
-					return false;
+					if (isPublicationWithCorrigendum || isPublicationWithAddendum || isPublicationExpressionConcern) {
+						childSvg = '<svg class="changed" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconRemoveCircleOutline + '</svg>';
+					}
+					if (isReviewArticle || isPrimarySource || isPreprint) {
+						childSvg = '<svg class="regular" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconReview + '</svg>';
+					}
+					return childSvg;
 				}
+
 				function moveBadgeItems(parentRow) {
 					const elementsToMove = parentRow.querySelectorAll(
 						'.prm-cdi-attributes-warning, .prm-cdi-attributes-regular'
@@ -1131,30 +1146,18 @@ function whenPageLoaded(fn) {
 					}
 
 					const sibling =  parentRow.querySelector('.layout-row:has(>.layout-row)');
-					// Create new container
 					const newRow = document.createElement('div');
 					!!newRow && newRow.classList.add('layout-row', 'layout-row-followup');
-					// Move elements to new container
 					elementsToMove.forEach(element => {
-						let childSvg = null;
-						const isRetractedPublication = element.querySelector('span[translate="attribute.retracted_publication"]');
-						if (isRetractedPublication) {
-							console.log('is retracted_publication');
-							childSvg = `<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M14.59 8 12 10.59 9.41 8 8 9.41 10.59 12 8 14.59 9.41 16 12 13.41 14.59 16 16 14.59 13.41 12 16 9.41zM12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg>`
-						}
-						// if (showsLabel(element, 'RETRACTION NOTICE')) {
-						// } else if (showsLabel(element, 'PUBLICATION WITH CORRIGENDUM')) {
-						// } else if (showsLabel(element, 'REVIEW ARTICLE')) {
+						const childSvg = getSvgIcon(element);
 						if (!!childSvg) {
 							const svgTemplate = document.createElement('template');
 							svgTemplate.innerHTML = childSvg.trim();
 							element.insertBefore(svgTemplate.content.firstChild, element.firstChild);
 						}
-
 						newRow.appendChild(element);
 					});
 
-					// Insert new row after original parent
 					sibling.insertAdjacentElement('afterend', newRow);
 				}
 
