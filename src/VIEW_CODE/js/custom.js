@@ -1136,6 +1136,21 @@ function whenPageLoaded(fn) {
 					!!newRow && newRow.classList.add('layout-row', 'layout-row-followup');
 					// Move elements to new container
 					elementsToMove.forEach(element => {
+						let childSvg = null;
+						const isRetractedPublication = element.querySelector('span[translate="attribute.retracted_publication"]');
+						if (isRetractedPublication) {
+							console.log('is retracted_publication');
+							childSvg = `<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M14.59 8 12 10.59 9.41 8 8 9.41 10.59 12 8 14.59 9.41 16 12 13.41 14.59 16 16 14.59 13.41 12 16 9.41zM12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg>`
+						}
+						// if (showsLabel(element, 'RETRACTION NOTICE')) {
+						// } else if (showsLabel(element, 'PUBLICATION WITH CORRIGENDUM')) {
+						// } else if (showsLabel(element, 'REVIEW ARTICLE')) {
+						if (!!childSvg) {
+							const svgTemplate = document.createElement('template');
+							svgTemplate.innerHTML = childSvg.trim();
+							element.insertBefore(svgTemplate.content.firstChild, element.firstChild);
+						}
+
 						newRow.appendChild(element);
 					});
 
