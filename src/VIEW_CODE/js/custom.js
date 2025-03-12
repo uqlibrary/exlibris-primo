@@ -1098,10 +1098,67 @@ function whenPageLoaded(fn) {
 	app.component("prmBriefResultContainerAfter", { // prm-brief-result-container-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
+			console.log('### prmBriefResultContainerAfter start');
 			var vm = this;
 
 			this.$onInit = function () {
 				$scope.listsFound = null;
+
+				const parentCtrl = $scope.$ctrl.parentCtrl;
+				const sectionWrapper = parentCtrl.$element[0];
+
+				function showsLabel(element, searchText) {
+					const walker = document.createTreeWalker(
+						element,
+						NodeFilter.SHOW_TEXT,
+						null
+					);
+
+					let currentNode;
+					while (currentNode = walker.nextNode()) {
+						if (currentNode.textContent.trim() === searchText) {
+							return true;
+						}
+					}
+					return false;
+				}
+				function moveBadgeItems(parentRow) {
+					const elementsToMove = parentRow.querySelectorAll(
+						'.prm-cdi-attributes-warning, .prm-cdi-attributes-regular'
+					);
+					if (!elementsToMove) {
+						return; // Exit if parent not found
+					}
+
+					const sibling =  parentRow.querySelector('.layout-row:has(>.layout-row)');
+					// Create new container
+					const newRow = document.createElement('div');
+					!!newRow && newRow.classList.add('layout-row', 'layout-row-followup');
+					// Move elements to new container
+					elementsToMove.forEach(element => {
+						newRow.appendChild(element);
+					});
+
+					// Insert new row after original parent
+					sibling.insertAdjacentElement('afterend', newRow);
+				}
+
+				const maxLoop = 20;
+				let loopCounter = 0;
+				const awaitIndicators = setInterval(() => {
+					loopCounter++;
+					if (loopCounter > maxLoop) {
+						clearInterval(awaitIndicators);
+					}
+
+					const hasLayoutChildren = sectionWrapper.querySelector('.layout-row:has(.layout-row)');
+					if (!hasLayoutChildren) {
+						return;
+					}
+					clearInterval(awaitIndicators);
+
+					!!sectionWrapper && moveBadgeItems(sectionWrapper);
+				}, 100);
 
 				if (!!isFullDisplayPage()) {
 					return;
@@ -1139,7 +1196,6 @@ function whenPageLoaded(fn) {
 				!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
 
 				// display the cultural advice indicator on appropriate records
-				const parentCtrl = $scope.$ctrl.parentCtrl;
 				const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
 				const pageType = isSelectedVersion ? 'specificversion' : 'brief';
 				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
@@ -1443,8 +1499,7 @@ function whenPageLoaded(fn) {
 		}
 	});
 
-	// prm-personal-info
-	app.component("prmPersonalInfoAfter", {
+	app.component("prmPersonalInfoAfter", { // prm-personal-info
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
