@@ -609,37 +609,37 @@ function whenPageLoaded(fn) {
 	// (this is because there are usually multiple resources, and the default one may not be the best)
 	// UPDATE! While in Primo VE this doesn't allow the record to link to the full result, removing it makes the other
 	// record types not hav an availability type, which is truly strange!
-	app.controller("prmOpenSpecificTypesInFullController", [
-		function () {
-			var vm = this;
-			vm.$onInit = function () {
-				var resourceType =
-					(!!vm.parentCtrl.result &&
-						!!vm.parentCtrl.result.pnx &&
-						!!vm.parentCtrl.result.pnx.display &&
-						!!vm.parentCtrl.result.pnx.display.type &&
-						vm.parentCtrl.result.pnx.display.type.length > 0 &&
-						vm.parentCtrl.result.pnx.display.type[0]) ||
-					"";
-				if ([
-					"journals",
-					"newspapers",
-					"magazines",
-				].includes(resourceType)) {
-					vm.parentCtrl.isDirectLink = function () {return false;};
-				}
-			};
-		},
-	]);
-	app.component("prmOpenSpecificTypesInFull", {
-		bindings: { parentCtrl: "<" },
-		controller: "prmOpenSpecificTypesInFullController",
-	});
-	app.component("prmSearchResultAvailabilityLineAfter", {
-		bindings: { parentCtrl: "<" },
-		template:
-			'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
-	});
+	// app.controller("prmOpenSpecificTypesInFullController", [
+	// 	function () {
+	// 		var vm = this;
+	// 		vm.$onInit = function () {
+	// 			var resourceType =
+	// 				(!!vm.parentCtrl.result &&
+	// 					!!vm.parentCtrl.result.pnx &&
+	// 					!!vm.parentCtrl.result.pnx.display &&
+	// 					!!vm.parentCtrl.result.pnx.display.type &&
+	// 					vm.parentCtrl.result.pnx.display.type.length > 0 &&
+	// 					vm.parentCtrl.result.pnx.display.type[0]) ||
+	// 				"";
+	// 			if ([
+	// 				"journals",
+	// 				"newspapers",
+	// 				"magazines",
+	// 			].includes(resourceType)) {
+	// 				vm.parentCtrl.isDirectLink = function () {return false;};
+	// 			}
+	// 		};
+	// 	},
+	// ]);
+	// app.component("prmOpenSpecificTypesInFull", {
+	// 	bindings: { parentCtrl: "<" },
+	// 	controller: "prmOpenSpecificTypesInFullController",
+	// });
+	// app.component("prmSearchResultAvailabilityLineAfter", { // prm-search-result-availability-line-after
+	// 	bindings: { parentCtrl: "<" },
+	// 	template:
+	// 		'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
+	// });
 
 	// There are 3 places we add the custom indicators:
 	// - on lists of search results
@@ -1158,7 +1158,7 @@ function whenPageLoaded(fn) {
 						newRow.appendChild(element);
 					});
 
-					sibling.insertAdjacentElement('afterend', newRow);
+					!!sibling && !!newRow && sibling.insertAdjacentElement('afterend', newRow);
 				}
 
 				const maxLoop = 20;
@@ -1233,6 +1233,70 @@ function whenPageLoaded(fn) {
 
 					clearInterval(availabilityLoad);
 					!!availabilityElement && highlightUnavailableResources(availabilityElement);
+				}, 100);
+
+				// redirect the `available online` click on certain records to open the full record
+				const maxLoop0 = 50;
+				let loopCounter0 = 0;
+				const awaitAnchor = setInterval(() => {
+					loopCounter0++;
+					const clickableArea = sectionWrapper.querySelector('a prm-search-result-thumbnail-container-after');
+					if (!clickableArea && loopCounter0 < maxLoop0) {
+						return;
+					}
+					clearInterval(awaitAnchor);
+
+					// putting this check here (rather than outside the Interval) allows time for the pnx to be available
+					const resourceType =
+						!!vm?.parentCtrl?.item?.pnx?.display?.type && vm.parentCtrl.item.pnx.display.type.length > 0
+							? vm.parentCtrl.item.pnx.display.type[0]
+							: "";
+					const directLinkRequired = [
+						"journals",
+						"newspapers",
+						"magazines",
+					].includes(resourceType);
+
+					if (!directLinkRequired) {
+						return;
+					}
+
+					const maxCount1 = 50;
+					let loopCount1 = 0;
+					const awaitWrapper = setInterval(() => {
+						loopCount1++;
+                        const button = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
+						if ((!button || button.length === 0) && loopCount1 < maxCount1) {
+							return;
+						}
+						clearInterval(awaitWrapper);
+
+						// we reuse prm-snippet because it is the only one that doesn't cause this weird thing where the z-index interferes with the hover on the new link
+						const availabilityChild = document.createElement("prm-snippet");
+
+						!!availabilityChild && availabilityChild.classList.add('arrow-link-button', 'availability-button');
+
+						// supply the contents of the old button to this new element (we don't need the icon)
+						!!availabilityChild && Array.from(button.children)
+							.forEach(child => {
+								child.tagName !== 'PRM-ICON' && availabilityChild.appendChild(child);
+							});
+
+						// clear out the built in icons
+						const oldLinkOutIcon = availabilityChild.querySelector('prm-icon');
+						!!oldLinkOutIcon && oldLinkOutIcon.remove();
+
+						// move the little chain-link icon from the old availability line
+						const oldAvailabilityIcon = sectionWrapper.querySelector('prm-search-result-availability-line prm-icon');
+						availabilityChild.insertAdjacentElement('afterBegin', oldAvailabilityIcon);
+
+						const availabilityLine = sectionWrapper.querySelector('prm-search-result-availability-line')
+						availabilityLine.parentNode.parentNode.appendChild(availabilityChild);
+
+						// get rid of the old availability line - its taking up space
+						const oldAvailabilityWrapper = sectionWrapper.querySelector('.search-result-availability-line-wrapper');
+						oldAvailabilityWrapper.remove();
+					}, 100);
 				}, 100);
 			};
 		},
