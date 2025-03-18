@@ -61,8 +61,8 @@ function whenPageLoaded(fn) {
 		template:
 			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
 			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
-            `<uq-site-header secondleveltitle="${(getPrimoHomepageLabel())}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
-            "<proactive-chat></proactive-chat>",
+			`<uq-site-header secondleveltitle="${(getPrimoHomepageLabel())}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
+			"<proactive-chat></proactive-chat>",
 	});
 
 	app.component("prmTopbarAfter", {
@@ -605,48 +605,12 @@ function whenPageLoaded(fn) {
 
 	/****************************************************************************************************/
 
-	// if the record is one of certain types, the 'Available Online' link should open View It, instead of jumping straight to the resource
-	// (this is because there are usually multiple resources, and the default one may not be the best)
-	// UPDATE! While in Primo VE this doesn't allow the record to link to the full result, removing it makes the other
-	// record types not hav an availability type, which is truly strange!
-	// app.controller("prmOpenSpecificTypesInFullController", [
-	// 	function () {
-	// 		var vm = this;
-	// 		vm.$onInit = function () {
-	// 			var resourceType =
-	// 				(!!vm.parentCtrl.result &&
-	// 					!!vm.parentCtrl.result.pnx &&
-	// 					!!vm.parentCtrl.result.pnx.display &&
-	// 					!!vm.parentCtrl.result.pnx.display.type &&
-	// 					vm.parentCtrl.result.pnx.display.type.length > 0 &&
-	// 					vm.parentCtrl.result.pnx.display.type[0]) ||
-	// 				"";
-	// 			if ([
-	// 				"journals",
-	// 				"newspapers",
-	// 				"magazines",
-	// 			].includes(resourceType)) {
-	// 				vm.parentCtrl.isDirectLink = function () {return false;};
-	// 			}
-	// 		};
-	// 	},
-	// ]);
-	// app.component("prmOpenSpecificTypesInFull", {
-	// 	bindings: { parentCtrl: "<" },
-	// 	controller: "prmOpenSpecificTypesInFullController",
-	// });
-	// app.component("prmSearchResultAvailabilityLineAfter", { // prm-search-result-availability-line-after
-	// 	bindings: { parentCtrl: "<" },
-	// 	template:
-	// 		'<prm-open-specific-types-in-full parent-ctrl="$ctrl.parentCtrl"></prm-open-specific-types-in-full>',
-	// });
-
 	// There are 3 places we add the custom indicators:
 	// - on lists of search results
 	// - on specific records
 	// - and... some records have an entry like "2 versions of this item See all versions"
-	// on them and when its clicked, it opens up a list view that has an extra record at the top
-	// At the top of this list view is the third place we put the custom indicator
+	//    on them and when its clicked, it opens up a list view that has an extra record at the top
+	//    At the top of this list view is the third place we put the custom indicator
 	// See canary tests for examples
 	function createCustomIconIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
 
@@ -905,10 +869,181 @@ function whenPageLoaded(fn) {
 		return false;
 	}
 
-	// loosely based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
-	// and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
-	// check for a reading list in the full results page and add an indicator and list if so
+	function styleAvailabilityStatementOnFullRecords() {
+		const waitForAvailability = setInterval(() => {
+			const availabilityElement = document.querySelector(`prm-full-view-service-container prm-search-result-availability-line .availability-status:not(.${unavailableStatusClass})`);
+			if (!availabilityElement) {
+				return;
+			}
+			const updated = highlightUnavailableResources(availabilityElement);
+
+			// there can be multiple availability lines, although only one will be need this unavailable status, so we cant always clear yet
+			if (!!updated || availabilityElement.textContent.startsWith("Available at")) {
+				clearInterval(waitForAvailability);
+			}
+		}, 100);
+	}
+
+	function addCRLButtontoSidebar() {
+		// show the label in two spans so we can make it look wrapped
+		const label1 = document.createTextNode('Course Reading');
+		const span1 = document.createElement('span');
+		!!label1 && !!span1 && span1.appendChild(label1);
+		const label2 = document.createTextNode('Lists');
+		const span2 = document.createElement('span');
+		!!span2 && (span2.style.display = 'block');
+		!!span2 && (span2.style.marginTop = '-16px');
+		!!label2 && !!span2 && span2.appendChild(label2);
+
+		const crlSidebarButton = document.createElement('button');
+		!!crlSidebarButton && crlSidebarButton.classList.add('zero-margin', 'button-right-align', 'button-link', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple');
+		!!crlSidebarButton && (crlSidebarButton.type = 'button');
+		!!crlSidebarButton && (crlSidebarButton.ariaLabel = "Course Reading Lists");
+		!!span1 && !!crlSidebarButton && crlSidebarButton.appendChild(span1);
+		!!span2 && !!crlSidebarButton && crlSidebarButton.appendChild(span2);
+		!!crlSidebarButton && (crlSidebarButton.onclick = function () {
+			document.querySelector('#full-view-section-courseReadingLists h4').scrollIntoView({behavior: 'smooth'});
+
+			// put big left bracket style on CRL block
+			const crlSection = document.getElementById('full-view-section-courseReadingLists');
+			!!crlSection && crlSection.classList.add('section-focused');
+
+			// let the big bracket fade out after one second
+			setTimeout(() => {
+				!!crlSection && crlSection.classList.contains('section-focused') && crlSection.classList.remove('section-focused');
+			}, 1000);
+		});
+
+		// add our new button immediately after the details button so it is in the same order as the main panel
+		const detailsButton = document.querySelector('button:has([translate="brief.results.tabs.details"])');
+		detailsButton.insertAdjacentElement('afterend', crlSidebarButton);
+	}
+
+	function createAndAppendCourseList(talisCourses) {
+		const targetElement = document.querySelector('div#details');
+
+		let htmlContent = '' +
+			'<div class="full-view-section-content">' +
+			'<prm-full-view-service-container>' +
+			'<div class="section-head">' +
+			'<prm-service-header>' +
+			'<div layout="row" layout-align="center center" class="layout-align-center-center layout-row">' +
+			'<h4 class="section-title md-title light-text">Course reading lists</h4>' +
+			'<md-divider flex="" class="md-primoExplore-theme flex"></md-divider>' +
+			'</div>' +
+			'<prm-service-header-after parent-ctrl="$ctrl"></prm-service-header-after>' +
+			'</prm-service-header>' +
+			'</div>' +
+			'<div class="section-body">' +
+			'<div>' +
+			'<prm-service-details>' +
+			'<ul class="course-resource-list">';
+		for (const [url, displayName] of Object.entries(talisCourses)) {
+			htmlContent += '<li>' +
+				`<a class="button-as-link link-alt-color md-button md-primoExplore-theme md-ink-ripple" href="${url}" target="_blank">` +
+				`<span>${displayName}</span>` +
+				'</a>' +
+				'</li>';
+		}
+		htmlContent += '' +
+			"</ul>" +
+			'</prm-service-details>' +
+			'</div>' +
+			'</div>' +
+			'</prm-full-view-service-container>' +
+			'</div>';
+
+		// Create a temporary container to attach the HTML
+		const tempContainer = document.createElement('div');
+		!!tempContainer && tempContainer.classList.add('full-view-section', 'readingListCitations');
+		!!tempContainer && (tempContainer.id = "full-view-section-courseReadingLists");
+		!!tempContainer && (tempContainer.tabindex = "-1");
+		tempContainer.innerHTML = htmlContent;
+
+		// Insert the course list as the first child of the target element
+		targetElement.insertAdjacentElement("afterend", tempContainer);
+	}
+
+	function displayCulturalAdviceIndicatorOnSomeFullRecords(vm) {
+		const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+		const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
+		if (!!culturalAdviceDisplayRequired && !!recordId) {
+			addCulturalAdviceIndicatorToHeader(recordId, "full");
+
+			const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.display?.lds04 && vm.parentCtrl.item.pnx.display?.lds04; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
+			!!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
+		}
+	}
+
+	function displayReadingListIndicatorOnSomeFullRecords($http, vm, unsafeReadingListBaseUrl, safeReadingListBaseUrl) {
+		const talisCourses  = {};
+		let courseList = {}; // associative arrays are done in js as objects
+
+		async function getTalisDataFromAllApiCalls(listUrls) {
+			const listUrlsToCall = listUrls.filter(url => url.startsWith('http'))
+			const promiseList = listUrlsToCall.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
+			// get all the urls then sort them into a non-repeating list
+			await Promise.allSettled(promiseList)
+				.then(response => {
+					response.forEach(r => {
+						if (!r.status || r.status !== 'fulfilled' || !r.value || !r.value.data) {
+							return;
+						}
+						for (let talisUrl in r.value.data) {
+							const subjectCode = r.value.data[talisUrl];
+							!courseList[talisUrl] && (courseList[talisUrl] = subjectCode);
+						}
+					});
+				})
+				.finally(() => {
+					if (Object.keys(courseList).length > 0) {
+						const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+						if (!!recordid) {
+							addCourseResourceIndicatorToHeader(recordid, "full");
+						}
+
+						// sort by course code for display
+						let sortable = [];
+						for (let talisUrl in courseList) {
+							const subjectCode = courseList[talisUrl];
+							sortable.push([talisUrl, subjectCode]);
+						}
+						sortable.sort(function (a, b) {
+							return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
+						});
+						sortable.forEach((entry) => {
+							const subjectCode = entry[1];
+							const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
+							talisCourses[talisUrl] = subjectCode;
+						});
+
+						createAndAppendCourseList(talisCourses);
+
+						addCRLButtontoSidebar();
+					}
+				});
+		}
+
+		function fixUnsafeReadingListUrl(url) {
+			return url.replace(unsafeReadingListBaseUrl, safeReadingListBaseUrl);
+		}
+
+		function addUrlParam(url, name, value) {
+			const param = value !== undefined ? `${name}=${value}` : name;
+			const separator = url.includes('?') ? '&' : '?';
+			return `${url}${separator}${param}`;
+		}
+
+		const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+		if (!!listTalisUrls && listTalisUrls.length > 0) {
+			getTalisDataFromAllApiCalls(listTalisUrls);
+		}
+	}
+
 	app.component("prmServiceDetailsAfter", { // prm-service-details-after
+		// loosely based on https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire
+		// and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
+		// check for a reading list in the full results page and add an indicator and list if so
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			var vm = this;
@@ -916,186 +1051,213 @@ function whenPageLoaded(fn) {
 			var safeReadingListBaseUrl = 'https://uq.rl.talis.com';
 
 			this.$onInit = function () {
-				const talisCourses  = {};
-
 				if (!isFullDisplayPage()) {
 					return;
 				}
-				// Adjust FULL results display
+				// Adjust FULL results display here
 
-				// style the availability line
-				const waitForAvailability = setInterval(() => {
-					const availabilityElement = document.querySelector(`prm-full-view-service-container prm-search-result-availability-line .availability-status:not(.${unavailableStatusClass})`);
-					if (!availabilityElement) {
-						return;
-					}
-					const updated = highlightUnavailableResources(availabilityElement);
+				styleAvailabilityStatementOnFullRecords();
 
-					// there can be multiple availability lines, although only one will be need this unavailable status, so we cant always clear yet
-					if (!!updated || availabilityElement.textContent.startsWith("Available at")) {
-						clearInterval(waitForAvailability);
-					}
-				}, 100);
+				displayReadingListIndicatorOnSomeFullRecords($http, vm, unsafeReadingListBaseUrl, safeReadingListBaseUrl);
 
-				function addCRLButtontoSidebar() {
-					// show the label in two spans so we can make it look wrapped
-					const label1 = document.createTextNode('Course Reading');
-					const span1 = document.createElement('span');
-					!!label1 && !!span1 && span1.appendChild(label1);
-					const label2 = document.createTextNode('Lists');
-					const span2 = document.createElement('span');
-					!!span2 && (span2.style.display = 'block');
-					!!span2 && (span2.style.marginTop = '-16px');
-					!!label2 && !!span2 && span2.appendChild(label2);
-
-					const crlSidebarButton = document.createElement('button');
-					!!crlSidebarButton && crlSidebarButton.classList.add('zero-margin', 'button-right-align', 'button-link', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple');
-					!!crlSidebarButton && (crlSidebarButton.type = 'button');
-					!!crlSidebarButton && (crlSidebarButton.ariaLabel = "Course Reading Lists");
-					!!span1 && !!crlSidebarButton && crlSidebarButton.appendChild(span1);
-					!!span2 && !!crlSidebarButton && crlSidebarButton.appendChild(span2);
-					!!crlSidebarButton && (crlSidebarButton.onclick = function () {
-						document.querySelector('#full-view-section-courseReadingLists h4').scrollIntoView({behavior: 'smooth'});
-
-						// put big left bracket style on CRL block
-						const crlSection = document.getElementById('full-view-section-courseReadingLists');
-						!!crlSection && crlSection.classList.add('section-focused');
-
-						// let the big bracket fade out after one second
-						setTimeout(() => {
-							!!crlSection && crlSection.classList.contains('section-focused') && crlSection.classList.remove('section-focused');
-						}, 1000);
-					});
-
-					// add our new button immediately after the details button so it is in the same order as the main panel
-					const detailsButton = document.querySelector('button:has([translate="brief.results.tabs.details"])');
-					detailsButton.insertAdjacentElement('afterend', crlSidebarButton);
-                }
-
-                function createAndAppendCourseList() {
-                    const targetElement = document.querySelector('div#details');
-
-                    let htmlContent = '' +
-						'<div class="full-view-section-content">' +
-							'<prm-full-view-service-container>' +
-								'<div class="section-head">' +
-									'<prm-service-header>' +
-										'<div layout="row" layout-align="center center" class="layout-align-center-center layout-row">' +
-											'<h4 class="section-title md-title light-text">Course reading lists</h4>' +
-											'<md-divider flex="" class="md-primoExplore-theme flex"></md-divider>' +
-										'</div>' +
-										'<prm-service-header-after parent-ctrl="$ctrl"></prm-service-header-after>' +
-									'</prm-service-header>' +
-								'</div>' +
-								'<div class="section-body">' +
-									'<div>' +
-										'<prm-service-details>' +
-											'<ul class="course-resource-list">';
-                    for (const [url, displayName] of Object.entries(talisCourses)) {
-                        htmlContent += '<li>' +
-											`<a class="button-as-link link-alt-color md-button md-primoExplore-theme md-ink-ripple" href="${url}" target="_blank">` +
-												`<span>${displayName}</span>` +
-											'</a>' + 
-										'</li>';
-                    }
-					htmlContent += '' +
-											"</ul>" +
-										'</prm-service-details>' +
-									'</div>' +
-								'</div>' +
-							'</prm-full-view-service-container>' +
-						'</div>';
-
-                    // Create a temporary container to attach the HTML
-                    const tempContainer = document.createElement('div');
-                    !!tempContainer && tempContainer.classList.add('full-view-section', 'readingListCitations');
-                    !!tempContainer && (tempContainer.id = "full-view-section-courseReadingLists");
-                    !!tempContainer && (tempContainer.tabindex = "-1");
-                    tempContainer.innerHTML = htmlContent;
-
-                    // Insert the course list as the first child of the target element
-					targetElement.insertAdjacentElement("afterend", tempContainer);
-				}
-
-				let courseList = {}; // associative arrays are done in js as objects
-
-				async function getTalisDataFromAllApiCalls(listUrls) {
-					const listUrlsToCall = listUrls.filter(url => url.startsWith('http'))
-					const promiseList = listUrlsToCall.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
-					// get all the urls then sort them into a non-repeating list
-					await Promise.allSettled(promiseList)
-						.then(response => {
-							response.forEach(r => {
-								if (!r.status || r.status !== 'fulfilled' || !r.value || !r.value.data) {
-									return;
-								}
-								for (let talisUrl in r.value.data) {
-									const subjectCode = r.value.data[talisUrl];
-									!courseList[talisUrl] && (courseList[talisUrl] = subjectCode);
-								}
-							});
-						})
-						.finally(() => {
-							if (Object.keys(courseList).length > 0) {
-								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-								if (!!recordid) {
-									addCourseResourceIndicatorToHeader(recordid, "full");
-								}
-
-								// sort by course code for display
-								let sortable = [];
-								for (let talisUrl in courseList) {
-									const subjectCode = courseList[talisUrl];
-									sortable.push([talisUrl, subjectCode]);
-								}
-								sortable.sort(function(a, b) {
-									return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
-								});
-								sortable.forEach((entry) => {
-									const subjectCode = entry[1];
-									const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
-									talisCourses[talisUrl] = subjectCode;
-								});
-
-                                createAndAppendCourseList();
-
-								addCRLButtontoSidebar();
-							}
-						});
-				}
-
-                function fixUnsafeReadingListUrl(url) {
-					return url.replace(unsafeReadingListBaseUrl, safeReadingListBaseUrl);
-				}
-
-				function addUrlParam(url, name, value)
-				{
-					const param = value !== undefined ? `${name}=${value}` : name;
-					const separator = url.includes('?') ? '&' : '?';
-					return `${url}${separator}${param}`;
-				}
-
-				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
-				if (!!listTalisUrls && listTalisUrls.length > 0) {
-					getTalisDataFromAllApiCalls(listTalisUrls);
-				}
-
-				// display the cultural advice indicator on appropriate records
-				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-				const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
-				if (!!culturalAdviceDisplayRequired && !!recordId) {
-					addCulturalAdviceIndicatorToHeader(recordId, "full");
-
-					const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.display?.lds04 && vm.parentCtrl.item.pnx.display?.lds04; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
-					!!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
-				}
+				displayCulturalAdviceIndicatorOnSomeFullRecords(vm);
 			};
 		},
-        template: '',
+		template: '',
 	});
 
-	// brief result in list may have additional icons and styled availability
+	function displayCulturalAdviceIndicatorOnSomeBriefRecords(parentCtrl, vm) {
+		const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
+		const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+		const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+		const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
+		const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
+		if (!!culturalAdviceDisplayRequired && !!recordId) {
+			addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType);
+		}
+	}
+
+	function displayReadingListIndicatorOnSomeBriefRecords($http, $scope, vm) {
+		function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall) {
+			const url = listTalisUrls.shift();
+			url.startsWith("http") && $http.jsonp(url, {jsonpCallbackParam: "cb"})
+				.then(function handleSuccess(response) {
+					$scope.listsFound = response.data || null;
+					if (!$scope.listsFound && listUrlsToCall.length > 0) {
+						getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+					}
+					if (!!$scope.listsFound) {
+						const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
+						if (!!recordid) {
+							const parentCtrl = $scope.$ctrl.parentCtrl;
+							const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
+							const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+							addCourseResourceIndicatorToHeader(recordid, "brief", pageType);
+						}
+					}
+				})
+				.catch(() => {
+					if (!$scope.listsFound && listUrlsToCall.length > 0) {
+						getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+					}
+				});
+		}
+
+		const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
+		!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
+	}
+
+	function styleAvailabilityStatementOnBriefRecord(parentCtrl) {
+		// style the availability statement to spec (grey when unavailable)
+		const availabilityLoad = setInterval(() => {
+			const sectionWrapper = parentCtrl.$element[0];
+			const availabilityElement = !!sectionWrapper && sectionWrapper.querySelector('.search-result-availability-line-wrapper span.availability-status');
+			if (!availabilityElement) {
+				return;
+			}
+
+			clearInterval(availabilityLoad);
+			!!availabilityElement && highlightUnavailableResources(availabilityElement);
+		}, 100);
+	}
+
+	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm, directLinkingTypes) {
+		const maxLoop0 = 50;
+		let loopCounter0 = 0;
+		const awaitAnchor = setInterval(() => {
+			loopCounter0++;
+			const clickableArea = sectionWrapper.querySelector('a prm-search-result-thumbnail-container-after');
+			if (!clickableArea && loopCounter0 < maxLoop0) {
+				return;
+			}
+			clearInterval(awaitAnchor);
+
+			// putting this check here (rather than outside the Interval) allows time for the pnx to be available
+			const resourceType =
+				!!vm?.parentCtrl?.item?.pnx?.display?.type && vm.parentCtrl.item.pnx.display.type.length > 0
+					? vm.parentCtrl.item.pnx.display.type[0]
+					: "";
+			const directLinkRequired = directLinkingTypes.includes(resourceType);
+
+			if (!directLinkRequired) {
+				return;
+			}
+
+			const maxCount1 = 50;
+			let loopCount1 = 0;
+			const awaitWrapper = setInterval(() => {
+				loopCount1++;
+				const button = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
+				if ((!button || button.length === 0) && loopCount1 < maxCount1) {
+					return;
+				}
+				clearInterval(awaitWrapper);
+
+				// we reuse prm-snippet because it is the only one that doesn't cause this weird thing where the z-index interferes with the hover on the new link
+				const availabilityChild = document.createElement("prm-snippet");
+
+				!!availabilityChild && availabilityChild.classList.add('arrow-link-button', 'availability-button');
+
+				// supply the contents of the old button to this new element (we don't need the icon)
+				!!availabilityChild && Array.from(button.children)
+					.forEach(child => {
+						child.tagName !== 'PRM-ICON' && availabilityChild.appendChild(child);
+					});
+
+				// clear out the built in icons
+				const oldLinkOutIcon = availabilityChild.querySelector('prm-icon');
+				!!oldLinkOutIcon && oldLinkOutIcon.remove();
+
+				// move the little chain-link icon from the old availability line
+				const oldAvailabilityIcon = sectionWrapper.querySelector('prm-search-result-availability-line prm-icon');
+				availabilityChild.insertAdjacentElement('afterBegin', oldAvailabilityIcon);
+
+				const availabilityLine = sectionWrapper.querySelector('prm-search-result-availability-line')
+				availabilityLine.parentNode.parentNode.appendChild(availabilityChild);
+
+				// get rid of the old availability line - its taking up space
+				const oldAvailabilityWrapper = sectionWrapper.querySelector('.search-result-availability-line-wrapper');
+				oldAvailabilityWrapper.remove();
+			}, 100);
+		}, 100);
+	}
+
+	function moveCdiAttributesBelowOtherContentIndicators(sectionWrapper) {
+		function getSvgIcon(element) {
+			const muiIconHighlightOff = '<path d="M14.59 8 12 10.59 9.41 8 8 9.41 10.59 12 8 14.59 9.41 16 12 13.41 14.59 16 16 14.59 13.41 12 16 9.41zM12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path>';
+			const muiIconRemoveCircleOutline = '<path d="M7 11v2h10v-2zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path>';
+			const muiIconReview = '<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.17L4 17.17V4h16z"></path><path d="m12 15 1.57-3.43L17 10l-3.43-1.57L12 5l-1.57 3.43L7 10l3.43 1.57z"></path>';
+
+			const isPreprint = element.querySelector('span[translate="attribute.preprint"]');
+			const isPrimarySource = element.querySelector('span[translate="attribute.primary_source"]');
+			const isReviewArticle = element.querySelector('span[translate="attribute.review_article"]');
+
+			const isPublicationWithAddendum = element.querySelector('span[translate="attribute.publication_addendum"]');
+			const isPublicationExpressionConcern = element.querySelector('span[translate="attribute.publication_exp_concern"]');
+			const isPublicationWithCorrigendum = element.querySelector('span[translate="attribute.publication_corrigendum"]');
+
+			const isRetractedPublication = element.querySelector('span[translate="attribute.retracted_publication"]');
+			const isRetractionNotice = element.querySelector('span[translate="attribute.retraction_notice"]');
+			const isWithdrawnNotice = element.querySelector('span[translate="attribute.withdrawal_notice"]');
+			const isWithdrawnPublication = element.querySelector('span[translate="attribute.withdrawn_publication"]');
+
+			let childSvg = null;
+			if (isRetractionNotice || isRetractedPublication || isWithdrawnNotice || isWithdrawnPublication) {
+				childSvg = '<svg class="retracted" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconHighlightOff + '</svg>';
+			}
+			if (isPublicationWithCorrigendum || isPublicationWithAddendum || isPublicationExpressionConcern) {
+				childSvg = '<svg class="changed" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconRemoveCircleOutline + '</svg>';
+			}
+			if (isReviewArticle || isPrimarySource || isPreprint) {
+				childSvg = '<svg class="regular" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconReview + '</svg>';
+			}
+			return childSvg;
+		}
+
+		function moveBadgeItems(parentRow) {
+			const elementsToMove = parentRow.querySelectorAll(
+				'.prm-cdi-attributes-warning, .prm-cdi-attributes-regular'
+			);
+			if (!elementsToMove) {
+				return; // Exit if parent not found
+			}
+
+			const sibling = parentRow.querySelector('.layout-row:has(>.layout-row)');
+			const newRow = document.createElement('div');
+			!!newRow && newRow.classList.add('layout-row', 'layout-row-followup');
+			elementsToMove.forEach(element => {
+				const childSvg = getSvgIcon(element);
+				if (!!childSvg) {
+					const svgTemplate = document.createElement('template');
+					svgTemplate.innerHTML = childSvg.trim();
+					element.insertBefore(svgTemplate.content.firstChild, element.firstChild);
+				}
+				newRow.appendChild(element);
+			});
+
+			!!sibling && !!newRow && sibling.insertAdjacentElement('afterend', newRow);
+		}
+
+		const maxLoop = 20;
+		let loopCounter = 0;
+		const awaitIndicators = setInterval(() => {
+			loopCounter++;
+			if (loopCounter > maxLoop) {
+				clearInterval(awaitIndicators);
+			}
+
+			const hasLayoutChildren = sectionWrapper.querySelector('.layout-row:has(.layout-row)');
+			if (!hasLayoutChildren) {
+				return;
+			}
+			clearInterval(awaitIndicators);
+
+			!!sectionWrapper && moveBadgeItems(sectionWrapper);
+		}, 100);
+	}
+
 	app.component("prmBriefResultContainerAfter", { // prm-brief-result-container-after
+		// brief result in list may have additional icons and styled availability
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			var vm = this;
@@ -1106,198 +1268,23 @@ function whenPageLoaded(fn) {
 				const parentCtrl = $scope.$ctrl.parentCtrl;
 				const sectionWrapper = parentCtrl.$element[0];
 
-				function getSvgIcon(element) {
-					const muiIconHighlightOff = '<path d="M14.59 8 12 10.59 9.41 8 8 9.41 10.59 12 8 14.59 9.41 16 12 13.41 14.59 16 16 14.59 13.41 12 16 9.41zM12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path>';
-					const muiIconRemoveCircleOutline = '<path d="M7 11v2h10v-2zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path>';
-					const muiIconReview = '<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.17L4 17.17V4h16z"></path><path d="m12 15 1.57-3.43L17 10l-3.43-1.57L12 5l-1.57 3.43L7 10l3.43 1.57z"></path>';
+				moveCdiAttributesBelowOtherContentIndicators(sectionWrapper);
 
-					const isPreprint = element.querySelector('span[translate="attribute.preprint"]');
-					const isPrimarySource = element.querySelector('span[translate="attribute.primary_source"]');
-					const isReviewArticle = element.querySelector('span[translate="attribute.review_article"]');
-
-					const isPublicationWithAddendum = element.querySelector('span[translate="attribute.publication_addendum"]');
-					const isPublicationExpressionConcern = element.querySelector('span[translate="attribute.publication_exp_concern"]');
-					const isPublicationWithCorrigendum = element.querySelector('span[translate="attribute.publication_corrigendum"]');
-
-					const isRetractedPublication = element.querySelector('span[translate="attribute.retracted_publication"]');
-					const isRetractionNotice = element.querySelector('span[translate="attribute.retraction_notice"]');
-					const isWithdrawnNotice = element.querySelector('span[translate="attribute.withdrawal_notice"]');
-					const isWithdrawnPublication = element.querySelector('span[translate="attribute.withdrawn_publication"]');
-
-					let childSvg = null;
-					if (isRetractionNotice || isRetractedPublication || isWithdrawnNotice || isWithdrawnPublication) {
-						childSvg = '<svg class="retracted" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconHighlightOff + '</svg>';
-					}
-					if (isPublicationWithCorrigendum || isPublicationWithAddendum || isPublicationExpressionConcern) {
-						childSvg = '<svg class="changed" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconRemoveCircleOutline + '</svg>';
-					}
-					if (isReviewArticle || isPrimarySource || isPreprint) {
-						childSvg = '<svg class="regular" focusable="false" aria-hidden="true" viewBox="0 0 24 24">' + muiIconReview + '</svg>';
-					}
-					return childSvg;
-				}
-
-				function moveBadgeItems(parentRow) {
-					const elementsToMove = parentRow.querySelectorAll(
-						'.prm-cdi-attributes-warning, .prm-cdi-attributes-regular'
-					);
-					if (!elementsToMove) {
-						return; // Exit if parent not found
-					}
-
-					const sibling =  parentRow.querySelector('.layout-row:has(>.layout-row)');
-					const newRow = document.createElement('div');
-					!!newRow && newRow.classList.add('layout-row', 'layout-row-followup');
-					elementsToMove.forEach(element => {
-						const childSvg = getSvgIcon(element);
-						if (!!childSvg) {
-							const svgTemplate = document.createElement('template');
-							svgTemplate.innerHTML = childSvg.trim();
-							element.insertBefore(svgTemplate.content.firstChild, element.firstChild);
-						}
-						newRow.appendChild(element);
-					});
-
-					!!sibling && !!newRow && sibling.insertAdjacentElement('afterend', newRow);
-				}
-
-				const maxLoop = 20;
-				let loopCounter = 0;
-				const awaitIndicators = setInterval(() => {
-					loopCounter++;
-					if (loopCounter > maxLoop) {
-						clearInterval(awaitIndicators);
-					}
-
-					const hasLayoutChildren = sectionWrapper.querySelector('.layout-row:has(.layout-row)');
-					if (!hasLayoutChildren) {
-						return;
-					}
-					clearInterval(awaitIndicators);
-
-					!!sectionWrapper && moveBadgeItems(sectionWrapper);
-				}, 100);
+				const directLinkingTypes = ["journals", "newspapers", "magazines"];
 
 				if (!!isFullDisplayPage()) {
 					return;
 				}
+				// Adjust repeating BRIEF results display here
 
-				// Adjust repeating BRIEF results display
+				displayReadingListIndicatorOnSomeBriefRecords($http, $scope, vm);
 
-				function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall) {
-					const url = listTalisUrls.shift();
-					url.startsWith("http") && $http.jsonp(url, { jsonpCallbackParam: "cb" })
-						.then(function handleSuccess(response) {
-							$scope.listsFound = response.data || null;
-							if (!$scope.listsFound && listUrlsToCall.length > 0) {
-								getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
-							}
-							if (!!$scope.listsFound) {
-								const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
-								if (!!recordid) {
-									const parentCtrl = $scope.$ctrl.parentCtrl;
-									const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-									const pageType = isSelectedVersion ? 'specificversion' : 'brief';
-									addCourseResourceIndicatorToHeader(recordid, "brief", pageType);
-								}
-							}
-						})
-						.catch(() => {
-							if (!$scope.listsFound && listUrlsToCall.length > 0) {
-								getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
-							}
-						});
-				}
+				displayCulturalAdviceIndicatorOnSomeBriefRecords(parentCtrl, vm);
 
-				// check for a reading list on each result in the brief result list (search results) and add an indicator if so
-				const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
-				!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
-
-				// display the cultural advice indicator on appropriate records
-				const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-				const pageType = isSelectedVersion ? 'specificversion' : 'brief';
-				const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-				const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
-				const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
-				if (!!culturalAdviceDisplayRequired && !!recordId) {
-					addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType);
-				}
-
-				// style the availability statement to spec (grey when unavailable)
-				const availabilityLoad = setInterval(() => {
-					const sectionWrapper = parentCtrl.$element[0];
-					const availabilityElement = !!sectionWrapper && sectionWrapper.querySelector('.search-result-availability-line-wrapper span.availability-status');
-					if (!availabilityElement) {
-						return;
-					}
-
-					clearInterval(availabilityLoad);
-					!!availabilityElement && highlightUnavailableResources(availabilityElement);
-				}, 100);
+				styleAvailabilityStatementOnBriefRecord(parentCtrl);
 
 				// redirect the `available online` click on certain records to open the full record
-				const maxLoop0 = 50;
-				let loopCounter0 = 0;
-				const awaitAnchor = setInterval(() => {
-					loopCounter0++;
-					const clickableArea = sectionWrapper.querySelector('a prm-search-result-thumbnail-container-after');
-					if (!clickableArea && loopCounter0 < maxLoop0) {
-						return;
-					}
-					clearInterval(awaitAnchor);
-
-					// putting this check here (rather than outside the Interval) allows time for the pnx to be available
-					const resourceType =
-						!!vm?.parentCtrl?.item?.pnx?.display?.type && vm.parentCtrl.item.pnx.display.type.length > 0
-							? vm.parentCtrl.item.pnx.display.type[0]
-							: "";
-					const directLinkRequired = [
-						"journals",
-						"newspapers",
-						"magazines",
-					].includes(resourceType);
-
-					if (!directLinkRequired) {
-						return;
-					}
-
-					const maxCount1 = 50;
-					let loopCount1 = 0;
-					const awaitWrapper = setInterval(() => {
-						loopCount1++;
-                        const button = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
-						if ((!button || button.length === 0) && loopCount1 < maxCount1) {
-							return;
-						}
-						clearInterval(awaitWrapper);
-
-						// we reuse prm-snippet because it is the only one that doesn't cause this weird thing where the z-index interferes with the hover on the new link
-						const availabilityChild = document.createElement("prm-snippet");
-
-						!!availabilityChild && availabilityChild.classList.add('arrow-link-button', 'availability-button');
-
-						// supply the contents of the old button to this new element (we don't need the icon)
-						!!availabilityChild && Array.from(button.children)
-							.forEach(child => {
-								child.tagName !== 'PRM-ICON' && availabilityChild.appendChild(child);
-							});
-
-						// clear out the built in icons
-						const oldLinkOutIcon = availabilityChild.querySelector('prm-icon');
-						!!oldLinkOutIcon && oldLinkOutIcon.remove();
-
-						// move the little chain-link icon from the old availability line
-						const oldAvailabilityIcon = sectionWrapper.querySelector('prm-search-result-availability-line prm-icon');
-						availabilityChild.insertAdjacentElement('afterBegin', oldAvailabilityIcon);
-
-						const availabilityLine = sectionWrapper.querySelector('prm-search-result-availability-line')
-						availabilityLine.parentNode.parentNode.appendChild(availabilityChild);
-
-						// get rid of the old availability line - its taking up space
-						const oldAvailabilityWrapper = sectionWrapper.querySelector('.search-result-availability-line-wrapper');
-						oldAvailabilityWrapper.remove();
-					}, 100);
-				}, 100);
+				overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm, directLinkingTypes);
 			};
 		},
 		template: "",
@@ -1411,7 +1398,7 @@ function whenPageLoaded(fn) {
 	app.component("prmAlmaViewitItemsAfter", {
 		controller: function ($scope) {
 			function addPrefixToLinks(listViewItEntries) {
-                !!listViewItEntries &&
+				!!listViewItEntries &&
 				listViewItEntries.length > 0 &&
 				listViewItEntries.forEach((element) =>
 				{
@@ -1449,7 +1436,7 @@ function whenPageLoaded(fn) {
 	});
 
 	const linkOutIconTemplate = () =>
-`<prm-icon icon-type="svg" svg-icon-set="primo-ui" icon-definition="open-in-new">
+		`<prm-icon icon-type="svg" svg-icon-set="primo-ui" icon-definition="open-in-new">
     <md-icon md-svg-icon="primo-ui:open-in-new" role="presentation" class="md-primoExplore-theme">
         <svg id="open-in-new_cache36" width="100%" height="100%" viewBox="0 0 24 24" y="504" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
             <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>
