@@ -902,16 +902,7 @@ function whenPageLoaded(fn) {
 		!!span1 && !!crlSidebarButton && crlSidebarButton.appendChild(span1);
 		!!span2 && !!crlSidebarButton && crlSidebarButton.appendChild(span2);
 		!!crlSidebarButton && (crlSidebarButton.onclick = function () {
-			document.querySelector('#full-view-section-courseReadingLists h4').scrollIntoView({behavior: 'smooth'});
-
-			// put big left bracket style on CRL block
-			const crlSection = document.getElementById('full-view-section-courseReadingLists');
-			!!crlSection && crlSection.classList.add('section-focused');
-
-			// let the big bracket fade out after one second
-			setTimeout(() => {
-				!!crlSection && crlSection.classList.contains('section-focused') && crlSection.classList.remove('section-focused');
-			}, 1000);
+			scrollToSection('#full-view-section-courseReadingLists');
 		});
 
 		// add our new button immediately after the details button so it is in the same order as the main panel
@@ -1121,11 +1112,24 @@ function whenPageLoaded(fn) {
 		}, 100);
 	}
 
-	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm, directLinkingTypes) {
+	function isDirectLinkingAllowed(vm) {
+		const directLinkingTypes = [
+			"journals", "newspapers", "magazines",
+			"journal", "newspaper", "magazine",
+		];
+		const resourceType =
+			!!vm?.parentCtrl?.item?.pnx?.display?.type && vm.parentCtrl.item.pnx.display.type.length > 0
+				? vm.parentCtrl.item.pnx.display.type[0]
+				: "";
+		return !directLinkingTypes.includes(resourceType);
+	}
+
+	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm) {
 		const maxLoop0 = 50;
 		let loopCounter0 = 0;
 		const awaitAnchor = setInterval(() => {
 			loopCounter0++;
+			// can we remove this outer wrapper, now that we arent using the details of clickableArea?
 			const clickableArea = sectionWrapper.querySelector('a prm-search-result-thumbnail-container-after');
 			if (!clickableArea && loopCounter0 < maxLoop0) {
 				return;
@@ -1133,13 +1137,7 @@ function whenPageLoaded(fn) {
 			clearInterval(awaitAnchor);
 
 			// putting this check here (rather than outside the Interval) allows time for the pnx to be available
-			const resourceType =
-				!!vm?.parentCtrl?.item?.pnx?.display?.type && vm.parentCtrl.item.pnx.display.type.length > 0
-					? vm.parentCtrl.item.pnx.display.type[0]
-					: "";
-			const directLinkRequired = directLinkingTypes.includes(resourceType);
-
-			if (!directLinkRequired) {
+			if (!!isDirectLinkingAllowed(vm)) {
 				return;
 			}
 
@@ -1256,6 +1254,56 @@ function whenPageLoaded(fn) {
 		}, 100);
 	}
 
+	function scrollToSection(sectionSelectors) {
+		const headerSelectors = sectionSelectors + ' h4';
+
+		const sectionHeader = document.querySelector(headerSelectors);
+		sectionHeader.scrollIntoView({behavior: 'smooth'});
+
+		// put big left bracket style on section
+		const landingSection = document.querySelector(sectionSelectors);
+		!!landingSection && landingSection.classList.add('section-focused');
+
+		// let the big bracket fade out after one second
+		setTimeout(() => {
+			!!landingSection && landingSection.classList.contains('section-focused') && landingSection.classList.remove('section-focused');
+		}, 1000);
+	}
+
+	function overrideDirectLinkingOnSomeFullRecords(vm, sectionWrapper, $scope) {
+		const maxCount = 50;
+		let loopCount = 0;
+		const awaitWrapper = setInterval(() => {
+			loopCount++;
+			const oldButton = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
+			if (!oldButton && loopCount < maxCount) {
+				return;
+			}
+			clearInterval(awaitWrapper);
+
+			// putting this check here (rather than outside the Interval) allows time for the pnx to be available
+			if (!!isDirectLinkingAllowed(vm)) {
+				return;
+			}
+
+			const newButton = document.createElement('button');
+			!!newButton && newButton.classList.add('neutralized-button', 'arrow-link-button', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple', 'without-direct-linking');
+			newButton.addEventListener('click', function(event) {
+				event.preventDefault();
+				scrollToSection('#getit_link1_0.full-view-section');
+				return false;
+			});
+
+			!!newButton && Array.from(oldButton.children)
+				.forEach(child => {
+					child.tagName !== 'PRM-ICON' && newButton.appendChild(child);
+				});
+			oldButton.parentNode.appendChild(newButton);
+
+			oldButton.remove();
+		}, 100);
+	}
+
 	app.component("prmBriefResultContainerAfter", { // prm-brief-result-container-after
 		// brief result in list may have additional icons and styled availability
 		bindings: { parentCtrl: "<" },
@@ -1270,12 +1318,17 @@ function whenPageLoaded(fn) {
 
 				moveCdiAttributesBelowOtherContentIndicators(sectionWrapper);
 
-				const directLinkingTypes = ["journals", "newspapers", "magazines"];
+
 
 				if (!!isFullDisplayPage()) {
-					return;
+					// const isAllowed = isDirectLinkingAllowed(vm, directLinkingTypes);
+					// console.log('linking isAllowed=', isAllowed);
+					// if (!isAllowed) {
+					overrideDirectLinkingOnSomeFullRecords(vm, sectionWrapper, $scope);
+					// }
+
+					return;  // only handle brief records after this point
 				}
-				// Adjust repeating BRIEF results display here
 
 				displayReadingListIndicatorOnSomeBriefRecords($http, $scope, vm);
 
@@ -1284,7 +1337,7 @@ function whenPageLoaded(fn) {
 				styleAvailabilityStatementOnBriefRecord(parentCtrl);
 
 				// redirect the `available online` click on certain records to open the full record
-				overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm, directLinkingTypes);
+				overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm);
 			};
 		},
 		template: "",
