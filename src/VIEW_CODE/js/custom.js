@@ -1125,58 +1125,46 @@ function whenPageLoaded(fn) {
 	}
 
 	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm) {
-		const maxLoop0 = 50;
-		let loopCounter0 = 0;
-		const awaitAnchor = setInterval(() => {
-			loopCounter0++;
-			// can we remove this outer wrapper, now that we arent using the details of clickableArea?
-			const clickableArea = sectionWrapper.querySelector('a prm-search-result-thumbnail-container-after');
-			if (!clickableArea && loopCounter0 < maxLoop0) {
+		const maxCount = 50;
+		let loopCount = 0;
+		const awaitWrapper = setInterval(() => {
+			loopCount++;
+			const button = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
+			if ((!button || button.length === 0) && loopCount < maxCount) {
 				return;
 			}
-			clearInterval(awaitAnchor);
+			clearInterval(awaitWrapper);
 
 			// putting this check here (rather than outside the Interval) allows time for the pnx to be available
 			if (!!isDirectLinkingAllowed(vm)) {
 				return;
 			}
 
-			const maxCount1 = 50;
-			let loopCount1 = 0;
-			const awaitWrapper = setInterval(() => {
-				loopCount1++;
-				const button = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
-				if ((!button || button.length === 0) && loopCount1 < maxCount1) {
-					return;
-				}
-				clearInterval(awaitWrapper);
+			// we reuse prm-snippet because it is the only one that doesn't cause this weird thing where the z-index interferes with the hover on the new link
+			const availabilityChild = document.createElement("prm-snippet");
 
-				// we reuse prm-snippet because it is the only one that doesn't cause this weird thing where the z-index interferes with the hover on the new link
-				const availabilityChild = document.createElement("prm-snippet");
+			!!availabilityChild && availabilityChild.classList.add('arrow-link-button', 'availability-button');
 
-				!!availabilityChild && availabilityChild.classList.add('arrow-link-button', 'availability-button');
+			// supply the contents of the old button to this new element (we don't need the icon)
+			!!availabilityChild && Array.from(button.children)
+				.forEach(child => {
+					child.tagName !== 'PRM-ICON' && availabilityChild.appendChild(child);
+				});
 
-				// supply the contents of the old button to this new element (we don't need the icon)
-				!!availabilityChild && Array.from(button.children)
-					.forEach(child => {
-						child.tagName !== 'PRM-ICON' && availabilityChild.appendChild(child);
-					});
+			// clear out the built in icons
+			const oldLinkOutIcon = availabilityChild.querySelector('prm-icon');
+			!!oldLinkOutIcon && oldLinkOutIcon.remove();
 
-				// clear out the built in icons
-				const oldLinkOutIcon = availabilityChild.querySelector('prm-icon');
-				!!oldLinkOutIcon && oldLinkOutIcon.remove();
+			// move the little chain-link icon from the old availability line
+			const oldAvailabilityIcon = sectionWrapper.querySelector('prm-search-result-availability-line prm-icon');
+			availabilityChild.insertAdjacentElement('afterBegin', oldAvailabilityIcon);
 
-				// move the little chain-link icon from the old availability line
-				const oldAvailabilityIcon = sectionWrapper.querySelector('prm-search-result-availability-line prm-icon');
-				availabilityChild.insertAdjacentElement('afterBegin', oldAvailabilityIcon);
+			const availabilityLine = sectionWrapper.querySelector('prm-search-result-availability-line')
+			availabilityLine.parentNode.parentNode.appendChild(availabilityChild);
 
-				const availabilityLine = sectionWrapper.querySelector('prm-search-result-availability-line')
-				availabilityLine.parentNode.parentNode.appendChild(availabilityChild);
-
-				// get rid of the old availability line - its taking up space
-				const oldAvailabilityWrapper = sectionWrapper.querySelector('.search-result-availability-line-wrapper');
-				oldAvailabilityWrapper.remove();
-			}, 100);
+			// get rid of the old availability line - its taking up space
+			const oldAvailabilityWrapper = sectionWrapper.querySelector('.search-result-availability-line-wrapper');
+			oldAvailabilityWrapper.remove();
 		}, 100);
 	}
 
