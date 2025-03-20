@@ -615,6 +615,7 @@ function whenPageLoaded(fn) {
 	function createCustomIconIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
 
 		const iconClassName = `${iconWrapperClassName}Icon`;
+		const labelClassName = `${iconWrapperClassName}Label`;
 		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 		!!path && path.setAttribute("d", svgPathValue);
 
@@ -623,7 +624,6 @@ function whenPageLoaded(fn) {
 		!!svgCR && svgCR.setAttribute("height", "100%");
 		!!svgCR && svgCR.setAttribute("viewBox", "0 0 24 24");
 		!!svgCR && svgCR.setAttribute("focusable", "false");
-		!!svgCR && svgCR.setAttribute("class", "icon-after-icon");
 		!!svgCR && !!path && svgCR.appendChild(path);
 
 		const mdIcon = document.createElement("md-icon");
@@ -631,58 +631,46 @@ function whenPageLoaded(fn) {
 		!!mdIcon && (mdIcon.className = "md-primoExplore-theme");
 		!!mdIcon && !!svgCR && mdIcon.appendChild(svgCR);
 
-		const prmIcon = document.createElement("span");
-		!!prmIcon && (prmIcon.className = `${iconClassName} indicatorIcon`);
+		const prmIcon = document.createElement("prm-icon");
+		!!prmIcon && prmIcon.classList.add(iconClassName, 'indicatorIcon', 'badge-icon');
 		!!prmIcon && !!mdIcon && prmIcon.appendChild(mdIcon);
 
 		const contentLabel = document.createElement("span");
-		!!contentLabel && (contentLabel.className = "customIndicatorLabel");
+		!!contentLabel && contentLabel.classList.add(labelClassName, "customIndicatorLabel");
 		!!contentLabel && (contentLabel.innerHTML = labelText);
 
-		const iconWrapper = document.createElement("span");
-		// iconWrapperClassName is used to hide any duplicate icons, which shouldnt happen, but rarely there is a race condition
-		!!iconWrapper && (iconWrapper.className = `customIndicator ${iconWrapperClassName}`);
+		const iconWrapper = document.createElement("div");
+		// iconWrapperClassName is used to hide any duplicate icons, which shouldn't happen, but rarely there is a race condition
+		!!iconWrapper && iconWrapper.classList.add('customIndicator', 'badge-item', iconWrapperClassName, 'layout-row');
 		!!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
 		!!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
 
 		return iconWrapper;
 	}
 
-	function getSnippet(selectorParent) {
-		return document.querySelector(`${selectorParent} prm-snippet`);
-	}
+	function addCustomIconIndicatorToHeader(createdIndicator, intendedParentElement = null) {
+		// when there are no Content Indicators (ie neither Open Access (OA) nor Peer-reviewed (PR)) then we must build the wrapping elements
+		let wrapper1 = intendedParentElement.querySelector('div.badges.layout-align-start-start.layout-column');
+		if (!wrapper1) {
+			const newDiv1 = document.createElement('div');
+			!!newDiv1 && newDiv1.classList.add('badges', 'layout-align-start-start', 'layout-column');
+			intendedParentElement.appendChild(newDiv1);
+		}
+		wrapper1 = intendedParentElement.querySelector('div.badges.layout-align-start-start.layout-column');
 
-	function addCustomIconIndicatorToHeader(uniqueId, pageType, selectorParent, createdIndicator) {
-		// if other icons ("Peer reviewed" "Open Access") are available, we will add it to that line
-		let indicatorParent = false;
-		const openAccessIndicator = document.querySelector(`${selectorParent} [icon-definition="open-access"]`);
-		if (!!openAccessIndicator) {
-			indicatorParent = openAccessIndicator.parentNode;
+		let wrapper2 = !!wrapper1 && wrapper1.querySelector('div.badges.layout-align-start-start.layout-column > div');
+		if (!wrapper2) {
+			const newDiv2 = document.createElement('div');
+			!!newDiv2 && newDiv2.classList.add('layout-row');
+			!!wrapper1 && wrapper1.appendChild(newDiv2);
 		}
-		if (!indicatorParent) {
-			const peerReviewedIndicator = document.querySelector(`${selectorParent} [icon-definition="peer-reviewed"]`);
-			if (!!peerReviewedIndicator) {
-				indicatorParent = peerReviewedIndicator.parentNode;
-			}
-		}
+		wrapper2 = !!wrapper1 && wrapper1.querySelector('div.badges.layout-align-start-start.layout-column > div');
 
-		if (!!indicatorParent) {
-			indicatorParent.appendChild(createdIndicator);
-		} else {
-			// no exlibris-supplied icons on this entry? add it as a new line after the snippet
-			// we have to make a wrapping div in case there is more than one Indicator, even though its rare
-			// and of course we don't know if another Indicator creation has already happened....
-			let indicatorWrapper = document.querySelector(`${selectorParent} div.indicatorWrapper`);
-			if (!indicatorWrapper) {
-				indicatorWrapper = document.createElement("div");
-				!!indicatorWrapper && (indicatorWrapper.className = "indicatorWrapper");
-				const snippet = getSnippet(selectorParent);
-				!!snippet && !!indicatorWrapper && snippet.parentNode.insertBefore(indicatorWrapper, snippet.nextSibling);
-			}
-			if (!!indicatorWrapper) {
-				indicatorWrapper.appendChild(createdIndicator);
-			}
-		}
+		!!wrapper2 && wrapper2.appendChild(createdIndicator);
+
+		// attach the indicator just before the "after" element, to make all Indicators appear on the same line
+		const sibling = intendedParentElement.querySelector('prm-search-result-journal-indication-line-after');
+		!!wrapper1 && !!sibling && intendedParentElement.insertBefore(wrapper1, sibling);
 	}
 
 	function getSelectorParent(recordId, pageType = null, recursionCount = 0) {
@@ -702,7 +690,7 @@ function whenPageLoaded(fn) {
 		return `prm-brief-result-container${specificClassName} #${parentDOMId}`;
 	}
 
-	function addCulturalAdviceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full') {
+	function addCulturalAdviceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full', intendedParentElement) {
 		const className = "culturalAdviceMark";
 		const thisIndicatorAbbrev = "cultadv";
 		const muiIconInfoSvgPath =
@@ -717,20 +705,10 @@ function whenPageLoaded(fn) {
 			return;
 		}
 
-		// because CA is determined so quickly, the page hasn't drawn yet - wait on the item we want to be the parent
-		// snippet always eventually exists, even if its empty
-		const waitforSnippetToExist = setInterval(() => {
-			const selectorParent = getSelectorParent(recordId, pageType); // doesn't work without the repeated line
-			const snippet = getSnippet(selectorParent);
-			if (!!snippet) {
-				clearInterval(waitforSnippetToExist);
-				addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParent, createdIndicator);
-			}
-		}, 100);
-		return true;
+		addCustomIconIndicatorToHeader(createdIndicator, intendedParentElement);
 	}
 
-	function addCourseResourceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full') {
+	function addCourseResourceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full', intendedParentElement) {
 		const className = "readingListMark";
 		const thisIndicatorAbbrev = "courseres";
 		const muiIconAccountBalanceSvgPath = "M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z";
@@ -744,8 +722,7 @@ function whenPageLoaded(fn) {
 			return;
 		}
 
-		addCustomIconIndicatorToHeader(uniqueId, uniqueIdSuffix, selectorParent, createdIndicator);
-		return true;
+		addCustomIconIndicatorToHeader(createdIndicator, intendedParentElement);
 	}
 
 	function getListTalisUrls(item) {
@@ -959,14 +936,30 @@ function whenPageLoaded(fn) {
 		const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 		const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
 		if (!!culturalAdviceDisplayRequired && !!recordId) {
-			addCulturalAdviceIndicatorToHeader(recordId, "full");
+			const waitForJIElement = setInterval(() => {
+				const journalIndicationElement = document.querySelector('.full-view-container prm-search-result-journal-indication-line');
+				if (!journalIndicationElement) {
+					return;
+				}
+				clearInterval(waitForJIElement);
+				addCulturalAdviceIndicatorToHeader(recordId, "full", null, journalIndicationElement);
+			}, 100);
+		}
+	}
 
+	function displayCulturalAdviceBannerOnSomeFullRecords(vm) {
+		const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+		const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
+		if (!!culturalAdviceDisplayRequired && !!recordId) {
 			const culturalAdviceBody = !!vm?.parentCtrl?.item?.pnx?.display?.lds04 && vm.parentCtrl.item.pnx.display?.lds04; // eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain ..."
 			!!culturalAdviceBody && culturalAdviceBody.length > 0 && !!culturalAdviceBody[0] && addCulturalAdviceBanner(culturalAdviceBody[0]);
 		}
 	}
 
-	function displayReadingListIndicatorOnSomeFullRecords($http, vm, unsafeReadingListBaseUrl, safeReadingListBaseUrl) {
+	function displayReadingListIndicatorOnSomeFullRecords($http, vm) {
+		const unsafeReadingListBaseUrl = 'http://lr.library.uq.edu.au';
+		const safeReadingListBaseUrl = 'https://uq.rl.talis.com';
+
 		const talisCourses  = {};
 		let courseList = {}; // associative arrays are done in js as objects
 
@@ -990,7 +983,14 @@ function whenPageLoaded(fn) {
 					if (Object.keys(courseList).length > 0) {
 						const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 						if (!!recordid) {
-							addCourseResourceIndicatorToHeader(recordid, "full");
+							const waitForJIElement = setInterval(() => {
+								const journalIndicationElement = document.querySelector('.full-view-container prm-search-result-journal-indication-line');
+								if (!journalIndicationElement) {
+									return;
+								}
+								clearInterval(waitForJIElement);
+								addCourseResourceIndicatorToHeader(recordid, "full", null, journalIndicationElement);
+							}, 100);
 						}
 
 						// sort by course code for display
@@ -1037,35 +1037,46 @@ function whenPageLoaded(fn) {
 		// check for a reading list in the full results page and add an indicator and list if so
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
-			var vm = this;
-			var unsafeReadingListBaseUrl = 'http://lr.library.uq.edu.au';
-			var safeReadingListBaseUrl = 'https://uq.rl.talis.com';
+			const vm = this;
 
 			this.$onInit = function () {
 				if (!isFullDisplayPage()) {
 					return;
 				}
+
 				// Adjust FULL results display here
 
 				styleAvailabilityStatementOnFullRecords();
 
-				displayReadingListIndicatorOnSomeFullRecords($http, vm, unsafeReadingListBaseUrl, safeReadingListBaseUrl);
+				displayReadingListIndicatorOnSomeFullRecords($http, vm);
 
 				displayCulturalAdviceIndicatorOnSomeFullRecords(vm);
+
+				displayCulturalAdviceBannerOnSomeFullRecords(vm);
 			};
 		},
 		template: '',
 	});
 
 	function displayCulturalAdviceIndicatorOnSomeBriefRecords(parentCtrl, vm) {
-		const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-		const pageType = isSelectedVersion ? 'specificversion' : 'brief';
-		const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-		const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
-		const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
-		if (!!culturalAdviceDisplayRequired && !!recordId) {
-			addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType);
-		}
+		const sectionWrapper = parentCtrl.$element[0];
+
+		const waitForJIElement = setInterval(() => {
+			const journalIndicationElement = sectionWrapper.querySelector('prm-search-result-journal-indication-line');
+			if (!journalIndicationElement) {
+				return;
+			}
+			clearInterval(waitForJIElement);
+
+			const isSelectedVersion = sectionWrapper.classList.contains('list-item-wrapper');
+			const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+			const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+			const recordCount = !!vm?.parentCtrl?.resultUtil?._updatedBulkSize ? vm.parentCtrl.resultUtil._updatedBulkSize : false; // eg 61UQ_ALMA51124881340003131
+			const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
+			if (!!culturalAdviceDisplayRequired && !!recordId) {
+				addCulturalAdviceIndicatorToHeader(recordId, `brief-${recordCount}`, pageType, journalIndicationElement);
+			}
+		}, 100);
 	}
 
 	function displayReadingListIndicatorOnSomeBriefRecords($http, $scope, vm) {
@@ -1081,9 +1092,19 @@ function whenPageLoaded(fn) {
 						const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
 						if (!!recordid) {
 							const parentCtrl = $scope.$ctrl.parentCtrl;
-							const isSelectedVersion = parentCtrl.$element[0].classList.contains('list-item-wrapper');
-							const pageType = isSelectedVersion ? 'specificversion' : 'brief';
-							addCourseResourceIndicatorToHeader(recordid, "brief", pageType);
+							const sectionWrapper = parentCtrl.$element[0];
+
+							const waitForJIElement = setInterval(() => {
+								const journalIndicationElement = sectionWrapper.querySelector('prm-search-result-journal-indication-line');
+								if (!journalIndicationElement) {
+									return;
+								}
+								clearInterval(waitForJIElement);
+
+								const isSelectedVersion = sectionWrapper.classList.contains('list-item-wrapper');
+								const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+								addCourseResourceIndicatorToHeader(recordid, "brief", pageType, journalIndicationElement);
+							}, 100);
 						}
 					}
 				})
@@ -1304,16 +1325,10 @@ function whenPageLoaded(fn) {
 				const parentCtrl = $scope.$ctrl.parentCtrl;
 				const sectionWrapper = parentCtrl.$element[0];
 
-				moveCdiAttributesBelowOtherContentIndicators(sectionWrapper);
-
-
+				moveCdiAttributesBelowOtherContentIndicators(sectionWrapper); // both full and brief
 
 				if (!!isFullDisplayPage()) {
-					// const isAllowed = isDirectLinkingAllowed(vm, directLinkingTypes);
-					// console.log('linking isAllowed=', isAllowed);
-					// if (!isAllowed) {
 					overrideDirectLinkingOnSomeFullRecords(vm, sectionWrapper, $scope);
-					// }
 
 					return;  // only handle brief records after this point
 				}
