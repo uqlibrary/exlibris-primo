@@ -568,6 +568,7 @@ function whenPageLoaded(fn) {
 
 				const wrapper1 = document.createElement('div');
 				!!wrapper1 && (wrapper1.id = popupId);
+				!!wrapper1 && wrapper1.setAttribute('data-testid', popupId);
 				!!wrapper1 && wrapper1.classList.add('md-panel-outer-wrapper', 'md-primoExplore-theme', 'md-panel-is-showing');
 				!!wrapper1 && (wrapper1.style.pointerEvents = 'none');
 				!!wrapper1 && (wrapper1.style.zIndex = '100');
@@ -1004,6 +1005,13 @@ function whenPageLoaded(fn) {
 			htmlContent += '<li>' +
 				`<a class="button-as-link link-alt-color md-button md-primoExplore-theme md-ink-ripple" href="${url}" target="_blank">` +
 				`<span>${displayName}</span>` +
+				'<prm-icon external-link="" icon-type="svg" svg-icon-set="primo-ui" icon-definition="open-in-new">' +
+				'<md-icon md-svg-icon="primo-ui:open-in-new" role="presentation" class="md-primoExplore-theme">' +
+				'<svg width="100%" height="100%" viewBox="0 0 24 24" y="504" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">' +
+				'<path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>' +
+				'</svg>' +
+				'</md-icon>' +
+				'</prm-icon>' +
 				'</a>' +
 				'</li>';
 		}
