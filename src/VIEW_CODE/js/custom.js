@@ -502,8 +502,102 @@ function whenPageLoaded(fn) {
 			// move the primo-login-bar up so it overlaps uq-site-header and is visually one bar
 			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
 			!!primoLoginBar && !primoLoginBar.classList.contains('mergeup') && primoLoginBar.classList.add('mergeup');
+
+			// add a "help" button that links to drupal content
+			const buttonId = 'utility-bar-primo-guide';
+			const popupId = 'utility-bar-primo-help-popup';
+			const helpTextLabel = 'Library Search help';
+			const waitForDrupalLink = setInterval(() => {
+				const drupalButton = document.getElementById(buttonId);
+				if (!drupalButton) {
+					return;
+				}
+				clearInterval(waitForDrupalLink);
+
+				drupalButton.addEventListener('keyup', handleKeyUp);
+				drupalButton.addEventListener('blur', handleLeaveElement);
+				drupalButton.addEventListener('mouseenter', handleMouseEnter);
+				drupalButton.addEventListener('mouseleave', handleLeaveElement);
+
+				function handleKeyUp(event) {
+					if (event.key === 'Tab') {
+						event.preventDefault();
+						setTimeout(() => {
+							addHelpDialog(popupId, helpTextLabel, drupalButton);
+						}, 200);
+					}
+				}
+
+				function handleMouseEnter() {
+					setTimeout(() => {
+						addHelpDialog(popupId, helpTextLabel, drupalButton);
+					}, 500);
+				}
+
+				function handleLeaveElement() {
+					removeHelpDialog(popupId);
+				}
+			}, 100);
+
+			function addHelpDialog(popupId, helpText, attachedParent) {
+				const primaryText = document.createTextNode(helpText);
+
+				const span = document.createElement('span');
+				!!primaryText && !!span && span.appendChild(primaryText);
+
+				const tooltip = document.createElement('md-tooltip');
+				!!tooltip && tooltip.setAttribute('md-direction', '');
+				!!tooltip && tooltip.classList.add('md-panel', 'md-tooltip', 'md-origin-bottom', 'md-primoExplore-theme', 'md-show');
+				!!tooltip && tooltip.setAttribute('tabindex', '-1');
+				!!tooltip && tooltip.setAttribute('role', 'tooltip');
+				!!tooltip && tooltip.setAttribute('style', 'pointer-events: all;');
+				!!span && !!tooltip && tooltip.appendChild(span);
+
+				const wrapper2 = document.createElement('div');
+				!!wrapper2 && wrapper2.classList.add('md-panel-inner-wrapper');
+				!!wrapper2 && (wrapper2.style.zIndex = '101');
+
+				const attachedParentPosition = attachedParent?.getBoundingClientRect() || null;
+				const attachedParentBottom = attachedParentPosition?.bottom;
+				!!wrapper2 && (wrapper2.style.top = `${attachedParentBottom}px`);
+
+				const newRight = 125; // if this is reused it will need clever code to figure out horizontal placement
+				!!wrapper2 && (wrapper2.style.right = `${newRight}px`);
+
+				!!tooltip && !!wrapper2 && wrapper2.appendChild(tooltip);
+
+				const wrapper1 = document.createElement('div');
+				!!wrapper1 && (wrapper1.id = popupId);
+				!!wrapper1 && wrapper1.classList.add('md-panel-outer-wrapper', 'md-primoExplore-theme', 'md-panel-is-showing');
+				!!wrapper1 && (wrapper1.style.pointerEvents = 'none');
+				!!wrapper1 && (wrapper1.style.zIndex = '100');
+				!!wrapper2 && !!wrapper1 && wrapper1.appendChild(wrapper2);
+
+				const body = document.querySelector('body');
+				!!body && body.appendChild(wrapper1);
+
+				// set it to auto hide after 5 seconds (not closing seems to be possible - if user moves their mouse too fast? observed on built in buttons too)
+				setTimeout(() => {
+					removeHelpDialog(popupId);
+				}, 5000);
+			}
+
+			function removeHelpDialog(popupId) {
+				const helpPopup = document.getElementById(popupId);
+				!!helpPopup && helpPopup.remove();
+			}
 		},
-		template: "",
+		// id = buttonId value. Can we insert the variable here?
+		template: '<a id="utility-bar-primo-guide" data-testid="utility-bar-primo-guide" href="https://guides.library.uq.edu.au/how-to-find/using-library-search" target="_blank">' +
+					'<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24">' +
+						'<g transform="translate(3, 3) scale(0.7)">' +
+							'<path ' +
+								' d="M11.07 12.85c.77-1.39 2.25-2.21 3.11-3.44.91-1.29.4-3.7-2.18-3.7-1.69 0-2.52 1.28-2.87 2.34L6.54 6.96C7.25 4.83 9.18 3 11.99 3c2.35 0 3.96 1.07 4.78 2.41.7 1.15 1.11 3.3.03 4.9-1.2 1.77-2.35 2.31-2.97 3.45-.25.46-.35.76-.35 2.24h-2.89c-.01-.78-.13-2.05.48-3.15M14 20c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2"' +
+							'>' +
+							'</path>' +
+						'</g>' +
+					'</svg>' +
+				'</a>',
 	});
 
 	function isDomainProd() {
