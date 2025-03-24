@@ -503,34 +503,34 @@ function whenPageLoaded(fn) {
 			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
 			!!primoLoginBar && !primoLoginBar.classList.contains('mergeup') && primoLoginBar.classList.add('mergeup');
 
-			// add a "help" button that links to drupal content
+			// add a "help" button that links to help content
 			const buttonId = 'utility-bar-primo-guide';
 			const popupId = 'utility-bar-primo-help-popup';
 			const helpTextLabel = 'Library Search help';
-			const waitForDrupalLink = setInterval(() => {
-				const drupalButton = document.getElementById(buttonId);
-				if (!drupalButton) {
+			const waitForLink = setInterval(() => {
+				const helpButton = document.getElementById(buttonId);
+				if (!helpButton) {
 					return;
 				}
-				clearInterval(waitForDrupalLink);
+				clearInterval(waitForLink);
 
-				drupalButton.addEventListener('keyup', handleKeyUp);
-				drupalButton.addEventListener('blur', handleLeaveElement);
-				drupalButton.addEventListener('mouseenter', handleMouseEnter);
-				drupalButton.addEventListener('mouseleave', handleLeaveElement);
+				helpButton.addEventListener('keyup', handleKeyUp);
+				helpButton.addEventListener('blur', handleLeaveElement);
+				helpButton.addEventListener('mouseenter', handleMouseEnter);
+				helpButton.addEventListener('mouseleave', handleLeaveElement);
 
 				function handleKeyUp(event) {
 					if (event.key === 'Tab') {
 						event.preventDefault();
 						setTimeout(() => {
-							addHelpDialog(popupId, helpTextLabel, drupalButton);
+							addHelpDialog(popupId, helpTextLabel, helpButton);
 						}, 200);
 					}
 				}
 
 				function handleMouseEnter() {
 					setTimeout(() => {
-						addHelpDialog(popupId, helpTextLabel, drupalButton);
+						addHelpDialog(popupId, helpTextLabel, helpButton);
 					}, 500);
 				}
 
