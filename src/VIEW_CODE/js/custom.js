@@ -515,9 +515,12 @@ function whenPageLoaded(fn) {
 				clearInterval(waitForLink);
 
 				helpButton.addEventListener('keyup', handleKeyUp);
-				helpButton.addEventListener('blur', handleLeaveElement);
+				helpButton.addEventListener('blur', handleClosePopup);
 				helpButton.addEventListener('mouseenter', handleMouseEnter);
-				helpButton.addEventListener('mouseleave', handleLeaveElement);
+				helpButton.addEventListener('mouseleave', handleClosePopup);
+				window.addEventListener('scroll', () => {
+					handleClosePopup();
+				});
 
 				function handleKeyUp(event) {
 					if (event.key === 'Tab') {
@@ -534,7 +537,7 @@ function whenPageLoaded(fn) {
 					}, 500);
 				}
 
-				function handleLeaveElement() {
+				function handleClosePopup() {
 					removeHelpDialog(popupId);
 				}
 			}, 100);
@@ -1501,9 +1504,8 @@ function whenPageLoaded(fn) {
 									const numericRecordCount = parseInt(recordCount.replace(',', ''), 10);
 									// create a display element to put on the screen
 									const newDisplayElement = !!recordCount && numericRecordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
-									const insertPoint = !!wrappingParent ? wrappingParent : element;
 									// attach the new display element to the parent
-									!!newDisplayElement && (insertPoint.appendChild(newDisplayElement));
+									!!newDisplayElement && (wrappingParent.appendChild(newDisplayElement));
 								}
 							});
 						}
