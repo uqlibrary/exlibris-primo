@@ -1476,33 +1476,42 @@ function whenPageLoaded(fn) {
 					return newId;
 				}
 
-				['Show only', 'New records'].map(facetLabel => {
+				function addCountToFacetEntries(facetLabel) {
 					const awaitFacetGroup = setInterval(() => {
 						// wait for this facet section to load
 						const facetGroup = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space`);
 						if (!facetGroup) {
 							return; // sidebar not available yet
 						}
-						// get any that don't have our manual-count class yet
-						const elementList = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) .text-number-space:not(:has(.manual-count))`);
+						// get any that don't yet have our manual-count class
+						const elementList = document.querySelectorAll(`prm-facet-group:has([title="${facetLabel}"]) div:has(> strong):not(:has(.manual-count))`);
 						if (!!elementList && elementList.length > 0) {
 							clearInterval(awaitFacetGroup);
 
-							elementList.forEach((element) => {
-								const checkById = `prm-facet-group:has([title="${facetLabel}"]) ` + getNewItemId(element);
+							elementList.forEach((wrappingParent) => {
+								const checkById = `prm-facet-group:has([title="${facetLabel}"]) ` + getNewItemId(wrappingParent);
 								const checkByIdElement = document.querySelector(checkById);
-								const existingCountCheck = element?.parentNode?.querySelector('.text-in-brackets');
+								const existingCountCheck = wrappingParent?.parentNode?.querySelector('.text-in-brackets');
 								if (!checkByIdElement && // our code hasn't been run before for this item
 									!existingCountCheck // primo haven't started supplying the number
 								) {
+									// extract the record count from the element's aria label
+									const element = wrappingParent.querySelector('.text-number-space');
 									const recordCount = !!element?.parentNode && !!element?.textContent && extractRecordCount(element?.parentNode, element.textContent);
 									const numericRecordCount = parseInt(recordCount.replace(',', ''), 10);
+									// create a display element to put on the screen
 									const newDisplayElement = !!recordCount && numericRecordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
-									!!newDisplayElement && element.appendChild(newDisplayElement);
+									const insertPoint = !!wrappingParent ? wrappingParent : element;
+									// attach the new display element to the parent
+									!!newDisplayElement && (insertPoint.appendChild(newDisplayElement));
 								}
 							});
 						}
 					}, 100);
+				}
+
+				['Show only', 'New records'].map(facetLabel => {
+					addCountToFacetEntries(facetLabel);
 				})
 			}
 		},
