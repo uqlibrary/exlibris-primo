@@ -503,7 +503,42 @@ function whenPageLoaded(fn) {
 			var primoLoginBar = document.querySelector('prm-topbar>div.top-nav-bar.layout-row') || false;
 			!!primoLoginBar && !primoLoginBar.classList.contains('mergeup') && primoLoginBar.classList.add('mergeup');
 
+			// add label to qrcode button in built-in primo utility area buttons (will be restyled with css)
+			const awaitQrCodeButton = setInterval(() => {
+				const qrCodeButton = document.querySelector('prm-search-bookmark-filter button');
+				if (!!qrCodeButton) {
+					const copyLabel = document.createElement('span');
+					!!copyLabel && copyLabel.classList.add('qr-button-label', 'utility-button-labels');
+					!!copyLabel && (copyLabel.textContent = 'QR');
+					!!copyLabel && !!qrCodeButton && qrCodeButton.appendChild(copyLabel)
+
+					clearInterval(awaitQrCodeButton);
+				}
+			}, 100);
+
+			// add label to favourites link in built-in primo utility area buttons (will be restyled with css)
+			// replace whenever unavailable
+			const pinLabelId = 'pinLinkLabel';
+			setInterval(() => {
+				const pinLabel = document.getElementById(pinLabelId);
+				if (!pinLabel) {
+					const pinLink = document.querySelector('prm-search-bookmark-filter div#fixed-buttons-holder a');
+					const pinLabelElement = document.createElement('span');
+					const ariaLabelText = !!pinLabelElement && pinLabelElement.ariaLabel;
+					!!pinLabelElement && (pinLabelElement.id = pinLabelId);
+					!!pinLabelElement && (pinLabelElement.id = pinLabelId);
+					!!pinLabelElement && pinLabelElement.classList.add('pin-button-label', 'utility-button-labels');
+					const suppliedButtonLabel = !!ariaLabelText ? ariaLabelText.replace('Go to ', '') : null;
+					const defaultButtonLabel = document.location.pathname === '/primo-explore/favorites' ? 'Search' : 'Favourites'
+					!!pinLabelElement
+					&& (pinLabelElement.textContent = suppliedButtonLabel || defaultButtonLabel);
+					!!pinLabelElement && !!pinLink && pinLink.appendChild(pinLabelElement)
+				}
+			}, 100);
+
 			// add a "help" button that links to help content
+			const existingArea = document.querySelector('#fixed-buttons-holder');
+			console.log('existingArea=', existingArea);
 			const buttonId = 'utility-bar-primo-guide';
 			const popupId = 'utility-bar-primo-help-popup';
 			const helpTextLabel = 'Library Search help';
@@ -513,6 +548,8 @@ function whenPageLoaded(fn) {
 					return;
 				}
 				clearInterval(waitForLink);
+
+				helpButton.classList.add('utility-help-button'); // , 'md-button', 'md-icon-button'
 
 				helpButton.addEventListener('keyup', handleKeyUp);
 				helpButton.addEventListener('blur', handleClosePopup);
@@ -592,7 +629,7 @@ function whenPageLoaded(fn) {
 			}
 		},
 		// id = buttonId value. Can we insert the variable here?
-		template: '<a id="utility-bar-primo-guide" data-testid="utility-bar-primo-guide" href="https://guides.library.uq.edu.au/how-to-find/using-library-search" target="_blank">' +
+		template: '<a id="utility-bar-primo-guide" data-testid="utility-bar-primo-guide" href="https://guides.library.uq.edu.au/how-to-find/using-library-search" target="_blank" aria-labelledby="helpLinklabel">' +
 					'<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24">' +
 						'<g transform="translate(3, 3) scale(0.7)">' +
 							'<path ' +
@@ -601,6 +638,7 @@ function whenPageLoaded(fn) {
 							'</path>' +
 						'</g>' +
 					'</svg>' +
+					'<span id="helpLinklabel" class="utility-button-labels help-button-label">Help</span>' +
 				'</a>',
 	});
 
