@@ -1287,6 +1287,9 @@ function whenPageLoaded(fn) {
 	}
 
 	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm) {
+		// for some types, the availabnility link loads the resource directly when we want them to go to the full view
+		// we cant override the click on the extant element
+		// so delete it and insert static text that will pick up the overall parent click to the full record
 		const maxCount = 50;
 		let loopCount = 0;
 		const awaitWrapper = setInterval(() => {
@@ -1297,36 +1300,48 @@ function whenPageLoaded(fn) {
 			}
 			clearInterval(awaitWrapper);
 
+			const oldAvailabilityWrapper = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line');
+
 			// putting this check here (rather than outside the Interval) allows time for the pnx to be available
 			if (!!isDirectLinkingAllowed(vm)) {
 				return;
 			}
 
 			// we reuse prm-snippet because it is the only one that doesn't cause this weird thing where the z-index interferes with the hover on the new link
-			const availabilityChild = document.createElement("prm-snippet");
+			const newAvailabilityWrapper = document.createElement("prm-snippet");
+			!!newAvailabilityWrapper && newAvailabilityWrapper.classList.add('arrow-link-button', 'availability-button');
 
-			!!availabilityChild && availabilityChild.classList.add('arrow-link-button', 'availability-button');
+			// supply the contents of the old to this new element
+			!!newAvailabilityWrapper && Array.from(oldAvailabilityWrapper.children)
+				.forEach(sectionChild => {
+					// there may be multiple buttons - provide a separate line for each
+					const buttonParent = sectionChild.querySelector('div');
 
-			// supply the contents of the old button to this new element (we don't need the icon)
-			!!availabilityChild && Array.from(button.children)
-				.forEach(child => {
-					child.tagName !== 'PRM-ICON' && availabilityChild.appendChild(child);
+					const wrappingDiv = document.createElement('div');
+					!!wrappingDiv && newAvailabilityWrapper.appendChild(wrappingDiv);
+					!!buttonParent && Array.from(buttonParent.children)
+						.forEach(child => {
+							if (child.tagName === 'BUTTON') {
+								// if it's a button, it may link out. replace with a span
+								const button = child;
+								const newChild = document.createElement('span');
+								newChild.className = button.className;
+								button.childNodes.forEach(node => {
+									newChild.appendChild(node.cloneNode(true));
+								});
+								!!newChild && wrappingDiv.appendChild(newChild);
+							} else {
+								wrappingDiv.appendChild(child);
+							}
+						});
 				});
 
-			// clear out the built in icons
-			const oldLinkOutIcon = availabilityChild.querySelector('prm-icon');
-			!!oldLinkOutIcon && oldLinkOutIcon.remove();
-
-			// move the little chain-link icon from the old availability line
-			const oldAvailabilityIcon = sectionWrapper.querySelector('prm-search-result-availability-line prm-icon');
-			availabilityChild.insertAdjacentElement('afterBegin', oldAvailabilityIcon);
-
 			const availabilityLine = sectionWrapper.querySelector('prm-search-result-availability-line')
-			availabilityLine.parentNode.parentNode.appendChild(availabilityChild);
+			availabilityLine.parentNode.parentNode.appendChild(newAvailabilityWrapper);
 
 			// get rid of the old availability line - its taking up space
-			const oldAvailabilityWrapper = sectionWrapper.querySelector('.search-result-availability-line-wrapper');
-			oldAvailabilityWrapper.remove();
+			const oldAvailabilityParent = sectionWrapper.querySelector('.search-result-availability-line-wrapper');
+			oldAvailabilityParent.remove();
 		}, 100);
 	}
 
@@ -1425,8 +1440,8 @@ function whenPageLoaded(fn) {
 		let loopCount = 0;
 		const awaitWrapper = setInterval(() => {
 			loopCount++;
-			const oldButton = sectionWrapper.querySelector('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
-			if (!oldButton && loopCount < maxCount) {
+			const oldButtons = sectionWrapper.querySelectorAll('.result-item-text .search-result-availability-line-wrapper prm-search-result-availability-line button');
+			if (!oldButtons && loopCount < maxCount) {
 				return;
 			}
 			clearInterval(awaitWrapper);
@@ -1436,19 +1451,22 @@ function whenPageLoaded(fn) {
 				return;
 			}
 
-			const newButton = document.createElement('button');
-			!!newButton && newButton.classList.add('neutralized-button', 'arrow-link-button', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple', 'without-direct-linking');
-			newButton.addEventListener('click', function(event) {
-				event.preventDefault();
-				scrollToSection('#getit_link1_0.full-view-section');
-				return false;
-			});
+			Array.from(oldButtons)
+				.forEach(oldButton => {
+					const newButton = document.createElement('button');
+					!!newButton && newButton.classList.add('neutralized-button', 'arrow-link-button', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple', 'without-direct-linking');
+					newButton.addEventListener('click', function (event) {
+						event.preventDefault();
+						scrollToSection('#getit_link1_0.full-view-section');
+						return false;
+					});
 
-			!!newButton && Array.from(oldButton.children)
-				.forEach(child => {
-					child.tagName !== 'PRM-ICON' && newButton.appendChild(child);
+					!!newButton && Array.from(oldButton.children)
+						.forEach(child => {
+							child.tagName !== 'PRM-ICON' && newButton.appendChild(child);
+						});
+					oldButton.parentNode.appendChild(newButton);
 				});
-			oldButton.parentNode.appendChild(newButton);
 
 			oldButton.remove();
 		}, 100);
