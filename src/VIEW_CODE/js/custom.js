@@ -1502,12 +1502,15 @@ function whenPageLoaded(fn) {
 				}
 
 				function createCountTextNode(recordCount, elementId) {
-					const wrapperSpan = document.createElement('span');
-					!!wrapperSpan && wrapperSpan.classList.add('text-italic', 'text-in-brackets', 'text-rtl', 'facet-counter', 'manual-count');
-					!!wrapperSpan && (wrapperSpan.style.paddingLeft = '10px');
-					!!wrapperSpan && (wrapperSpan.id = elementId);
+					const internalSpan = document.createElement('span');
+					!!internalSpan && internalSpan.classList.add('text-in-brackets', 'facet-counter', 'manual-count');
+					!!internalSpan && (internalSpan.id = elementId);
 					const textNode = !!recordCount && document.createTextNode(recordCount);
-					!!wrapperSpan && !!textNode && wrapperSpan.appendChild(textNode);
+					!!internalSpan && !!textNode && internalSpan.appendChild(textNode);
+
+					const wrapperSpan = document.createElement('span');
+					!!wrapperSpan && wrapperSpan.classList.add('facet-title', 'layout-align-end-stretch', 'layout-row', 'manual-count-wrapper');
+					!!wrapperSpan && !!internalSpan && wrapperSpan.appendChild(internalSpan);
 					return wrapperSpan;
 				}
 
