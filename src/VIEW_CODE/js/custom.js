@@ -537,8 +537,6 @@ function whenPageLoaded(fn) {
 			}, 100);
 
 			// add a "help" button that links to help content
-			const existingArea = document.querySelector('#fixed-buttons-holder');
-			console.log('existingArea=', existingArea);
 			const buttonId = 'utility-bar-primo-guide';
 			const popupId = 'utility-bar-primo-help-popup';
 			const helpTextLabel = 'Library Search help';
@@ -1009,7 +1007,7 @@ function whenPageLoaded(fn) {
 		!!label2 && !!span2 && span2.appendChild(label2);
 
 		const crlSidebarButton = document.createElement('button');
-		!!crlSidebarButton && crlSidebarButton.classList.add('zero-margin', 'button-right-align', 'button-link', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple');
+		!!crlSidebarButton && crlSidebarButton.classList.add('zero-margin', 'button-right-align', 'button-link', 'md-button', 'md-primoExplore-theme', 'md-ink-ripple', 'sidebar-crl-label');
 		!!crlSidebarButton && (crlSidebarButton.type = 'button');
 		!!crlSidebarButton && (crlSidebarButton.ariaLabel = "Course Reading Lists");
 		!!span1 && !!crlSidebarButton && crlSidebarButton.appendChild(span1);
