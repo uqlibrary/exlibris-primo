@@ -995,6 +995,9 @@ function whenPageLoaded(fn) {
 		}, 100);
 	}
 
+	// in rare instances prm-service-details-after fires twice. When it does, we get 2 CRL. Block this.
+	let CRLSectionAlreadyAdded = false;
+
 	function addCRLButtontoSidebar() {
 		// show the label in two spans so we can make it look wrapped
 		const label1 = document.createTextNode('Course Reading');
@@ -1022,6 +1025,11 @@ function whenPageLoaded(fn) {
 	}
 
 	function createAndAppendCourseList(talisCourses) {
+		if (!!CRLSectionAlreadyAdded) { // place the check this late to prevent race conditions
+			return;
+		}
+		CRLSectionAlreadyAdded = true;
+
 		const targetElement = document.querySelector('div#details');
 
 		let htmlContent = '' +
