@@ -37,20 +37,26 @@ function whenPageLoaded(fn) {
 	}
 
 	function getPrimoHomepageLabel() {
+		// determine if we are in the public environment, colloquially referred to as prod-prod
+		// (to distinguish it from prod-dev and sandbox-prod)
+		const isPubliclyViewable = isDomainProd() && getSearchParam('vid') === '61UQ_INST:61UQ';
+
 		// modifier possibilities:
 		// 61UQ_INST:61UQ            => "PROD" (unless public domain)
 		// 61UQ_INST:61UQ_APPDEV     => "APPDEV"
 		// 61UQ_INST:61UQ_DALTS      => "DALTS" (formerly DAC)
 		// 61UQ_INST:61UQ_CANARY     => "CANARY"
-		const labelModifier = isPubliclyViewable() ? '' : vidParam.replace('61UQ_INST:61UQ_', ' ');
+		const labelModifier = isPubliclyViewable ? '' : vidParam.replace('61UQ_INST:61UQ_', '');
 		let primoHomepageLabel;
 		if (isDomainProd()) {
 			primoHomepageLabel = `Library Search${labelModifier}`
-			// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
-		} else if (isDomainPrimoVETest()) {
-			primoHomepageLabel = `PRIMO VE TEST${labelModifier}`;
-		} else {
-			primoHomepageLabel = `SANDBOX${labelModifier}`;
+		} else if (isDomainPrimoVETest()) { // this `else if` can be removed when Primo VE goes live, because only prod and sandbox will exist
+			primoHomepageLabel = `PRIMO VE TEST ${labelModifier}`;
+			if (vidParam === '61UQ_INST:61UQ') {
+				primoHomepageLabel = `PRIMO VE TEST PROD`;
+			}
+		} else { // sandbox domain
+			primoHomepageLabel = `SANDBOX VE ${labelModifier}`;
 		}
 		return primoHomepageLabel;
 	}
@@ -642,12 +648,6 @@ function whenPageLoaded(fn) {
 
 	function isDomainProd() {
 		return window.location.hostname === "search.library.uq.edu.au";
-	}
-
-	// determine if we are in the public environment, colloquially referred to as prod-prod
-	// (to distinguish it from prod-dev and sandbox-prod)
-	function isPubliclyViewable() {
-		return isDomainProd() && getSearchParam('vid') === '61UQ_INST:61UQ';
 	}
 
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
@@ -1855,17 +1855,18 @@ function whenPageLoaded(fn) {
 	}
 
 	// this script should only be called on views that have UQ header showing
-	var folder = "/"; // default. Use for prod.
+	let folder = "/"; // default. Use for prod.
 	if (isDomainProd()) {
 		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-prod-dev/";
 		}
-		// this `else if` can be removed when primo ve reaches prod, because only prod and sandbox will exist
-	} else if (isDomainPrimoVETest()) {
+	} else if (isDomainPrimoVETest()) { // this `else if` can be removed when Primo VE goes live, because only prod and sandbox will exist
 		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-prod-dev/";
+		} else if (vidParam === '61UQ_INST:61UQ') {
+			folder = "-development/primo-veprod/";
 		}
-	} else {
+	} else { // sandbox domain
 		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-sandbox-dev/";
 		} else if (vidParam === '61UQ_INST:61UQ') {
