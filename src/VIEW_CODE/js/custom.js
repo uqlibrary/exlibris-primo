@@ -1347,15 +1347,46 @@ function whenPageLoaded(fn) {
 					const wrappingDiv = document.createElement('div');
 					!!wrappingDiv && newAvailabilityWrapper.appendChild(wrappingDiv);
 					!!buttonParent && Array.from(buttonParent.children)
-						.forEach(child => {
+						.forEach(async child => {
 							if (child.tagName === 'BUTTON') {
 								// if it's a button, it may link out. replace with a span
 								const button = child;
 								const newChild = document.createElement('span');
 								newChild.className = button.className;
-								button.childNodes.forEach(node => {
+
+								const nodes = Array.from(button.childNodes);
+								// Wait for all spans inside any span to have text content - look at OTB, there is a delay while the second span loads so we have to wait
+								await Promise.all(nodes.map(node => {
+									return new Promise(resolve => {
+										if (node.tagName === 'SPAN') {
+											const innerSpans = Array.from(node.querySelectorAll('span'));
+
+											if (innerSpans.length > 0) {
+												Promise.all(innerSpans.map(innerSpan => {
+													return new Promise(innerResolve => {
+														const checkContent = () => {
+															if (innerSpan.textContent.trim() !== '') {
+																innerResolve();
+															} else {
+																setTimeout(checkContent, 50);
+															}
+														};
+														checkContent();
+													});
+												})).then(resolve);
+											} else {
+												resolve();
+											}
+										} else {
+											resolve();
+										}
+									});
+								}));
+
+								nodes.forEach(node => {
 									newChild.appendChild(node.cloneNode(true));
 								});
+
 								!!newChild && wrappingDiv.appendChild(newChild);
 							} else {
 								wrappingDiv.appendChild(child);
