@@ -99,7 +99,7 @@ function whenPageLoaded(fn) {
 	}; // searchHistoryOptions
 	const searchHistoryOptions = {
 		title: "Search history",
-		id: "mylibrary-menu-saved-items",
+		id: "mylibrary-menu-search-history",
 		svgString: '<svg data-testid="library-search-history-icon" id="library-search-history-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
 			'<path d="M6.78771 6.69579C8.04789 5.28681 9.76183 4.36381 11.6318 4.08712C13.5017 3.81043 15.4095 4.19754 17.0237 5.1812C18.6379 6.16487 19.8566 7.68292 20.4679 9.47165C21.0792 11.2604 21.0446 13.2067 20.3701 14.9726C19.6956 16.7385 18.4238 18.2123 16.7757 19.138C15.1275 20.0636 13.2072 20.3827 11.3482 20.0397C9.48931 19.6968 7.80926 18.7135 6.59994 17.2606C5.39063 15.8077 4.72848 13.9771 4.72852 12.0868V11.2356" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'<path d="M6.8564 13.7891L4.72825 11.2354L2.6001 13.7891" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
@@ -223,12 +223,6 @@ function whenPageLoaded(fn) {
 			return;
 		}
 
-		const svgExists = document.querySelector(primoIdentifier + ' button svg#' + buttonOptions.svgId)
-		if (!!svgExists) {
-			// we've already created the replacement
-			return;
-		}
-
 		const awaitSVG = setInterval(() => {
 			const cloneableSvg = document.querySelector(primoIdentifier + " svg");
 			if (!!cloneableSvg) {
@@ -258,12 +252,15 @@ function whenPageLoaded(fn) {
 				!!textParent && !!primaryTextBlock && textParent.appendChild(primaryTextBlock);
 				!!button && !!textParent && button.appendChild(textParent);
 
-				// add an ID for GTM usage to the button
 				const menuItem = document.querySelector(primoIdentifier + ' button');
-				console.log('menuItem ', buttonOptions.id, menuItem);
-				!!menuItem && !!button && menuItem.appendChild(button);
-				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id);
+				!!menuItem && menuItem.setAttribute('data-analyticsid', buttonOptions.id); // add an ID for GTM usage to the button
 				!!menuItem && menuItem.setAttribute('data-testid', buttonOptions.id);
+
+				const svgAlreadyAttached = document.querySelector(primoIdentifier + ' button svg#' + buttonOptions.svgId)
+				if (!!svgAlreadyAttached) {
+					return; // we've already done the replacement
+				}
+				!!menuItem && !!button && menuItem.appendChild(button);
 			}
 		}, 250);
 	}
