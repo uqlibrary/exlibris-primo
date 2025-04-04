@@ -1352,13 +1352,22 @@ function whenPageLoaded(fn) {
 								newChild.className = button.className;
 
 								const nodes = Array.from(button.childNodes);
-								// Wait for all spans inside any span to have text content - look at OTB, there is a delay while the second span loads so we have to wait
+								// Wait for all spans inside any span to have text content, and abandon after 2 seconds - not all secondary entries have content
+								// (look at OTB, there is a delay while the second span loads so we have to wait)
 								await Promise.all(nodes.map(node => {
 									return new Promise(resolve => {
 										if (node.tagName === 'SPAN') {
 											const innerSpans = Array.from(node.querySelectorAll('span'));
 
 											if (innerSpans.length > 0) {
+												let isResolved = false;
+												const timeout = setTimeout(() => {
+													if (!isResolved) {
+														isResolved = true;
+														resolve();
+													}
+												}, 2000); // 2 second timeout
+
 												Promise.all(innerSpans.map(innerSpan => {
 													return new Promise(innerResolve => {
 														const checkContent = () => {
@@ -1370,7 +1379,13 @@ function whenPageLoaded(fn) {
 														};
 														checkContent();
 													});
-												})).then(resolve);
+												})).then(() => {
+													if (!isResolved) {
+														clearTimeout(timeout);
+														isResolved = true;
+														resolve();
+													}
+												});
 											} else {
 												resolve();
 											}
@@ -1521,9 +1536,9 @@ function whenPageLoaded(fn) {
 							child.tagName !== 'PRM-ICON' && newButton.appendChild(child);
 						});
 					oldButton.parentNode.appendChild(newButton);
+					oldButton.remove();
 				});
 
-			oldButton.remove();
 		}, 100);
 	}
 
