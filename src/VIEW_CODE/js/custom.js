@@ -61,7 +61,7 @@ function whenPageLoaded(fn) {
 		return primoHomepageLabel;
 	}
 
-	app.component("prmTopBarBefore", {
+	app.component("prmTopBarBefore", { // prm-top-bar-before
 		// we found it was more robust to insert the alerts list in the different page location via primo angular, see below,
 		// so completely skip inserting elements "by attribute"
 		template:
@@ -71,7 +71,7 @@ function whenPageLoaded(fn) {
 			"<proactive-chat></proactive-chat>",
 	});
 
-	app.component("prmTopbarAfter", {
+	app.component("prmTopbarAfter", { // prm-topbar-after
 		template:
 			'<alert-list system="primo"></alert-list>' +
 			'<cultural-advice></cultural-advice>'
@@ -294,7 +294,7 @@ function whenPageLoaded(fn) {
 	const DESKTOP_LOGGED_OUT_FEEDBACK_ID = 'loggedout-desktop-feedback';
 
 	// prm-user-area-expandable-after
-	app.component("prmUserAreaExpandableAfter", {
+	app.component("prmUserAreaExpandableAfter", { // prm-user-area-expandable-after
 		// HANDLE LOGGED IN MENU
 		controller: function ($scope) {
 			setInterval(() => {
@@ -667,7 +667,7 @@ function whenPageLoaded(fn) {
 	}
 
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
-	app.component("prmFullViewServiceContainerAfter", {
+	app.component("prmFullViewServiceContainerAfter", { // prm-full-view-service-container-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope) {
 			var vm = this;
@@ -1573,7 +1573,7 @@ function whenPageLoaded(fn) {
 		template: "",
 	});
 
-	app.component('prmFacetExactAfter', {
+	app.component('prmFacetExactAfter', { // prm-facet-exact-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			const vm = this;
@@ -1645,7 +1645,7 @@ function whenPageLoaded(fn) {
 		template: '',
 	});
 
-	app.component('prmAdvancedSearchAfter', {
+	app.component('prmAdvancedSearchAfter', { // prm-advanced-search-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
 			function clearLanguageOption(languageLabel) {
@@ -1665,7 +1665,7 @@ function whenPageLoaded(fn) {
 	});
 
 	// prm-quick-link-after
-	// app.component("prmQuickLinkAfter", {
+	// app.component("prmQuickLinkAfter", { // prm-quick-link-after
 	// 	controller: function ($scope) {
 	// 		const theLinkBlock = document.querySelector('prm-quick-link span[translate="fulldisplay.unpaywall.noLinks"]');
 	// 		const theContent = !!theLinkBlock && theLinkBlock.innerText;
@@ -1689,7 +1689,7 @@ function whenPageLoaded(fn) {
 	// });
 
 	// prm-alma-viewit-items
-	app.component("prmAlmaViewitItemsAfter", {
+	app.component("prmAlmaViewitItemsAfter", { // prm-alma-viewit-items-after
 		controller: function ($scope) {
 			function addPrefixToLinks(listViewItEntries) {
 				!!listViewItEntries &&
@@ -1792,8 +1792,7 @@ function whenPageLoaded(fn) {
 		});
 	}
 
-	// prm-requests
-	app.component("prmRequestsAfter", {
+	app.component("prmRequestsAfter", { // prm-requests-after
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
@@ -1811,8 +1810,7 @@ function whenPageLoaded(fn) {
 		}
 	});
 
-	// prm-fines
-	app.component("prmFinesAfter", {
+	app.component("prmFinesAfter", { // prm-fines-Aafter
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
@@ -1828,8 +1826,7 @@ function whenPageLoaded(fn) {
 		}
 	});
 
-	// prm-loans
-	app.component("prmLoansAfter", {
+	app.component("prmLoansAfter", { // prm-loans-after
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
@@ -1845,8 +1842,7 @@ function whenPageLoaded(fn) {
 		}
 	});
 
-	// prm-messages-and-blocks
-	app.component("prmMessagesAndBlocksAfter", {
+	app.component("prmMessagesAndBlocksAfter", { // prm-messages-and-blocks-after
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
@@ -1862,7 +1858,7 @@ function whenPageLoaded(fn) {
 		}
 	});
 
-	app.component("prmPersonalInfoAfter", { // prm-personal-info
+	app.component("prmPersonalInfoAfter", { // prm-personal-info-after
 		controller: function ($scope) {
 			setInterval(() => {
 				// no clearInterval - we have to keep watching to insert it, as primo clears it as the account "tabs" change :(
