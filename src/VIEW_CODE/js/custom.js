@@ -551,7 +551,7 @@ function whenPageLoaded(fn) {
 					!!pinLabelElement && (pinLabelElement.id = pinLabelId);
 					!!pinLabelElement && pinLabelElement.classList.add('pin-button-label', 'utility-button-labels');
 					const suppliedButtonLabel = !!ariaLabelText ? ariaLabelText.replace('Go to ', '') : null;
-					const defaultButtonLabel = document.location.pathname === '/primo-explore/favorites' ? 'Search' : 'Favourites'
+					const defaultButtonLabel = document.location.pathname.startsWith('/discovery/favorites') ? 'Search' : 'Favourites'
 					!!pinLabelElement
 					&& (pinLabelElement.textContent = suppliedButtonLabel || defaultButtonLabel);
 					!!pinLabelElement && !!pinLink && pinLink.appendChild(pinLabelElement)
