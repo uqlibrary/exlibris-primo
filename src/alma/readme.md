@@ -7,7 +7,7 @@ Ex Libris provides a css upload that styles inside the iframes. It is found at e
 ### Workflow
 
 1. Make your changes
-    1. Choose your workarea (eg [primo sandbox appdev](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_APPDEV&sortby=rank) )
+    1. Choose your workarea (eg [primo sandbox appdev](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/discovery/search?vid=61UQ_APPDEV&sortby=rank) )
     1. In the inspect panel, under Sources, edit the css source file at Alma "Get It" iframe > uq-psb.alma.exlibrisgroup.com > view > branding_skin > css > mashup_new.css until you are happy with the result, and copy to your local mashup_new.scss file
 
 1. Create the zip for upload
