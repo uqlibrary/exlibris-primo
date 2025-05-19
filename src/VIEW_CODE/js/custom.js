@@ -984,33 +984,6 @@ function whenPageLoaded(fn) {
 
 	}
 
-	const unavailableStatusClass = 'uql-availability-status-unavailable';
-	function highlightUnavailableResources(availabilityElement) {
-		const textContent = availabilityElement.textContent;
-		if ((textContent.includes("Check availability") || textContent.includes("Access conditions apply")) &&
-			!availabilityElement.classList.contains(unavailableStatusClass)
-		) {
-			availabilityElement.classList.add(unavailableStatusClass);
-			return true;
-		}
-		return false;
-	}
-
-	function styleAvailabilityStatementOnFullRecords() {
-		const waitForAvailability = setInterval(() => {
-			const availabilityElement = document.querySelector(`prm-full-view-service-container prm-search-result-availability-line .availability-status:not(.${unavailableStatusClass})`);
-			if (!availabilityElement) {
-				return;
-			}
-			const updated = highlightUnavailableResources(availabilityElement);
-
-			// there can be multiple availability lines, although only one will be need this unavailable status, so we cant always clear yet
-			if (!!updated || availabilityElement.textContent.startsWith("Available at")) {
-				clearInterval(waitForAvailability);
-			}
-		}, 100);
-	}
-
 	function addCRLButtontoSidebar() {
 		// show the label in two spans so we can make it look wrapped
 		const label1 = document.createTextNode('Course Reading');
@@ -1209,8 +1182,6 @@ function whenPageLoaded(fn) {
 
 				// Adjust FULL results display here
 
-				styleAvailabilityStatementOnFullRecords();
-
 				displayReadingListIndicatorOnSomeFullRecords($http, vm);
 
 				displayCulturalAdviceIndicatorOnSomeFullRecords(vm);
@@ -1280,20 +1251,6 @@ function whenPageLoaded(fn) {
 
 		const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
 		!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
-	}
-
-	function styleAvailabilityStatementOnBriefRecord(parentCtrl) {
-		// style the availability statement to spec (grey when unavailable)
-		const availabilityLoad = setInterval(() => {
-			const sectionWrapper = parentCtrl.$element[0];
-			const availabilityElement = !!sectionWrapper && sectionWrapper.querySelector('.search-result-availability-line-wrapper span.availability-status');
-			if (!availabilityElement) {
-				return;
-			}
-
-			clearInterval(availabilityLoad);
-			!!availabilityElement && highlightUnavailableResources(availabilityElement);
-		}, 100);
 	}
 
 	function isDirectLinkingAllowed(vm) {
@@ -1563,8 +1520,6 @@ function whenPageLoaded(fn) {
 				displayReadingListIndicatorOnSomeBriefRecords($http, $scope, vm);
 
 				displayCulturalAdviceIndicatorOnSomeBriefRecords(parentCtrl, vm);
-
-				styleAvailabilityStatementOnBriefRecord(parentCtrl);
 
 				// redirect the `available online` click on certain records to open the full record
 				overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm);
