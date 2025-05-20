@@ -907,8 +907,8 @@ function whenPageLoaded(fn) {
 		const isRestrictedCheckType = restrictedCheckList.includes(materialType);
 
 		// LCN
-		if (!!item?.pnx?.search?.addsrcrecordid && item.pnx.search.addsrcrecordid.length > 0) {
-			item.pnx.search.addsrcrecordid.forEach(r => {
+		if (!!item?.pnx?.control?.sourcerecordid && item.pnx.control.sourcerecordid.length > 0) {
+			item.pnx.control.sourcerecordid.forEach(r => {
 				list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
 			})
 		}
