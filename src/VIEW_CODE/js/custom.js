@@ -1254,15 +1254,31 @@ function whenPageLoaded(fn) {
 	}
 
 	function isDirectLinkingAllowed(vm) {
-		const directLinkingTypes = [
+		// we block direct linking on certain resource types (primo links for all types in VE, but its a bad experience for the user)
+		const typesWithNoDirectLinking = [
 			"journals", "newspapers", "magazines",
 			"journal", "newspaper", "magazine",
 		];
-		const resourceType =
+		const currentRresourceType =
 			!!vm?.parentCtrl?.item?.pnx?.display?.type && vm.parentCtrl.item.pnx.display.type.length > 0
 				? vm.parentCtrl.item.pnx.display.type[0]
 				: "";
-		return !directLinkingTypes.includes(resourceType);
+		if (typesWithNoDirectLinking.includes(currentRresourceType)) {
+			return false;
+		}
+
+		// resources for certain types (currently certain links to espace and atom) shouldn't direct link
+		const atomNoDirectLinkingAvailability = "ext_restrictedWithLink"; // atom (fryer) resources also should not have direct linking
+		const espaceNoDirectLinkingAvailability = "ext_restrictedWithLink_and_physical"; // espace non-openaccess resources also should not have direct linking
+		const availabilityArray =
+			!!vm?.parentCtrl?.item?.delivery?.availability && vm.parentCtrl.item.delivery.availability.length > 0
+				? vm.parentCtrl.item.delivery.availability
+				: null;
+		if (!!availabilityArray && availabilityArray.some(value => [espaceNoDirectLinkingAvailability, atomNoDirectLinkingAvailability].includes(value))) {
+			return false;
+		}
+
+		return true;
 	}
 
 	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm) {
