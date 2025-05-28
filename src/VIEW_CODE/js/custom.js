@@ -1911,6 +1911,63 @@ function whenPageLoaded(fn) {
 		}
 	});
 
+	app.component("prmAlphabetToolbarAfter", { // prm-alphabet-toolbar-after
+		controller: function ($scope) {
+			// indicate the current letter, because primo doesn't bother :(
+			const markerClassName = 'current-letter';
+
+			function getAZLetterFromUrl() {
+				const currentUrl = window.location.href;
+				const url = !!currentUrl && new URL(currentUrl);
+				const databasesParam = !!url && url.searchParams.get('databases');
+				const parts = !!databasesParam && databasesParam.split(',');
+				return !!parts && parts[parts.length - 1];
+			}
+
+			function getElement(letter) {
+				if (!letter) {
+					return null;
+				}
+				return document.querySelector(`a[aria-label="Search titles starting with ${letter}"]`);
+			}
+
+			function updateCurrentLetter(element) {
+				!!element && !element.classList.contains(markerClassName) && element.classList.add(markerClassName);
+			}
+
+			function clearPreviousLetter(element) {
+				!!element && !!element.classList.contains(markerClassName) && element.classList.remove(markerClassName);
+			}
+
+			const waitForLoad = setInterval(() => {
+				let letter = getAZLetterFromUrl();
+
+				const anchor = getElement(letter);
+				if (!anchor) {
+					return;
+				}
+				clearInterval(waitForLoad);
+
+				// on first load of page, highlight the current letter
+				updateCurrentLetter(anchor);
+
+				setInterval(() => {
+					const newLetter = getAZLetterFromUrl();
+					if (newLetter !== letter) {
+						// when the letter in the url changes, UNhighlight the old letter and highlight the new letter
+						const oldAnchor = getElement(letter);
+						clearPreviousLetter(oldAnchor);
+
+						const anchor = getElement(newLetter);
+						updateCurrentLetter(anchor);
+
+						letter = newLetter
+					}
+				}, 100);
+			}, 100)
+		}
+	});
+
 	function insertScript(url) {
 		var script = document.querySelector("script[src*='" + url + "']");
 		if (!script) {
