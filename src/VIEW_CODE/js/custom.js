@@ -1848,6 +1848,69 @@ function whenPageLoaded(fn) {
 		}
 	});
 
+	function waitForElements(selector, timeout = 400, interval = 100) {
+		return new Promise((resolve) => {
+			// Check if elements already exist
+			const elements = document.querySelectorAll(selector);
+			if (elements.length > 0) {
+				return resolve(elements);
+			}
+
+			// Set up variables to track polling
+			let elapsed = 0;
+
+			// Create polling interval
+			const checkInterval = setInterval(() => {
+				elapsed += interval;
+
+				// Check for elements
+				const elements = document.querySelectorAll(selector);
+
+				// If elements found or timeout reached, clear interval and resolve
+				if (elements.length > 0 || elapsed >= timeout) {
+					clearInterval(checkInterval);
+					resolve(elements.length > 0 ? elements : null);
+				}
+			}, interval);
+		});
+	}
+
+	app.component("prmLocationAfter", { // prm-location-after
+		controller: function ($scope) {
+			function addShowMoreIndicator(availabilityLines, showMoreClassName) {
+				!!availabilityLines && availabilityLines.length > 0 && availabilityLines.forEach(a => {
+					const parentNode = !!a && a.parentNode;
+
+					const newHtml = `<span style="display: block;" class="${showMoreClassName}">Show items <prm-icon ng-if="$ctrl.isOvp()" class="padding-right-small location-arrow-icon" icon-type="svg" svg-icon-set="hardware" icon-definition="ic_keyboard_arrow_right_24px"><!----><md-icon ng-if="($ctrl.iconDefinition &amp;&amp; !$ctrl.isCustom &amp;&amp; !$ctrl.isEmailMode()) &amp;&amp; !$ctrl.useFallBack" md-svg-icon="hardware:ic_keyboard_arrow_right_24px" role="presentation" class="md-primoExplore-theme"><svg width="100%" height="100%" viewBox="0 0 24 24" id="ic_keyboard_arrow_right_24px_cache70" y="312" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false"> \t\t<path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"></path> \t</svg></md-icon><!----><!----><!----><prm-icon-after parent-ctrl="$ctrl"></prm-icon-after></prm-icon></span>`;
+					const svgTemplate = document.createElement('template');
+					!!newHtml && !!svgTemplate && (svgTemplate.innerHTML = newHtml);
+
+					const checkAlreadyExists = parentNode.querySelector(`.${showMoreClassName}`);
+
+					!checkAlreadyExists && !!parentNode && !!svgTemplate && parentNode.appendChild(svgTemplate.content.firstChild);
+				});
+			}
+
+			const showMoreClassName = 'availability-show-more';
+
+			waitForElements('prm-location prm-location-holdings')
+				.then(availabilityLines => {
+					if (availabilityLines) {
+						console.log('availabilityLines 1=', availabilityLines);
+						addShowMoreIndicator(availabilityLines, showMoreClassName);
+					} else {
+						console.log('Elements not found within the timeout period');
+						availabilityLines = document.querySelectorAll('prm-location .availability-status');
+						console.log('availabilityLines 2=', availabilityLines);
+						!!availabilityLines && addShowMoreIndicator(availabilityLines, showMoreClassName);
+					}
+				});
+
+
+
+		}
+	});
+
 	function insertScript(url) {
 		var script = document.querySelector("script[src*='" + url + "']");
 		if (!script) {
