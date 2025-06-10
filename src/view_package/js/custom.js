@@ -28,6 +28,7 @@ function whenPageLoaded(fn) {
 		const urlParams = new URLSearchParams(window.location.search);
 		return urlParams.get(name);
 	}
+
 	const vidParam = getSearchParam('vid');
 	const primoHomepageLink = `https://${window.location.hostname}/primo-explore/search?vid=${vidParam}&sortby=rank`;
 
@@ -65,37 +66,37 @@ function whenPageLoaded(fn) {
 	// 		'<path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
 	// 		'</svg>'
 	// };
-	const favouriteLinkOptions = {
-		title: "Favourites",
-		id: "mylibrary-menu-saved-items",
-		svgString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-			'<path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8.10063 15.1345 8.17369C15.2344 8.24675 15.3516 8.29235 15.4746 8.30597L20.3461 9.02767C20.4871 9.04581 20.6201 9.1037 20.7294 9.19458C20.8388 9.28545 20.9201 9.40559 20.9639 9.54094C21.0074 9.67627 21.0117 9.82125 20.9761 9.95891C20.9404 10.0966 20.8663 10.2213 20.7625 10.3184L17.2511 13.802C17.1615 13.8857 17.0942 13.9905 17.0554 14.1069C17.0167 14.2232 17.0075 14.3474 17.0291 14.4682L17.8757 19.3674C17.9001 19.5081 17.8847 19.653 17.831 19.7854C17.7771 19.9178 17.6873 20.0325 17.5717 20.1163C17.456 20.2003 17.3191 20.25 17.1765 20.2598C17.0339 20.2698 16.8915 20.2394 16.7654 20.1724L12.3796 17.8546C12.2673 17.7995 12.1439 17.7708 12.0188 17.7708C11.8936 17.7708 11.7702 17.7995 11.6579 17.8546L7.27219 20.1724C7.14601 20.2394 7.00355 20.2698 6.861 20.2598C6.71845 20.25 6.58153 20.2003 6.46585 20.1163C6.35016 20.0325 6.26034 19.9178 6.2066 19.7854C6.15286 19.653 6.13737 19.5081 6.16188 19.3674L7.00849 14.4127C7.02995 14.2919 7.02087 14.1677 6.98209 14.0514C6.9433 13.935 6.87604 13.8302 6.78643 13.7465L3.23344 10.3184C3.12833 10.2186 3.05441 10.0905 3.02063 9.94953C2.98686 9.80858 2.99468 9.66085 3.04315 9.52425C3.09162 9.38766 3.17866 9.26805 3.29372 9.17991C3.40879 9.09178 3.54694 9.0389 3.69145 9.02767L8.56292 8.30597C8.68589 8.29235 8.80314 8.24675 8.90298 8.17369C9.00281 8.10063 9.08177 8.00269 9.13195 7.8896L11.3387 3.43449C11.3988 3.30474 11.4947 3.19489 11.6153 3.1179C11.7358 3.04091 11.8758 3 12.0188 3C12.1617 3 12.3018 3.04091 12.4223 3.1179C12.5428 3.19489 12.6387 3.30474 12.6988 3.43449Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'</svg>',
-		link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=items`,
-	};
-	const searchHistoryOptions = {
-		title: "Search history",
-		id: "mylibrary-menu-saved-items",
-		svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
-			'<path d="M6.78771 6.69579C8.04789 5.28681 9.76183 4.36381 11.6318 4.08712C13.5017 3.81043 15.4095 4.19754 17.0237 5.1812C18.6379 6.16487 19.8566 7.68292 20.4679 9.47165C21.0792 11.2604 21.0446 13.2067 20.3701 14.9726C19.6956 16.7385 18.4238 18.2123 16.7757 19.138C15.1275 20.0636 13.2072 20.3827 11.3482 20.0397C9.48931 19.6968 7.80926 18.7135 6.59994 17.2606C5.39063 15.8077 4.72848 13.9771 4.72852 12.0868V11.2356" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'<path d="M6.8564 13.7891L4.72825 11.2354L2.6001 13.7891" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'<path d="M12.8154 8.25586V12.5122H15.7948" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'</svg>',
-		link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=search_history`,
-	};
-	const feedbackOptions = {
-		title: "Feedback",
-		ariaLabel: "Provide feedback",
-		link: "https://support.my.uq.edu.au/app/library/feedback",
-		id: "mylibrary-menu-feedback",
-		svgString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-			'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
-			'</svg>',
-		newWindow: true,
-		className: "my-feedback-ctm",
-	};
+	// const favouriteLinkOptions = {
+	// 	title: "Favourites",
+	// 	id: "mylibrary-menu-saved-items",
+	// 	svgString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+	// 		'<path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8.10063 15.1345 8.17369C15.2344 8.24675 15.3516 8.29235 15.4746 8.30597L20.3461 9.02767C20.4871 9.04581 20.6201 9.1037 20.7294 9.19458C20.8388 9.28545 20.9201 9.40559 20.9639 9.54094C21.0074 9.67627 21.0117 9.82125 20.9761 9.95891C20.9404 10.0966 20.8663 10.2213 20.7625 10.3184L17.2511 13.802C17.1615 13.8857 17.0942 13.9905 17.0554 14.1069C17.0167 14.2232 17.0075 14.3474 17.0291 14.4682L17.8757 19.3674C17.9001 19.5081 17.8847 19.653 17.831 19.7854C17.7771 19.9178 17.6873 20.0325 17.5717 20.1163C17.456 20.2003 17.3191 20.25 17.1765 20.2598C17.0339 20.2698 16.8915 20.2394 16.7654 20.1724L12.3796 17.8546C12.2673 17.7995 12.1439 17.7708 12.0188 17.7708C11.8936 17.7708 11.7702 17.7995 11.6579 17.8546L7.27219 20.1724C7.14601 20.2394 7.00355 20.2698 6.861 20.2598C6.71845 20.25 6.58153 20.2003 6.46585 20.1163C6.35016 20.0325 6.26034 19.9178 6.2066 19.7854C6.15286 19.653 6.13737 19.5081 6.16188 19.3674L7.00849 14.4127C7.02995 14.2919 7.02087 14.1677 6.98209 14.0514C6.9433 13.935 6.87604 13.8302 6.78643 13.7465L3.23344 10.3184C3.12833 10.2186 3.05441 10.0905 3.02063 9.94953C2.98686 9.80858 2.99468 9.66085 3.04315 9.52425C3.09162 9.38766 3.17866 9.26805 3.29372 9.17991C3.40879 9.09178 3.54694 9.0389 3.69145 9.02767L8.56292 8.30597C8.68589 8.29235 8.80314 8.24675 8.90298 8.17369C9.00281 8.10063 9.08177 8.00269 9.13195 7.8896L11.3387 3.43449C11.3988 3.30474 11.4947 3.19489 11.6153 3.1179C11.7358 3.04091 11.8758 3 12.0188 3C12.1617 3 12.3018 3.04091 12.4223 3.1179C12.5428 3.19489 12.6387 3.30474 12.6988 3.43449Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+	// 		'</svg>',
+	// 	link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=items`,
+	// };
+	// const searchHistoryOptions = {
+	// 	title: "Search history",
+	// 	id: "mylibrary-menu-saved-items",
+	// 	svgString: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+	// 		'<path d="M6.78771 6.69579C8.04789 5.28681 9.76183 4.36381 11.6318 4.08712C13.5017 3.81043 15.4095 4.19754 17.0237 5.1812C18.6379 6.16487 19.8566 7.68292 20.4679 9.47165C21.0792 11.2604 21.0446 13.2067 20.3701 14.9726C19.6956 16.7385 18.4238 18.2123 16.7757 19.138C15.1275 20.0636 13.2072 20.3827 11.3482 20.0397C9.48931 19.6968 7.80926 18.7135 6.59994 17.2606C5.39063 15.8077 4.72848 13.9771 4.72852 12.0868V11.2356" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+	// 		'<path d="M6.8564 13.7891L4.72825 11.2354L2.6001 13.7891" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+	// 		'<path d="M12.8154 8.25586V12.5122H15.7948" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+	// 		'</svg>',
+	// 	link: `/primo-explore/favorites?vid=${vidParam}&amp;lang=en_US&amp;section=search_history`,
+	// };
+	// const feedbackOptions = {
+	// 	title: "Feedback",
+	// 	ariaLabel: "Provide feedback",
+	// 	link: "https://support.my.uq.edu.au/app/library/feedback",
+	// 	id: "mylibrary-menu-feedback",
+	// 	svgString: '<svg viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+	// 		'<path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+	// 		'<path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+	// 		'<path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/>' +
+	// 		'</svg>',
+	// 	newWindow: true,
+	// 	className: "my-feedback-ctm",
+	// };
 
 	// function ourFeedbackMenuItem(feedbackId) {
 	// 	return `<md-menu-item id="${feedbackId}" data-testid="${feedbackId}" class="uql-account-menu-option">\n` +
@@ -1165,9 +1166,152 @@ function whenPageLoaded(fn) {
 // 		}
 // 	}, 250);
 // }
-//
-// function loadFunctions() {
-// 	manageFavouritesPinDialogLocation();
-// }
-//
-// whenPageLoaded(loadFunctions);
+
+function redirectUserToHomepage() {
+	const redirectBannerStylesElement = document.getElementById('redirectBannerStyles');
+	if (!!redirectBannerStylesElement) {
+		redirectBannerStylesElement.remove();
+	}
+	const redirectBannerStyles = document.createElement('template');
+	redirectBannerStyles.innerHTML = `<style id="redirectBannerStyles">
+				body {
+					position: relative;
+				}
+				html, body {
+					margin: 0;
+					height: 100%;
+					overflow: hidden;
+				}
+				.redirectOverall,
+				.redirectUser {
+					position: fixed;
+					display: block;
+					top: 15rem; /* leave space for uq headers, match to redirectOverall */
+				}
+				.redirectUser {
+					/* vertically center fixed block */
+					width: 1000px;
+					left: 50%;
+					margin-right: auto;
+					margin-left: -500px;
+				
+					/*height: 15rem;*/
+				
+					/* uq box appearance */
+					border-radius: 4px;
+					background: rgb(255, 255, 255);
+					box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0;
+					border: 1px solid rgba(38, 85, 115, 0.15);
+				
+					z-index: 9999;
+					padding: 3rem 2rem;
+					
+					/* uq typography: body */
+					font-family: Roboto, Helvetica, Arial, sans-serif;
+					font-size: 16px;
+					font-weight: 400;
+					line-height: 1.5;
+	
+					div {
+						text-align: center;
+						margin: 2rem auto;
+					}
+					p {
+						text-align: center;
+						margin-inline: auto;
+						margin-bottom: 1rem;
+					}
+					p:last-child {
+						margin-bottom: 0;
+					}
+					/* uq button */
+					a {
+						background-color: #51247a;
+						border: 2px solid #51247a;
+						border-radius: .25rem;
+						box-sizing: border-box;
+						color: #fff !important;
+						cursor: pointer;
+						display: inline-flex;
+						align-items: center;
+						font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+						font-size: 1rem;
+						font-weight: 500;
+						line-height: 1;
+						padding: 1rem 1.5rem;
+						position: relative;
+						text-align: center;
+						text-decoration: none;
+						transition: background-color 200ms ease-out, color 200ms ease-out, border 200ms ease-out;
+						span {
+							border-bottom: 2px solid #51247a;
+						}
+					}
+					a:focus,
+					a:hover {
+						background-color: #fff;
+						color: #51247a !important;
+						box-shadow: none;
+					}
+				}
+				.redirectOverall {
+					width: 100%;
+					height: 100%;
+					z-index: 9998; /* one less than redirectUser */
+					backdrop-filter: blur(3px);
+					background: rgba(255, 255, 255, 0.1); // needs opacity
+				}
+				body:has(.redirectUser) prm-spinner  .loader  .diamond {
+					display: none;
+				}
+		 </style>`;
+
+	const existingRedirectUser = document.getElementById('redirectUser');
+	if (!!existingRedirectUser) {
+		existingRedirectUser.remove();
+	}
+	const redirectUserUIBanner = `<div id="redirectUser" class="redirectUser">
+		<p>Library Search was upgraded on 23 June 2025. The link you tried to use is no longer active.</p>
+		
+		<p>Search again from the Library homepage. Update your links and bookmarks to Library Search as needed.</p>
+		<div>
+		<a href="https://www.library.uq.edu.au/" title="Visit the Library homepage to access valid Library searches"><span>Return to the Library homepage</span></a>
+		
+		</div>
+		<p>You will be automatically redirected in 60 seconds.</p>
+	</div>`;
+	const redirectUserUIoverlayElement = document.createElement('template');
+	!!redirectUserUIoverlayElement && (redirectUserUIoverlayElement.innerHTML = redirectUserUIBanner);
+
+	const existingRedirectOverlay = document.getElementById('existingRedirectOverlay');
+	if (!!existingRedirectOverlay) {
+		existingRedirectOverlay.remove();
+	}
+	const existingRedirectOverlayElement = document.createElement('template');
+	!!existingRedirectOverlayElement && (existingRedirectOverlayElement.innerHTML = `<div id="redirectOverall" class="redirectOverall"></div>`);
+
+	const waitOnCA = setInterval(() => {
+		const parentElement = document.querySelector('cultural-advice'); // place nicely in tab order
+		if (!parentElement) {
+			return;
+		}
+		clearInterval(waitOnCA);
+
+		parentElement.parentNode.insertBefore(redirectUserUIoverlayElement.content.cloneNode(true), parentElement.nextSibling);
+		parentElement.parentNode.insertBefore(existingRedirectOverlayElement.content.cloneNode(true), parentElement.nextSibling);
+
+		const head = document.querySelector('head');
+		head.appendChild(redirectBannerStyles.content.cloneNode(true));
+
+		setTimeout(() => {
+			document.location.href = 'https://www.library.uq.edu.au/';
+		}, 60000);
+	}, 100);
+
+}
+
+function loadFunctions() {
+	redirectUserToHomepage();
+}
+
+whenPageLoaded(loadFunctions);
