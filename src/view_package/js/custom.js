@@ -1167,7 +1167,7 @@ function whenPageLoaded(fn) {
 // 	}, 250);
 // }
 
-function redirectUserToHomepage() {
+function showRedirectUserToHomepageBanner() {
 	const redirectBannerStylesElement = document.getElementById('redirectBannerStyles');
 	if (!!redirectBannerStylesElement) {
 		redirectBannerStylesElement.remove();
@@ -1314,22 +1314,20 @@ function redirectUserToHomepage() {
 possible values
 {
   "status": "bo",
-  "info": "valid values for homepage: 'bo' means show old primo links', 've' means 'show new primo links'; default = 'bo'",
-  "primo-bo-loginlink": "show",
-  "primo-bo-loginlink-info": "'show' means display the login links (on primo-bo), 'hide'. if unavailable 'show''",
-  "primo-bo-redirectbanner": "hide",
-  "primo-bo-redirectbanner-info": "'show' means display the banner (on primo-bo), 'hide' means dont display it. if unavailable, hide"
+  "info": "valid values for homepage: 'bo' means show old primo links on homepage & reusable', 've' means 'show new primo links'; default = 'bo'",
+  "primoBoLoginlink": "show",
+  "primoBoLoginlinkloginlink-info": "'show' means display the login links (on primo-bo), 'hide'. if unavailable 'show'",
+  "primoBoRedirectBanner": "hide",
+  "primoBoRedirectBanner-info": "'show' means display the banner (on primo-bo), 'hide' means dont display it. if unavailable, 'hide'"
 }
-
  */
 
-async function fetchPrimoStatus() {
-	const url = `https://assets.library.uq.edu.au/reusable-webcomponents/api/homepage/searchportal-status.json?ts=${new Date().getTime()}`;
-	const response = await fetch(url);
-	if (!response.ok) {
-		return false;
+function showRedirectBannerByStatus(primoStatusJson) {
+	let showBanner = false;
+	if (!!primoStatusJson && primoStatusJson.primoBoRedirectBanner === 'show') {
+		showBanner = true;
 	}
-	return await response.json();
+	return showBanner;
 }
 
 function hideLoginByStatus(primoStatusJson) {
@@ -1340,7 +1338,7 @@ function hideLoginByStatus(primoStatusJson) {
 	return hideLoginLinks;
 }
 
-function hideLoginLinks(hideLoginLinks) {
+function hideLoginLinks() {
 	const hideLoginStylesElement = document.getElementById('hideLoginStyles');
 	if (!!hideLoginStylesElement) {
 		hideLoginStylesElement.remove();
@@ -1359,14 +1357,27 @@ function hideLoginLinks(hideLoginLinks) {
 	head.appendChild(hideLoginStyles.content.cloneNode(true));
 }
 
+async function fetchPrimoStatus() {
+	const url = `https://assets.library.uq.edu.au/reusable-webcomponents/api/homepage/searchportal-status.json?ts=${new Date().getTime()}`;
+	const response = await fetch(url);
+	if (!response.ok) {
+		return false;
+	}
+	return await response.json();
+}
+
 function loadFunctions() {
 	fetchPrimoStatus().then(primoStatusJson => {
 		const isLoginHidden = hideLoginByStatus(primoStatusJson);
 		if (!!isLoginHidden) {
-			hideLoginLinks(primoStatusJson);
+			hideLoginLinks();
+		}
+
+		const isBannerDisplayed = showRedirectBannerByStatus(primoStatusJson);
+		if (!!isBannerDisplayed) {
+			showRedirectUserToHomepageBanner();
 		}
 	});
-    redirectUserToHomepage();
 }
 
 whenPageLoaded(loadFunctions);
