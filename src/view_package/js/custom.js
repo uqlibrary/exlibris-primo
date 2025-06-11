@@ -1310,8 +1310,63 @@ function redirectUserToHomepage() {
 
 }
 
+/*
+possible values
+{
+  "status": "bo",
+  "info": "valid values for homepage: 'bo' means show old primo links', 've' means 'show new primo links'; default = 'bo'",
+  "primo-bo-loginlink": "show",
+  "primo-bo-loginlink-info": "'show' means display the login links (on primo-bo), 'hide'. if unavailable 'show''",
+  "primo-bo-redirectbanner": "hide",
+  "primo-bo-redirectbanner-info": "'show' means display the banner (on primo-bo), 'hide' means dont display it. if unavailable, hide"
+}
+
+ */
+
+async function fetchPrimoStatus() {
+	const url = `https://assets.library.uq.edu.au/reusable-webcomponents/api/homepage/searchportal-status.json?ts=${new Date().getTime()}`;
+	const response = await fetch(url);
+	if (!response.ok) {
+		return false;
+	}
+	return await response.json();
+}
+
+function hideLoginByStatus(primoStatusJson) {
+	let hideLoginLinks = false;
+	if (!!primoStatusJson && primoStatusJson.primoBoLoginlink === 'hide') {
+		hideLoginLinks = true;
+	}
+	return hideLoginLinks;
+}
+
+function hideLoginLinks(hideLoginLinks) {
+	const hideLoginStylesElement = document.getElementById('hideLoginStyles');
+	if (!!hideLoginStylesElement) {
+		hideLoginStylesElement.remove();
+	}
+	const hideLoginStyles = document.createElement('template');
+	hideLoginStyles.innerHTML = `<style id="hideLoginStyles">
+			primo-explore prm-search-bookmark-filter,
+			primo-explore prm-user-area-expandable,
+			primo-explore button.sign-in-btn-ctm,
+			primo-explore prm-authentication {
+				display: none !important; /* old BO primo login prompt, recommended to be hidden after VE goes live, 2025. Can remove in 2026? */
+			}
+	 </style>`;
+
+	const head = document.querySelector('head');
+	head.appendChild(hideLoginStyles.content.cloneNode(true));
+}
+
 function loadFunctions() {
-	redirectUserToHomepage();
+	fetchPrimoStatus().then(primoStatusJson => {
+		const isLoginHidden = hideLoginByStatus(primoStatusJson);
+		if (!!isLoginHidden) {
+			hideLoginLinks(primoStatusJson);
+		}
+	});
+    redirectUserToHomepage();
 }
 
 whenPageLoaded(loadFunctions);

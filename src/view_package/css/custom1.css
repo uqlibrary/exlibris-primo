@@ -16,10 +16,3 @@ prm-search > md-content.md-primoExplore-theme .main {
 }
 
 */
-
-primo-explore prm-search-bookmark-filter,
-primo-explore prm-user-area-expandable,
-primo-explore button.sign-in-btn-ctm,
-primo-explore prm-authentication {
-    display: none !important; /* old BO primo login prompt, recommended to be hidden after VE goes live, 2025. Can remove in 2026? */
-}
