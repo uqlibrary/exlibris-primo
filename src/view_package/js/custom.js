@@ -491,7 +491,7 @@ function whenPageLoaded(fn) {
 	});
 
 	function isDomainProd() {
-		return window.location.hostname === "search.library.uq.edu.au";
+		return window.location.hostname === "search.library.uq.edu.au" || window.location.hostname === 'primo-direct-apac.hosted.exlibrisgroup.com';
 	}
 
 	// determine if we are in the public environment, colloquially referred to as prod-prod
@@ -1111,7 +1111,7 @@ function whenPageLoaded(fn) {
 	}
 
 	// this script should only be called on views that have UQ header showing
-	let folder = "/"; // default. Use for prod.
+	let folder = "-development/production-primo-bo/"; // default. Use for prod.
 	if (isDomainProd()) {
 		if (/vid=61UQ_APPDEV/.test(window.location.href)) {
 			folder = "-development/primo-prod-dev/";
