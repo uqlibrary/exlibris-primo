@@ -675,13 +675,8 @@ function whenPageLoaded(fn) {
 				vm.targeturl = "";
 
 				let recordId = "";
-				// no one knows what the TN actually means (per SVG), but in practice all the CDI records have it on their record id
-				if (
-					!!vm.parentCtrl?.item?.pnx?.control?.recordid &&
-					vm.parentCtrl.item.pnx.control.recordid[0] &&
-					vm.parentCtrl.item.pnx.control.recordid[0].startsWith("TN")
-				) {
-					recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid);
+				if (!!vm.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid[0]) {
+					recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid[0]);
 				}
 				if (recordId === "" && !!vm.parentCtrl?.item?.pnx?.search?.recordid) {
 					recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
