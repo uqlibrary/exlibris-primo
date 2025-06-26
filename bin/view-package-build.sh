@@ -11,16 +11,16 @@ fi
 
 # Read arguments
 PRIMO_VIEW="$1"
-
 cd ./src
-rm -rf ./$1 ./$1.zip
-cp -r ./view_package ./$1
-npx bestzip $1.zip $1/
+echo "Removing old zip file"
+rm -rf ./61UQ_INST-$PRIMO_VIEW ./61UQ_INST-$PRIMO_VIEW.zip
+cp -r ./VIEW_CODE ./61UQ_INST-$PRIMO_VIEW
+npx bestzip 61UQ_INST-$PRIMO_VIEW.zip 61UQ_INST-$PRIMO_VIEW/
 
 echo " "
-echo "File $1.zip saved in file://$PWD"
+echo "File 61UQ_INST-$PRIMO_VIEW.zip saved in $PWD"
 
 printf "\nCleaning up...  "
-rm -rf $1
+rm -rf 61UQ_INST-$PRIMO_VIEW
 
 printf "\e[92mDone.\e[0m\n\n"

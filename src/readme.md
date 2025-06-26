@@ -8,14 +8,14 @@ There are 6 basic environments:
 
 | Primo Environment Name | Primo Url        | Git&nbsp;Branch&nbsp;Name  | Notes |
 | ---------------------- | ---------------- | --------------- | ---- |
-| prod                   | [search.library.uq.edu.au](https://search.library.uq.edu.au/primo-explore/search?vid=61UQ&sortby=rank) (ie vid=61UQ) | `production` | live, public primo |
-| prod-appdev            | [search.library.uq.edu.au](https://search.library.uq.edu.au/primo-explore/search?sortby=rank&vid=61UQ_APPDEV) (ie vid=61UQ_APPDEV) | `primo-prod-dev` | development on the live server |
-| prod-dac               | [search.library.uq.edu.au](https://search.library.uq.edu.au/primo-explore/search?sortby=rank&vid=61UQ_DAC) (ie vid=61UQ_DAC) | (uses prod) | DAC's personal area. Keep it up to date with the others - deploy prod-appdev changes here |
-| prod-otb               | [search.library.uq.edu.au](https://search.library.uq.edu.au/primo-explore/search?sortby=rank&vid=61UQ_DEV_LOGIN) (ie vid=61UQ_DEV_LOGIN) | - | Blue out of the box primo in the prod environment - it would be very unusual for us to make changes to this |
-| sandbox                | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ&sortby=rank) (ie vid=61UQ) | `primo-sandbox` | sandbox area |
-| sandbox-appdev         | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_APPDEV&sortby=rank) (ie vid=61UQ_APPDEV) | `primo-sandbox-dev` | sandbox dev area |
-| sandbox-dac            | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DAC&sortby=rank) (ie vid=61UQ_DAC) | (uses primo-sandbox) | DAC's personal area. Keep it up to date with the others - deploy sandbox-dev changes here |
-| sandbox-otb            | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/primo-explore/search?vid=61UQ_DEV_LOGIN&sortby=rank) (ie vid=61UQ_DEV_LOGIN) | - | sandbox out of the box - it would be very unusual for us to make changes to this |
+| prod                   | [search.library.uq.edu.au](https://search.library.uq.edu.au/discovery/search?vid=61UQ&sortby=rank) (ie vid=61UQ) | `production` | live, public primo |
+| prod-appdev            | [search.library.uq.edu.au](https://search.library.uq.edu.au/discovery/search?sortby=rank&vid=61UQ_APPDEV) (ie vid=61UQ_APPDEV) | `primo-prod-dev` | development on the live server |
+| prod-dac               | [search.library.uq.edu.au](https://search.library.uq.edu.au/discovery/search?sortby=rank&vid=61UQ_DAC) (ie vid=61UQ_DAC) | (uses prod) | DAC's personal area. Keep it up to date with the others - deploy prod-appdev changes here |
+| prod-otb               | [search.library.uq.edu.au](https://search.library.uq.edu.au/discovery/search?sortby=rank&vid=61UQ_DEV_LOGIN) (ie vid=61UQ_DEV_LOGIN) | - | Blue out of the box primo in the prod environment - it would be very unusual for us to make changes to this |
+| sandbox                | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/discovery/search?vid=61UQ&sortby=rank) (ie vid=61UQ) | `primo-sandbox` | sandbox area |
+| sandbox-appdev         | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/discovery/search?vid=61UQ_APPDEV&sortby=rank) (ie vid=61UQ_APPDEV) | `primo-sandbox-dev` | sandbox dev area |
+| sandbox-dac            | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/discovery/search?vid=61UQ_DAC&sortby=rank) (ie vid=61UQ_DAC) | (uses primo-sandbox) | DAC's personal area. Keep it up to date with the others - deploy sandbox-dev changes here |
+| sandbox-otb            | [uq-edu-primo-sb.hosted.exlibrisgroup.com](https://uq-edu-primo-sb.hosted.exlibrisgroup.com/discovery/search?vid=61UQ_DEV_LOGIN&sortby=rank) (ie vid=61UQ_DEV_LOGIN) | - | sandbox out of the box - it would be very unusual for us to make changes to this |
 
 The branch is set in [view_package/js/custom.js](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/js/custom.js) (down the bottom, look for `insertScript`)
 
@@ -86,8 +86,8 @@ See [the alma readme](https://github.com/uqlibrary/exlibris-primo/blob/master/sr
 
 1. To make a link that forces login, prepend the link with:
 
-    <https://search.library.uq.edu.au/primo-explore/login?vid=61UQ&targetURL=...>
+    <https://search.library.uq.edu.au/discovery/login?vid=61UQ&targetURL=...>
 
-    e.g.: [Link to Saved Items](https://search.library.uq.edu.au/primo-explore/login?vid=61UQ&targetURL=https%3A%2F%2Fsearch.library.uq.edu.au%2Fprimo-explore%2Ffavorites%3Fvid%3D61UQ%26lang%3Den_US%C2%A7ion%3Ditems)
+    e.g.: [Link to Saved Items](https://search.library.uq.edu.au/discovery/login?vid=61UQ&targetURL=https%3A%2F%2Fsearch.library.uq.edu.au%2Fdiscovery%2Ffavorites%3Fvid%3D61UQ%26lang%3Den_US%C2%A7ion%3Ditems)
 
 2. [This repo](https://github.com/mehmetc/primo-extract) may be useful if we ever have to get into the depths of Primo Angular - it gives access to the sourcemaps of Primo Angular code.
