@@ -670,11 +670,11 @@ function whenPageLoaded(fn) {
 	app.component("prmFullViewServiceContainerAfter", { // prm-full-view-service-container-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope) {
-			var vm = this;
+			const vm = this;
 			this.$onInit = function () {
 				vm.targeturl = "";
 
-				var recordId = "";
+				let recordId = "";
 				// no one knows what the TN actually means (per SVG), but in practice all the CDI records have it on their record id
 				if (
 					!!vm.parentCtrl?.item?.pnx?.control?.recordid &&
@@ -683,10 +683,8 @@ function whenPageLoaded(fn) {
 				) {
 					recordId = encodeURIComponent(vm.parentCtrl.item.pnx.control.recordid);
 				}
-				if (recordId === "") {
-					if (!!vm.parentCtrl?.item?.pnx?.search?.recordid) {
-						recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
-					}
+				if (recordId === "" && !!vm.parentCtrl?.item?.pnx?.search?.recordid) {
+					recordId = encodeURIComponent(vm.parentCtrl.item.pnx.search.recordid);
 				}
 				if (recordId === '') {
 					const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -706,7 +704,7 @@ function whenPageLoaded(fn) {
 					recordTitle = encodeURIComponent(vm.parentCtrl.item.pnx.display.title[0]);
 				}
 				if (recordTitle !== '') {
-					var maxNumberCharCRMCanAccept = 239;
+					const maxNumberCharCRMCanAccept = 239;
 					recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
 				}
 
@@ -721,11 +719,9 @@ function whenPageLoaded(fn) {
 					}
 				});
 
-				var isIE11 = navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1;
-
-				// if we are not IE11 and can get a docid and a title - add a button
-				if (!isIE11 && recordId !== "" && recordTitle !== "") {
-					var crmDomain = "https://uqcurrent--tst1.custhelp.com"; // we can probably return the live url for all when this is in prod
+				// if we can get a docid and a title - add a button
+				if (recordId !== "" && recordTitle !== "") {
+					let crmDomain = "https://uqcurrent--tst1.custhelp.com";
 					if (isDomainProd()) {
 						crmDomain = "https://support.my.uq.edu.au";
 					}
