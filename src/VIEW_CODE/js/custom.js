@@ -1530,11 +1530,14 @@ function whenPageLoaded(fn) {
 		controller: function ($scope, $http) {
 			const vm = this;
 			this.$onInit = function () {
-				function extractRecordCount(parentElement, label) {
-					const ariaLabel = !!parentElement && parentElement.getAttribute('aria-label');
-					return !!ariaLabel && ariaLabel.replace(label, '')
-						.replace(/[^\d,]/g, '')
-						.trim();
+				function extractRecordCount(element) {
+                    const ariaLabelElement = !!element && element.closest('[aria-label]');
+                    const ariaLabel = !!ariaLabelElement && ariaLabelElement.getAttribute('aria-label');
+                    const displayLabel = !!ariaLabelElement && ariaLabelElement.textContent;
+                    return !!ariaLabel ? ariaLabel
+                        .replace(displayLabel, '') // just in case it contains a number, handle it separately, but really that would be surprising!
+                        .replace(/[^\d,]/g, '') // remove non numeric values
+                        .trim() : 0;
 				}
 
 				function createCountTextNode(recordCount, elementId) {
@@ -1577,8 +1580,8 @@ function whenPageLoaded(fn) {
 								) {
 									// extract the record count from the element's aria label
 									const element = wrappingParent.querySelector('.text-number-space');
-									const recordCount = !!element?.parentNode && !!element?.textContent && extractRecordCount(element?.parentNode, element.textContent);
-									const numericRecordCount = parseInt(recordCount.replace(',', ''), 10);
+                                    const recordCount = !!element && extractRecordCount(element);
+                                    const numericRecordCount = !!recordCount && parseInt(recordCount.replace(',', ''), 10);
 									// create a display element to put on the screen
 									const newDisplayElement = !!recordCount && numericRecordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
 									// attach the new display element to the parent
