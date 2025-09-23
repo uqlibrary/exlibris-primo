@@ -31,11 +31,6 @@ function whenPageLoaded(fn) {
 	const vidParam = getSearchParam('vid');
 	const primoHomepageLink = `https://${window.location.hostname}/discovery/search?vid=${vidParam}&offset=0`;
 
-	// this should only be needed for primo ve test - we should be back to 2 domains when VE goes live
-	function isDomainPrimoVETest() {
-		return window.location.hostname === "uq.primo.exlibrisgroup.com";
-	}
-
 	function getPrimoHomepageLabel() {
 		// determine if we are in the public environment, colloquially referred to as prod-prod
 		// (to distinguish it from prod-dev and sandbox-prod)
@@ -49,12 +44,7 @@ function whenPageLoaded(fn) {
 		const labelModifier = isPubliclyViewable ? '' : vidParam.replace('61UQ_INST:61UQ_', '');
 		let primoHomepageLabel;
 		if (isDomainProd()) {
-			primoHomepageLabel = `Library Search${labelModifier}`
-		} else if (isDomainPrimoVETest()) { // this `else if` can be removed when Primo VE goes live, because only prod and sandbox will exist
-			primoHomepageLabel = `PRIMO VE TEST ${labelModifier}`;
-			if (vidParam === '61UQ_INST:61UQ') {
-				primoHomepageLabel = `PRIMO VE TEST PROD`;
-			}
+			primoHomepageLabel = `Library Search ${labelModifier}`
 		} else { // sandbox domain
 			primoHomepageLabel = `SANDBOX VE ${labelModifier}`;
 		}
@@ -1540,11 +1530,14 @@ function whenPageLoaded(fn) {
 		controller: function ($scope, $http) {
 			const vm = this;
 			this.$onInit = function () {
-				function extractRecordCount(parentElement, label) {
-					const ariaLabel = !!parentElement && parentElement.getAttribute('aria-label');
-					return !!ariaLabel && ariaLabel.replace(label, '')
-						.replace(/[^\d,]/g, '')
-						.trim();
+				function extractRecordCount(element) {
+                    const ariaLabelElement = !!element && element.closest('[aria-label]');
+                    const ariaLabel = !!ariaLabelElement && ariaLabelElement.getAttribute('aria-label');
+                    const displayLabel = !!ariaLabelElement && ariaLabelElement.textContent;
+                    return !!ariaLabel ? ariaLabel
+                        .replace(displayLabel, '') // just in case it contains a number, handle it separately, but really that would be surprising!
+                        .replace(/[^\d,]/g, '') // remove non numeric values
+                        .trim() : 0;
 				}
 
 				function createCountTextNode(recordCount, elementId) {
@@ -1587,8 +1580,8 @@ function whenPageLoaded(fn) {
 								) {
 									// extract the record count from the element's aria label
 									const element = wrappingParent.querySelector('.text-number-space');
-									const recordCount = !!element?.parentNode && !!element?.textContent && extractRecordCount(element?.parentNode, element.textContent);
-									const numericRecordCount = parseInt(recordCount.replace(',', ''), 10);
+                                    const recordCount = !!element && extractRecordCount(element);
+                                    const numericRecordCount = !!recordCount && parseInt(recordCount.replace(',', ''), 10);
 									// create a display element to put on the screen
 									const newDisplayElement = !!recordCount && numericRecordCount > 0 && createCountTextNode(recordCount, getNewItemId(element));
 									// attach the new display element to the parent
@@ -1992,27 +1985,19 @@ function whenPageLoaded(fn) {
 		}
 	}
 
-	// this script should only be called on views that have UQ header showing
 	let folder = "/"; // default. Use for prod.
 	if (isDomainProd()) {
 		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-prod-dev/";
 		}
-	} else if (isDomainPrimoVETest()) { // this `else if` can be removed when Primo VE goes live, because only prod and sandbox will exist
-		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
-			folder = "-development/primo-prod-dev/";
-		} else if (vidParam === '61UQ_INST:61UQ') {
-			folder = "-development/primo-veprod/";
-		}
 	} else { // sandbox domain
+		folder = "-development/primo-sandbox/";
 		if (vidParam === '61UQ_INST:61UQ_APPDEV') {
 			folder = "-development/primo-sandbox-dev/";
-		} else if (vidParam === '61UQ_INST:61UQ') {
-			folder = "-development/primo-sandbox/";
 		}
 	}
 
-	// this script should only be called on views that have UQ header showing
+	// this script should only be called on views where we want UQ components, such as the purple header showing
 	insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'uq-lib-reusable.min.js');
 	// we don't yet need this script, but if we do it should be in this location
 	// insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/load.js');
