@@ -25,23 +25,38 @@ function whenPageLoaded(fn) {
 		]);
 
 	function getSearchParam(name) {
-		const urlParams = new URLSearchParams(window.location.search);
-		return urlParams.get(name);
 	}
-	const vidParam = getSearchParam('vid');
+
+    const currentEnvironmentId = () => {
+        let result;
+
+        const paramName ='vid';
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has(paramName)) {
+            result = urlParams.get(paramName);
+        } else {
+            const pathSegments = window.location.pathname.split('/');
+            const institutionSegment = pathSegments.find(segment =>
+                segment.includes('61UQ_INST:')
+            );
+            result = institutionSegment || null;
+        }
+        return result;
+    }
+    const vidParam = currentEnvironmentId();
 	const primoHomepageLink = `https://${window.location.hostname}/discovery/search?vid=${vidParam}&offset=0`;
 
 	function getPrimoHomepageLabel() {
 		// determine if we are in the public environment, colloquially referred to as prod-prod
 		// (to distinguish it from prod-dev and sandbox-prod)
-		const isPubliclyViewable = isDomainProd() && getSearchParam('vid') === '61UQ_INST:61UQ';
+		const isPubliclyViewable = isDomainProd() && currentEnvironmentId() === '61UQ_INST:61UQ';
 
 		// modifier possibilities:
 		// 61UQ_INST:61UQ            => "PROD" (unless public domain)
 		// 61UQ_INST:61UQ_APPDEV     => "APPDEV"
 		// 61UQ_INST:61UQ_DALTS      => "DALTS" (formerly DAC)
 		// 61UQ_INST:61UQ_CANARY     => "CANARY"
-		const labelModifier = isPubliclyViewable ? '' : vidParam.replace('61UQ_INST:61UQ_', '');
+		const labelModifier = isPubliclyViewable ? '' : vidParam?.replace('61UQ_INST:61UQ_', '');
 		let primoHomepageLabel;
 		if (isDomainProd()) {
 			primoHomepageLabel = `Library Search ${labelModifier}`
