@@ -2013,7 +2013,8 @@ function whenPageLoaded(fn) {
 	}
 
 	// this script should only be called on views where we want UQ components, such as the purple header showing
-	insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'uq-lib-reusable.min.js');
+	// insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'uq-lib-reusable.min.js');
+	insertScript('https://assets.library.uq.edu.au/reusable-webcomponents-staging/uq-lib-reusable.min.js');
 	// we don't yet need this script, but if we do it should be in this location
 	// insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/load.js');
 	insertStylesheet('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/custom-styles.css');
