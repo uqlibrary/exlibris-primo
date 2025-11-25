@@ -66,22 +66,40 @@ function whenPageLoaded(fn) {
 		return primoHomepageLabel;
 	}
 
-	app.component("prmTopBarBefore", { // prm-top-bar-before
-		// we found it was more robust to insert the alerts list in the different page location via primo angular, see below,
-		// so completely skip inserting elements "by attribute"
-		template:
-			'<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
-			'<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
-			`<uq-site-header secondleveltitle="${(getPrimoHomepageLabel())}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
-			"<proactive-chat></proactive-chat>",
-	});
+    app.component("prmTopBarBefore", { // prm-top-bar-before
+        // our other systems include web components by using a load.js that adds components.
+        // Here they are included via angular templates
+        // alerts and CA are done separately, below
+        // web components that call apis are only included on prod, because staging api is deprovisioned outside business hours
+        bindings: { parentCtrl: "<" },
+        controller: function ($scope) {
+            const vm = this;
+            this.$onInit = function () {
+                vm.isDomainProd = isDomainProd();
+            }
+        },
+        template:
+            '<uq-gtm gtm="GTM-NC7M38Q"></uq-gtm>' +
+            '<uq-header hideLibraryMenuItem="true" searchLabel="library.uq.edu.au" searchURL="http://library.uq.edu.au" skipnavid="searchBar"></uq-header>' +
+            `<uq-site-header secondleveltitle="${(getPrimoHomepageLabel())}" secondlevelurl="${primoHomepageLink}"></uq-site-header>` +
+            '<proactive-chat ng-if="$ctrl.isDomainProd"></proactive-chat>',
+    });
 
-	app.component("prmTopbarAfter", { // prm-topbar-after
-		template:
-			'<alert-list system="primo"></alert-list>' +
-			'<cultural-advice></cultural-advice>'
-		,
-	});
+    app.component("prmTopbarAfter", { // prm-topbar-after
+        bindings: { parentCtrl: "<" },
+        controller: function ($scope) {
+            const vm = this;
+            this.$onInit = function () {
+                vm.isDomainProd = isDomainProd();
+            }
+        },
+        template: `
+        <div>
+            <alert-list system="primo" ng-if="$ctrl.isDomainProd"></alert-list>
+            <cultural-advice></cultural-advice>
+        </div>
+    `
+    });
 
 	// account options is a built in primo but that we alter, but cant directly offer the same functionality it does
 	const accountLinkOptions = {
