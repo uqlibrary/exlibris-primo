@@ -130,6 +130,13 @@ function insertUqComponents() {
         const culturalAdvice = document.createElement('cultural-advice');
         !!culturalAdvice && document.body.insertBefore(culturalAdvice, firstElement);
     }
+
+    if (!document.querySelector('uq-footer')) {
+        // has to be appended to main, higher in the tree puts it in the middle of the page?!?
+        const subFooter = document.createElement('uq-footer');
+        const ndeRoot = document.querySelector('nde-app-root main')
+        !!subFooter && !!ndeRoot && ndeRoot.appendChild(subFooter);
+    }
 }
 
 function loadFunctions() {
