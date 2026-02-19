@@ -1,84 +1,99 @@
-# The New Primo UI Customization Package
+# Primo NDE Customization
 
-## Package documentation
+All of the NDE customization is done via the `assets` folder, located at the base of the customization folder named after the `vid` you are customizing.  
+Inside the `assets` folder, the files are divided into the following subfolders:
 
-The development package allows you to configure :
+- **js**
+- **css**
+- **images**
+- **icons**
+- **homepage**
+- **header-footer**
 
-- css
-  - no customisation to be done in custom.css
-  
-- images includes
-  - favicon.ico
-  - library-logo.png (used in email templates)
-  - a whole bunch of small icons that are the default image for the matching type of record in Primo
-  
-- html/homepage
-  - home-en_US.html landing page to contain NO elements (means no paragraphs on home page)
-  - email_en_US.html template for emails
+In the following sections, you’ll find details on which files can be placed in each folder to customize different parts of the NDE UI.  
+You can also refer to [Understanding the File Structure of a Customization Package](https://knowledge.exlibrisgroup.com/Primo/Product_Documentation/020Primo_VE/Primo_VE_(English)/030Primo_VE_User_Interface/010NDE_UI_Customization_-_Best_Practices#Using_the_Customization_Package_Manager).
 
-- JavaScript
-  - reusable components are injected by custom.js
+---
 
-Modifications should always be done in reusable-components/applications/primo/*.(scss|js) in preference to modifying the package. (Not always possible)
+## js
 
-Exceptions:
+### `custom.js`
+Use this file to run any JavaScript code when loading the NDE UI.
 
-- initial reusable injection
-- email template customisation
+---
 
-## Package deployment
+## css
 
-The view_package directory must be zipped for upload. We have a npm command for that:
+### `custom.css`
+Use this file to modify the styling of the NDE UI.
 
-`npm run viewzip 61UQ`, supplying the vid name you require.
+---
 
-As an OSX user, I find it useful to go:
+## images
 
-`npm run viewzip 61UQ_APPDEV && zip -d 61UQ_INST-61UQ_APPDEV.zip \*.DS_Store`
+### `library-logo.png`
+Use this file to set the logo that appears at the top of the app.  
+![Logo](logo.png)
 
-Adjust the vid value to the vid you need. The command above will:
+### `icon_<resource_type>.png`
+Set the default resource type thumbnail by placing files following this naming convention:  
+`icon_<resource_type>.png`
 
-- create the zip
-- if on osx you will want this, it strips any annoying .ds_store files from the zip
+        For Example:
+        `icon_book.png`
 
-Below are the old manual commands if you prefer to do it that way:
 
-~~- 'view_package' directory should be renamed to a name of desired view (eg 61UQ for production view, 61UQ_APPDEV for development, etc) eg.
+## icons
 
-  `$ cp -r ~/exlibris-primo/src/view_package/ ~/61UQ_APPDEV`
+### favicon.ico
+use this file to set the favicon that will appear in the browser tab
 
-- make sure there are no hidden files (eg .idea, .git, etc)
-- create a zip named after the Primo view, eg 61UQ_APPDEV view will have 61UQ_APPDEV.zip
+![img.png](favicon.png)
 
-  `$ zip -r 61UQ_APPDEV.zip 61UQ_INST-61UQ_APPDEV`
+### custom_icons.svg
+Use this file to override the default svg icons used in the NDE UI.
 
-- OSX? Also run
+You can find the id of the icon you would like to override by inspecting the element in the browser and looking at the data-mat-icon-name attribute of the mat-icon element containing the svg icon you would like to override.
 
-  `$ zip -d 61UQ_INST-61UQ_APPDEV.zip \*.DS_Store`
+For example:
+![img.png](svg-icon-example-inspect.png)
+Our id here is 'Search' (the id is case sensitive)
+Inside the custom_icons.svg file you will add a new symbol element with the id 'Search' and the svg code you would like to use as the icon. 
+This needs to be placed inside the enclosing svg element. You can add many such symbols to the file with different id.
 
-  to remove the .DS_Store file, automatically created by the zipping process on mac.
+In our example the contents of the custom_icons.svg file might look like this:
 
-  (You can also use `find . -name ".DS_Store" -print -delete` to remove all .DS_Store files under the current directory before zipping)~~
+`<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="0" height="0">
+  <symbol id="Search" height="24px" viewBox="0 -960 960 960" width="24px" fill="">
+    <path d="M440-240q116 0 198-81.5T720-520q0-116-82-198t-198-82q-117 0-198.5 82T160-520q0 117 81.5 198.5T440-240Zm0-280Zm0 160q-83 0-147.5-44.5T200-520q28-70 92.5-115T440-680q82 0 146.5 45T680-520q-29 71-93.5 115.5T440-360Zm0-60q55 0 101-26.5t72-73.5q-26-46-72-73t-101-27q-56 0-102 27t-72 73q26 47 72 73.5T440-420Zm0-40q25 0 42.5-17t17.5-43q0-25-17.5-42.5T440-580q-26 0-43 17.5T380-520q0 26 17 43t43 17Zm0 300q-75 0-140.5-28.5t-114-77q-48.5-48.5-77-114T80-520q0-74 28.5-139.5t77-114.5q48.5-49 114-77.5T440-880q74 0 139.5 28.5T694-774q49 49 77.5 114.5T800-520q0 64-21 121t-58 104l159 159-57 56-159-158q-47 37-104 57.5T440-160Z"/>
+  </symbol>
+</svg>
+`
 
-### Uploading via interface
+and the result will be:
 
-Uploading to Alma Back Office is the only way to upload - Ex Libris has never set up a push via github
+![img.png](svg-icon-result.png)
 
-- upload zip to Alma BO ([Prod](https://uq.alma.exlibrisgroup.com/SAML) or [Sandbox](https://uq-psb.alma.exlibrisgroup.com/infra/action/pageAction.do?xmlFileName=configuration_setup.configuration_mngUXP.xml&almaConfiguration=true&pageViewMode=Edit&pageBean.menuKey=com.exlibris.dps.menu_conf&operation=LOAD&pageBean.helpId=general_configuration&pageBean.currentUrl=xmlFileName%3Dconfiguration_setup.configuration_mngUXP.xml%26almaConfiguration%3Dtrue%26pageViewMode%3DEdit%26pageBean.menuKey%3Dcom.exlibris.dps.menu_conf%26operation%3DLOAD%26pageBean.helpId%3Dgeneral_configuration%26resetPaginationContext%3Dtrue%26showBackButton%3Dfalse&pageBean.navigationBackUrl=..%2Faction%2Fhome.do&resetPaginationContext=true&showBackButton=false&pageBean.securityHashToken=-5853301607516470192)) to corresponding view:
-  - choose current location (no idea why!) 
-  - in sidebar, bottom left, click `Configuration`  
-  - in sidebar, top, click `Discovery`  
-  - menu opens, under "Display Configuration", click 'Configure Views'
-  - select view, eg 61UQ_APPDEV using right hand button with 3 dots - click 'Edit'
-  - click on 'Manage Customization Package' tab
-  - if you wish, you can download the "Current View Customization package" as insurance against an undesired change
-  - choose "upload package", and click the button with the folder icon to choose the zip file (I like to visually confirm the time stamp on the file before I choose it)
-  - click Upload
-  - Alma should respond within a second or two with a small "Customization file uploaded successfully" dialog in the top right corner
-  - IMPORTANT!! now click "Save" (top right corner)
-  - Alma should respond within a second or two with a small "Customization package deployed successfully" dialog (other items too) in the top right corner
-  - update is available straight away - you may need to do a hard refresh on the web page to see it
-  
-## Primo dev environment
 
-Try setting up local environment following this: <https://github.com/ExLibrisGroup/primo-explore-devenv>
+## homepage
+
+### homepage_background.svg
+Use this file to set the background image of the homepage
+![img.png](homepage-background-image.png)
+
+### homepage_<language_code>.html
+Use this file to set the html content of the homepage for a specific language.
+
+![img.png](homepage-html.png)
+
+The language code should be the code of the language you are customizing for. 
+For example for English use `homepage_en.html` for French use `homepage_fr.html` etc. 
+If no file is set for some language code it will use English file by default.
+
+### homepage.css
+Use this file to set the styling for the homepage html content (homepage_<language_code>.html) with CSS
+
+## header-footer
+Add header or footer files in the following file conventions header_<language_code>.html and footer_<language_code>.html
+For example to add footer for English use `footer_en.html` for French use `foooter_fr.html` etc. 
