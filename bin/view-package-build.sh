@@ -20,7 +20,8 @@ npx bestzip 61UQ_INST-$PRIMO_VIEW.zip 61UQ_INST-$PRIMO_VIEW/
 echo " "
 echo "File 61UQ_INST-$PRIMO_VIEW.zip saved in $PWD"
 
-printf "\nCleaning up...  "
+printf "\nCleaning up...  \n\n"
 rm -rf 61UQ_INST-$PRIMO_VIEW
+zip -d 61UQ_INST-$PRIMO_VIEW.zip \*.DS_Store
 
 printf "\e[92mDone.\e[0m\n\n"
