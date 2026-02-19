@@ -103,7 +103,13 @@ function insertUqComponents() {
 
     if (!document.querySelector('uq-site-header')) {
         const siteHeader = document.createElement('uq-site-header');
-        !!siteHeader && siteHeader.setAttribute('secondleveltitle', 'Library Search');
+        let breadcumbLabel = 'Library Search';
+        if (window.location.hostname === 'uq.primo.exlibrisgroup.com') {
+            breadcumbLabel = 'NDE Library Search';
+        } else if (window.location.hostname === 'uq-psb.primo.exlibrisgroup.com') {
+            breadcumbLabel = 'NDE Library Search (Sandbox)';
+        }
+        !!siteHeader && siteHeader.setAttribute('secondleveltitle', breadcumbLabel);
         !!siteHeader && siteHeader.setAttribute('secondlevelurl', 'https://www.library.uq.edu.au/');
         !!siteHeader && document.body.insertBefore(siteHeader, firstElement);
 
