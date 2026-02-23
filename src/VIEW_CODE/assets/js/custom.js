@@ -105,9 +105,9 @@ function insertUqComponents() {
         const siteHeader = document.createElement('uq-site-header');
         let breadcumbLabel = 'Library Search';
         if (window.location.hostname === 'uq.primo.exlibrisgroup.com') {
-            breadcumbLabel = 'NDE Library Search';
+            breadcumbLabel = 'NDE UI Library Search';
         } else if (window.location.hostname === 'uq-psb.primo.exlibrisgroup.com') {
-            breadcumbLabel = 'NDE Library Search (Sandbox)';
+            breadcumbLabel = 'NDE UI Library Search (Sandbox)';
         }
         !!siteHeader && siteHeader.setAttribute('secondleveltitle', breadcumbLabel);
         !!siteHeader && siteHeader.setAttribute('secondlevelurl', 'https://www.library.uq.edu.au/');
