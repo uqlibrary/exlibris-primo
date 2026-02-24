@@ -26,8 +26,7 @@ function insertScript(url) {
 // yes we could do it in the custom.css file, but if it's done here i won't lose track when I want to move it to reusable
 function insertSmallStyles() {
     const styleTemplate = document.createElement('template');
-    styleTemplate.innerHTML = `
-	<style>
+    styleTemplate.innerHTML = `<style>
 		:root, head, body {
 			--sys-primary: #51247a;
 		}
@@ -35,11 +34,12 @@ function insertSmallStyles() {
 			height: 41px;
 			margin-top: 10px;
 		}
-	</style>
-	`;
-    console.log('### styleTemplate', styleTemplate);
+		/* put a gap at the bottom of the sidebar on the Account pages */
+		[role="navigation"].account-menu-container { 
+		    margin-bottom: 50px; 
+        }
+	</style>`;
     const head = document.querySelector('head');
-    console.log('### head', head);
     !!styleTemplate && !!head && head.appendChild(styleTemplate.content.cloneNode(true));
 }
 
