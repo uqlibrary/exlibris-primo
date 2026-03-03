@@ -34,8 +34,10 @@ function insertSmallStyles() {
 			height: 41px;
 			margin-top: 10px;
 		}
-		/* put a gap at the bottom of the sidebar on the Account pages */
-		[role="navigation"].account-menu-container { 
+		/* put a gap at the bottom of the sidebar */
+		[role="navigation"].account-menu-container,  /* on the Account pages */
+		.filters-side-bar-content /* on brief results pages  */
+		{ 
 		    margin-bottom: 50px; 
         }
 	</style>`;
