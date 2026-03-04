@@ -22,29 +22,6 @@ function insertScript(url) {
     }
 }
 
-// roughly insert small styling, before we get to using resuable for styled
-// yes we could do it in the custom.css file, but if it's done here i won't lose track when I want to move it to reusable
-function insertSmallStyles() {
-    const styleTemplate = document.createElement('template');
-    styleTemplate.innerHTML = `<style>
-		:root, head, body {
-			--sys-primary: #51247a;
-		}
-		uq-site-header::part(root) {
-			height: 41px;
-			margin-top: 10px;
-		}
-		/* put a gap at the bottom of the sidebar */
-		[role="navigation"].account-menu-container,  /* on the Account pages */
-		.filters-side-bar-content /* on brief results pages  */
-		{ 
-		    margin-bottom: 50px; 
-        }
-	</style>`;
-    const head = document.querySelector('head');
-    !!styleTemplate && !!head && head.appendChild(styleTemplate.content.cloneNode(true));
-}
-
 function insertStylesheet(href) {
     var linkTag = document.querySelector("link[href*='" + href + "']");
     if (!linkTag) {
@@ -62,29 +39,41 @@ function insertStylesheet(href) {
 }
 
 function insertScripts() {
-    // let folder = "/"; // default. Use for prod.
-    // if (isDomainProd()) {
-    // 	if (vidParam === '61UQ_INST:61UQ_APPDEV') {
-    // 		folder = "-development/primo-prod-dev/";
-    // 	}
-    // } else { // sandbox domain
-    // 	folder = "-development/primo-sandbox/";
-    // 	if (vidParam === '61UQ_INST:61UQ_APPDEV') {
-    // 		folder = "-development/primo-sandbox-dev/";
-    // 	}
-    // }
+    let folder = null;
+    if (window.location.hostname === "search.library.uq.edu.au") {
+    	if (vidParam === '61UQ_INST:61UQ_APPDEV') {
+    		folder = "-development/primo-prod-dev/";
+    	} else {
+            folder = "/" // prod.
+        }
+    } else if (window.location.hostname === "uq.primo.exlibrisgroup.com") {
+        // vid checks to come later
+        if (window.location.pathname.startsWith('/nde')) {
+            // nde development prod, Not used long term?
+            folder = "-development/primo-nde-prod/";
+        } else if (window.location.pathname.startsWith('/discovery')) {
+    		folder = "-development/primo-prod-dev/";
+    	}
+    } else if (window.location.hostname === "uq-psb.primo.exlibrisgroup.com") {
+        // sandbox
+        // vid checks to come later
+        if (window.location.pathname.startsWith('/nde')) {
+            folder = "-development/primo-nde-sandbox/";
+        } else if (window.location.pathname.startsWith('/discovery')) {
+            folder = "-development/primo-sandbox-dev/";
+        }
+    }
 
-    const folder = '/'
-
-    // this script should only be called on views where we want UQ components, such as the purple header showing
-    insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'uq-lib-reusable.min.js');
-    // // we don't yet need this script, but if we do it should be in this location
-    // // insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/load.js');
-    // insertStylesheet('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/custom-styles.css');
-    // insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
-    // insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
-    // insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
-
+    if (!!folder) {
+        // this script should only be called on views where we want UQ components, such as the purple header showing
+        insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'uq-lib-reusable.min.js');
+        // // we don't yet need this script, but if we do it should be in this location
+        // // insertScript('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/load.js');
+        insertStylesheet('https://assets.library.uq.edu.au/reusable-webcomponents' + folder + 'applications/primo/custom-styles.css');
+        insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
+        insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
+        insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
+    }
 }
 
 function insertUqComponents() {
@@ -142,7 +131,6 @@ function insertUqComponents() {
 }
 
 function loadFunctions() {
-    insertSmallStyles();
     insertScripts();
     insertUqComponents();
 }
