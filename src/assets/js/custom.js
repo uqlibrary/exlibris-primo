@@ -73,6 +73,8 @@ function insertScripts() {
     insertStylesheet('https://static.uq.net.au/v6/fonts/Roboto/roboto.css');
     insertStylesheet('https://static.uq.net.au/v9/fonts/Merriweather/merriweather.css');
     insertStylesheet('https://static.uq.net.au/v13/fonts/Montserrat/montserrat.css');
+  } else {
+    console.log('No script insertion.');
   }
 }
 
