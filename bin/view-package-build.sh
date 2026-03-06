@@ -11,10 +11,10 @@ fi
 
 # Read arguments
 PRIMO_VIEW="$1"
-cd ./src
+
 echo "Removing old zip file"
 rm -rf ./61UQ_INST-$PRIMO_VIEW ./61UQ_INST-$PRIMO_VIEW.zip
-cp -r ./VIEW_CODE ./61UQ_INST-$PRIMO_VIEW
+cp -r ./src ./61UQ_INST-$PRIMO_VIEW
 npx bestzip 61UQ_INST-$PRIMO_VIEW.zip 61UQ_INST-$PRIMO_VIEW/
 
 echo " "
