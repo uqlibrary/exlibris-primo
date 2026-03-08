@@ -8,12 +8,12 @@ import {createFeatureSelector, Store} from '@ngrx/store';
 export const selectSearchState = createFeatureSelector<any>('Search');
 
 @Component({
-  selector: 'custom-nde-full-display-service-container-custom',
+  selector: 'custom-nde-report-a-problem-custom',
   standalone: true,
   imports: [NgIf], // required here if used in the html template
-  templateUrl: './nde-full-display-service-container-custom.component.html',
+  templateUrl: './nde-report-a-problem-custom.component.html',
 })
-export class NdeFullDisplayServiceContainerCustomComponent implements OnInit {
+export class NdeReportAProblemCustomComponent implements OnInit {
   private store = inject(Store);
   searchState = this.store.selectSignal(selectSearchState);
 
