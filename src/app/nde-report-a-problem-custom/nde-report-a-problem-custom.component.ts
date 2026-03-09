@@ -68,10 +68,21 @@ export class NdeReportAProblemCustomComponent implements OnInit {
       const maxNumberCharCRMCanAccept = 239;
       recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
     }
+
+    // we may have trimmed in the middle of an encoded char, eg sit%20down trimmed to sit%2
+    // which ends up with an 400 Bad Result as the url becomes rubbish
+    const maxLengthEncodedChar = "%E2%82%AC";
+    [...Array(maxLengthEncodedChar.length)].map((_, i) => {
+      try {
+        decodeURIComponent(recordTitle);
+      } catch {
+        recordTitle = recordTitle.slice(0, -1);
+      }
+    });
+
     if (recordId === "" || recordTitle === "") {
       return;
     }
-
     let crmDomain = "https://uqcurrent--tst1.custhelp.com";
     const productionDomain = "search.library.uq.edu.au";
     if (window.location.hostname === productionDomain) {
