@@ -2,6 +2,6 @@ import {NdeReportAProblemCustomComponent} from "../nde-report-a-problem-custom/n
 
 export const selectorComponentMap = new Map<string, any>([
 
-  ['nde-full-display-service-container-before', NdeReportAProblemCustomComponent],
+  ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
 
 ]);
