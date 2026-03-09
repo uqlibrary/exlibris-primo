@@ -29,31 +29,33 @@ export class NdeReportAProblemCustomComponent implements OnInit {
       return;
     }
 
-    // get the pnx data (alma data about the record)
-    const state = this.searchState();
-    const ids = Object.keys(state.entities || {});
-    if (ids.length <= 0) {
-      return;
-    }
-    let id0 = !!ids[0] ? ids[0] : null;
-    const pnx = !!id0 ? state?.entities?.[id0]?.pnx : null;
-    if (!pnx) {
+    let recordId = this.getRecordId();
+    let recordTitle = this.getRecordTitle();
+    if (recordId === "" || recordTitle === "") {
       return;
     }
 
-    let recordId: string = "";
-    if (!!pnx?.control?.recordid && pnx.control.recordid.length > 0 && pnx.control.recordid[0]) {
-      recordId = encodeURIComponent(pnx.control.recordid[0]);
+    this.targeturl =
+      this.crmDomain() +
+      "/app/library/contact/report_problem/true/incidents.subject/" +
+      recordTitle +
+      "/incidents.c$summary/" +
+      recordId;
+  }
+
+  private crmDomain = () => {
+    let crmDomain = "https://uqcurrent--tst1.custhelp.com";
+    const productionDomain = "search.library.uq.edu.au";
+    if (window.location.hostname === productionDomain) {
+      crmDomain = "https://support.my.uq.edu.au";
     }
-    if (recordId === "") {
-      if (!!pnx?.search?.recordid) {
-        recordId = encodeURIComponent(pnx.search.recordid);
-      }
-    }
-    if (recordId === '') {
-      if (this.getDocId() !== '') {
-        recordId = this.getDocId();
-      }
+    return crmDomain;
+  }
+
+  private getRecordTitle = () => {
+    const pnx = this.getPnx();
+    if (!pnx) {
+      return '';
     }
 
     let recordTitle = '';
@@ -80,23 +82,40 @@ export class NdeReportAProblemCustomComponent implements OnInit {
       }
     });
 
-    if (recordId === "" || recordTitle === "") {
-      return;
-    }
-    let crmDomain = "https://uqcurrent--tst1.custhelp.com";
-    const productionDomain = "search.library.uq.edu.au";
-    if (window.location.hostname === productionDomain) {
-      crmDomain = "https://support.my.uq.edu.au";
-    }
-
-    this.targeturl =
-      crmDomain +
-      "/app/library/contact/report_problem/true/incidents.subject/" +
-      recordTitle +
-      "/incidents.c$summary/" +
-      recordId;
+    return recordTitle;
   }
 
+  private getRecordId = () => {
+    const pnx = this.getPnx();
+    if (!pnx) {
+      return '';
+    }
+
+    if (!!pnx?.control?.recordid && pnx.control.recordid.length > 0 && pnx.control.recordid[0]) {
+      return encodeURIComponent(pnx.control.recordid[0]);
+    }
+
+    if (!!pnx?.search?.recordid) {
+      return encodeURIComponent(pnx.search.recordid);
+    }
+
+    if (this.getDocId() !== '') {
+      return this.getDocId();
+    }
+
+    return '';
+  }
+
+  // get the pnx data (alma data about the record)
+  private getPnx = () => {
+    const state = this.searchState();
+    const ids = Object.keys(state.entities || {});
+    if (ids.length <= 0) {
+      return;
+    }
+    let id0 = !!ids[0] ? ids[0] : null;
+    return !!id0 ? state?.entities?.[id0]?.pnx : null;
+  }
   private getDocId = (): string => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('docid')) {
