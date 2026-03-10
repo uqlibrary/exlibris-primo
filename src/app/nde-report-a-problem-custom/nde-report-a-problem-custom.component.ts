@@ -35,6 +35,30 @@ export class NdeReportAProblemCustomComponent implements OnInit {
       recordTitle +
       "/incidents.c$summary/" +
       recordId;
+
+    // only show the Report a problem button above the block with this title:
+    const titleOfTargetBlock = 'Details';
+
+    const containers = document.querySelectorAll('nde-full-display-service-container:has(h4)');
+    if (!containers) {
+      console.log('no header found');
+      return;
+    }
+    containers.forEach(container => {
+      const headH4 = container.querySelector('h4');
+      console.log('check ', headH4?.textContent);
+      // we only show it on the block with this title
+      if (headH4?.textContent !== titleOfTargetBlock) {
+        console.log('not ', headH4?.textContent);
+        return;
+      }
+      console.log('found', headH4.textContent);
+      console.log('on', container);
+
+      const rapWrapper = container?.parentNode?.querySelector('.report-a-problem-wrapper');
+      console.log('rapWrapper', rapWrapper);
+      !!rapWrapper && !rapWrapper.classList.contains('showRAP') && rapWrapper.classList.add('showRAP')
+    })
   }
 
   private crmDomain = () => {
