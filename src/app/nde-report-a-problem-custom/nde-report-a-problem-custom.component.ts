@@ -18,16 +18,10 @@ export class NdeReportAProblemCustomComponent implements OnInit {
   searchState = this.store.selectSignal(selectSearchState);
 
   // must declare the properties with its type and an initial value
-  show: boolean = true;
+  // show: boolean = true;
   targeturl: string = '';
 
   ngOnInit(): void {
-    // we only want the button to appear once
-    const getExistingButton = document.getElementById('report-a-problem-wrapper');
-    if (!!getExistingButton) {
-      console.log('found', getExistingButton);
-      return;
-    }
 
     let recordId = this.getRecordId();
     let recordTitle = this.getRecordTitle();
