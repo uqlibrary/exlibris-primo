@@ -35,6 +35,23 @@ export class NdeReplaceUserInitialsCustomComponent implements OnInit {
         !!arrowDownElementCreated && arrowDownElementCreated.remove();
         !!arrowUpElementCreated && arrowUpElementCreated.remove();
 
+        const buttonRewritten = document.getElementById('auth-button-login-label');
+        if (!buttonRewritten) {
+          const loggedOutTemplate = document.createElement('template');
+          loggedOutTemplate.innerHTML = ` <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <g>
+                            <path d="M9 1C11.2222 1 13 2.77778 13 5C13 7.22222 11.2222 9 9 9C6.77778 9 5 7.22222 5 5C5 2.77778 6.77778 1 9 1Z" stroke="#51247A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M1.59998 18.5714C1.59998 14.4684 4.91614 11.1522 9.01919 11.1522C13.1222 11.1522 16.4384 14.4684 16.4384 18.5714" stroke="#51247A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </g>
+                    </svg>
+                    <span class="auth-log-in-label" id="auth-button-login-label" data-testid="auth-button-login-label">Log in</span>`;
+
+          const loggedoutButton = document.querySelector('[aria-label="Open actions menu"]')
+          // get rid of current children
+          !!loggedoutButton && (loggedoutButton.innerHTML = '');
+          !!loggedOutTemplate && !!loggedoutButton && loggedoutButton.appendChild(loggedOutTemplate.content.cloneNode(true));
+        }
+
         return;
       }
 
