@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'custom-nde-replace-user-initials-custom',
+  selector: 'custom-update-account-menu-custom',
   standalone: true,
   imports: [],
-  templateUrl: './nde-replace-user-initials-custom.component.html',
-  styleUrl: './nde-replace-user-initials-custom.component.scss'
+  templateUrl: './nde-update-account-menu-custom.component.html',
+  styleUrl: './nde-update-account-menu-custom.component.scss'
 })
-export class NdeReplaceUserInitialsCustomComponent implements OnInit {
+export class NdeUpdateAccountMenuCustomComponent implements OnInit {
   ngOnInit(): void {
 
     this.attachLoggedoutButtonContents();
