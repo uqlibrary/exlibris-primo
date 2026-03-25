@@ -62,7 +62,7 @@ function insertScripts() {
     } else if (window.location.pathname.startsWith('/discovery')) {
       folder = "-development/primo-sandbox-dev/";
     }
-  } else if (window.location.host === 'localhost:4201') {
+  } else if (window.location.hostname === 'localhost') {
     // comment out when not developing customisations (ugh!)
     folder = "-development/primo-nde-sandbox/";
   }
