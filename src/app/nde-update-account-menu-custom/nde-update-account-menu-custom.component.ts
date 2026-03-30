@@ -1,165 +1,216 @@
-import {Component, OnInit} from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'custom-update-account-menu-custom',
+  selector: 'custom-nde-update-account-menu-custom',
   standalone: true,
   imports: [],
   templateUrl: './nde-update-account-menu-custom.component.html',
   styleUrl: './nde-update-account-menu-custom.component.scss'
 })
-export class NdeUpdateAccountMenuCustomComponent implements OnInit {
-  ngOnInit(): void {
+export class NdeUpdateAccountMenuCustomComponent {
+    ngOnInit(): void {
+        console.log('UpdateAccountMenu start')
+        setInterval(() => { // never ended as we have to re add the user's name every time they log in
+            // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
+            const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn div');
 
-    this.attachLoggedoutButtonContents();
+            if (!!isLoggedOut) {
+                this.attachLoggedoutButtonContents()
+            }
 
-    setInterval(() => { // never ended as we have to re add the user's name every time they log in
-      // find the 'user is logged in' button on the screen (OTB it shows initials, backwards)
-      const userNameAreaButton = document.querySelector('nde-user-area button');
-      if (!!userNameAreaButton) {
-        this.attachArrowButtons(userNameAreaButton);
-      }
+            const userNameAreaButton = document.querySelector('nde-user-area button');
+            if (!!userNameAreaButton) { // should always be present
+                this.attachArrowButtons(userNameAreaButton);
+            }
 
-      const userNameAreaLoggedInButton = document.querySelector('nde-user-area button.user-area-logged-in');
-      if (!!userNameAreaLoggedInButton) {
-        // user is logged in
-        // find the element it is using to store the full user name (which it shows on a mouse over)
-        const nameId = userNameAreaLoggedInButton?.getAttribute('aria-describedby');
-        let nameIdForcedToString = nameId + '';
-        const nameElement = !!nameId && document.getElementById(nameIdForcedToString);
-        const displayName = !!nameElement && nameElement.textContent;
+            if (!!isLoggedOut) {
+                console.log('UpdateAccountMenu we are logged out')
+            } else {
+                console.log('UpdateAccountMenu we are logged in?')
+                // const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
+                // if (!!userNameDisplayArea && !userNameDisplayArea.classList.contains('styledUserName')) {
+                //     console.log('UpdateAccountMenu userNameDisplayArea=', userNameDisplayArea);
 
-        // find the element where the name should appear
-        const displayArea = userNameAreaLoggedInButton?.querySelector('span.ng-star-inserted');
+                    // this.updateAccountMenu(userNameDisplayArea);
+                    this.updateAccountMenu();
+                // } else {
+                //     console.log('UpdateAccountMenu dont replace username', userNameDisplayArea?.classList.contains('styledUserName'), userNameDisplayArea);
+                // }
+            }
 
-        if (!!displayArea && !!displayName) {
+            this.reLabelAccountButton();
+            this.reLabelFavourites();
+            this.reLabelSearchHistory(); // probably deleted in configuration
+        }, 100);
+    }
 
-          // rewrite the login button label so it shows the user's name (not the provided initials)
-          if (!displayArea?.textContent?.includes(displayName)) {
-            displayArea.textContent = displayName;
-          }
-          !displayArea?.classList.contains('styledUserName') && displayArea.classList.add('styledUserName');
-          if (!displayArea.id) {
-            displayArea.id = 'usernameArea';
-          }
+    private updateAccountMenu = () => { // (userNameDisplayArea: Element) => {
+        const desiredUserDisplayName = this.getDesiredUserDisplayName();
+        console.log('UpdateAccountMenu desiredUserDisplayName=', desiredUserDisplayName);
+        const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
+        if (!userNameDisplayArea?.classList.contains('styledUserName')) {
+            !!desiredUserDisplayName && !!userNameDisplayArea && (userNameDisplayArea.textContent = desiredUserDisplayName);
+            !!userNameDisplayArea && !userNameDisplayArea.classList.contains('styledUserName') && userNameDisplayArea.classList.add('styledUserName');
         }
-      }
-    }, 100);
 
-    this.updateAccountMenu()
-  }
+        const logoutButtonFound =  document.querySelector(`.user-area-sub-menu button[aria-label=" Log out"]`);
+        console.log('UpdateAccountMenu logoutButtonFound=', logoutButtonFound);
 
-  private moveLogoutButton(accountMenu: Element | null, buttonLabel = ' Log out') {
-    if (!accountMenu) {
-      return;
+        const accountMenu = document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
+        if (logoutButtonFound) {
+            this.addExtraMenuItems(accountMenu);
+            this.moveLogoutButton(accountMenu, ' Log out');
+        }
     }
 
-    const logoutButton = document.querySelector(`.user-area-sub-menu > div > button[aria-label="${buttonLabel}"]`);
-    if (!logoutButton) {
-      return; // logout button not available
+    private moveLogoutButton(accountMenu: Element | null, buttonLabel = ' Log out') {
+        console.log('UpdateAccountMenu moveLogoutButton start');
+        if (!accountMenu) {
+            console.log('UpdateAccountMenu moveLogoutButton not 1');
+            return;
+        }
+
+        const logoutButton = document.querySelector(`.user-area-sub-menu > div > button[aria-label="${buttonLabel}"]`);
+        if (!logoutButton) {
+            console.log('UpdateAccountMenu moveLogoutButton not 2');
+            return; // logout button not available
+        }
+
+        const logoutButtonAlreadyMoved = document.querySelector('.user-area-sub-menu span+button'); // if we have already moved the button then it comes _after_ the anchors
+        if (!!logoutButtonAlreadyMoved) {
+            console.log('UpdateAccountMenu moveLogoutButton not 3');
+            return;
+        }
+        console.log('UpdateAccountMenu moveLogoutButton moving logout button');
+
+        // add an element to hold the divider above the button
+        const dividerTemplate = document.createElement('template');
+        !!dividerTemplate && (dividerTemplate.innerHTML = `<span class="menu-section-divider"></span>`);
+        !!dividerTemplate && !!accountMenu && accountMenu.appendChild(dividerTemplate.content.cloneNode(true));
+        console.log('UpdateAccountMenu moveLogoutButton add divider');
+
+        // move the log-out button
+        !!accountMenu && !!logoutButton && accountMenu.appendChild(logoutButton);
+
+        // get rid of the existing icons
+        const existingLogoutSvg = document.querySelector('button[aria-label=" Log out"] mat-icon svg');
+        // !!existingLogoutSvg && console.log('moveLogoutButton remove existingLogoutSvg', existingLogoutSvg);
+        !!existingLogoutSvg && existingLogoutSvg.remove();
+
+        // insert our own icon
+        const logoutIconTemplate = document.createElement('template');
+        logoutIconTemplate.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"><g clip-path="url(#clip0_1654_3032)"><path d="M17.0859 9.00293H5.76562" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.46094 11.6982L5.76562 9.00293L8.46094 6.30762" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.6954 12.2344V15.4688C11.7077 15.7416 11.6115 16.0081 11.4278 16.2102C11.2441 16.4122 10.9878 16.5333 10.715 16.5469H1.89383C1.62121 16.5331 1.36513 16.412 1.18156 16.2099C0.997988 16.0079 0.901855 15.7414 0.91417 15.4688V2.53125C0.901664 2.25851 0.997731 1.99193 1.18134 1.78987C1.36495 1.5878 1.62114 1.46672 1.89383 1.45312H10.715C10.9878 1.46672 11.2441 1.58778 11.4278 1.78982C11.6115 1.99186 11.7077 2.25844 11.6954 2.53125V5.76562" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_1654_3032"><rect width="18" height="18"/></clipPath></defs></svg>`
+        const logoutMatIcon = document.querySelector('[aria-label=" Log out"] mat-icon');
+        !!logoutIconTemplate && !!logoutMatIcon && logoutMatIcon.appendChild(logoutIconTemplate.content.cloneNode(true));
     }
 
-    // const movedLogoutButton = document.querySelector('.user-area-sub-menu a+button'); // if we have moved the button then it comes _after_ the anchors
-    const movedLogoutButton = document.querySelector('.user-area-sub-menu span+button'); // if we have moved the button then it comes _after_ the anchors
-    if (!!movedLogoutButton) {
-      return;
-    }
-    console.log('moving logout button');
+    private reLabelAccountButton() {
+        const newAccountIcon = document.getElementById('library-account-icon');
+        if (!!newAccountIcon) {
+            return; // already done
+        }
 
-    // add an element to hold the divider above the button
-    const dividerTemplate = document.createElement('template');
-    !!dividerTemplate && (dividerTemplate.innerHTML = `<span class="menu-section-divider"></span>`);
-    !!dividerTemplate && !!accountMenu && accountMenu.appendChild(dividerTemplate.content.cloneNode(true));
-    console.log('add divider');
+        const accountButtonFound = document.querySelector(`.user-area-sub-menu a[aria-label="Go to my library account"]`);
+        if (!accountButtonFound) {
+            // console.log('no account button');
+            return; // buttons not available yet
+        }
 
-    // move the log-out button
-    !!accountMenu && !!logoutButton && accountMenu.appendChild(logoutButton);
+        // get rid of the existing icons
+        const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
+        // console.log('existingAccountSvg', existingAccountSvg);
+        !!existingAccountSvg && existingAccountSvg.remove();
 
-    // get rid of the existing icons
-    const existingLogoutSvg = document.querySelector('button[aria-label=" Log out"] mat-icon svg');
-    // !!existingLogoutSvg && console.log('remove existingLogoutSvg', existingLogoutSvg);
-    !!existingLogoutSvg && existingLogoutSvg.remove();
+        // insert our own icon
+        const accountIconTemplate = document.createElement('template');
+        accountIconTemplate.innerHTML = `<svg data-testid="library-account-icon" id="library-account-icon" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
+        const accountMatIcon = document.querySelector('[aria-label="Go to my library account"] mat-icon');
+        !!accountIconTemplate && !!accountMatIcon && accountMatIcon.appendChild(accountIconTemplate.content.cloneNode(true));
 
-    // insert our own icon
-    const logoutIconTemplate = document.createElement('template');
-    logoutIconTemplate.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"><g clip-path="url(#clip0_1654_3032)"><path d="M17.0859 9.00293H5.76562" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.46094 11.6982L5.76562 9.00293L8.46094 6.30762" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.6954 12.2344V15.4688C11.7077 15.7416 11.6115 16.0081 11.4278 16.2102C11.2441 16.4122 10.9878 16.5333 10.715 16.5469H1.89383C1.62121 16.5331 1.36513 16.412 1.18156 16.2099C0.997988 16.0079 0.901855 15.7414 0.91417 15.4688V2.53125C0.901664 2.25851 0.997731 1.99193 1.18134 1.78987C1.36495 1.5878 1.62114 1.46672 1.89383 1.45312H10.715C10.9878 1.46672 11.2441 1.58778 11.4278 1.78982C11.6115 1.99186 11.7077 2.25844 11.6954 2.53125V5.76562" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_1654_3032"><rect width="18" height="18"/></clipPath></defs></svg>`
-    const logoutMatIcon = document.querySelector('[aria-label=" Log out"] mat-icon');
-    !!logoutIconTemplate && !!logoutMatIcon && logoutMatIcon.appendChild(logoutIconTemplate.content.cloneNode(true));
-  }
-
-  private reLabelAccountButton() {
-    const newAccountIcon = document.getElementById('library-account-icon');
-    if (!!newAccountIcon) {
-      return; // already done
+        // tweak the looknfeel - we want "hollow" icons
+        !!accountMatIcon && !!accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
     }
 
-    const accountButtonFound = document.querySelector(`.user-area-sub-menu a[aria-label="Go to my library account"]`);
-    if (!accountButtonFound) {
-      // console.log('no account button');
-      return; // buttons not available yet
-    }
+    private reLabelFavourites() {
+        const newFavouritesIcon = document.getElementById('library-favourites-icon');
+        if (!!newFavouritesIcon) {
+            return; // already done
+        }
 
-    // get rid of the existing icons
-    const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
-    // console.log('existingAccountSvg', existingAccountSvg);
-    !!existingAccountSvg && existingAccountSvg.remove();
+        // update the label
+        const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
+        !!savedItemsElement && (savedItemsElement.textContent = 'Favourites');
 
-    // insert our own icon
-    const accountIconTemplate = document.createElement('template');
-    accountIconTemplate.innerHTML = `<svg data-testid="library-account-icon" id="library-account-icon" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
-    const accountMatIcon = document.querySelector('[aria-label="Go to my library account"] mat-icon');
-    !!accountIconTemplate && !!accountMatIcon && accountMatIcon.appendChild(accountIconTemplate.content.cloneNode(true));
+        // get rid of the provided icon
+        const existingSavedItemsSvg = document.querySelector('[aria-label="Go to my saved records"] mat-icon svg');
+        !!existingSavedItemsSvg && existingSavedItemsSvg.remove();
 
-    // tweak the looknfeel - we want "hollow" icons
-    !!accountMatIcon && !!accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
-  }
-
-  private reLabelFavourites() {
-    const newFavouritesIcon = document.getElementById('library-favourites-icon');
-    if (!!newFavouritesIcon) {
-      return; // already done
-    }
-
-    // update the label
-    const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
-    !!savedItemsElement && (savedItemsElement.textContent = 'Favourites');
-
-    // get rid of the provided icon
-    const existingSavedItemsSvg = document.querySelector('[aria-label="Go to my saved records"] mat-icon svg');
-    !!existingSavedItemsSvg && existingSavedItemsSvg.remove();
-
-    // insert our own icon
-    const favouritesIconTemplate = document.createElement('template');
-    favouritesIconTemplate.innerHTML = `
+        // insert our own icon
+        const favouritesIconTemplate = document.createElement('template');
+        favouritesIconTemplate.innerHTML = `
             <svg data-testid="library-favourites-icon" id="library-favourites-icon" class="library-favourites-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                 <path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8.10063 15.1345 8.17369C15.2344 8.24675 15.3516 8.29235 15.4746 8.30597L20.3461 9.02767C20.4871 9.04581 20.6201 9.1037 20.7294 9.19458C20.8388 9.28545 20.9201 9.40559 20.9639 9.54094C21.0074 9.67627 21.0117 9.82125 20.9761 9.95891C20.9404 10.0966 20.8663 10.2213 20.7625 10.3184L17.2511 13.802C17.1615 13.8857 17.0942 13.9905 17.0554 14.1069C17.0167 14.2232 17.0075 14.3474 17.0291 14.4682L17.8757 19.3674C17.9001 19.5081 17.8847 19.653 17.831 19.7854C17.7771 19.9178 17.6873 20.0325 17.5717 20.1163C17.456 20.2003 17.3191 20.25 17.1765 20.2598C17.0339 20.2698 16.8915 20.2394 16.7654 20.1724L12.3796 17.8546C12.2673 17.7995 12.1439 17.7708 12.0188 17.7708C11.8936 17.7708 11.7702 17.7995 11.6579 17.8546L7.27219 20.1724C7.14601 20.2394 7.00355 20.2698 6.861 20.2598C6.71845 20.25 6.58153 20.2003 6.46585 20.1163C6.35016 20.0325 6.26034 19.9178 6.2066 19.7854C6.15286 19.653 6.13737 19.5081 6.16188 19.3674L7.00849 14.4127C7.02995 14.2919 7.02087 14.1677 6.98209 14.0514C6.9433 13.935 6.87604 13.8302 6.78643 13.7465L3.23344 10.3184C3.12833 10.2186 3.05441 10.0905 3.02063 9.94953C2.98686 9.80858 2.99468 9.66085 3.04315 9.52425C3.09162 9.38766 3.17866 9.26805 3.29372 9.17991C3.40879 9.09178 3.54694 9.0389 3.69145 9.02767L8.56292 8.30597C8.68589 8.29235 8.80314 8.24675 8.90298 8.17369C9.00281 8.10063 9.08177 8.00269 9.13195 7.8896L11.3387 3.43449C11.3988 3.30474 11.4947 3.19489 11.6153 3.1179C11.7358 3.04091 11.8758 3 12.0188 3C12.1617 3 12.3018 3.04091 12.4223 3.1179C12.5428 3.19489 12.6387 3.30474 12.6988 3.43449Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>`;
-    const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
-    !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
+        const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
+        !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
 
-    // tweak the looknfeel - we want "hollow" icons
-    !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
-  }
-
-  private removeUneededMenuItems(accountMenu: Element | null) {
-    const searchHistoryButton = document.querySelector('a[aria-label="Go to my search history"]');
-    !!searchHistoryButton && searchHistoryButton.remove();
-
-    const settingsButton = document.querySelector('a[aria-label="Go to my settings"]');
-    !!settingsButton && settingsButton.remove();
-  }
-
-  private addExtraMenuItems(accountMenu: Element | null) {
-    // we add the Learning resources, Print balance, uqbookit and feedback links to the account menu
-
-    const newMenuItemAdded = document.getElementById('first-added-menu-item');
-    if (!!newMenuItemAdded) {
-      return; // we've already inserted the extra items
+        // tweak the looknfeel - we want "hollow" icons
+        !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
     }
 
-    const extraLinksTemplate = document.createElement('template');
-    extraLinksTemplate.innerHTML = `
-    <a id="first-added-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" href="https://www.library.uq.edu.au/learning-resources">
-      <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+    private reLabelSearchHistory() {
+        const existingSearchHistoryItem = document.querySelector('[aria-label="Go to my search history"]');
+        if (!existingSearchHistoryItem) {
+            // Stacey will probably remove this item
+            return;
+        }
+
+        const newSearchHistoryIcon = document.getElementById('library-search-history-icon');
+        if (!!newSearchHistoryIcon) {
+            // console.log('reLabelSearchHistory end 1');
+            return; // already done
+        }
+
+        // get rid of the provided icon
+        const existingSearchHistorySvg = document.querySelector('[aria-label="Go to my search history"] mat-icon svg');
+        console.log('reLabelSearchHistory existingSearchHistorySvg', existingSearchHistorySvg);
+        !!existingSearchHistorySvg && existingSearchHistorySvg.remove();
+
+        // insert our own icon
+        const searchHistoryIconTemplate = document.createElement('template');
+        searchHistoryIconTemplate.innerHTML = `
+            <svg data-testid="library-search-history-icon" id="library-search-history-icon" class="library-search-history-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <path d="M12.6988 3.43449L14.9056 7.8896C14.9557 8.00269 15.0347 8. xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="m1.28357 10.0561 4.62088 -4.62085 4.62085 4.62085" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M16.3781 3.59541c0.8513 0.222 1.6617 0.57897 2.4001 1.05734" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M20.9083 6.59988c0.5458 0.69012 0.9765 1.46398 1.2753 2.29161" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M22.7161 11.7216c0.0081 0.8795 -0.1126 1.7556 -0.3582 2.6002" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M21.0655 16.8988c-0.5124 0.7159 -1.139 1.3425 -1.8548 1.8549" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M16.6336 20.0461c-0.8446 0.2456 -1.7206 0.3662 -2.6002 0.3581" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M11.1999 19.8717c-0.8263 -0.2993 -1.59897 -0.7299 -2.28816 -1.2753" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M6.96456 16.4663c-0.47872 -0.7382 -0.83571 -1.5486 -1.05733 -2.4001" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M5.90442 10.7322V5.43525" stroke-width="1.5"></path>
+            </svg>`;
+        const savedItemsMatIcon = document.querySelector('[aria-label="Go to my search history"] mat-icon');
+        !!searchHistoryIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(searchHistoryIconTemplate.content.cloneNode(true));
+
+        // tweak the looknfeel - we want "hollow" icons
+        !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
+    }
+
+    private addExtraMenuItems(accountMenu: Element | null) {
+        console.log('### add extra menu items');
+        // we add the Learning resources, Print balance, uqbookit and feedback links to the account menu
+
+        const newMenuItemAdded = document.getElementById('first-added-menu-item');
+        if (!!newMenuItemAdded) {
+            return; // we've already inserted the extra items
+        }
+
+        const extraLinksTemplate = document.createElement('template');
+        extraLinksTemplate.innerHTML = `
+    <a id="first-added-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" href="https://www.library.uq.edu.au/learning-resources">
+      <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
         <svg data-testid="library-learning-resources-icon" class="library-learning-resources-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
           <path d="M11.9999 21.4003V6.78587C11.9999 6.78587 9.94278 4.51443 2.99986 4.42871C2.87129 4.42871 2.78558 4.47157 2.69986 4.55728C2.61415 4.643 2.57129 4.72871 2.57129 4.85729V18.5717C2.57129 18.786 2.74272 19.0003 2.99986 19.0003C9.94278 19.1288 11.9999 21.4003 11.9999 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
           <path d="M9.46999 12.2291C8.05569 11.7577 6.55568 11.4577 5.05566 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -173,8 +224,8 @@ export class NdeUpdateAccountMenuCustomComponent implements OnInit {
             <span class="primaryText">Learning resources</span>
         </div>
     </a>
-    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" href="https://web.library.uq.edu.au/library-and-student-it-help/print-scan-and-copy/your-printing-account">
-        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" href="https://web.library.uq.edu.au/library-and-student-it-help/print-scan-and-copy/your-printing-account">
+        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
           <svg data-testid="library-print-balance-icon" class="library-print-balance-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <g clip-path="url(#clip0_1723_14098)">
               <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -189,61 +240,39 @@ export class NdeUpdateAccountMenuCustomComponent implements OnInit {
             <span class="primaryText">Print balance</span>
         </div>
     </a>
-    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" href="https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb">
-        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" href="https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb">
+        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
           <svg data-testid="library-room-booking-icon" class="library-room-booking-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </mat-icon>
         <div class="textwrapper">
             <span class="primaryText">Book a room or desk</span>
         </div>
     </a>
-    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" href="https://support.my.uq.edu.au/app/library/feedback">
-        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" href="https://support.my.uq.edu.au/app/library/feedback">
+        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
           <svg data-testid="library-feedback-icon" class="library-feedback-icon" id="library-feedback-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </mat-icon>
         <div class="textwrapper">
           <span class="primaryText">Feedback</span>
         </div>
     </a>`;
-    !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
-  }
-
-  private updateAccountMenu() {
-    const logoutButtonFound = () => {
-      return document.querySelector(`.user-area-sub-menu button[aria-label=" Log out"]`);
+        !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
     }
 
-    setInterval(() => {
-      const accountMenu = document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
+    // add some up down arrows for Library-styled Account button (appearance controlled with css)
+    // we attach the arrows once and then just show-hide
+    // arrow id placed first because NDE will load and get rid of the name element after it
+    private attachArrowButtons = (userNameAreaButtonLocal: Element) => {
+        const arrowDownElementCreated = document.getElementById('down-arrow');
+        const arrowUpElementCreated = document.getElementById('up-arrow');
 
-      // moveLogoutButton(accountMenu, ' Log In');
+        if (!!arrowDownElementCreated || !!arrowUpElementCreated) {
+            return;
+        }
 
-      if (logoutButtonFound()) {
-        this.addExtraMenuItems(accountMenu);
-        this.moveLogoutButton(accountMenu, ' Log out');
-      }
-
-      this.reLabelAccountButton();
-      this.reLabelFavourites();
-
-      this.removeUneededMenuItems(accountMenu);
-
-    }, 100);
-  }
-
-  // add some up down arrows for Library-styled Account button (appearance controlled with css)
-  // we attach the arrows once and then just show-hide
-  // arrow id placed first because NDE will load and get rid of the name element after it
-  private attachArrowButtons = (userNameAreaButtonLocal: Element) => {
-    const arrowDownElementCreated = document.getElementById('down-arrow');
-    const arrowUpElementCreated = document.getElementById('up-arrow');
-
-    if (!!arrowDownElementCreated || !!arrowUpElementCreated) {
-      return;
-    }
-
-    const arrowsTemplate = document.createElement('template');
-    arrowsTemplate.innerHTML = `
+        console.log('UpdateAccountMenu add arrows')
+        const arrowsTemplate = document.createElement('template');
+        arrowsTemplate.innerHTML = `
     <svg class="arrow downArrow" id="down-arrow" data-testid="down-arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
       <g id="icon/standard/chevron-down-sml">
           <path id="Chevron-down" d="M7 10L12 15L17 10" stroke="#51247A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -253,26 +282,37 @@ export class NdeUpdateAccountMenuCustomComponent implements OnInit {
       <path d="M17 14L12 9L7 14" stroke="#19151C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>`;
 
-    !!arrowsTemplate && userNameAreaButtonLocal.prepend(arrowsTemplate.content.cloneNode(true));
-  }
-
-  // preattach the logged out button. We then hide it with css while they are logged in
-  private attachLoggedoutButtonContents = () => {
-    const loggedoutButtonContent = document.getElementById('loggedout')
-    if (!!loggedoutButtonContent) {
-      return;
+        !!arrowsTemplate && userNameAreaButtonLocal.prepend(arrowsTemplate.content.cloneNode(true));
     }
 
-    const loginButton = document.querySelector('nde-user-area button[aria-label="Open actions menu"]');
-    const loggedoutButtonContentTemplate = document.createElement('template');
-    loggedoutButtonContentTemplate.innerHTML = `
+    private getDesiredUserDisplayName = () => {
+        // find the element it is using to store the full user name (which it shows on a mouse over)
+        const userNameAreaLoggedInButton = document.querySelector('nde-user-area button.user-area-logged-in');
+        const nameId = userNameAreaLoggedInButton?.getAttribute('aria-describedby');
+        const nameIdForcedToString = nameId + '';
+        const nameElement = !!nameId && document.getElementById(nameIdForcedToString);
+        const desiredDisplayName = !!nameElement && nameElement.textContent;
+        return desiredDisplayName;
+    }
+
+    // preattach the logged out button. We then hide it with css while they are logged in
+    private attachLoggedoutButtonContents = () => {
+        const loggedoutButtonContent = document.getElementById('loggedout')
+        if (!!loggedoutButtonContent) {
+            return;
+        }
+
+        console.log('UpdateAccountMenu add logged out button');
+        const loginButton = document.querySelector('nde-user-area button[aria-label="Open actions menu"]');
+        const loggedoutButtonContentTemplate = document.createElement('template');
+        loggedoutButtonContentTemplate.innerHTML = `
         <span class="loggedout auth-log-in-label" data-testid="auth-button-login-label">Log in</span>
-        <svg id="loggedout" class="loggedout" width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <svg id="loggedout" class="uqauth loggedout" width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <g>
                 <path d="M9 1C11.2222 1 13 2.77778 13 5C13 7.22222 11.2222 9 9 9C6.77778 9 5 7.22222 5 5C5 2.77778 6.77778 1 9 1Z" stroke="#51247A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                 <path d="M1.59998 18.5714C1.59998 14.4684 4.91614 11.1522 9.01919 11.1522C13.1222 11.1522 16.4384 14.4684 16.4384 18.5714" stroke="#51247A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             </g>
         </svg>`;
-    !!loggedoutButtonContentTemplate && !!loginButton && loginButton.appendChild(loggedoutButtonContentTemplate.content.cloneNode(true));
-  }
+        !!loggedoutButtonContentTemplate && !!loginButton && loginButton.appendChild(loggedoutButtonContentTemplate.content.cloneNode(true));
+    }
 }
