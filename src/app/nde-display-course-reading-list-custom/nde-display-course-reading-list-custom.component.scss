@@ -1,0 +1,49 @@
+.course-resource-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.course-resource-list li {
+  margin: 0.5rem 0;
+}
+
+.button-as-link {
+  display: inline-flex;
+  align-items: center;
+  color: #51247a;
+  text-decoration: none;
+  padding: 0.5rem;
+}
+
+.button-as-link:hover {
+  text-decoration: underline;
+}
+
+.section-head {
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  margin: 0;
+  padding: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.md-divider {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(0,0,0,0.12);
+  margin-left: 1rem;
+}
+
+.layout-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.layout-align-center-center {
+  align-items: center;
+  justify-content: center;
+}

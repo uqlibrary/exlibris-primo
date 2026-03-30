@@ -9,39 +9,39 @@ import { Component } from '@angular/core';
 })
 export class NdeUpdateAccountMenuCustomComponent {
     ngOnInit(): void {
-        console.log('UpdateAccountMenu start')
-        setInterval(() => { // never ended as we have to re add the user's name every time they log in
-            // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
-            const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn div');
-
-            if (!!isLoggedOut) {
-                this.attachLoggedoutButtonContents()
-            }
-
-            const userNameAreaButton = document.querySelector('nde-user-area button');
-            if (!!userNameAreaButton) { // should always be present
-                this.attachArrowButtons(userNameAreaButton);
-            }
-
-            if (!!isLoggedOut) {
-                console.log('UpdateAccountMenu we are logged out')
-            } else {
-                console.log('UpdateAccountMenu we are logged in?')
-                // const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
-                // if (!!userNameDisplayArea && !userNameDisplayArea.classList.contains('styledUserName')) {
-                //     console.log('UpdateAccountMenu userNameDisplayArea=', userNameDisplayArea);
-
-                    // this.updateAccountMenu(userNameDisplayArea);
-                    this.updateAccountMenu();
-                // } else {
-                //     console.log('UpdateAccountMenu dont replace username', userNameDisplayArea?.classList.contains('styledUserName'), userNameDisplayArea);
-                // }
-            }
-
-            this.reLabelAccountButton();
-            this.reLabelFavourites();
-            this.reLabelSearchHistory(); // probably deleted in configuration
-        }, 100);
+        // console.log('UpdateAccountMenu start')
+        // setInterval(() => { // never ended as we have to re add the user's name every time they log in
+        //     // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
+        //     const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn div');
+        //
+        //     if (!!isLoggedOut) {
+        //         this.attachLoggedoutButtonContents()
+        //     }
+        //
+        //     const userNameAreaButton = document.querySelector('nde-user-area button');
+        //     if (!!userNameAreaButton) { // should always be present
+        //         this.attachArrowButtons(userNameAreaButton);
+        //     }
+        //
+        //     if (!!isLoggedOut) {
+        //         console.log('UpdateAccountMenu we are logged out')
+        //     } else {
+        //         console.log('UpdateAccountMenu we are logged in?')
+        //         // const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
+        //         // if (!!userNameDisplayArea && !userNameDisplayArea.classList.contains('styledUserName')) {
+        //         //     console.log('UpdateAccountMenu userNameDisplayArea=', userNameDisplayArea);
+        //
+        //             // this.updateAccountMenu(userNameDisplayArea);
+        //             this.updateAccountMenu();
+        //         // } else {
+        //         //     console.log('UpdateAccountMenu dont replace username', userNameDisplayArea?.classList.contains('styledUserName'), userNameDisplayArea);
+        //         // }
+        //     }
+        //
+        //     this.reLabelAccountButton();
+        //     this.reLabelFavourites();
+        //     this.reLabelSearchHistory(); // probably deleted in configuration
+        // }, 100);
     }
 
     private updateAccountMenu = () => { // (userNameDisplayArea: Element) => {
