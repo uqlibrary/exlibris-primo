@@ -1,0 +1,56 @@
+
+//button.user-area-btn {
+//  margin-top: -165px;
+//  @media (max-width: 707px) {
+//    margin-top: -215px;
+//  }
+//}
+nde-user-area button.user-area-btn:has(span.styledUserName) {
+  --mat-icon-button-touch-target-display: none;
+
+  span.mat-mdc-button-persistent-ripple,
+  span.mat-focus-indicator,
+  span.mat-mdc-button-touch-target,
+  span.mat-ripple {
+    display: none;
+  }
+
+  span.styledUserName {
+    --sys-primary: #fff;
+    color: #333 !important;
+    width: auto !important;
+
+    box-sizing: unset;
+    text-align: left;
+    border-radius: 0 !important;
+    display: block !important;
+
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px !important;
+    font-weight: 500;
+    letter-spacing: 0.14px;
+    line-height: normal;
+    height: 1rem !important;
+
+    /* truncate name with ellipsis when long, eg homepage user 'digiteamMember' */
+    max-width: 150px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  &:hover,
+  &:focus {
+    span.styledUserName {
+      //--sys-primary: var(--uq-main-purple);
+      background-color: var(--uq-main-purple);
+      color: #fff !important;
+      border-radius: 0 !important;
+      letter-spacing: 0.16px;
+      font-weight: 500;
+      font-size: 1rem;
+      display: inline;
+      max-height: 1.1rem;
+      height: 1.1rem !important;
+    }
+  }
+}
