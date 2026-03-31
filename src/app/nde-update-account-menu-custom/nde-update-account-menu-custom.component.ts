@@ -9,7 +9,6 @@ import { Component } from '@angular/core';
 })
 export class NdeUpdateAccountMenuCustomComponent {
     ngOnInit(): void {
-        console.log('UpdateAccountMenu start')
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
             // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
             const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn div');
@@ -23,19 +22,8 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.attachArrowButtons(userNameAreaButton);
             }
 
-            if (!!isLoggedOut) {
-                console.log('UpdateAccountMenu we are logged out')
-            } else {
-                console.log('UpdateAccountMenu we are logged in?')
-                // const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
-                // if (!!userNameDisplayArea && !userNameDisplayArea.classList.contains('styledUserName')) {
-                //     console.log('UpdateAccountMenu userNameDisplayArea=', userNameDisplayArea);
-
-                    // this.updateAccountMenu(userNameDisplayArea);
-                    this.updateAccountMenu();
-                // } else {
-                //     console.log('UpdateAccountMenu dont replace username', userNameDisplayArea?.classList.contains('styledUserName'), userNameDisplayArea);
-                // }
+            if (!isLoggedOut) {
+                this.updateAccountMenu();
             }
 
             this.reLabelAccountButton();
@@ -46,7 +34,6 @@ export class NdeUpdateAccountMenuCustomComponent {
 
     private updateAccountMenu = () => { // (userNameDisplayArea: Element) => {
         const desiredUserDisplayName = this.getDesiredUserDisplayName();
-        console.log('UpdateAccountMenu desiredUserDisplayName=', desiredUserDisplayName);
         const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
         if (!userNameDisplayArea?.classList.contains('styledUserName')) {
             !!desiredUserDisplayName && !!userNameDisplayArea && (userNameDisplayArea.textContent = desiredUserDisplayName);
@@ -54,7 +41,6 @@ export class NdeUpdateAccountMenuCustomComponent {
         }
 
         const logoutButtonFound =  document.querySelector(`.user-area-sub-menu button[aria-label=" Log out"]`);
-        console.log('UpdateAccountMenu logoutButtonFound=', logoutButtonFound);
 
         const accountMenu = document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
         if (logoutButtonFound) {
@@ -64,37 +50,30 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private moveLogoutButton(accountMenu: Element | null, buttonLabel = ' Log out') {
-        console.log('UpdateAccountMenu moveLogoutButton start');
         if (!accountMenu) {
-            console.log('UpdateAccountMenu moveLogoutButton not 1');
             return;
         }
 
         const logoutButton = document.querySelector(`.user-area-sub-menu > div > button[aria-label="${buttonLabel}"]`);
         if (!logoutButton) {
-            console.log('UpdateAccountMenu moveLogoutButton not 2');
             return; // logout button not available
         }
 
         const logoutButtonAlreadyMoved = document.querySelector('.user-area-sub-menu span+button'); // if we have already moved the button then it comes _after_ the anchors
         if (!!logoutButtonAlreadyMoved) {
-            console.log('UpdateAccountMenu moveLogoutButton not 3');
             return;
         }
-        console.log('UpdateAccountMenu moveLogoutButton moving logout button');
 
         // add an element to hold the divider above the button
         const dividerTemplate = document.createElement('template');
         !!dividerTemplate && (dividerTemplate.innerHTML = `<span class="menu-section-divider"></span>`);
         !!dividerTemplate && !!accountMenu && accountMenu.appendChild(dividerTemplate.content.cloneNode(true));
-        console.log('UpdateAccountMenu moveLogoutButton add divider');
 
         // move the log-out button
         !!accountMenu && !!logoutButton && accountMenu.appendChild(logoutButton);
 
         // get rid of the existing icons
         const existingLogoutSvg = document.querySelector('button[aria-label=" Log out"] mat-icon svg');
-        // !!existingLogoutSvg && console.log('moveLogoutButton remove existingLogoutSvg', existingLogoutSvg);
         !!existingLogoutSvg && existingLogoutSvg.remove();
 
         // insert our own icon
@@ -112,13 +91,11 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const accountButtonFound = document.querySelector(`.user-area-sub-menu a[aria-label="Go to my library account"]`);
         if (!accountButtonFound) {
-            // console.log('no account button');
             return; // buttons not available yet
         }
 
         // get rid of the existing icons
         const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
-        // console.log('existingAccountSvg', existingAccountSvg);
         !!existingAccountSvg && existingAccountSvg.remove();
 
         // insert our own icon
@@ -167,13 +144,11 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const newSearchHistoryIcon = document.getElementById('library-search-history-icon');
         if (!!newSearchHistoryIcon) {
-            // console.log('reLabelSearchHistory end 1');
             return; // already done
         }
 
         // get rid of the provided icon
         const existingSearchHistorySvg = document.querySelector('[aria-label="Go to my search history"] mat-icon svg');
-        console.log('reLabelSearchHistory existingSearchHistorySvg', existingSearchHistorySvg);
         !!existingSearchHistorySvg && existingSearchHistorySvg.remove();
 
         // insert our own icon
@@ -199,7 +174,6 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private addExtraMenuItems(accountMenu: Element | null) {
-        console.log('### add extra menu items');
         // we add the Learning resources, Print balance, uqbookit and feedback links to the account menu
 
         const newMenuItemAdded = document.getElementById('first-added-menu-item');
@@ -270,7 +244,6 @@ export class NdeUpdateAccountMenuCustomComponent {
             return;
         }
 
-        console.log('UpdateAccountMenu add arrows')
         const arrowsTemplate = document.createElement('template');
         arrowsTemplate.innerHTML = `
     <svg class="arrow downArrow" id="down-arrow" data-testid="down-arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
@@ -302,7 +275,6 @@ export class NdeUpdateAccountMenuCustomComponent {
             return;
         }
 
-        console.log('UpdateAccountMenu add logged out button');
         const loginButton = document.querySelector('nde-user-area button[aria-label="Open actions menu"]');
         const loggedoutButtonContentTemplate = document.createElement('template');
         loggedoutButtonContentTemplate.innerHTML = `
