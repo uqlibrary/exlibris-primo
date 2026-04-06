@@ -22,8 +22,11 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.attachArrowButtons(userNameAreaButton);
             }
 
+            const accountMenu = document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
             if (!isLoggedOut) {
-                this.updateAccountMenu();
+                this.updateLoggedInAccountMenu(accountMenu);
+            } else {
+                this.addLoggedOutExtraMenuItems(accountMenu);
             }
 
             this.reLabelAccountButton();
@@ -32,7 +35,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         }, 100);
     }
 
-    private updateAccountMenu = () => { // (userNameDisplayArea: Element) => {
+    private updateLoggedInAccountMenu = (accountMenu: Element | null) => { // (userNameDisplayArea: Element) => {
         const desiredUserDisplayName = this.getDesiredUserDisplayName();
         const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
         if (!userNameDisplayArea?.classList.contains('styledUserName')) {
@@ -42,9 +45,8 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const logoutButtonFound =  document.querySelector(`.user-area-sub-menu button[aria-label=" Log out"]`);
 
-        const accountMenu = document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
         if (logoutButtonFound) {
-            this.addExtraMenuItems(accountMenu);
+            this.addLoggedInExtraMenuItems(accountMenu);
             this.moveLogoutButton(accountMenu, ' Log out');
         }
     }
@@ -173,63 +175,79 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
     }
 
-    private addExtraMenuItems(accountMenu: Element | null) {
-        // we add the Learning resources, Print balance, uqbookit and feedback links to the account menu
+    private feedbackLink = `<a id="logged-out-feedback-link" data-testid="logged-out-feedback-link" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" href="https://support.my.uq.edu.au/app/library/feedback">
+            <mat-icon role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+              <svg data-testid="library-feedback-icon" class="library-feedback-icon" id="library-feedback-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </mat-icon>
+            <div class="textwrapper">
+              <span class="primaryText">Feedback</span>
+            </div>
+        </a>`;
+
+    private addLoggedInExtraMenuItems(accountMenu: Element | null) {
+        // add the Learning resources, Print balance, uqbookit and feedback links to the account menu for the logged in user
 
         const newMenuItemAdded = document.getElementById('first-added-menu-item');
         if (!!newMenuItemAdded) {
             return; // we've already inserted the extra items
         }
 
+        const roomBookingLink = `<a tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" href="https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb">
+            <mat-icon role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+              <svg data-testid="library-room-booking-icon" class="library-room-booking-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </mat-icon>
+            <div class="textwrapper">
+                <span class="primaryText">Book a room or desk</span>
+            </div>
+        </a>`;
+        const printBalanceLink = `<a tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" href="https://web.library.uq.edu.au/library-and-student-it-help/print-scan-and-copy/your-printing-account">
+            <mat-icon role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+              <svg data-testid="library-print-balance-icon" class="library-print-balance-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <g clip-path="url(#clip0_1723_14098)">
+                  <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+                <defs><clipPath id="clip0_1723_14098"><rect width="20" height="20" fill="white" transform="translate(2 2)"></rect></clipPath></defs>
+              </svg>
+            </mat-icon>
+            <div class="textwrapper">
+                <span class="primaryText">Print balance</span>
+            </div>
+        </a>`;
+        const learningResourcesLink = `<a id="first-added-menu-item" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" href="https://www.library.uq.edu.au/learning-resources">
+              <mat-icon role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+                <svg data-testid="library-learning-resources-icon" class="library-learning-resources-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                  <path d="M11.9999 21.4003V6.78587C11.9999 6.78587 9.94278 4.51443 2.99986 4.42871C2.87129 4.42871 2.78558 4.47157 2.69986 4.55728C2.61415 4.643 2.57129 4.72871 2.57129 4.85729V18.5717C2.57129 18.786 2.74272 19.0003 2.99986 19.0003C9.94278 19.1288 11.9999 21.4003 11.9999 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M9.46999 12.2291C8.05569 11.7577 6.55568 11.4577 5.05566 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M9.46999 15.7428C8.05569 15.2713 6.55568 14.9713 5.05566 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M14.5293 12.2291C15.9436 11.7577 17.4436 11.4577 18.9436 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M14.5293 15.7428C15.9436 15.2713 17.4436 14.9713 18.9436 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12.001 21.4003V6.78587C12.001 6.78587 14.0581 4.51443 21.001 4.42871C21.1296 4.42871 21.2153 4.47157 21.3011 4.55728C21.3868 4.643 21.4296 4.72871 21.4296 4.85729V18.5717C21.4296 18.786 21.2582 19.0003 21.001 19.0003C14.0581 19.1288 12.001 21.4003 12.001 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </mat-icon>
+                <div class="textwrapper">
+                    <span class="primaryText">Learning resources</span>
+                </div>
+            </a>`;
+
         const extraLinksTemplate = document.createElement('template');
-        extraLinksTemplate.innerHTML = `
-    <a id="first-added-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" href="https://www.library.uq.edu.au/learning-resources">
-      <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-        <svg data-testid="library-learning-resources-icon" class="library-learning-resources-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-          <path d="M11.9999 21.4003V6.78587C11.9999 6.78587 9.94278 4.51443 2.99986 4.42871C2.87129 4.42871 2.78558 4.47157 2.69986 4.55728C2.61415 4.643 2.57129 4.72871 2.57129 4.85729V18.5717C2.57129 18.786 2.74272 19.0003 2.99986 19.0003C9.94278 19.1288 11.9999 21.4003 11.9999 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M9.46999 12.2291C8.05569 11.7577 6.55568 11.4577 5.05566 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M9.46999 15.7428C8.05569 15.2713 6.55568 14.9713 5.05566 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M14.5293 12.2291C15.9436 11.7577 17.4436 11.4577 18.9436 11.3291" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M14.5293 15.7428C15.9436 15.2713 17.4436 14.9713 18.9436 14.8428" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M12.001 21.4003V6.78587C12.001 6.78587 14.0581 4.51443 21.001 4.42871C21.1296 4.42871 21.2153 4.47157 21.3011 4.55728C21.3868 4.643 21.4296 4.72871 21.4296 4.85729V18.5717C21.4296 18.786 21.2582 19.0003 21.001 19.0003C14.0581 19.1288 12.001 21.4003 12.001 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-      </mat-icon>
-        <div class="textwrapper">
-            <span class="primaryText">Learning resources</span>
-        </div>
-    </a>
-    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" href="https://web.library.uq.edu.au/library-and-student-it-help/print-scan-and-copy/your-printing-account">
-        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-          <svg data-testid="library-print-balance-icon" class="library-print-balance-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <g clip-path="url(#clip0_1723_14098)">
-              <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-              <path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-              <path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-              <path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-            </g>
-            <defs><clipPath id="clip0_1723_14098"><rect width="20" height="20" fill="white" transform="translate(2 2)"></rect></clipPath></defs>
-          </svg>
-        </mat-icon>
-        <div class="textwrapper">
-            <span class="primaryText">Print balance</span>
-        </div>
-    </a>
-    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" href="https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb">
-        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-          <svg data-testid="library-room-booking-icon" class="library-room-booking-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </mat-icon>
-        <div class="textwrapper">
-            <span class="primaryText">Book a room or desk</span>
-        </div>
-    </a>
-    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" href="https://support.my.uq.edu.au/app/library/feedback">
-        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-          <svg data-testid="library-feedback-icon" class="library-feedback-icon" id="library-feedback-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </mat-icon>
-        <div class="textwrapper">
-          <span class="primaryText">Feedback</span>
-        </div>
-    </a>`;
+        extraLinksTemplate.innerHTML = learningResourcesLink +
+            printBalanceLink +
+            roomBookingLink +
+            this.feedbackLink;
+        !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
+    }
+
+    private addLoggedOutExtraMenuItems(accountMenu: Element | null) {
+        const newMenuItemAdded = document.getElementById('logged-out-feedback-link');
+        if (!!newMenuItemAdded) {
+            return; // we've already inserted the extra items
+        }
+
+        const extraLinksTemplate = document.createElement('template');
+        extraLinksTemplate.innerHTML = this.feedbackLink;
         !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
     }
 
