@@ -695,10 +695,7 @@ function whenPageLoaded(fn) {
 		controller: function ($scope) {
 			const vm = this;
 			this.$onInit = function () {
-                if (isServicesPage()) {
-                    // no RAP button on auto-gen pages
-                    return;
-                }
+                // note: this RAP button is hidden using css on Services pages (see addServicesPageWarningBanner below)
 				vm.targeturl = "";
 
 				let recordId = "";
@@ -1109,7 +1106,7 @@ function whenPageLoaded(fn) {
         }
 
         const displayTextTemplate = document.createElement('template');
-        displayTextTemplate.innerHTML = `<div id="${servicePageWarningBannerId}" class="standardWarningBanner">` +
+        displayTextTemplate.innerHTML = `<div id="${servicePageWarningBannerId}" class="standardWarningBanner standardWarningBanner-servicesPage">` +
             '<p>This page was automatically generated with unverified information from outside Library Search. If uncertain, search for the resource directly in <a href="https://www.library.uq.edu.au">Library Search</a>.' +
             '</div>';
 
@@ -1129,31 +1126,60 @@ function whenPageLoaded(fn) {
 
     }
 
-    function isServicesPage() {
-        if (window.location.pathname !== '/discovery/openurl') {
-            return false;
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const rfrIds = urlParams.getAll('rfr_id')
-        rfrIds.forEach(rfrid => {
-            if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker')) {
-                return false;
-            }
-        })
-
-        const availabilityStatusLine = document.querySelector('.availability-status');
-        if (!!availabilityStatusLine && !availabilityStatusLine.classList.contains('no-inventory')) {
-            return false;
-        }
-        return true;
-    }
-
     function displayServicesPageWarningOnSomeFullRecords() {
         // we pull in such a lot of external data. Mostly it's good, but there are the "Services pages" that aren't always good data.
-        if (isServicesPage()) {
-            addServicesPageWarningBanner();
-        }
+        let isServicesPage = true
+        console.log('ServicesPageWarning A looping');
+        const availabilityStatusAvailable = setInterval(() => {
+            // ugh, wait for the on page element to be present (all full record displays have an availability line)
+            const availabilityStatusLine = document.querySelector('.availability-status');
+            if (!availabilityStatusLine) {
+                console.log('ServicesPageWarning B loop again');
+                return;
+            }
+            clearInterval(availabilityStatusAvailable);
+
+            if (window.location.pathname !== '/discovery/openurl') {
+                // only the openurl items are loaded from unvetted data and might be... non-optimal
+                console.log('ServicesPageWarning 1 This is NOT a Services page - ok by path');
+                isServicesPage = false;
+            }
+
+            if (!!isServicesPage) {
+                console.log('ServicesPageWarning openurl url path found, check deeper');
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const rfrIds = urlParams.getAll('rfr_id')
+                rfrIds.forEach(rfrid => {
+                    if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker')) {
+                        console.log('ServicesPageWarning 2 This is NOT a Services page - ok by rfrid (', rfrid, ')');
+                        isServicesPage = false;
+                    }
+                })
+            }
+
+            if (!!isServicesPage) {
+                console.log('ServicesPageWarning clearing rfrf param not found, check deeper');
+
+                console.log('ServicesPageWarning 3 availabilityStatusLine=', availabilityStatusLine);
+                // !availabilityStatusLine.classList.contains('no_inventory') && console.log('ServicesPageWarning 3 This is NOT a Services page - no_inventory class NOT found', availabilityStatusLine.classList);
+                // !!availabilityStatusLine.classList.contains('no_inventory') && console.log('ServicesPageWarning 3 This IS a Services page - no_inventory class FOUND', availabilityStatusLine.classList);
+
+                if (!!availabilityStatusLine && !availabilityStatusLine.classList.contains('no_inventory')) {
+                    console.log('ServicesPageWarning 4 This is NOT a Services page - ok by inventory');
+                    isServicesPage = false;
+                } else {
+                    console.log('ServicesPageWarning "has no inventory" class IS found - put up the banner!');
+                }
+            }
+
+            !!isServicesPage ? console.log('ServicesPageWarning 5A This is a Services page, add banner') : console.log('ServicesPageWarning 5B This is NOT a Services page, no banner');
+            if (!!isServicesPage) {
+                addServicesPageWarningBanner();
+            }
+            return isServicesPage;
+        }, 100);
+
     }
 
 	function displayCulturalAdviceBannerOnSomeFullRecords(vm) {
@@ -1600,6 +1626,8 @@ function whenPageLoaded(fn) {
 
 				moveCdiAttributesBelowOtherContentIndicators(sectionWrapper); // both full and brief
 
+                displayServicesPageWarningOnSomeFullRecords();
+
 				if (!!isFullDisplayPage()) {
 					overrideDirectLinkingOnSomeFullRecords(vm, sectionWrapper, $scope);
 
@@ -1612,8 +1640,6 @@ function whenPageLoaded(fn) {
 
 				// redirect the `available online` click on certain records to open the full record
 				overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm);
-
-                displayServicesPageWarningOnSomeFullRecords();
 			};
 		},
 		template: "",
