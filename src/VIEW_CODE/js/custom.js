@@ -1130,21 +1130,23 @@ function whenPageLoaded(fn) {
     }
 
     function isServicesPage() {
-        let isServicesPage = true;
         if (window.location.pathname !== '/discovery/openurl') {
-            isServicesPage = false;
+            return false;
         }
 
-        if (!!isServicesPage) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const rfrIds = urlParams.getAll('rfr_id')
-            rfrIds.forEach(rfrid => {
-                if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker')) {
-                    isServicesPage = false;
-                }
-            })
+        const urlParams = new URLSearchParams(window.location.search);
+        const rfrIds = urlParams.getAll('rfr_id')
+        rfrIds.forEach(rfrid => {
+            if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker')) {
+                return false;
+            }
+        })
+
+        const availabilityStatusLine = document.querySelector('.availability-status');
+        if (!!availabilityStatusLine && !availabilityStatusLine.classList.contains('no-inventory')) {
+            return false;
         }
-        return isServicesPage;
+        return true;
     }
 
     function displayServicesPageWarningOnSomeFullRecords() {
