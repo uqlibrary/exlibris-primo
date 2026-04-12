@@ -1151,7 +1151,7 @@ function whenPageLoaded(fn) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const rfrIds = urlParams.getAll('rfr_id')
                 rfrIds.forEach(rfrid => {
-                    if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker')) {
+                    if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker') || rfrid.endsWith('-talis')) {
                         console.log('ServicesPageWarning 2 This is NOT a Services page - ok by rfrid (', rfrid, ')');
                         isServicesPage = false;
                     }
