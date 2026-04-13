@@ -689,6 +689,9 @@ function whenPageLoaded(fn) {
 		return window.location.hostname === "search.library.uq.edu.au";
 	}
 
+    // pages with a certain url are called "Services pages" and we display different things there (sometimes a banner, but never a RAP button)
+    const isServicePageByUrl = window.location.pathname === '/discovery/openurl';
+
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
 	app.component("prmFullViewServiceContainerAfter", { // prm-full-view-service-container-after
 		bindings: { parentCtrl: "<" },
@@ -696,6 +699,11 @@ function whenPageLoaded(fn) {
 			const vm = this;
 			this.$onInit = function () {
 				vm.targeturl = "";
+
+                if (isServicePageByUrl) {
+                    // services pages do not have a "report a problem" button as resman can't reproduce the page (no, i don't know what that means either)
+                    return;
+                }
 
 				let recordId = "";
 				if (!!vm.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid[0]) {
@@ -973,7 +981,7 @@ function whenPageLoaded(fn) {
 
 	function addCulturalAdviceBanner(displayText) {
 		// eg "Aboriginal and Torres Strait Islander people are warned that this resource may contain images transcripts or names of Aboriginal and Torres Strait Islander people now deceased.  It may also contain historically and culturally sensitive words, terms, and descriptions."
-		const displayBlockClassName = "culturalAdviceBanner";
+		const displayBlockClassName = "standardWarningBanner";
 		const displayBlock = document.querySelector(`.${displayBlockClassName}`);
 		if (!!displayBlock) {
 			// block already exists - don't duplicate
@@ -1097,6 +1105,89 @@ function whenPageLoaded(fn) {
 		}
 	}
 
+    function addServicesPageWarningBanner() {
+        const servicePageWarningBannerId = "servicePageWarningBanner";
+        const displayBlock = document.getElementById(servicePageWarningBannerId);
+        if (!!displayBlock) {
+            return; // block already exists - don't duplicate
+        }
+
+        const displayTextTemplate = document.createElement('template');
+        displayTextTemplate.innerHTML = `<div id="${servicePageWarningBannerId}" class="standardWarningBanner standardWarningBanner-servicesPage">` +
+            '<p>This page was automatically generated with unverified information from outside Library Search. If uncertain, search for the resource directly in <a href="https://www.library.uq.edu.au">Library Search</a>.' +
+            '</div>';
+
+        const waitforWrapperToExist = setInterval(() => {
+            const siblingClass = ".search-result-availability-line-wrapper";
+            const siblings = document.querySelectorAll(siblingClass);
+            if (!!siblings) {
+                clearInterval(waitforWrapperToExist);
+
+                const displayText = displayTextTemplate.content.cloneNode(true);
+                siblings.forEach((appendToSibling, index) => {
+                    // there should only _be_ one, but if there is more than one, just add it to the first
+                    index === 0 && appendToSibling.appendChild(displayText)
+                });
+            }
+        }, 100);
+
+    }
+
+    function displayServicesPageWarningOnSomeFullRecords() {
+        // we pull in such a lot of external data. Mostly it's good, but there are the "Services pages" that aren't always good data.
+        let showServicesBanner = true
+        console.log('ServicesPageWarning A looping');
+        const availabilityStatusAvailable = setInterval(() => {
+            // ugh, wait for the on page element to be present (all full record displays have an availability line)
+            const availabilityStatusLine = document.querySelector('.availability-status');
+            if (!availabilityStatusLine) {
+                console.log('ServicesPageWarning B loop again');
+                return;
+            }
+            clearInterval(availabilityStatusAvailable);
+
+            if (!isServicePageByUrl) {
+                // items with this url are loaded from unvetted data and might be... non-optimal
+                console.log('ServicesPageWarning 1 This is NOT a Services page - ok by url');
+                showServicesBanner = false;
+            }
+
+            if (!!showServicesBanner) {
+                // the url says we are on a Services page, but certain types don't show the banner
+                console.log('ServicesPageWarning openurl url path found, check deeper');
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const rfrIds = urlParams.getAll('rfr_id')
+                rfrIds.forEach(rfrid => {
+                    if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker') || rfrid.endsWith('-talis')) {
+                        console.log('ServicesPageWarning 2 This is NOT a Services page - ok by rfrid (', rfrid, ')');
+                        showServicesBanner = false;
+                    }
+                })
+            }
+
+            if (!!showServicesBanner) {
+                // the url says we are on a Services page, but if we have the item in stock, don't show the banner
+                console.log('ServicesPageWarning clearing rfrf param not found, check deeper');
+
+                console.log('ServicesPageWarning 3 availabilityStatusLine=', availabilityStatusLine);
+                if (!!availabilityStatusLine && !availabilityStatusLine.classList.contains('no_inventory')) {
+                    console.log('ServicesPageWarning 3A This is NOT a Services page - ok by inventory');
+                    showServicesBanner = false;
+                } else {
+                    console.log('ServicesPageWarning 3B "has no inventory" class IS found - put up the banner!');
+                }
+            }
+
+            !!showServicesBanner ? console.log('ServicesPageWarning 4A This is a Services page, add banner') : console.log('ServicesPageWarning 4B This is NOT a Services page, no banner');
+            if (!!showServicesBanner) {
+                addServicesPageWarningBanner();
+            }
+            return showServicesBanner;
+        }, 100);
+
+    }
+
 	function displayCulturalAdviceBannerOnSomeFullRecords(vm) {
 		const recordId = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
 		const culturalAdviceDisplayRequired = !!vm?.parentCtrl?.item?.pnx?.display?.lds05; // eg "Cultural advice - Aboriginal and Torres Strait Islander peoples"
@@ -1187,7 +1278,7 @@ function whenPageLoaded(fn) {
 		// check for a reading list in the full results page and add an indicator and list if so
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope, $http) {
-			const vm = this;
+            const vm = this;
 
 			this.$onInit = function () {
 				if (!isFullDisplayPage()) {
@@ -1540,6 +1631,8 @@ function whenPageLoaded(fn) {
 				const sectionWrapper = parentCtrl.$element[0];
 
 				moveCdiAttributesBelowOtherContentIndicators(sectionWrapper); // both full and brief
+
+                displayServicesPageWarningOnSomeFullRecords();
 
 				if (!!isFullDisplayPage()) {
 					overrideDirectLinkingOnSomeFullRecords(vm, sectionWrapper, $scope);
