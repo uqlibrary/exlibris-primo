@@ -689,14 +689,21 @@ function whenPageLoaded(fn) {
 		return window.location.hostname === "search.library.uq.edu.au";
 	}
 
+    // pages with a certain url are called "Services pages" and we display different things there (sometimes a banner, but never a RAP button)
+    const isServicePageByUrl = window.location.pathname === '/discovery/openurl';
+
 	// based on https://knowledge.exlibrisgroup.com/Primo/Community_Knowledge/How_to_create_a_%E2%80%98Report_a_Problem%E2%80%99_button_below_the_ViewIt_iframe
 	app.component("prmFullViewServiceContainerAfter", { // prm-full-view-service-container-after
 		bindings: { parentCtrl: "<" },
 		controller: function ($scope) {
 			const vm = this;
 			this.$onInit = function () {
-                // note: this RAP button is hidden using css on Services pages (see addServicesPageWarningBanner below)
 				vm.targeturl = "";
+
+                if (isServicePageByUrl) {
+                    // services pages do not have a "report a problem" button as resman can't reproduce the page (no, i don't know what that means either)
+                    return;
+                }
 
 				let recordId = "";
 				if (!!vm.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid[0]) {
@@ -1128,7 +1135,7 @@ function whenPageLoaded(fn) {
 
     function displayServicesPageWarningOnSomeFullRecords() {
         // we pull in such a lot of external data. Mostly it's good, but there are the "Services pages" that aren't always good data.
-        let isServicesPage = true
+        let showServicesBanner = true
         console.log('ServicesPageWarning A looping');
         const availabilityStatusAvailable = setInterval(() => {
             // ugh, wait for the on page element to be present (all full record displays have an availability line)
@@ -1139,13 +1146,14 @@ function whenPageLoaded(fn) {
             }
             clearInterval(availabilityStatusAvailable);
 
-            if (window.location.pathname !== '/discovery/openurl') {
-                // only the openurl items are loaded from unvetted data and might be... non-optimal
-                console.log('ServicesPageWarning 1 This is NOT a Services page - ok by path');
-                isServicesPage = false;
+            if (!isServicePageByUrl) {
+                // items with this url are loaded from unvetted data and might be... non-optimal
+                console.log('ServicesPageWarning 1 This is NOT a Services page - ok by url');
+                showServicesBanner = false;
             }
 
-            if (!!isServicesPage) {
+            if (!!showServicesBanner) {
+                // the url says we are on a Services page, but certain types don't show the banner
                 console.log('ServicesPageWarning openurl url path found, check deeper');
 
                 const urlParams = new URLSearchParams(window.location.search);
@@ -1153,31 +1161,29 @@ function whenPageLoaded(fn) {
                 rfrIds.forEach(rfrid => {
                     if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker') || rfrid.endsWith('-talis')) {
                         console.log('ServicesPageWarning 2 This is NOT a Services page - ok by rfrid (', rfrid, ')');
-                        isServicesPage = false;
+                        showServicesBanner = false;
                     }
                 })
             }
 
-            if (!!isServicesPage) {
+            if (!!showServicesBanner) {
+                // the url says we are on a Services page, but if we have the item in stock, don't show the banner
                 console.log('ServicesPageWarning clearing rfrf param not found, check deeper');
 
                 console.log('ServicesPageWarning 3 availabilityStatusLine=', availabilityStatusLine);
-                // !availabilityStatusLine.classList.contains('no_inventory') && console.log('ServicesPageWarning 3 This is NOT a Services page - no_inventory class NOT found', availabilityStatusLine.classList);
-                // !!availabilityStatusLine.classList.contains('no_inventory') && console.log('ServicesPageWarning 3 This IS a Services page - no_inventory class FOUND', availabilityStatusLine.classList);
-
                 if (!!availabilityStatusLine && !availabilityStatusLine.classList.contains('no_inventory')) {
-                    console.log('ServicesPageWarning 4 This is NOT a Services page - ok by inventory');
-                    isServicesPage = false;
+                    console.log('ServicesPageWarning 3A This is NOT a Services page - ok by inventory');
+                    showServicesBanner = false;
                 } else {
-                    console.log('ServicesPageWarning "has no inventory" class IS found - put up the banner!');
+                    console.log('ServicesPageWarning 3B "has no inventory" class IS found - put up the banner!');
                 }
             }
 
-            !!isServicesPage ? console.log('ServicesPageWarning 5A This is a Services page, add banner') : console.log('ServicesPageWarning 5B This is NOT a Services page, no banner');
-            if (!!isServicesPage) {
+            !!showServicesBanner ? console.log('ServicesPageWarning 4A This is a Services page, add banner') : console.log('ServicesPageWarning 4B This is NOT a Services page, no banner');
+            if (!!showServicesBanner) {
                 addServicesPageWarningBanner();
             }
-            return isServicesPage;
+            return showServicesBanner;
         }, 100);
 
     }
