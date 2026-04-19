@@ -1136,31 +1136,26 @@ function whenPageLoaded(fn) {
     function displayServicesPageWarningOnSomeFullRecords() {
         // we pull in such a lot of external data. Mostly it's good, but there are the "Services pages" that aren't always good data.
         let showServicesBanner = true
-        console.log('ServicesPageWarning A looping');
         const availabilityStatusAvailable = setInterval(() => {
             // ugh, wait for the on page element to be present (all full record displays have an availability line)
             const availabilityStatusLine = document.querySelector('.availability-status');
             if (!availabilityStatusLine) {
-                console.log('ServicesPageWarning B loop again');
                 return;
             }
             clearInterval(availabilityStatusAvailable);
 
             if (!isServicePageByUrl) {
                 // items with this url are loaded from unvetted data and might be... non-optimal
-                console.log('ServicesPageWarning 1 This is NOT a Services page - ok by url');
                 showServicesBanner = false;
             }
 
             if (!!showServicesBanner) {
                 // the url says we are on a Services page, but certain types don't show the banner
-                console.log('ServicesPageWarning openurl url path found, check deeper');
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const rfrIds = urlParams.getAll('rfr_id')
                 rfrIds.forEach(rfrid => {
                     if (rfrid.endsWith('-Bx') || rfrid.endsWith('-cLinker') || rfrid.endsWith('-talis')) {
-                        console.log('ServicesPageWarning 2 This is NOT a Services page - ok by rfrid (', rfrid, ')');
                         showServicesBanner = false;
                     }
                 })
@@ -1168,18 +1163,12 @@ function whenPageLoaded(fn) {
 
             if (!!showServicesBanner) {
                 // the url says we are on a Services page, but if we have the item in stock, don't show the banner
-                console.log('ServicesPageWarning clearing rfrf param not found, check deeper');
 
-                console.log('ServicesPageWarning 3 availabilityStatusLine=', availabilityStatusLine);
                 if (!!availabilityStatusLine && !availabilityStatusLine.classList.contains('no_inventory')) {
-                    console.log('ServicesPageWarning 3A This is NOT a Services page - ok by inventory');
                     showServicesBanner = false;
-                } else {
-                    console.log('ServicesPageWarning 3B "has no inventory" class IS found - put up the banner!');
                 }
             }
 
-            !!showServicesBanner ? console.log('ServicesPageWarning 4A This is a Services page, add banner') : console.log('ServicesPageWarning 4B This is NOT a Services page, no banner');
             if (!!showServicesBanner) {
                 addServicesPageWarningBanner();
             }
@@ -2006,12 +1995,9 @@ function whenPageLoaded(fn) {
 			waitForElements('prm-location prm-location-holdings')
 				.then(availabilityLines => {
 					if (availabilityLines) {
-						console.log('availabilityLines 1=', availabilityLines);
 						addShowMoreIndicator(availabilityLines, showMoreClassName);
 					} else {
-						console.log('Elements not found within the timeout period');
 						availabilityLines = document.querySelectorAll('prm-location .availability-status');
-						console.log('availabilityLines 2=', availabilityLines);
 						!!availabilityLines && addShowMoreIndicator(availabilityLines, showMoreClassName);
 					}
 				});
