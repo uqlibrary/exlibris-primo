@@ -1114,7 +1114,7 @@ function whenPageLoaded(fn) {
 
         const displayTextTemplate = document.createElement('template');
         displayTextTemplate.innerHTML = `<div id="${servicePageWarningBannerId}" class="standardWarningBanner standardWarningBanner-servicesPage">` +
-            '<p>This page was automatically generated with unverified information from outside Library Search. If uncertain, search for the resource directly in <a href="https://www.library.uq.edu.au">Library Search</a>.' +
+            '<p>This is an auto-generated page that may include incorrect citation details. Please verify the citation before placing a request. You can <a href="https://www.library.uq.edu.au">search the Library</a>, or <a href="https://web.library.uq.edu.au/about/contact-us">contact us</a> for help.</p>' +
             '</div>';
 
         const waitforWrapperToExist = setInterval(() => {
