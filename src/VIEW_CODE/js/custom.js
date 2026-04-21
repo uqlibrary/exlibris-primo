@@ -992,7 +992,8 @@ function whenPageLoaded(fn) {
 		!!para && (para.innerHTML = displayText);
 
 		const block = document.createElement("div");
-		!!block && (block.className = displayBlockClassName);
+		!!block && !block.classList.contains(displayBlockClassName) && block.classList.add(displayBlockClassName);
+        !!block && block.setAttribute('data-testid', 'cultural-advice-banner');
 		!!para && !!para && block.appendChild(para);
 
 		const waitforWrapperToExist = setInterval(() => {
@@ -1113,7 +1114,7 @@ function whenPageLoaded(fn) {
         }
 
         const displayTextTemplate = document.createElement('template');
-        displayTextTemplate.innerHTML = `<div id="${servicePageWarningBannerId}" class="standardWarningBanner standardWarningBanner-servicesPage">` +
+        displayTextTemplate.innerHTML = `<div id="${servicePageWarningBannerId}" class="standardWarningBanner standardWarningBanner-servicesPage" data-testid="services-page-banner">` +
             '<p>This is an auto-generated page that may include incorrect citation details. Please verify the citation before placing a request. You can <a href="https://www.library.uq.edu.au">search the Library</a>, or <a href="https://web.library.uq.edu.au/about/contact-us">contact us</a> for help.</p>' +
             '</div>';
 
