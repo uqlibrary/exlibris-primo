@@ -220,19 +220,13 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
         <div role="separator" class="mat-divider nde-divider full-display-divider mat-divider-horizontal" aria-orientation="horizontal"></div>
         <!-- <h2 class="visually-hidden">Course reading lists</h2> -->
         <div id="uql-mat-expansion-panel" hidetoggle="" class="mat-expanded mat-expansion-panel-animations-enabled"> <!-- mat-expansion-panel -->
-            <button
-                class="mat-expansion-panel-header mat-focus-indicator mat-expanded mat-expansion-toggle-indicator-after uql-mat-expansion-panel-header-button"
-                aria-labelledby="uql-mat-heading-crl"
-                id="uql-mat-expansion-panel-header-button"
-                tabindex="0"
-                aria-controls="uql-accordion-child-crl"
-                aria-expanded="true"
-                aria-disabled="false">
-                <h4 class="mat-title-medium uql-mat-expansion-panel-header" id="uql-mat-heading-crl">
-                    Course reading list
-                </h4>
-                <mat-panel-description _ngcontent-ng-c2677583102="" class="mat-expansion-panel-header-description">
-                    <mat-icon id="uql-hide-crl-area" role="img" color="primary" class="uql-hide-crl-area mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Remove">
+            <mat-expansion-panel-header _ngcontent-ng-c562330857="" role="button" class="mat-expansion-panel-header mat-focus-indicator mat-expanded mat-expansion-toggle-indicator-after" aria-labelledby="title-nui.brief.results.tabs.links" id="uql-mat-expansion-panel-header-button" tabindex="0" aria-controls="cdk-accordion-child-18" aria-expanded="true" aria-disabled="false">
+                <span class="mat-content mat-content-hide-toggle">
+                    <mat-panel-title _ngcontent-ng-c562330857="" class="mat-expansion-panel-header-title">
+                        <span _ngcontent-ng-c562330857="" class="title-first-upper mat-title-medium" id="title-nui.brief.results.tabs.links">Course reading lists</span>
+                    </mat-panel-title>
+                    <mat-panel-description _ngcontent-ng-c562330857="" class="mat-expansion-panel-header-description">
+                        <mat-icon id="uql-hide-crl-area" role="img" color="primary" class="uql-hide-crl-area mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Remove">
                         <svg width="100%" height="100%" viewBox="0 0 16 2" fill="none" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
                             <path d="M0 1H16" stroke-width="2"></path>
                         </svg>
@@ -242,9 +236,11 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
                             <path d="M0 8H16" stroke-width="2"></path>
                             <path d="M8 0L8 16" stroke-width="2"></path>
                         </svg>
-                    </mat-icon>            
-                </mat-panel-description>
-            </button>
+                    </mat-icon>   
+                    </mat-panel-description>
+                </span>
+            </mat-expansion-panel-header>
+
             <!-- class="mat-expansion-panel mat-expanded mat-expansion-panel-animations-enabled" -->
             <div class="mat-expansion-panel-content-wrapper mat-expansion-panel-animations-enabled">
                 <div role="region" class="uql-accordion-child-crl" id="uql-accordion-child-crl" aria-labelledby="uql-mat-expansion-panel-header-button"> <!-- mat-expansion-panel-content -->
