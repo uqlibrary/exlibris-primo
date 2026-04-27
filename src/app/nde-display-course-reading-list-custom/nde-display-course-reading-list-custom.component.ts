@@ -161,6 +161,8 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
                             // }, 100);
                         }
 
+                        this.addCourseResourceIndicatorToHeader();
+
                         // sort by course code for display
                         let sortable = [];
                         for (let talisUrl in courseList) {
@@ -215,39 +217,39 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
 
         // we use this approach rather than "put this in the angular .html" because we need this block _in the flow_ for layout reasons, not stuck at the bottom
         let htmlContent = '' +
-            `<div class="nde-full-display-service-container ng-star-inserted crl-list-area">
-        <div>
-        <div role="separator" class="mat-divider nde-divider full-display-divider mat-divider-horizontal" aria-orientation="horizontal"></div>
-        <!-- <h2 class="visually-hidden">Course reading lists</h2> -->
-        <div id="uql-mat-expansion-panel" hidetoggle="" class="mat-expanded mat-expansion-panel-animations-enabled"> <!-- mat-expansion-panel -->
-            <mat-expansion-panel-header _ngcontent-ng-c562330857="" role="button" class="mat-expansion-panel-header mat-focus-indicator mat-expanded mat-expansion-toggle-indicator-after" aria-labelledby="title-nui.brief.results.tabs.links" id="uql-mat-expansion-panel-header-button" tabindex="0" aria-controls="cdk-accordion-child-18" aria-expanded="true" aria-disabled="false">
-                <span class="mat-content mat-content-hide-toggle">
-                    <mat-panel-title _ngcontent-ng-c562330857="" class="mat-expansion-panel-header-title">
-                        <span _ngcontent-ng-c562330857="" class="title-first-upper mat-title-medium" id="title-nui.brief.results.tabs.links">Course reading lists</span>
-                    </mat-panel-title>
-                    <mat-panel-description _ngcontent-ng-c562330857="" class="mat-expansion-panel-header-description">
-                        <mat-icon id="uql-hide-crl-area" role="img" color="primary" class="uql-hide-crl-area mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Remove">
-                        <svg width="100%" height="100%" viewBox="0 0 16 2" fill="none" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
-                            <path d="M0 1H16" stroke-width="2"></path>
-                        </svg>
-                    </mat-icon>
-                    <mat-icon id="uql-show-crl-area" style="display: none" role="img" color="primary" class="uql-show-crl-area mat-icon notranslate nde-mat-icon-size-default primary-stroke line-height-normal mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Add">
-                        <svg width="100%" height="100%" viewBox="0 0 16 16" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
-                            <path d="M0 8H16" stroke-width="2"></path>
-                            <path d="M8 0L8 16" stroke-width="2"></path>
-                        </svg>
-                    </mat-icon>   
-                    </mat-panel-description>
-                </span>
-            </mat-expansion-panel-header>
-
-            <!-- class="mat-expansion-panel mat-expanded mat-expansion-panel-animations-enabled" -->
-            <div class="mat-expansion-panel-content-wrapper mat-expansion-panel-animations-enabled">
-                <div role="region" class="uql-accordion-child-crl" id="uql-accordion-child-crl" aria-labelledby="uql-mat-expansion-panel-header-button"> <!-- mat-expansion-panel-content -->
-                    <div class="mat-expansion-panel-body">
-                        <div class="ng-star-inserted">
-                            <div class="mat-title-small links-container flex-column gap-05 ng-star-inserted">
-                                <ul class="course-resource-list">`;
+        `<div class="nde-full-display-service-container ng-star-inserted crl-list-area">
+            <div>
+                <div role="separator" class="mat-divider nde-divider full-display-divider mat-divider-horizontal" aria-orientation="horizontal"></div>
+                <h2 class="visually-hidden">Course reading lists</h2>
+                <mat-expansion-panel id="uql-mat-expansion-panel" hidetoggle="" class="mat-expanded mat-expansion-panel-animations-enabled"> <!-- mat-expansion-panel -->
+                    <mat-expansion-panel-header id="uql-mat-expansion-panel-header-button" _ngcontent-ng-c562330857="" role="button" class="crl-mat-expansion-panel-header mat-expansion-panel-header mat-focus-indicator mat-expanded mat-expansion-toggle-indicator-after" aria-labelledby="crl-label" tabindex="0" aria-controls="crl-mat-expansion-panel" aria-expanded="true" aria-disabled="false">
+                        <span class="mat-content mat-content-hide-toggle">
+                            <mat-panel-title _ngcontent-ng-c562330857="" class="mat-expansion-panel-header-title">
+                                <span _ngcontent-ng-c562330857="" class="title-first-upper mat-title-medium" id=crl-label">Course reading lists</span>
+                            </mat-panel-title>
+                            <mat-panel-description _ngcontent-ng-c562330857="" class="mat-expansion-panel-header-description">
+                                <mat-icon id="uql-hide-crl-area" role="img" color="primary" class="uql-hide-crl-area mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Remove">
+                                <svg width="100%" height="100%" viewBox="0 0 16 2" fill="none" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+                                    <path d="M0 1H16" stroke-width="2"></path>
+                                </svg>
+                            </mat-icon>
+                            <mat-icon id="uql-show-crl-area" style="display: none" role="img" color="primary" class="uql-show-crl-area mat-icon notranslate nde-mat-icon-size-default primary-stroke line-height-normal mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Add">
+                                <svg width="100%" height="100%" viewBox="0 0 16 16" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+                                    <path d="M0 8H16" stroke-width="2"></path>
+                                    <path d="M8 0L8 16" stroke-width="2"></path>
+                                </svg>
+                            </mat-icon>   
+                            </mat-panel-description>
+                        </span>
+                    </mat-expansion-panel-header>
+        
+                    <!-- class="mat-expansion-panel mat-expanded mat-expansion-panel-animations-enabled" -->
+                    <mat-expansion-panel id="crl-mat-expansion-panel" class="mat-expansion-panel-content-wrapper mat-expansion-panel-animations-enabled">
+                        <div role="region" class="uql-accordion-child-crl" id="uql-accordion-child-crl" aria-labelledby="uql-mat-expansion-panel-header-button"> <!-- mat-expansion-panel-content -->
+                            <div class="mat-expansion-panel-body">
+                                <div class="ng-star-inserted">
+                                    <div class="mat-title-small links-container flex-column gap-05 ng-star-inserted">
+                                        <ul class="course-resource-list">`;
         for (const [url, displayName] of Object.entries(talisCourses)) {
             htmlContent += '<li>' +
                 `<a class="uql-crl-list-item" href="${url}" target="_blank">` + //  button-as-link link-alt-color md-button md-primoExplore-theme md-ink-ripple
@@ -266,6 +268,7 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
 
         // Create a temporary container to attach the HTML
         const tempContainer = document.createElement('div');
+        // !!tempContainer && tempContainer.classList.add('full-view-section');
         !!tempContainer && tempContainer.classList.add('full-view-section', 'readingListCitations');
         !!tempContainer && (tempContainer.id = "full-view-section-courseReadingLists");
         !!tempContainer && (tempContainer.tabIndex = -1);
@@ -389,5 +392,23 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
         console.log("CRL:: getListTalisUrls list=", list);
 
         return list;
+    }
+
+    private addCourseResourceIndicatorToHeader() {
+        const template = document.createElement('template');
+        // _course_reading_icon.scss file in reusable repo duplicates styles found on built in icons via _ngcontent-ng-crlindicator
+        template.innerHTML = `<div _ngcontent-ng-crlindicator="" class="record-indication-cont-crl record-indication-cont display-inline-block ng-star-inserted">
+            <mat-divider _ngcontent-ng-crlindicator="" role="separator" class="mat-divider nde-divider mat-divider-vertical" aria-orientation="vertical"></mat-divider>
+            <div _ngcontent-ng-crlindicator="" class="display-inline">
+                <mat-icon _ngcontent-ng-crlindicator="" role="img" class="mat-icon notranslate nde-mat-icon-size-small margin-right-small mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="course-reading-list">
+                    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+                        <path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"></path>
+                    </svg>
+                </mat-icon>
+                <span _ngcontent-ng-crlindicator="" class="record-indication text-uppercase">COURSE READING LIST</span>
+            </div>
+        </div>`;
+        const iconlist = document.querySelector('.record-indication-wrapper');
+        !!iconlist && iconlist.appendChild(template.content.cloneNode(true));
     }
 }
