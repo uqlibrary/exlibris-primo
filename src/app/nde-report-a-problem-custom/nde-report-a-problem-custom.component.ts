@@ -64,7 +64,8 @@ export class NdeReportAProblemCustomComponent implements OnInit {
   }
 
   private getRecordTitle = () => {
-    const pnx = getPnx(this.searchState());
+    const item = document.querySelector('.search-result-item');
+    const pnx = !!item && getPnx(this.searchState(), item);
     if (!pnx) {
       return '';
     }
@@ -97,7 +98,8 @@ export class NdeReportAProblemCustomComponent implements OnInit {
   }
 
   private getRecordId = () => {
-    const pnx = getPnx(this.searchState());
+    const item = document.querySelector('.search-result-item');
+    const pnx = getPnx(this.searchState(), item);
     if (!pnx) {
       return '';
     }

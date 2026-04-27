@@ -2,17 +2,11 @@ type PnxState = { entities: { [x: string]: { pnx: any; }; }; };
 
 // get the pnx data (alma data about the record)
 // based on https://github.com/jeremymcwilliams/nde-get-pnx-custom/blob/main/nde-get-pnx-custom.component.ts
-export const getPnx = (state: PnxState, source: String = 'rap') => {
-    (source !== 'rap') && console.log('getPnx', source, ' state=', state);
-    const ids = Object.keys(state.entities || {});
-    if (ids.length <= 0) {
-        return null;
-    }
-    if (!ids[0]) {
-        return null;
-    }
-    const id0 = ids[0];
-    const pnx = state?.entities?.[id0]?.pnx;
-    (source !== 'rap') && console.log('getPnx', source, ' return', pnx);
-    return pnx;
+// the pnx supplies a array of results, that maps to the results down the page (one for full results, a number for brief)
+export const getPnx = (state: PnxState, item: any) => {
+
+    const recordIdElement = item?.querySelector( '[data-recordid]') || item?.querySelector( 'a[ng-href*="docid="], a[href*="docid="], a[href*="doc="]');
+    const recordId = recordIdElement?.getAttribute( 'data-recordid') || recordIdElement?.getAttribute( 'docid') || ((recordIdElement?.getAttribute( 'href') || '').match(/(?:docid|doc)=([^&]+)/) || [])[1];
+
+    return state?.entities?.[recordId]?.pnx;
 }

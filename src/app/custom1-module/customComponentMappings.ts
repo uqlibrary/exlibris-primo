@@ -5,11 +5,14 @@ import {
 import {
     NdeDisplayCourseReadingListCustomComponent
 } from "../nde-display-course-reading-list-custom/nde-display-course-reading-list-custom.component";
+import {
+    NdeDisplayCourseReadingListOnBriefCustomComponent
+} from "../nde-display-course-reading-list-on-brief-custom/nde-display-course-reading-list-on-brief-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
 
   ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
   ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
   ['nde-full-display-container-after', NdeDisplayCourseReadingListCustomComponent],
-  // ['nde-search-result-item-container-after', NdeDisplayCourseReadingListCustomComponent],
+  ['nde-record-indications-after', NdeDisplayCourseReadingListOnBriefCustomComponent],
 ]);
