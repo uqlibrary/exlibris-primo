@@ -1,8 +1,7 @@
-// 'pnx fetch' copied from https://github.com/jeremymcwilliams/nde-get-pnx-custom/blob/main/nde-get-pnx-custom.component.ts
-
 import {Component, inject, OnInit} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {createFeatureSelector, Store} from '@ngrx/store';
+import {getPnx} from "../shared/getPnx";
 
 // Selector
 export const selectSearchState = createFeatureSelector<any>('Search');
@@ -41,22 +40,16 @@ export class NdeReportAProblemCustomComponent implements OnInit {
 
     const containers = document.querySelectorAll('nde-full-display-service-container:has(h4)');
     if (!containers) {
-      console.log('no header found');
       return;
     }
     containers.forEach(container => {
       const headH4 = container.querySelector('h4');
-      console.log('check ', headH4?.textContent);
       // we only show it on the block with this title
       if (headH4?.textContent !== titleOfTargetBlock) {
-        console.log('not ', headH4?.textContent);
         return;
       }
-      console.log('found', headH4.textContent);
-      console.log('on', container);
 
       const rapWrapper = container?.parentNode?.querySelector('.report-a-problem-wrapper');
-      console.log('rapWrapper', rapWrapper);
       !!rapWrapper && !rapWrapper.classList.contains('showRAP') && rapWrapper.classList.add('showRAP')
     })
   }
@@ -71,7 +64,8 @@ export class NdeReportAProblemCustomComponent implements OnInit {
   }
 
   private getRecordTitle = () => {
-    const pnx = this.getPnx();
+    const item = document.querySelector('.search-result-item');
+    const pnx = !!item && getPnx(this.searchState(), item);
     if (!pnx) {
       return '';
     }
@@ -104,7 +98,8 @@ export class NdeReportAProblemCustomComponent implements OnInit {
   }
 
   private getRecordId = () => {
-    const pnx = this.getPnx();
+    const item = document.querySelector('.search-result-item');
+    const pnx = getPnx(this.searchState(), item);
     if (!pnx) {
       return '';
     }
@@ -125,16 +120,7 @@ export class NdeReportAProblemCustomComponent implements OnInit {
   }
 
   // get the pnx data (alma data about the record)
-  private getPnx = () => {
-    const state = this.searchState();
-    const ids = Object.keys(state.entities || {});
-    if (ids.length <= 0) {
-      return;
-    }
-    let id0 = !!ids[0] ? ids[0] : null;
-    return !!id0 ? state?.entities?.[id0]?.pnx : null;
-  }
-  private getDocId = (): string => {
+    private getDocId = (): string => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('docid')) {
       return urlParams.get('docid') + '';
