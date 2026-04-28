@@ -127,8 +127,8 @@ export class NdeUpdateAccountMenuCustomComponent {
         // insert our own icon - use the pin icon, as used in primo page body
         const favouritesIconTemplate = document.createElement('template');
         favouritesIconTemplate.innerHTML = `
-            <svg data-testid="library-favourites-icon" id="library-favourites-icon" class="library-favourites-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z"></path>
+            <svg data-testid="library-favourites-icon" id="library-favourites-icon" class="library-favourites-icon" height="100%" viewBox="0 -960 960 960" width="100%" fill="inherit" fit="" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+                <path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Zm0-88 200 86v-518H280v518l200-86Zm0-432H280h400-200Z"></path>
             </svg>`;
         const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
         !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
