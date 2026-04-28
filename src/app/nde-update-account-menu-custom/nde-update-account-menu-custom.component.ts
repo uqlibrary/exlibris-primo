@@ -22,14 +22,29 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.attachArrowButtons(userNameAreaButton);
             }
 
-            if (!isLoggedOut) {
+            if (isLoggedOut) {
+                this.removeAccountButton();
+
+                const accountMenu = this.getAccountMenu();
+                this.addFeedbackitemToMenu(accountMenu);
+            } else {
                 this.updateAccountMenu();
             }
 
-            this.reLabelAccountButton();
+            // if (isLoggedOut) {
+            //     this.removeAccountButton();
+            // }
+            //
+            // this.updateAccountMenu();
+
             this.reLabelFavourites();
             this.reLabelSearchHistory(); // probably deleted in configuration
         }, 100);
+    }
+
+    private getAccountMenu = () => {
+        const accountMenu = document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
+        return accountMenu;
     }
 
     private updateAccountMenu = () => { // (userNameDisplayArea: Element) => {
@@ -40,11 +55,12 @@ export class NdeUpdateAccountMenuCustomComponent {
             !!userNameDisplayArea && !userNameDisplayArea.classList.contains('styledUserName') && userNameDisplayArea.classList.add('styledUserName');
         }
 
+        // move logout button to bottom
         const logoutButtonFound =  document.querySelector(`.user-area-sub-menu button[aria-label=" Log out"]`);
-
-        const accountMenu = document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
+        const accountMenu = this.getAccountMenu();
         if (logoutButtonFound) {
             this.addExtraMenuItems(accountMenu);
+            this.addFeedbackitemToMenu(accountMenu);
             this.moveLogoutButton(accountMenu, ' Log out');
         }
     }
@@ -83,30 +99,36 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!logoutIconTemplate && !!logoutMatIcon && logoutMatIcon.appendChild(logoutIconTemplate.content.cloneNode(true));
     }
 
-    private reLabelAccountButton() {
-        const newAccountIcon = document.getElementById('library-account-icon');
-        if (!!newAccountIcon) {
-            return; // already done
-        }
-
+    private removeAccountButton() {
+        // when logged out, we dont show the account button
         const accountButtonFound = document.querySelector(`.user-area-sub-menu a[aria-label="Go to my library account"]`);
-        if (!accountButtonFound) {
-            return; // buttons not available yet
-        }
-
-        // get rid of the existing icons
-        const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
-        !!existingAccountSvg && existingAccountSvg.remove();
-
-        // insert our own icon
-        const accountIconTemplate = document.createElement('template');
-        accountIconTemplate.innerHTML = `<svg data-testid="library-account-icon" id="library-account-icon" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
-        const accountMatIcon = document.querySelector('[aria-label="Go to my library account"] mat-icon');
-        !!accountIconTemplate && !!accountMatIcon && accountMatIcon.appendChild(accountIconTemplate.content.cloneNode(true));
-
-        // tweak the looknfeel - we want "hollow" icons
-        !!accountMatIcon && !!accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
+        !!accountButtonFound && accountButtonFound.remove();
     }
+
+    // private reLabelAccountButton() {
+    //     const newAccountIcon = document.getElementById('library-account-icon');
+    //     if (!!newAccountIcon) {
+    //         return; // already done
+    //     }
+    //
+    //     const accountButtonFound = document.querySelector(`.user-area-sub-menu a[aria-label="Go to my library account"]`);
+    //     if (!accountButtonFound) {
+    //         return; // buttons not available yet
+    //     }
+    //
+    //     // get rid of the existing icons
+    //     const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
+    //     !!existingAccountSvg && existingAccountSvg.remove();
+    //
+    //     // insert our own icon
+    //     const accountIconTemplate = document.createElement('template');
+    //     accountIconTemplate.innerHTML = `<svg data-testid="library-account-icon" id="library-account-icon" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
+    //     const accountMatIcon = document.querySelector('[aria-label="Go to my library account"] mat-icon');
+    //     !!accountIconTemplate && !!accountMatIcon && accountMatIcon.appendChild(accountIconTemplate.content.cloneNode(true));
+    //
+    //     // tweak the looknfeel - we want "hollow" icons
+    //     !!accountMatIcon && !!accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
+    // }
 
     private reLabelFavourites() {
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
@@ -221,19 +243,30 @@ export class NdeUpdateAccountMenuCustomComponent {
         <div class="textwrapper">
             <span class="primaryText">Book a room or desk</span>
         </div>
-    </a>
-    <a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" href="https://support.my.uq.edu.au/app/library/feedback">
-        <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-          <svg data-testid="library-feedback-icon" class="library-feedback-icon" id="library-feedback-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </mat-icon>
-        <div class="textwrapper">
-          <span class="primaryText">Feedback</span>
-        </div>
     </a>`;
         !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
+
+        this.addFeedbackitemToMenu(accountMenu);
     }
 
-    // add some up down arrows for Library-styled Account button (appearance controlled with css)
+    private addFeedbackitemToMenu = (accountMenu: Element | null) => {
+        const existingFeedbackItem = document.getElementById('feedback-account-menu-item');
+        if (!!existingFeedbackItem) {
+            return;
+        }
+
+        const feedbackItemTemplate = document.createElement('template');
+        feedbackItemTemplate.innerHTML = `<a id="feedback-account-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-feedback" aria-label="Provide feedback" href="https://support.my.uq.edu.au/app/library/feedback">
+    <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+      <svg data-testid="library-feedback-icon" class="library-feedback-icon" id="library-feedback-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M19.7998 17.3998H11.3999L6.59995 20.9998V17.3998H4.19998C3.88173 17.3998 3.57651 17.2734 3.35147 17.0483C3.12643 16.8233 3 16.5181 3 16.1998V4.19998C3 3.88173 3.12643 3.57651 3.35147 3.35147C3.57651 3.12643 3.88173 3 4.19998 3H19.7998C20.118 3 20.4233 3.12643 20.6483 3.35147C20.8733 3.57651 20.9998 3.88173 20.9998 4.19998V16.1998C20.9998 16.5181 20.8733 16.8233 20.6483 17.0483C20.4233 17.2734 20.118 17.3998 19.7998 17.3998Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 8.39941H17.3995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.59961 12H14.9995" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </mat-icon>
+    <div class="textwrapper">
+      <span class="primaryText">Feedback</span>
+    </div>
+</a>`;
+        !!feedbackItemTemplate && !!accountMenu && accountMenu.appendChild(feedbackItemTemplate.content.cloneNode(true));
+    }
+// add some up down arrows for Library-styled Account button (appearance controlled with css)
     // we attach the arrows once and then just show-hide
     // arrow id placed first because NDE will load and get rid of the name element after it
     private attachArrowButtons = (userNameAreaButtonLocal: Element) => {
