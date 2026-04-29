@@ -150,7 +150,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         const existingSavedItemsSvg = document.querySelector('[aria-label="Go to my saved records"] mat-icon svg');
         !!existingSavedItemsSvg && existingSavedItemsSvg.remove();
 
-        // insert our own icon - use the pin icon, as used in primo page body
+        // insert our own icon
         const favouritesIconTemplate = document.createElement('template');
         favouritesIconTemplate.innerHTML = `
             <svg data-testid="library-favourites-icon" id="library-favourites-icon" class="library-favourites-icon" height="100%" viewBox="0 -960 960 960" width="100%" fill="inherit" fit="" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
