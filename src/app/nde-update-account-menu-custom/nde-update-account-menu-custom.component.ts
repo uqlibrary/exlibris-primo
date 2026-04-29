@@ -24,7 +24,7 @@ export class NdeUpdateAccountMenuCustomComponent {
 
             if (isLoggedOut) {
                 this.removeAccountButton();
-                this.addFeedbackitemToMenu();
+                this.addFeedbackButton();
 
                 this.reLabelFavourites('Session favourites');
                 this.reLabelSearchHistory(); // probably deleted in configuration
@@ -32,14 +32,14 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.reLabelAccountButton();
                 this.styleUserName();
                 this.addExtraMenuItems();
-                this.addFeedbackitemToMenu(); // must happen before logout move
+                this.addFeedbackButton(); // must happen before logout move
 
                 this.reLabelFavourites();
                 this.reLabelSearchHistory(); // probably deleted in configuration
 
-                this.moveFavouritesDown();
-                this.addPurchaseRequestItemToMenu();
-                this.addResourceDeliveryItemToMenu();
+                this.moveFavouritesButton();
+                this.addPurchaseRequestItemButton();
+                this.addResourceDeliveryItemButton();
 
                 this.moveLogoutButton();
             }
@@ -49,13 +49,6 @@ export class NdeUpdateAccountMenuCustomComponent {
     private getAccountMenu = () => {
         return document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
     }
-
-/*
-.primo-account-sub-menu li {
-    margin-left: 2rem
-}
-*/
-
 
     private getSubAccountMenu = () => {
         const menuparent = document.getElementById('primo-account-sub-menu');
@@ -263,7 +256,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
     }
 
-    private moveFavouritesDown = () => {
+    private moveFavouritesButton = () => {
         const movedFavouriteId = 'movedFavouriteWrapper';
 
         const movedFavourite = document.getElementById(movedFavouriteId);
@@ -284,7 +277,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!newLi && !!wrappingUl && wrappingUl.appendChild(newLi);
     }
 
-    private addPurchaseRequestItemToMenu = () => {
+    private addPurchaseRequestItemButton = () => {
         const newPurchaseRequestItemId = 'newPurchaseRequestItem';
 
         const newPurchaseRequestItem = document.getElementById(newPurchaseRequestItemId);
@@ -310,10 +303,6 @@ export class NdeUpdateAccountMenuCustomComponent {
           <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M13.6499 10.5h-2.033c-0.3115 0.0002 -0.6133 0.1088 -0.8535 0.3072 -0.2403 0.1984 -0.404 0.4742 -0.4631 0.7801 -0.0592 0.3059 -0.01 0.6229 0.139 0.8965 0.149 0.2736 0.3886 0.4869 0.6776 0.6032l2.064 0.825c0.2897 0.1159 0.53 0.3291 0.6795 0.603 0.1495 0.2738 0.1989 0.5912 0.1397 0.8976 -0.0592 0.3063 -0.2232 0.5825 -0.464 0.7809 -0.2408 0.1985 -0.5431 0.3069 -0.8552 0.3065h-2.031" stroke-width="1.5"></path>
           <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.15 10.5v-0.75" stroke-width="1.5"></path>
           <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.15 17.25v-0.75" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.75 3.75v-1.5c0 -0.39782 0.158035 -0.77936 0.43934 -1.06066C1.47064 0.908035 1.85218 0.75 2.25 0.75h1.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M23.25 3.75v-1.5c0 -0.39782 -0.158 -0.77936 -0.4393 -1.06066C22.5294 0.908035 22.1478 0.75 21.75 0.75h-1.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.75 20.25v1.5c0 0.3978 0.158035 0.7794 0.43934 1.0607 0.2813 0.2813 0.66284 0.4393 1.06066 0.4393h1.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M23.25 20.25v1.5c0 0.3978 -0.158 0.7794 -0.4393 1.0607s-0.6629 0.4393 -1.0607 0.4393h-1.5" stroke-width="1.5"></path>
         </svg>
     </mat-icon>
     <span class="mat-mdc-menu-item-text">
@@ -342,7 +331,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         return result;
     }
 
-    private addResourceDeliveryItemToMenu = () => {
+    private addResourceDeliveryItemButton = () => {
         const newResourceDeliveryItemId = 'newResourceDeliveryItem';
 
         const newResourceDeliveryItem = document.getElementById(newResourceDeliveryItemId);
@@ -379,7 +368,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!newResourceDeliveryItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newResourceDeliveryItemElementTemplate.content.cloneNode(true));
     }
 
-    private addFeedbackitemToMenu = () => {
+    private addFeedbackButton = () => {
         const accountMenu = this.getAccountMenu();
         if (!accountMenu) {
             return;
