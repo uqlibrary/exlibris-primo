@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'custom-nde-update-account-menu-custom',
@@ -31,15 +31,38 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.addExtraMenuItems();
                 this.addFeedbackitemToMenu(); // must happen before logout move
 
+                this.reLabelFavourites();
+                this.reLabelSearchHistory(); // probably deleted in configuration
+
+                this.moveFavouritesDown();
+                this.addPurchaseRequestItemToMenu();
+                this.addResourceDeliveryItemToMenu();
+
                 this.moveLogoutButton();
             }
-            this.reLabelFavourites();
-            this.reLabelSearchHistory(); // probably deleted in configuration
         }, 100);
     }
 
     private getAccountMenu = () => {
         return document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
+    }
+
+/*
+.primo-account-sub-menu li {
+    margin-left: 2rem
+}
+*/
+
+
+    private getSubAccountMenu = () => {
+        const menuparent = document.getElementById('primo-account-sub-menu');
+        if (!menuparent) {
+            const previousElement = document.querySelector('[aria-label="Go to my library account"]');
+            const newUlTemplate = document.createElement('template');
+            newUlTemplate.innerHTML = '<ul id="primo-account-sub-menu" class="primo-account-sub-menu"></ul>'
+            !!newUlTemplate && !!previousElement && previousElement.after(newUlTemplate.content.cloneNode(true));
+        }
+        return document.getElementById('primo-account-sub-menu');
     }
 
     private styleUserName = () => {
@@ -235,6 +258,122 @@ export class NdeUpdateAccountMenuCustomComponent {
     </div>
 </a>`;
         !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
+    }
+
+    private moveFavouritesDown = () => {
+        const movedFavouriteId = 'movedFavouriteWrapper';
+
+        const movedFavourite = document.getElementById(movedFavouriteId);
+        if (!!movedFavourite) {
+            return; // done
+        }
+
+        const wrappingUl = this.getSubAccountMenu();
+        const favouritesItem = document.querySelector('[aria-label="Go to my saved records"]');
+        if (!favouritesItem || !wrappingUl) {
+            return;
+        }
+
+        const newLi = document.createElement('li');
+        !!newLi && (newLi.id = movedFavouriteId);
+        !!newLi && newLi.appendChild(favouritesItem)
+
+        !!newLi && !!wrappingUl && wrappingUl.appendChild(newLi);
+    }
+
+    private addPurchaseRequestItemToMenu = () => {
+        const newPurchaseRequestItemId = 'newPurchaseRequestItem';
+
+        const newPurchaseRequestItem = document.getElementById(newPurchaseRequestItemId);
+        if (!!newPurchaseRequestItem) {
+            return; // already done
+        }
+
+        const wrappingUl = this.getSubAccountMenu();
+        if (!wrappingUl) {
+            return;
+        }
+
+        const purchaseRequestLink = `/nde/purchaseRequest?vid=${(this.currentEnvironmentId())}&lang=en`;
+
+        const newPurchaseRequestItemElementTemplate = document.createElement('template');
+        newPurchaseRequestItemElementTemplate.innerHTML = `<li id="${newPurchaseRequestItemId}">
+     <a href="${purchaseRequestLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Go to my saved records" role="menuitem" aria-disabled="false">
+    <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+        <!-- https://www.streamlinehq.com/icons/ultimate-regular-free?search=purchase&icon=ico_v4Vh7ZbGJr0iLNCP -->
+        <svg style="opacity: 70%;" data-testid="library-purchase-request-icon" id="library-purchase-request-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
+          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M18.552 8.022c-0.0082 -0.32529 -0.1373 -0.63586 -0.3621 -0.87106 -0.2249 -0.2352 -0.5293 -0.37816 -0.8539 -0.40094H6.663c-0.3245 0.0228 -0.62882 0.16579 -0.85351 0.40102 -0.22469 0.23522 -0.35358 0.54578 -0.36149 0.87098L3.757 18.68c-0.03001 0.1838 -0.02188 0.3718 0.0239 0.5523s0.12822 0.3496 0.24219 0.4969c0.11397 0.1473 0.25703 0.2695 0.42028 0.3591 0.16325 0.0896 0.34319 0.1446 0.52863 0.1617h14.055c0.1855 -0.0169 0.3656 -0.0719 0.5289 -0.1614 0.1634 -0.0895 0.3066 -0.2118 0.4207 -0.359 0.114 -0.1473 0.1966 -0.3165 0.2424 -0.4971 0.0458 -0.1806 0.054 -0.3686 0.024 -0.5525L18.552 8.022Z" stroke-width="1.5"></path>
+          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M8.24996 6.75017c0 -0.707 -0.537 -5.278 3.74804 -5.278 4.271 0 3.752 4.667 3.752 5.278" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M13.6499 10.5h-2.033c-0.3115 0.0002 -0.6133 0.1088 -0.8535 0.3072 -0.2403 0.1984 -0.404 0.4742 -0.4631 0.7801 -0.0592 0.3059 -0.01 0.6229 0.139 0.8965 0.149 0.2736 0.3886 0.4869 0.6776 0.6032l2.064 0.825c0.2897 0.1159 0.53 0.3291 0.6795 0.603 0.1495 0.2738 0.1989 0.5912 0.1397 0.8976 -0.0592 0.3063 -0.2232 0.5825 -0.464 0.7809 -0.2408 0.1985 -0.5431 0.3069 -0.8552 0.3065h-2.031" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.15 10.5v-0.75" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.15 17.25v-0.75" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.75 3.75v-1.5c0 -0.39782 0.158035 -0.77936 0.43934 -1.06066C1.47064 0.908035 1.85218 0.75 2.25 0.75h1.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M23.25 3.75v-1.5c0 -0.39782 -0.158 -0.77936 -0.4393 -1.06066C22.5294 0.908035 22.1478 0.75 21.75 0.75h-1.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.75 20.25v1.5c0 0.3978 0.158035 0.7794 0.43934 1.0607 0.2813 0.2813 0.66284 0.4393 1.06066 0.4393h1.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M23.25 20.25v1.5c0 0.3978 -0.158 0.7794 -0.4393 1.0607s-0.6629 0.4393 -1.0607 0.4393h-1.5" stroke-width="1.5"></path>
+        </svg>
+    </mat-icon>
+    <span class="mat-mdc-menu-item-text">
+        <span _ngcontent-ng-purchaseR="">Purchase request</span>
+    </span>
+    <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
+</a>
+ </li>`;
+        !!newPurchaseRequestItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newPurchaseRequestItemElementTemplate.content.cloneNode(true));
+    }
+
+    private currentEnvironmentId = () => {
+        let result;
+
+        const paramName ='vid';
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has(paramName)) {
+            result = urlParams.get(paramName);
+        } else {
+            const pathSegments = window.location.pathname.split('/');
+            const institutionSegment = pathSegments.find(segment =>
+                segment.includes('61UQ_INST:')
+            );
+            result = institutionSegment || null;
+        }
+        return result;
+    }
+
+    private addResourceDeliveryItemToMenu = () => {
+        const newResourceDeliveryItemId = 'newResourceDeliveryItem';
+
+        const newResourceDeliveryItem = document.getElementById(newResourceDeliveryItemId);
+        if (!!newResourceDeliveryItem) {
+            return; // already done
+        }
+
+        const wrappingUl = this.getSubAccountMenu();
+        if (!wrappingUl) {
+            return;
+        }
+
+        const resourceDeliveryLink = `/nde/blankIll?vid=${(this.currentEnvironmentId())}&lang=en`;
+
+        const newResourceDeliveryItemElementTemplate = document.createElement('template');
+        newResourceDeliveryItemElementTemplate.innerHTML = `<li id="${newResourceDeliveryItemId}">
+     <a href="${resourceDeliveryLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Go to my saved records" role="menuitem" aria-disabled="false">
+    <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+        <!-- https://www.streamlinehq.com/icons/ultimate-regular-free?search=delivery&icon=ico_xMA5XVKN6GelEGXS -->
+        <svg style="opacity: 70%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
+          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.755981 16.5H16.714c0.3596 0.0006 0.7075 -0.128 0.9803 -0.3624 0.2727 -0.2344 0.4522 -0.559 0.5057 -0.9146l1.864 -12.446c0.0534 -0.35513 0.2324 -0.67933 0.5045 -0.91366 0.2722 -0.23434 0.6194 -0.36326 0.9785 -0.36334h1.709" stroke-width="1.5"></path>
+          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M3.00598 7.5h4.5s0.75 0 0.75 0.75v4.5s0 0.75 -0.75 0.75h-4.5s-0.75 0 -0.75 -0.75v-4.5s0 -0.75 0.75 -0.75Z" stroke-width="1.5"></path>
+          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M9.00598 4.5H15.006s0.75 0 0.75 0.75v7.5s0 0.75 -0.75 0.75H9.00598s-0.75 0 -0.75 -0.75v-7.5s0 -0.75 0.75 -0.75Z" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M2.25598 20.625c0 0.2462 0.0485 0.49 0.14273 0.7175 0.09422 0.2275 0.23234 0.4342 0.40645 0.6083 0.17411 0.1741 0.3808 0.3122 0.60829 0.4065 0.22749 0.0942 0.4713 0.1427 0.71753 0.1427s0.49005 -0.0485 0.71753 -0.1427c0.22749 -0.0943 0.43419 -0.2324 0.6083 -0.4065 0.17411 -0.1741 0.31222 -0.3808 0.40645 -0.6083 0.09422 -0.2275 0.14272 -0.4713 0.14272 -0.7175 0 -0.4973 -0.19754 -0.9742 -0.54917 -1.3258 -0.35163 -0.3517 -0.82855 -0.5492 -1.32583 -0.5492 -0.49728 0 -0.97419 0.1975 -1.32582 0.5492 -0.35163 0.3516 -0.54918 0.8285 -0.54918 1.3258Z" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.756 20.625c0 0.4973 0.1975 0.9742 0.5492 1.3258 0.3516 0.3517 0.8285 0.5492 1.3258 0.5492 0.4973 0 0.9742 -0.1975 1.3258 -0.5492 0.3516 -0.3516 0.5492 -0.8285 0.5492 -1.3258 0 -0.4973 -0.1976 -0.9742 -0.5492 -1.3258 -0.3516 -0.3517 -0.8285 -0.5492 -1.3258 -0.5492 -0.4973 0 -0.9742 0.1975 -1.3258 0.5492 -0.3517 0.3516 -0.5492 0.8285 -0.5492 1.3258Z" stroke-width="1.5"></path>
+        </svg>
+    </mat-icon>
+    <span class="mat-mdc-menu-item-text">
+        <span _ngcontent-ng-purchaseR="">Resource delivery request </span>
+    </span>
+    <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
+</a>
+ </li>`;
+        !!newResourceDeliveryItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newResourceDeliveryItemElementTemplate.content.cloneNode(true));
     }
 
     private addFeedbackitemToMenu = () => {
