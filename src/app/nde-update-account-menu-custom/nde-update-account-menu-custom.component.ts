@@ -25,6 +25,9 @@ export class NdeUpdateAccountMenuCustomComponent {
             if (isLoggedOut) {
                 this.removeAccountButton();
                 this.addFeedbackitemToMenu();
+
+                this.reLabelFavourites('Session favourites');
+                this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
                 this.reLabelAccountButton();
                 this.styleUserName();
@@ -140,7 +143,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!accountMatIcon && accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
     }
 
-    private reLabelFavourites() {
+    private reLabelFavourites(newLabel: string = 'Favourites') {
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
         if (!!newFavouritesIcon) {
             return; // already done
@@ -148,7 +151,7 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         // update the label
         const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
-        !!savedItemsElement && (savedItemsElement.textContent = 'Favourites');
+        !!savedItemsElement && (savedItemsElement.textContent = newLabel);
 
         // get rid of the provided icon
         const existingSavedItemsSvg = document.querySelector('[aria-label="Go to my saved records"] mat-icon svg');
