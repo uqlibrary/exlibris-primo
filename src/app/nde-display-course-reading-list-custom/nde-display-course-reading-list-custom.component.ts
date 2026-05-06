@@ -167,7 +167,6 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
         let htmlContent = '' +
 `<div class="nde-full-display-service-container ng-star-inserted crl-list-area">
     <div>
-        <div role="separator" class="mat-divider nde-divider full-display-divider mat-divider-horizontal" aria-orientation="horizontal"></div>
         <h2 class="visually-hidden">Course reading lists</h2>
         <mat-expansion-panel id="uql-mat-expansion-panel" hidetoggle="" class="mat-expanded mat-expansion-panel-animations-enabled"> <!-- mat-expansion-panel -->
             <mat-expansion-panel-header id="uql-mat-expansion-panel-header-button" _ngcontent-ng-c562330857="" role="button" class="crl-mat-expansion-panel-header mat-expansion-panel-header mat-focus-indicator mat-expanded mat-expansion-toggle-indicator-after" aria-labelledby="crl-label" tabindex="0" aria-controls="crl-mat-expansion-panel" aria-expanded="true" aria-disabled="false">
