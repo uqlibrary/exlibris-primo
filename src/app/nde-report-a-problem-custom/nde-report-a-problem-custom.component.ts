@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, ElementRef, inject, OnInit} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
@@ -16,11 +16,17 @@ export class NdeReportAProblemCustomComponent implements OnInit {
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
 
-    // must declare the properties with its type and an initial value
-    // show: boolean = true;
+    private elementRef = inject(ElementRef);
+
     targeturl: string = '';
 
     ngOnInit(): void {
+        // RAP button only appears on the Details section
+        const thisElem = this.elementRef.nativeElement;
+        const hasServiceDetails = thisElem?.parentNode?.parentNode?.querySelector('nde-full-display-details');
+        if (!hasServiceDetails) {
+            return;
+        }
 
         let recordId = this.getRecordId();
         let recordTitle = this.getRecordTitle();
@@ -34,24 +40,6 @@ export class NdeReportAProblemCustomComponent implements OnInit {
             recordTitle +
             "/incidents.c$summary/" +
             recordId;
-
-        // only show the Report a problem button above the block with this title:
-        const titleOfTargetBlock = 'Details';
-
-        const containers = document.querySelectorAll('nde-full-display-service-container:has(h4)');
-        if (!containers) {
-            return;
-        }
-        containers.forEach(container => {
-            const headH4 = container.querySelector('h4');
-            // we only show it on the block with this title
-            if (headH4?.textContent !== titleOfTargetBlock) {
-                return;
-            }
-
-            const rapWrapper = container?.parentNode?.querySelector('.report-a-problem-wrapper');
-            !!rapWrapper && !rapWrapper.classList.contains('showRAP') && rapWrapper.classList.add('showRAP')
-        })
     }
 
     private crmDomain = () => {
