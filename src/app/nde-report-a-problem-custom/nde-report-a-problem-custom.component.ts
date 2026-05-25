@@ -1,144 +1,118 @@
-// 'pnx fetch' copied from https://github.com/jeremymcwilliams/nde-get-pnx-custom/blob/main/nde-get-pnx-custom.component.ts
-
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, ElementRef, inject, OnInit} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {createFeatureSelector, Store} from '@ngrx/store';
+import {getPnx} from "../shared/getPnx";
 
 // Selector
 export const selectSearchState = createFeatureSelector<any>('Search');
 
 @Component({
-  selector: 'custom-nde-report-a-problem-custom',
-  standalone: true,
-  imports: [NgIf], // required here if used in the html template
-  templateUrl: './nde-report-a-problem-custom.component.html',
+    selector: 'custom-nde-report-a-problem-custom',
+    standalone: true,
+    imports: [NgIf], // required here if used in the html template
+    templateUrl: './nde-report-a-problem-custom.component.html',
 })
 export class NdeReportAProblemCustomComponent implements OnInit {
-  private store = inject(Store);
-  searchState = this.store.selectSignal(selectSearchState);
+    private store = inject(Store);
+    searchState = this.store.selectSignal(selectSearchState);
 
-  // must declare the properties with its type and an initial value
-  // show: boolean = true;
-  targeturl: string = '';
+    private elementRef = inject(ElementRef);
 
-  ngOnInit(): void {
+    targeturl: string = '';
 
-    let recordId = this.getRecordId();
-    let recordTitle = this.getRecordTitle();
-    if (recordId === "" || recordTitle === "") {
-      return;
+    ngOnInit(): void {
+        // RAP button only appears on the Details section
+        const thisElem = this.elementRef.nativeElement;
+        const hasServiceDetails = thisElem?.parentNode?.parentNode?.querySelector('nde-full-display-details');
+        if (!hasServiceDetails) {
+            return;
+        }
+
+        let recordId = this.getRecordId();
+        let recordTitle = this.getRecordTitle();
+        if (recordId === "" || recordTitle === "") {
+            return;
+        }
+
+        this.targeturl =
+            this.crmDomain() +
+            "/app/library/contact/report_problem/true/incidents.subject/" +
+            recordTitle +
+            "/incidents.c$summary/" +
+            recordId;
     }
 
-    this.targeturl =
-      this.crmDomain() +
-      "/app/library/contact/report_problem/true/incidents.subject/" +
-      recordTitle +
-      "/incidents.c$summary/" +
-      recordId;
-
-    // only show the Report a problem button above the block with this title:
-    const titleOfTargetBlock = 'Details';
-
-    const containers = document.querySelectorAll('nde-full-display-service-container:has(h4)');
-    if (!containers) {
-      console.log('no header found');
-      return;
-    }
-    containers.forEach(container => {
-      const headH4 = container.querySelector('h4');
-      console.log('check ', headH4?.textContent);
-      // we only show it on the block with this title
-      if (headH4?.textContent !== titleOfTargetBlock) {
-        console.log('not ', headH4?.textContent);
-        return;
-      }
-      console.log('found', headH4.textContent);
-      console.log('on', container);
-
-      const rapWrapper = container?.parentNode?.querySelector('.report-a-problem-wrapper');
-      console.log('rapWrapper', rapWrapper);
-      !!rapWrapper && !rapWrapper.classList.contains('showRAP') && rapWrapper.classList.add('showRAP')
-    })
-  }
-
-  private crmDomain = () => {
-    let crmDomain = "https://uqcurrent--tst1.custhelp.com";
-    const productionDomain = "search.library.uq.edu.au";
-    if (window.location.hostname === productionDomain) {
-      crmDomain = "https://support.my.uq.edu.au";
-    }
-    return crmDomain;
-  }
-
-  private getRecordTitle = () => {
-    const pnx = this.getPnx();
-    if (!pnx) {
-      return '';
+    private crmDomain = () => {
+        let crmDomain = "https://uqcurrent--tst1.custhelp.com";
+        const productionDomain = "search.library.uq.edu.au";
+        if (window.location.hostname === productionDomain) {
+            crmDomain = "https://support.my.uq.edu.au";
+        }
+        return crmDomain;
     }
 
-    let recordTitle = '';
-    if (!!pnx?.search?.title && pnx.search.title.length > 0 && !!pnx.search.title[0]) {
-      recordTitle = encodeURIComponent(pnx.search.title[0]);
-    }
-    if (recordTitle === '' && !!pnx?.display?.title && pnx.display.title.length > 0 && !!pnx.display.title[0]) {
-      recordTitle = encodeURIComponent(pnx.display.title[0]);
-    }
+    private getRecordTitle = () => {
+        const item = document.querySelector('.search-result-item');
+        const pnx = !!item && getPnx(this.searchState(), item);
+        if (!pnx) {
+            return '';
+        }
 
-    if (recordTitle !== '') {
-      const maxNumberCharCRMCanAccept = 239;
-      recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
-    }
+        let recordTitle = '';
+        if (!!pnx?.search?.title && pnx.search.title.length > 0 && !!pnx.search.title[0]) {
+            recordTitle = encodeURIComponent(pnx.search.title[0]);
+        }
+        if (recordTitle === '' && !!pnx?.display?.title && pnx.display.title.length > 0 && !!pnx.display.title[0]) {
+            recordTitle = encodeURIComponent(pnx.display.title[0]);
+        }
 
-    // we may have trimmed in the middle of an encoded char, eg sit%20down trimmed to sit%2
-    // which ends up with an 400 Bad Result as the url becomes rubbish
-    const maxLengthEncodedChar = "%E2%82%AC";
-    [...Array(maxLengthEncodedChar.length)].map((_, i) => {
-      try {
-        decodeURIComponent(recordTitle);
-      } catch {
-        recordTitle = recordTitle.slice(0, -1);
-      }
-    });
+        if (recordTitle !== '') {
+            const maxNumberCharCRMCanAccept = 239;
+            recordTitle = recordTitle.trim().substring(0, maxNumberCharCRMCanAccept);
+        }
 
-    return recordTitle;
-  }
+        // we may have trimmed in the middle of an encoded char, eg sit%20down trimmed to sit%2
+        // which ends up with an 400 Bad Result as the url becomes rubbish
+        const maxLengthEncodedChar = "%E2%82%AC";
+        [...Array(maxLengthEncodedChar.length)].map((_) => {
+            try {
+                decodeURIComponent(recordTitle);
+            } catch {
+                recordTitle = recordTitle.slice(0, -1);
+            }
+        });
 
-  private getRecordId = () => {
-    const pnx = this.getPnx();
-    if (!pnx) {
-      return '';
-    }
-
-    if (!!pnx?.control?.recordid && pnx.control.recordid.length > 0 && pnx.control.recordid[0]) {
-      return encodeURIComponent(pnx.control.recordid[0]);
+        return recordTitle;
     }
 
-    if (!!pnx?.search?.recordid) {
-      return encodeURIComponent(pnx.search.recordid);
+    private getRecordId = () => {
+        const item = document.querySelector('.search-result-item');
+        const pnx = getPnx(this.searchState(), item);
+        if (!pnx) {
+            return '';
+        }
+
+        if (!!pnx?.control?.recordid && pnx.control.recordid.length > 0 && pnx.control.recordid[0]) {
+            return encodeURIComponent(pnx.control.recordid[0]);
+        }
+
+        if (!!pnx?.search?.recordid) {
+            return encodeURIComponent(pnx.search.recordid);
+        }
+
+        if (this.getDocId() !== '') {
+            return this.getDocId();
+        }
+
+        return '';
     }
 
-    if (this.getDocId() !== '') {
-      return this.getDocId();
+    // get the pnx data (alma data about the record)
+    private getDocId = (): string => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('docid')) {
+            return urlParams.get('docid') + '';
+        }
+        return '';
     }
-
-    return '';
-  }
-
-  // get the pnx data (alma data about the record)
-  private getPnx = () => {
-    const state = this.searchState();
-    const ids = Object.keys(state.entities || {});
-    if (ids.length <= 0) {
-      return;
-    }
-    let id0 = !!ids[0] ? ids[0] : null;
-    return !!id0 ? state?.entities?.[id0]?.pnx : null;
-  }
-  private getDocId = (): string => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('docid')) {
-      return urlParams.get('docid') + '';
-    }
-    return '';
-  }
 }
