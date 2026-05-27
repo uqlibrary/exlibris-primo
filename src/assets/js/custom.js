@@ -128,10 +128,18 @@ function insertUqComponents() {
   }
 
   if (!document.querySelector('uq-footer')) {
-    // has to be appended to main, higher in the tree puts it in the middle of the page?!?
-    const subFooter = document.createElement('uq-footer');
-    const ndeRoot = document.querySelector('nde-app-root main')
-    !!subFooter && !!ndeRoot && ndeRoot.appendChild(subFooter);
+    const findMain = setInterval(() => {
+        // on citation page, we have to wait for the main to be available
+      const ndeRoot = document.querySelector('nde-app-root main');
+      if (!ndeRoot) {
+        return;
+      }
+      clearInterval(findMain);
+
+      // has to be appended to main, higher in the tree puts it in the middle of the page?!?
+      const subFooter = document.createElement('uq-footer');
+      !document.querySelector('uq-footer') && !!subFooter && ndeRoot.appendChild(subFooter);
+    }, 100);
   }
 }
 
