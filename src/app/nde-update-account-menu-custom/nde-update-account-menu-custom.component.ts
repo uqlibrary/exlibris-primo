@@ -11,9 +11,8 @@ export class NdeUpdateAccountMenuCustomComponent {
     ngOnInit(): void {
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
             // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
-            const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn div');
-
-            if (!!isLoggedOut) {
+            const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn mat-icon svg');
+            if (isLoggedOut) {
                 this.attachLoggedoutButtonContents()
             }
 
@@ -138,29 +137,28 @@ export class NdeUpdateAccountMenuCustomComponent {
 
     private reLabelFavourites(newLabel: string = 'Favourites') {
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
-        if (!!newFavouritesIcon) {
-            return; // already done
-        }
 
         // update the label
         const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
         !!savedItemsElement && (savedItemsElement.textContent = newLabel);
 
-        // get rid of the provided icon
-        const existingSavedItemsSvg = document.querySelector('[aria-label="Go to my saved records"] mat-icon svg');
-        !!existingSavedItemsSvg && existingSavedItemsSvg.remove();
+        if (!newFavouritesIcon) {
+            // get rid of the provided icon
+            const existingSavedItemsSvg = document.querySelector('[aria-label="Go to my saved records"] mat-icon svg');
+            !!existingSavedItemsSvg && existingSavedItemsSvg.remove();
 
-        // insert our own icon
-        const favouritesIconTemplate = document.createElement('template');
-        favouritesIconTemplate.innerHTML = `
+            // insert our own icon
+            const favouritesIconTemplate = document.createElement('template');
+            favouritesIconTemplate.innerHTML = `
             <svg data-testid="library-favourites-icon" id="library-favourites-icon" class="library-favourites-icon" height="100%" viewBox="0 -960 960 960" width="100%" fill="inherit" fit="" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
                 <path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Zm0-88 200 86v-518H280v518l200-86Zm0-432H280h400-200Z"></path>
             </svg>`;
-        const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
-        !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
+            const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
+            !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
 
-        // tweak the looknfeel - we want "hollow" icons
-        !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
+            // tweak the looknfeel - we want "hollow" icons
+            !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
+        }
     }
 
     private reLabelSearchHistory() {
@@ -292,17 +290,21 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const purchaseRequestLink = `/nde/purchaseRequest?vid=${(this.currentEnvironmentId())}&lang=en`;
 
+        // https://www.streamlinehq.com/icons/download/saving-bank-1--27627
         const newPurchaseRequestItemElementTemplate = document.createElement('template');
         newPurchaseRequestItemElementTemplate.innerHTML = `<li id="${newPurchaseRequestItemId}">
      <a href="${purchaseRequestLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Go to my saved records" role="menuitem" aria-disabled="false">
     <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-        <!-- https://www.streamlinehq.com/icons/ultimate-regular-free?search=purchase&icon=ico_v4Vh7ZbGJr0iLNCP -->
-        <svg style="opacity: 70%;" data-testid="library-purchase-request-icon" id="library-purchase-request-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
-          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M18.552 8.022c-0.0082 -0.32529 -0.1373 -0.63586 -0.3621 -0.87106 -0.2249 -0.2352 -0.5293 -0.37816 -0.8539 -0.40094H6.663c-0.3245 0.0228 -0.62882 0.16579 -0.85351 0.40102 -0.22469 0.23522 -0.35358 0.54578 -0.36149 0.87098L3.757 18.68c-0.03001 0.1838 -0.02188 0.3718 0.0239 0.5523s0.12822 0.3496 0.24219 0.4969c0.11397 0.1473 0.25703 0.2695 0.42028 0.3591 0.16325 0.0896 0.34319 0.1446 0.52863 0.1617h14.055c0.1855 -0.0169 0.3656 -0.0719 0.5289 -0.1614 0.1634 -0.0895 0.3066 -0.2118 0.4207 -0.359 0.114 -0.1473 0.1966 -0.3165 0.2424 -0.4971 0.0458 -0.1806 0.054 -0.3686 0.024 -0.5525L18.552 8.022Z" stroke-width="1.5"></path>
-          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M8.24996 6.75017c0 -0.707 -0.537 -5.278 3.74804 -5.278 4.271 0 3.752 4.667 3.752 5.278" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M13.6499 10.5h-2.033c-0.3115 0.0002 -0.6133 0.1088 -0.8535 0.3072 -0.2403 0.1984 -0.404 0.4742 -0.4631 0.7801 -0.0592 0.3059 -0.01 0.6229 0.139 0.8965 0.149 0.2736 0.3886 0.4869 0.6776 0.6032l2.064 0.825c0.2897 0.1159 0.53 0.3291 0.6795 0.603 0.1495 0.2738 0.1989 0.5912 0.1397 0.8976 -0.0592 0.3063 -0.2232 0.5825 -0.464 0.7809 -0.2408 0.1985 -0.5431 0.3069 -0.8552 0.3065h-2.031" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.15 10.5v-0.75" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.15 17.25v-0.75" stroke-width="1.5"></path>
+        <svg style="opacity: 70%" data-testid="library-purchase-request-icon" id="library-purchase-request-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M1.5 23.25h21" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M1.5 20.25h21" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M3 9.75v7.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M6 9.75v7.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M10.5 9.75v7.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M13.5 9.75v7.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M18 9.75v7.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M21 9.75v7.5" stroke-width="1.5"></path>
+          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M22.5 6.7499h-21l9.689 -5.762c0.2419 -0.15548 0.5234 -0.238144 0.811 -0.238144 0.2876 0 0.5691 0.082664 0.811 0.238144l9.689 5.762Z" stroke-width="1.5"></path>
         </svg>
     </mat-icon>
     <span class="mat-mdc-menu-item-text">
@@ -347,24 +349,24 @@ export class NdeUpdateAccountMenuCustomComponent {
         const resourceDeliveryLink = `/nde/blankIll?vid=${(this.currentEnvironmentId())}&lang=en`;
 
         const newResourceDeliveryItemElementTemplate = document.createElement('template');
+        // https://www.streamlinehq.com/icons/ultimate-regular-free?search=delivery&icon=ico_xMA5XVKN6GelEGXS
         newResourceDeliveryItemElementTemplate.innerHTML = `<li id="${newResourceDeliveryItemId}">
      <a href="${resourceDeliveryLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Go to my saved records" role="menuitem" aria-disabled="false">
-    <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-        <!-- https://www.streamlinehq.com/icons/ultimate-regular-free?search=delivery&icon=ico_xMA5XVKN6GelEGXS -->
-        <svg style="opacity: 70%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
-          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.755981 16.5H16.714c0.3596 0.0006 0.7075 -0.128 0.9803 -0.3624 0.2727 -0.2344 0.4522 -0.559 0.5057 -0.9146l1.864 -12.446c0.0534 -0.35513 0.2324 -0.67933 0.5045 -0.91366 0.2722 -0.23434 0.6194 -0.36326 0.9785 -0.36334h1.709" stroke-width="1.5"></path>
-          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M3.00598 7.5h4.5s0.75 0 0.75 0.75v4.5s0 0.75 -0.75 0.75h-4.5s-0.75 0 -0.75 -0.75v-4.5s0 -0.75 0.75 -0.75Z" stroke-width="1.5"></path>
-          <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M9.00598 4.5H15.006s0.75 0 0.75 0.75v7.5s0 0.75 -0.75 0.75H9.00598s-0.75 0 -0.75 -0.75v-7.5s0 -0.75 0.75 -0.75Z" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M2.25598 20.625c0 0.2462 0.0485 0.49 0.14273 0.7175 0.09422 0.2275 0.23234 0.4342 0.40645 0.6083 0.17411 0.1741 0.3808 0.3122 0.60829 0.4065 0.22749 0.0942 0.4713 0.1427 0.71753 0.1427s0.49005 -0.0485 0.71753 -0.1427c0.22749 -0.0943 0.43419 -0.2324 0.6083 -0.4065 0.17411 -0.1741 0.31222 -0.3808 0.40645 -0.6083 0.09422 -0.2275 0.14272 -0.4713 0.14272 -0.7175 0 -0.4973 -0.19754 -0.9742 -0.54917 -1.3258 -0.35163 -0.3517 -0.82855 -0.5492 -1.32583 -0.5492 -0.49728 0 -0.97419 0.1975 -1.32582 0.5492 -0.35163 0.3516 -0.54918 0.8285 -0.54918 1.3258Z" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.756 20.625c0 0.4973 0.1975 0.9742 0.5492 1.3258 0.3516 0.3517 0.8285 0.5492 1.3258 0.5492 0.4973 0 0.9742 -0.1975 1.3258 -0.5492 0.3516 -0.3516 0.5492 -0.8285 0.5492 -1.3258 0 -0.4973 -0.1976 -0.9742 -0.5492 -1.3258 -0.3516 -0.3517 -0.8285 -0.5492 -1.3258 -0.5492 -0.4973 0 -0.9742 0.1975 -1.3258 0.5492 -0.3517 0.3516 -0.5492 0.8285 -0.5492 1.3258Z" stroke-width="1.5"></path>
-        </svg>
-    </mat-icon>
-    <span class="mat-mdc-menu-item-text">
-        <span _ngcontent-ng-purchaseR="">Resource delivery request </span>
-    </span>
-    <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
-</a>
- </li>`;
+        <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+            <svg style="opacity: 70%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
+              <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.755981 16.5H16.714c0.3596 0.0006 0.7075 -0.128 0.9803 -0.3624 0.2727 -0.2344 0.4522 -0.559 0.5057 -0.9146l1.864 -12.446c0.0534 -0.35513 0.2324 -0.67933 0.5045 -0.91366 0.2722 -0.23434 0.6194 -0.36326 0.9785 -0.36334h1.709" stroke-width="1.5"></path>
+              <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M3.00598 7.5h4.5s0.75 0 0.75 0.75v4.5s0 0.75 -0.75 0.75h-4.5s-0.75 0 -0.75 -0.75v-4.5s0 -0.75 0.75 -0.75Z" stroke-width="1.5"></path>
+              <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M9.00598 4.5H15.006s0.75 0 0.75 0.75v7.5s0 0.75 -0.75 0.75H9.00598s-0.75 0 -0.75 -0.75v-7.5s0 -0.75 0.75 -0.75Z" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M2.25598 20.625c0 0.2462 0.0485 0.49 0.14273 0.7175 0.09422 0.2275 0.23234 0.4342 0.40645 0.6083 0.17411 0.1741 0.3808 0.3122 0.60829 0.4065 0.22749 0.0942 0.4713 0.1427 0.71753 0.1427s0.49005 -0.0485 0.71753 -0.1427c0.22749 -0.0943 0.43419 -0.2324 0.6083 -0.4065 0.17411 -0.1741 0.31222 -0.3808 0.40645 -0.6083 0.09422 -0.2275 0.14272 -0.4713 0.14272 -0.7175 0 -0.4973 -0.19754 -0.9742 -0.54917 -1.3258 -0.35163 -0.3517 -0.82855 -0.5492 -1.32583 -0.5492 -0.49728 0 -0.97419 0.1975 -1.32582 0.5492 -0.35163 0.3516 -0.54918 0.8285 -0.54918 1.3258Z" stroke-width="1.5"></path>
+              <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.756 20.625c0 0.4973 0.1975 0.9742 0.5492 1.3258 0.3516 0.3517 0.8285 0.5492 1.3258 0.5492 0.4973 0 0.9742 -0.1975 1.3258 -0.5492 0.3516 -0.3516 0.5492 -0.8285 0.5492 -1.3258 0 -0.4973 -0.1976 -0.9742 -0.5492 -1.3258 -0.3516 -0.3517 -0.8285 -0.5492 -1.3258 -0.5492 -0.4973 0 -0.9742 0.1975 -1.3258 0.5492 -0.3517 0.3516 -0.5492 0.8285 -0.5492 1.3258Z" stroke-width="1.5"></path>
+            </svg>
+        </mat-icon>
+        <span class="mat-mdc-menu-item-text">
+            <span _ngcontent-ng-purchaseR="">Resource delivery request </span>
+        </span>
+        <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
+    </a>
+</li>`;
         !!newResourceDeliveryItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newResourceDeliveryItemElementTemplate.content.cloneNode(true));
     }
 
