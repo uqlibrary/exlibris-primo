@@ -6,12 +6,12 @@ import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
 export const selectSearchState = createFeatureSelector<any>('Search');
 
 @Component({
-  selector: 'custom-nde-display-course-reading-list-on-brief-custom',
+  selector: 'custom-nde-content-indicators-on-brief-custom',
   standalone: true,
   imports: [],
-  templateUrl: './nde-display-course-reading-list-on-brief-custom.component.html',
+  templateUrl: './nde-content-indicators-on-brief-custom.component.html',
 })
-export class NdeDisplayCourseReadingListOnBriefCustomComponent {
+export class NdeContentIndicatorsOnBriefCustomComponent {
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
 

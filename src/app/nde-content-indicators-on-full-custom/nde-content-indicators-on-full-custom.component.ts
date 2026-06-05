@@ -14,16 +14,16 @@ interface TalisCourse {
 export const selectSearchState = createFeatureSelector<any>('Search');
 
 @Component({
-    selector: 'custom-nde-display-course-reading-list-custom',
+    selector: 'custom-nde-content-indicators-on-full-custom',
     standalone: true,
     // imports: [NgIf], // required here if used in the html template
-    templateUrl: './nde-display-course-reading-list-custom.component.html',
+    templateUrl: './nde-content-indicators-on-full-custom.component.html',
     // imports: [
     //     HttpClientModule,
     //     HttpClientJsonpModule,
     // ],
 })
-export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
+export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
     private store = inject(Store);
     // private http = inject(HttpClient);
     searchState = this.store.selectSignal(selectSearchState);
