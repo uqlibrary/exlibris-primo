@@ -4,6 +4,7 @@ import {Component, inject, OnInit} from '@angular/core';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
 import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
+import {isFullDisplayPage} from "../shared/common";
 
 interface TalisCourse {
     url: string;
@@ -35,15 +36,11 @@ export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
 
     ngOnInit(): void {
-        if (!this.isFullDisplayPage()) {
+        if (!isFullDisplayPage) {
             return;
         }
 
         this.displayReadingListIndicator();
-    }
-
-    private isFullDisplayPage(): boolean {
-        return window.location.pathname.includes('fulldisplay');
     }
 
     private displayReadingListIndicator = () => {

@@ -2,6 +2,7 @@ import {Component, ElementRef, inject} from '@angular/core';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
 import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
+import {isFullDisplayPage} from "../shared/common";
 
 export const selectSearchState = createFeatureSelector<any>('Search');
 
@@ -23,7 +24,7 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
     private createRecordIdentifier = (uuid: string | null) => !!uuid ? `record-${uuid}` : 'record-unknown';
 
     ngOnInit(): void {
-        if (this.isFullDisplayPage()) {
+        if (isFullDisplayPage()) {
             return;
         }
 
