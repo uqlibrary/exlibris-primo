@@ -2,9 +2,7 @@ import {inject} from '@angular/core';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
 import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
-import {setRecordIdentifier} from "../shared/common";
-
-const selectSearchState = createFeatureSelector<any>('Search');
+import {selectSearchState, setRecordIdentifier} from "../shared/common";
 
 export class CourseReadingListBriefFunctions {
     private store = inject(Store);

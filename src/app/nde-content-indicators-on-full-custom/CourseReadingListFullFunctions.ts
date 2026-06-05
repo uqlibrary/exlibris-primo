@@ -2,9 +2,7 @@ import {inject} from '@angular/core';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
 import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
-
-// Selector
-const selectSearchState = createFeatureSelector<any>('Search');
+import {selectSearchState} from "../shared/common";
 
 interface TalisCourse {
     url: string;
@@ -39,7 +37,7 @@ export class CourseReadingListFullFunctions {
             if (!!listTalisUrls && listTalisUrls.length > 0) {
                 this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
             }
-        }, 1000);
+        }, 100);
     }
 
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {

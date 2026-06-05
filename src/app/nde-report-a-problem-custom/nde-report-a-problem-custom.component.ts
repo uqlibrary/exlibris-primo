@@ -2,9 +2,7 @@ import {Component, ElementRef, inject, OnInit} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
-
-// Selector
-export const selectSearchState = createFeatureSelector<any>('Search');
+import {selectSearchState} from "../shared/common";
 
 @Component({
     selector: 'custom-nde-report-a-problem-custom',

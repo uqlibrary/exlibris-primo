@@ -1,3 +1,6 @@
+import {createFeatureSelector} from "@ngrx/store";
+export const selectSearchState = createFeatureSelector<any>('Search');
+
 export const isFullDisplayPage = () => {
     return window.location.pathname.includes('fulldisplay');
 }
