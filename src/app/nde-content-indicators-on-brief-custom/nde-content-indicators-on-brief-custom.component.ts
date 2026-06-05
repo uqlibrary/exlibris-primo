@@ -8,21 +8,25 @@ import {CourseReadingListBriefFunctions} from "./CourseReadingListBriefFunctions
   imports: [],
   templateUrl: './nde-content-indicators-on-brief-custom.component.html',
 })
-export class NdeContentIndicatorsOnBriefCustomComponent extends CourseReadingListBriefFunctions {
+export class NdeContentIndicatorsOnBriefCustomComponent {
     private elementRef = inject(ElementRef);
+    private crl;
 
+    constructor() {
+        this.crl = new CourseReadingListBriefFunctions();
+    }
     ngOnInit(): void {
         if (isFullDisplayPage()) {
             return;
         }
 
         // get the current element
-        this.hostRecordIndications = this.findHostRecordIndications();
-        this.uuid = self.crypto.randomUUID();
+        this.crl.hostRecordIndications = this.findHostRecordIndications();
+        this.crl.uuid = self.crypto.randomUUID();
         // set an id attribute on element
-        !!this.hostRecordIndications && (this.hostRecordIndications.id = setRecordIdentifier(this.uuid, 'crl'));
+        !!this.crl.hostRecordIndications && (this.crl.hostRecordIndications.id = setRecordIdentifier(this.crl.uuid, 'crl'));
 
-        this.displayCourseReadingListIndicator();
+        this.crl.displayCourseReadingListIndicator();
     }
 
     private findHostRecordIndications(): HTMLElement | null {

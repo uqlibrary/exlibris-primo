@@ -10,13 +10,10 @@ export class CourseReadingListBriefFunctions {
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
 
-    /** The nde-record-indications element this component is attached to */
-    protected hostRecordIndications: HTMLElement | null = null;
-    protected uuid: string | null = null;
+    public hostRecordIndications: HTMLElement | null = null; // The nde-record-indications element this component is attached to
+    public uuid: string | null = null;
 
-    // get this element
-
-    protected displayCourseReadingListIndicator = () => {
+    public displayCourseReadingListIndicator = () => {
         const that = this;
         const awaitPnx = setInterval(() => {
             // get the ultimate parent of this brief result
