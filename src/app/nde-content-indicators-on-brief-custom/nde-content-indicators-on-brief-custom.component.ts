@@ -73,10 +73,6 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
         return null;
     }
 
-    private isFullDisplayPage(): boolean {
-        return window.location.pathname.includes('fulldisplay');
-    }
-
     private displayReadingListIndicator = () => {
         const that = this;
         const awaitPnx = setInterval(() => {
