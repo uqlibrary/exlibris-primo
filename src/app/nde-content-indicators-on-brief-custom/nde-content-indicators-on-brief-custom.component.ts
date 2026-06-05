@@ -1,0 +1,61 @@
+import {Component, ElementRef, inject} from '@angular/core';
+import {isFullDisplayPage, setRecordIdentifier} from "../shared/common";
+import {CourseReadingListBriefFunctions} from "./CourseReadingListBriefFunctions";
+
+@Component({
+  selector: 'custom-nde-content-indicators-on-brief-custom',
+  standalone: true,
+  imports: [],
+  templateUrl: './nde-content-indicators-on-brief-custom.component.html',
+})
+export class NdeContentIndicatorsOnBriefCustomComponent extends CourseReadingListBriefFunctions {
+    private elementRef = inject(ElementRef);
+
+    ngOnInit(): void {
+        if (isFullDisplayPage()) {
+            return;
+        }
+
+        // get the current element
+        this.hostRecordIndications = this.findHostRecordIndications();
+        this.uuid = self.crypto.randomUUID();
+        // set an id attribute on element
+        !!this.hostRecordIndications && (this.hostRecordIndications.id = setRecordIdentifier(this.uuid, 'crl'));
+
+        this.displayCourseReadingListIndicator();
+    }
+
+    private findHostRecordIndications(): HTMLElement | null {
+        const nativeEl: HTMLElement = this.elementRef.nativeElement;
+
+        let cursor: HTMLElement | null = nativeEl;
+        while (cursor) {
+            // Check previous siblings at this level for nde-record-indications
+            let sibling = cursor.previousElementSibling as HTMLElement | null;
+            while (sibling) {
+                if (sibling.tagName.toLowerCase() === 'nde-record-indications') {
+                    return sibling;
+                }
+                // Also check if it's nested inside a sibling wrapper
+                const nested = sibling.querySelector('nde-record-indications');
+                if (nested) {
+                    return nested as HTMLElement;
+                }
+                sibling = sibling.previousElementSibling as HTMLElement | null;
+            }
+
+            // Move up one level and try again
+            cursor = cursor.parentElement;
+
+            // Stop at the record container — don't walk too far up the tree
+            if (
+                cursor?.tagName.toLowerCase().startsWith('nde-full-view') ||
+                cursor?.tagName.toLowerCase() === 'body'
+            ) {
+                break;
+            }
+        }
+
+        return null;
+    }
+}

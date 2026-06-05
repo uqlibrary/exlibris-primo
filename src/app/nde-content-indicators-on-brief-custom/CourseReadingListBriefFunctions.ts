@@ -1,82 +1,22 @@
-import {Component, ElementRef, inject} from '@angular/core';
+import {inject} from '@angular/core';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
 import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
+import {setRecordIdentifier} from "../shared/common";
 
-export const selectSearchState = createFeatureSelector<any>('Search');
+const selectSearchState = createFeatureSelector<any>('Search');
 
-@Component({
-  selector: 'custom-nde-display-course-reading-list-on-brief-custom',
-  standalone: true,
-  imports: [],
-  templateUrl: './nde-display-course-reading-list-on-brief-custom.component.html',
-})
-export class NdeDisplayCourseReadingListOnBriefCustomComponent {
+export class CourseReadingListBriefFunctions {
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
 
-    private elementRef = inject(ElementRef);
     /** The nde-record-indications element this component is attached to */
-    private hostRecordIndications: HTMLElement | null = null;
-    private uuid: string | null = null;
-
-    private createRecordIdentifier = (uuid: string | null) => !!uuid ? `record-${uuid}` : 'record-unknown';
-
-    ngOnInit(): void {
-        if (this.isFullDisplayPage()) {
-            return;
-        }
-
-        // get the current element
-        this.hostRecordIndications = this.findHostRecordIndications();
-        this.uuid = self.crypto.randomUUID();
-        // set an id attribute on element
-        !!this.hostRecordIndications && (this.hostRecordIndications.id = this.createRecordIdentifier(this.uuid));
-
-
-        this.displayReadingListIndicator();
-    }
+    protected hostRecordIndications: HTMLElement | null = null;
+    protected uuid: string | null = null;
 
     // get this element
-    private findHostRecordIndications(): HTMLElement | null {
-        const nativeEl: HTMLElement = this.elementRef.nativeElement;
 
-        let cursor: HTMLElement | null = nativeEl;
-        while (cursor) {
-            // Check previous siblings at this level for nde-record-indications
-            let sibling = cursor.previousElementSibling as HTMLElement | null;
-            while (sibling) {
-                if (sibling.tagName.toLowerCase() === 'nde-record-indications') {
-                    return sibling;
-                }
-                // Also check if it's nested inside a sibling wrapper
-                const nested = sibling.querySelector('nde-record-indications');
-                if (nested) {
-                    return nested as HTMLElement;
-                }
-                sibling = sibling.previousElementSibling as HTMLElement | null;
-            }
-
-            // Move up one level and try again
-            cursor = cursor.parentElement;
-
-            // Stop at the record container — don't walk too far up the tree
-            if (
-                cursor?.tagName.toLowerCase().startsWith('nde-full-view') ||
-                cursor?.tagName.toLowerCase() === 'body'
-            ) {
-                break;
-            }
-        }
-
-        return null;
-    }
-
-    private isFullDisplayPage(): boolean {
-        return window.location.pathname.includes('fulldisplay');
-    }
-
-    private displayReadingListIndicator = () => {
+    protected displayCourseReadingListIndicator = () => {
         const that = this;
         const awaitPnx = setInterval(() => {
             // get the ultimate parent of this brief result
@@ -89,8 +29,8 @@ export class NdeDisplayCourseReadingListOnBriefCustomComponent {
             clearInterval(awaitPnx);
 
             // pnx data now available
-            const recIdEl = item?.querySelector( '[data-recordid]') || item?.querySelector( 'a[ng-href*="docid="], a[href*="docid="], a[href*="doc="]');
-            const recId = !!recIdEl && (recIdEl.getAttribute( 'data-recordid') || recIdEl.getAttribute( 'docid') || ((recIdEl.getAttribute( 'href') || '').match(/(?:docid|doc)=([^&]+)/) || [])[1]);
+            const recIdEl = item?.querySelector('[data-recordid]') || item?.querySelector('a[ng-href*="docid="], a[href*="docid="], a[href*="doc="]');
+            const recId = !!recIdEl && (recIdEl.getAttribute('data-recordid') || recIdEl.getAttribute('docid') || ((recIdEl.getAttribute('href') || '').match(/(?:docid|doc)=([^&]+)/) || [])[1]);
             if (!recId) {
                 // should never happen?
                 return;
@@ -166,7 +106,8 @@ export class NdeDisplayCourseReadingListOnBriefCustomComponent {
         const template = document.createElement('template');
         template.innerHTML = CRLiconHtml;
 
-        const builtinIconlist = document.querySelector(`#${this.createRecordIdentifier(this.uuid)} .record-indication-wrapper`);
+        const builtinIconlist = document.querySelector(`#${setRecordIdentifier(this.uuid, 'crl')} .record-indication-wrapper`);
         !!builtinIconlist && builtinIconlist.appendChild(template.content.cloneNode(true));
     }
 }
+
