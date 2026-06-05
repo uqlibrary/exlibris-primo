@@ -21,7 +21,7 @@ export class CourseReadingListFullFunctions {
     private courses: TalisCourse[] = [];
     private showReadingLists = false;
 
-    protected displayCourseReadingListIndicatorAndList = () => {
+    public displayCourseReadingListIndicatorAndList = () => {
         const awaitPnx = setInterval(() => {
             // once the pnx data is available, get the talis url list
             const item = document.querySelector('.search-result-item');

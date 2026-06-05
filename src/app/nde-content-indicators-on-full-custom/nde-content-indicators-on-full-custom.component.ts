@@ -7,12 +7,16 @@ import {CourseReadingListFullFunctions} from "./CourseReadingListFullFunctions";
     standalone: true,
     templateUrl: './nde-content-indicators-on-full-custom.component.html',
 })
-export class NdeContentIndicatorsOnFullCustomComponent extends CourseReadingListFullFunctions implements OnInit {
+export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
+    private crl;
+    constructor() {
+        this.crl = new CourseReadingListFullFunctions();
+    }
     ngOnInit(): void {
         if (!isFullDisplayPage) {
             return;
         }
 
-        this.displayCourseReadingListIndicatorAndList();
+        this.crl.displayCourseReadingListIndicatorAndList();
     }
 }
