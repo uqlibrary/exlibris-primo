@@ -15,10 +15,11 @@ export const culturalAdviceIndicatorHtml = (uuid: string)=> `<div id="ca-icon" _
     </div>
 </div>`;
 
-export const addCulturalAdviceIndicatorToHeader = () => {
+export const addCulturalAdviceIndicatorToHeader = (_item?: HTMLElement) => {
+    const item = !!_item ? _item : document;
     const template = document.createElement('template');
-    // css file in reusable repo duplicates styles found on built in icons via _ngcontent-ng-crl indicator
+    // CSS file in reusable repo duplicates styles found on built in icons via _ngcontent-ng-crl indicator
     template.innerHTML = culturalAdviceIndicatorHtml(self.crypto.randomUUID());
-    const iconlist = document.querySelector('.record-indication-wrapper');
-    !!iconlist && iconlist.appendChild(template.content.cloneNode(true));
+    const iconList = item.querySelector('.record-indication-wrapper');
+    !!iconList && iconList.appendChild(template.content.cloneNode(true));
 }

@@ -42,17 +42,17 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
 
             this.crl.displayCourseReadingListIndicator(pnx, item);
 
-            this.displayCulturalAdviceIndicator(pnx);
+            this.displayCulturalAdviceIndicator(pnx, item);
 
         }, 1000);
     }
 
-    private displayCulturalAdviceIndicator(pnx: pnxInterface) {
+    private displayCulturalAdviceIndicator(pnx: pnxInterface, item: HTMLElement | null | undefined) {
         console.log('crl## displayCulturalAdviceIndicator');
         const recordId = !!pnx?.control?.recordid; // eg 61UQ_ALMA51124881340003131
         const culturalAdviceProvided = !!pnx?.display?.lds05; // eg ["Cultural advice - Aboriginal and Torres Strait Islander peoples"]
-        if (culturalAdviceProvided && recordId) {
-            addCulturalAdviceIndicatorToHeader();
+        if (!!item && culturalAdviceProvided && recordId) {
+            addCulturalAdviceIndicatorToHeader(item);
         }
     }
 
