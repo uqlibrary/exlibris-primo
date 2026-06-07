@@ -1,6 +1,8 @@
 import {Component, ElementRef, inject} from '@angular/core';
 import {isFullDisplayPage, setRecordIdentifier} from "../shared/common";
 import {CourseReadingListBriefFunctions} from "./CourseReadingListBriefFunctions";
+import {getPnx} from "../shared/getPnx";
+import {addCulturalAdviceIndicatorToHeader, pnxInterface} from "../shared/culturalAdviceIndicatorResources";
 
 @Component({
   selector: 'custom-nde-content-indicators-on-brief-custom',
@@ -11,6 +13,7 @@ import {CourseReadingListBriefFunctions} from "./CourseReadingListBriefFunctions
 export class NdeContentIndicatorsOnBriefCustomComponent {
     private elementRef = inject(ElementRef);
     private crl;
+    public hostRecordIndications: HTMLElement | null = null; // The nde-record-indications element this component is attached to
 
     constructor() {
         this.crl = new CourseReadingListBriefFunctions();
@@ -21,12 +24,36 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
         }
 
         // get the current element
-        this.crl.hostRecordIndications = this.findHostRecordIndications();
+        this.hostRecordIndications = this.findHostRecordIndications();
         this.crl.uuid = self.crypto.randomUUID();
-        // set an id attribute on element
-        !!this.crl.hostRecordIndications && (this.crl.hostRecordIndications.id = setRecordIdentifier(this.crl.uuid, 'crl'));
 
-        this.crl.displayCourseReadingListIndicator();
+        // set an id attribute on element
+        !!this.hostRecordIndications && (this.hostRecordIndications.id = setRecordIdentifier(this.crl.uuid, 'crl'));
+
+        const awaitPnx = setInterval(() => {
+            // get the ultimate parent of this brief result
+            const item = this.hostRecordIndications?.parentElement?.parentElement?.parentElement;
+            const pnx = !!item && getPnx(this.crl.searchState(), item);
+            if (!pnx?.control?.recordid) { // pnx not ready yet
+                return;
+            }
+
+            clearInterval(awaitPnx);
+
+            this.crl.displayCourseReadingListIndicator(pnx, item);
+
+            this.displayCulturalAdviceIndicator(pnx);
+
+        }, 1000);
+    }
+
+    private displayCulturalAdviceIndicator(pnx: pnxInterface) {
+        console.log('crl## displayCulturalAdviceIndicator');
+        const recordId = !!pnx?.control?.recordid; // eg 61UQ_ALMA51124881340003131
+        const culturalAdviceProvided = !!pnx?.display?.lds05; // eg ["Cultural advice - Aboriginal and Torres Strait Islander peoples"]
+        if (culturalAdviceProvided && recordId) {
+            addCulturalAdviceIndicatorToHeader();
+        }
     }
 
     private findHostRecordIndications(): HTMLElement | null {

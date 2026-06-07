@@ -1,8 +1,8 @@
 import {inject} from '@angular/core';
-import {createFeatureSelector, Store} from '@ngrx/store';
-import {getPnx} from "../shared/getPnx";
-import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
+import {Store} from '@ngrx/store';
 import {selectSearchState} from "../shared/common";
+import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
+import {CRLiconHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 interface TalisCourse {
     url: string;
@@ -19,25 +19,15 @@ export class CourseReadingListFullFunctions {
     private courses: TalisCourse[] = [];
     private showReadingLists = false;
 
-    public displayCourseReadingListIndicatorAndList = () => {
-        const awaitPnx = setInterval(() => {
-            // once the pnx data is available, get the talis url list
-            const item = document.querySelector('.search-result-item');
-            const pnx = getPnx(this.searchState(), item);
-            if (!pnx?.control?.recordid) {
-                return;
-            }
-            clearInterval(awaitPnx);
+    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface) => {
+        const listTalisUrls = getListTalisUrls(pnx);
+        if (!listTalisUrls || listTalisUrls.length === 0) {
+            return;
+        }
 
-            const listTalisUrls = getListTalisUrls(pnx);
-            if (!listTalisUrls || listTalisUrls.length === 0) {
-                return;
-            }
-
-            if (!!listTalisUrls && listTalisUrls.length > 0) {
-                this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
-            }
-        }, 100);
+        if (!!listTalisUrls && listTalisUrls.length > 0) {
+            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
+        }
     }
 
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
