@@ -2,7 +2,7 @@ import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {selectSearchState} from "../shared/common";
 import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
-import {CRLiconHtml, getListTalisUrls} from "../shared/courseReadingListResources";
+import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 interface TalisCourse {
     url: string;
@@ -246,7 +246,7 @@ export class CourseReadingListFullFunctions {
     private addCourseResourceIndicatorToHeader() {
         const template = document.createElement('template');
         // _course_reading_icon.scss file in reusable repo duplicates styles found on built in icons via _ngcontent-ng-crl indicator
-        template.innerHTML = CRLiconHtml;
+        template.innerHTML = courseReadingListIndicatorHtml();
         const iconlist = document.querySelector('.record-indication-wrapper');
         !!iconlist && iconlist.appendChild(template.content.cloneNode(true));
     }

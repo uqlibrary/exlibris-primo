@@ -1,3 +1,5 @@
+import {culturalAdviceIndicatorHtml} from "./culturalAdviceIndicatorResources";
+import {contentIndicatorHtml} from "./common";
 
 const TALIS_DOMAIN = 'https://uq.rl.talis.com/';
 
@@ -83,15 +85,11 @@ export const getListTalisUrls = (pnx: any, uid: string = '') => {
     return list;
 }
 
-// _course_reading_icon.scss file in reusable repo duplicates looknfeel of built in primo icons via _ngcontent-ng-crlindicator
-export const CRLiconHtml = `<div id="crl-icon" _ngcontent-ng-crlindicator="" class="record-indication-cont-crl record-indication-cont display-inline-block ng-star-inserted">
-    <mat-divider _ngcontent-ng-crlindicator="" role="separator" class="mat-divider nde-divider mat-divider-vertical" aria-orientation="vertical"></mat-divider>
-    <div _ngcontent-ng-crlindicator="" class="display-inline">
-        <mat-icon _ngcontent-ng-crlindicator="" role="img" class="mat-icon notranslate nde-mat-icon-size-small margin-right-small mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="course-reading-list">
-            <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
-                <path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"></path>
-            </svg>
-        </mat-icon>
-        <span _ngcontent-ng-crlindicator="" class="record-indication text-uppercase" data-testid="course-reading-list">COURSE READING LIST</span>
-    </div>
-</div>`;
+// _content_indicator_icon.scss file in reusable repo duplicates looknfeel of built in primo icons via _ngcontent-ng-content-indicator
+export const courseReadingListIndicatorHtml = () => {
+    const contentIndicatorIconHtml = `<svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" fit="" preserveAspectRatio="xMidYMid meet" focusable="false"><path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"></path></svg>`;
+    const testId = 'course-reading-list-icon-label';
+    const contentIndicatorLabel = 'COURSE READING LIST';
+
+    return contentIndicatorHtml(contentIndicatorIconHtml, testId, contentIndicatorLabel, 'small');
+}

@@ -1,7 +1,7 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {selectSearchState, setRecordIdentifier} from "../shared/common";
-import {CRLiconHtml, getListTalisUrls} from "../shared/courseReadingListResources";
+import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 export class CourseReadingListBriefFunctions {
     private store = inject(Store);
@@ -84,7 +84,7 @@ export class CourseReadingListBriefFunctions {
 
     private showCourseResourceIndicator() {
         const template = document.createElement('template');
-        template.innerHTML = CRLiconHtml;
+        template.innerHTML = courseReadingListIndicatorHtml();
 
         const builtinIconlist = document.querySelector(`#${setRecordIdentifier(this.uuid, 'crl')} .record-indication-wrapper`);
         !!builtinIconlist && builtinIconlist.appendChild(template.content.cloneNode(true));
