@@ -38,6 +38,25 @@ function insertStylesheet(href) {
   }
 }
 
+const currentEnvironmentId = () => {
+    let result;
+
+    const paramName ='vid';
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has(paramName)) {
+        result = urlParams.get(paramName);
+    } else {
+        const pathSegments = window.location.pathname.split('/');
+        const institutionSegment = pathSegments.find(segment =>
+            segment.includes('61UQ_INST:')
+        );
+        result = institutionSegment || null;
+    }
+    return result;
+}
+
+const vidParam = currentEnvironmentId();
+
 function insertScripts() {
   let folder = null;
   if (window.location.hostname === "search.library.uq.edu.au") {
@@ -106,7 +125,15 @@ function insertUqComponents() {
       breadcumbLabel = 'NDE UI Library Search (Sandbox)';
     }
     !!siteHeader && siteHeader.setAttribute('secondleveltitle', breadcumbLabel);
-    !!siteHeader && siteHeader.setAttribute('secondlevelurl', 'https://www.library.uq.edu.au/');
+    let primoLink = `https://search.library.uq.edu.au/nde/home?vid=${vidParam}&lang=en`;
+    if (window.location.hostname === 'uq.primo.exlibrisgroup.com') {
+        primoLink = `https://uq.primo.exlibrisgroup.com/nde/home?vid=${vidParam}&lang=en`;
+    } else if (window.location.hostname === 'uq-psb.primo.exlibrisgroup.com') {
+        primoLink = `https://uq-psb.primo.exlibrisgroup.com/nde/home?vid=${vidParam}&lang=en`;
+    } else if (window.location.hostname === 'localhost') {
+        primoLink = `http://localhost:4201/nde/home?vid=${vidParam}&lang=en`;
+    }
+    !!siteHeader && siteHeader.setAttribute('secondlevelurl', primoLink);
     !!siteHeader && document.body.insertBefore(siteHeader, firstElement);
 
     // do something with auth
