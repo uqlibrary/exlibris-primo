@@ -1,34 +1,15 @@
 import {inject} from '@angular/core';
-import {createFeatureSelector, Store} from '@ngrx/store';
-import {getPnx} from "../shared/getPnx";
-import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
-import {setRecordIdentifier} from "../shared/common";
-
-const selectSearchState = createFeatureSelector<any>('Search');
+import {Store} from '@ngrx/store';
+import {selectSearchState, setRecordIdentifier} from "../shared/common";
+import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 export class CourseReadingListBriefFunctions {
     private store = inject(Store);
-    searchState = this.store.selectSignal(selectSearchState);
+    public searchState = this.store.selectSignal(selectSearchState);
 
-    /** The nde-record-indications element this component is attached to */
-    protected hostRecordIndications: HTMLElement | null = null;
-    protected uuid: string | null = null;
+    public uuid: string | null = null;
 
-    // get this element
-
-    protected displayCourseReadingListIndicator = () => {
-        const that = this;
-        const awaitPnx = setInterval(() => {
-            // get the ultimate parent of this brief result
-            const item = this.hostRecordIndications?.parentElement?.parentElement?.parentElement;
-            const pnx = !!item && getPnx(this.searchState(), item);
-            if (!pnx?.control?.recordid) { // pnx not ready yet
-                return;
-            }
-
-            clearInterval(awaitPnx);
-
-            // pnx data now available
+    public displayCourseReadingListIndicator = (pnx: any, item: any) => {
             const recIdEl = item?.querySelector('[data-recordid]') || item?.querySelector('a[ng-href*="docid="], a[href*="docid="], a[href*="doc="]');
             const recId = !!recIdEl && (recIdEl.getAttribute('data-recordid') || recIdEl.getAttribute('docid') || ((recIdEl.getAttribute('href') || '').match(/(?:docid|doc)=([^&]+)/) || [])[1]);
             if (!recId) {
@@ -36,13 +17,12 @@ export class CourseReadingListBriefFunctions {
                 return;
             }
 
-            const listTalisUrls = getListTalisUrls(pnx, String(that.uuid));
+            const listTalisUrls = getListTalisUrls(pnx, String(this.uuid));
             if (!listTalisUrls || listTalisUrls.length === 0) {
                 return;
             }
 
             !!listTalisUrls && listTalisUrls.length > 0 && this.getTalisDataFromAnyApiCalls(listTalisUrls);
-        }, 1000);
     }
 
     // we want to know if any of the talis are available, so we stop once we have a single success
@@ -104,7 +84,7 @@ export class CourseReadingListBriefFunctions {
 
     private showCourseResourceIndicator() {
         const template = document.createElement('template');
-        template.innerHTML = CRLiconHtml;
+        template.innerHTML = courseReadingListIndicatorHtml();
 
         const builtinIconlist = document.querySelector(`#${setRecordIdentifier(this.uuid, 'crl')} .record-indication-wrapper`);
         !!builtinIconlist && builtinIconlist.appendChild(template.content.cloneNode(true));

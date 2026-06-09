@@ -1,10 +1,8 @@
 import {inject} from '@angular/core';
-import {createFeatureSelector, Store} from '@ngrx/store';
-import {getPnx} from "../shared/getPnx";
-import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
-
-// Selector
-const selectSearchState = createFeatureSelector<any>('Search');
+import {Store} from '@ngrx/store';
+import {selectSearchState} from "../shared/common";
+import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
+import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 interface TalisCourse {
     url: string;
@@ -21,25 +19,15 @@ export class CourseReadingListFullFunctions {
     private courses: TalisCourse[] = [];
     private showReadingLists = false;
 
-    protected displayCourseReadingListIndicatorAndList = () => {
-        const awaitPnx = setInterval(() => {
-            // once the pnx data is available, get the talis url list
-            const item = document.querySelector('.search-result-item');
-            const pnx = getPnx(this.searchState(), item);
-            if (!pnx?.control?.recordid) {
-                return;
-            }
-            clearInterval(awaitPnx);
+    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface) => {
+        const listTalisUrls = getListTalisUrls(pnx);
+        if (!listTalisUrls || listTalisUrls.length === 0) {
+            return;
+        }
 
-            const listTalisUrls = getListTalisUrls(pnx);
-            if (!listTalisUrls || listTalisUrls.length === 0) {
-                return;
-            }
-
-            if (!!listTalisUrls && listTalisUrls.length > 0) {
-                this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
-            }
-        }, 1000);
+        if (!!listTalisUrls && listTalisUrls.length > 0) {
+            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
+        }
     }
 
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
@@ -258,7 +246,7 @@ export class CourseReadingListFullFunctions {
     private addCourseResourceIndicatorToHeader() {
         const template = document.createElement('template');
         // _course_reading_icon.scss file in reusable repo duplicates styles found on built in icons via _ngcontent-ng-crl indicator
-        template.innerHTML = CRLiconHtml;
+        template.innerHTML = courseReadingListIndicatorHtml();
         const iconlist = document.querySelector('.record-indication-wrapper');
         !!iconlist && iconlist.appendChild(template.content.cloneNode(true));
     }
