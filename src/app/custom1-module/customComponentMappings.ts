@@ -8,6 +8,9 @@ import {
 import {
     NdeDisplayCourseReadingListOnBriefCustomComponent
 } from "../nde-display-course-reading-list-on-brief-custom/nde-display-course-reading-list-on-brief-custom.component";
+import {
+    NdeServicesPageBannerCustomComponent
+} from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
 
@@ -15,4 +18,5 @@ export const selectorComponentMap = new Map<string, any>([
   ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
   ['nde-full-display-container-after', NdeDisplayCourseReadingListCustomComponent],
   ['nde-record-indications-after', NdeDisplayCourseReadingListOnBriefCustomComponent],
+  ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
 ]);
