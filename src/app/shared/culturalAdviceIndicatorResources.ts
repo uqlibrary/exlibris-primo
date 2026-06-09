@@ -1,6 +1,6 @@
 import {contentIndicatorHtml} from "./common";
 
-export type pnxInterface = { control: { recordid: any; }; display: { lds05: any; }; };
+export type pnxInterface = { control: { recordid: any; }; display: { lds05: any; lds04?: any; }; };
 
 const culturalAdviceIconHtml: string =
     `<svg width="100%" height="100%" viewBox="0 0 24 24" focusable="false">
