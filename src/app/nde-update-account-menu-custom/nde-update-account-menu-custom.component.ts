@@ -39,7 +39,7 @@ export class NdeUpdateAccountMenuCustomComponent {
                 const resourceDeliveryItemId = 'newResourceDeliveryItem';
                 const menuUpdated = document.getElementById(resourceDeliveryItemId);
                 if (!!menuUpdated) {
-                    console.log('accdebug showDebug menu already updated, skip');
+                    this.showDebug && console.log('accdebug showDebug menu already updated, skip');
                     return; // we have already updated the menu
                 }
 
@@ -80,7 +80,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         const waitOnFavouritesMenuItem = setInterval(() => {
             const favouritesMenuItem = document.querySelector('[aria-label="Go to my saved records"]');
             if (!favouritesMenuItem) {
-                console.log('waiting on favourites element');
+                this.showDebug && console.log('waiting on favourites element');
                 return;
             }
             clearInterval(waitOnFavouritesMenuItem);
@@ -89,7 +89,7 @@ export class NdeUpdateAccountMenuCustomComponent {
             let accountButton = document.querySelector(`[aria-label="${accountButtonAriaLabel}"]`);
             if (!accountButton) {
                 // they didn't provide the account button????? Add it! :(
-                console.log('accdebug they didnt provide the account button????? Add it! :(');
+                this.showDebug && console.log('accdebug they didnt provide the account button????? Add it! :(');
                 accountButton = this.createAccountButtonOnMenu(accountButtonAriaLabel, favouritesMenuItem);
             }
 
@@ -318,17 +318,12 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const movedFavourite = document.getElementById(movedFavouriteId);
         if (!!movedFavourite) {
-            this.showDebug && console.log('accdebug moveFavouritesButton not found', movedFavourite);
             return; // done
         }
 
-        this.showDebug && console.log('accdebug moveFavouritesButton movedFavourite=', movedFavourite);
         const wrappingUl = this.getSubAccountMenu();
-        this.showDebug && console.log('accdebug moveFavouritesButton wrappingUl=', wrappingUl);
         const favouritesItem = document.querySelector('[aria-label="Go to my saved records"]');
-        this.showDebug && console.log('accdebug moveFavouritesButton favouritesItem=', favouritesItem);
         if (!favouritesItem || !wrappingUl) {
-            this.showDebug && console.log('accdebug moveFavouritesButton fail, no fav/wrap');
             return;
         }
 
