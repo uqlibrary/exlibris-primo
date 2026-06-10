@@ -9,6 +9,9 @@ import {
     NdeContentIndicatorsOnBriefCustomComponent
 } from "../nde-content-indicators-on-brief-custom/nde-content-indicators-on-brief-custom.component";
 import {NdeCountOfFiltersCustomComponent} from "../nde-count-of-filters-custom/nde-count-of-filters-custom.component";
+import {
+    NdeServicesPageBannerCustomComponent
+} from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
 
@@ -17,4 +20,5 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-filters-group-after', NdeCountOfFiltersCustomComponent],
+    ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
 ]);
