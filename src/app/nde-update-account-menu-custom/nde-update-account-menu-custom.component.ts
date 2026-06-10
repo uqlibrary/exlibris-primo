@@ -8,6 +8,7 @@ import {Component} from '@angular/core';
   styleUrl: './nde-update-account-menu-custom.component.scss'
 })
 export class NdeUpdateAccountMenuCustomComponent {
+    showDebug = false;
     ngOnInit(): void {
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
             // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
@@ -16,21 +17,24 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.attachLoggedoutButtonContents()
             }
 
+            this.showDebug = Boolean(this.getCookie('showDebug'));
+            console.log('accdebug showDebug=', this.showDebug);
+
             const userNameAreaButton = document.querySelector('nde-user-area button');
-            console.log('accdebug userNameAreaButton=', userNameAreaButton);
+            this.showDebug && console.log('accdebug userNameAreaButton=', userNameAreaButton);
             if (!!userNameAreaButton) { // should always be present
                 this.attachArrowButtons(userNameAreaButton);
             }
 
             if (isLoggedOut) {
-                console.log('accdebug logged OUT');
+                this.showDebug && console.log('accdebug logged OUT');
                 this.removeAccountButton();
                 this.addFeedbackButton();
 
                 this.reLabelFavourites('Session favourites');
                 this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
-                console.log('accdebug logged IN');
+                this.showDebug && console.log('accdebug logged IN');
                 this.reLabelAccountButton();
                 this.styleUserName();
                 this.addExtraMenuItems();
@@ -45,6 +49,7 @@ export class NdeUpdateAccountMenuCustomComponent {
 
                 this.moveLogoutButton();
             }
+            this.showDebug = true;
         }, 100);
     }
 
@@ -53,14 +58,20 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private getSubAccountMenu = () => {
-        const menuparent = document.getElementById('primo-account-sub-menu');
+        const submenuElementId = 'primo-account-sub-menu';
+        const menuparent = document.getElementById(submenuElementId);
+        this.showDebug && console.log('accdebug getSubAccountMenu menuparent=', menuparent);
         if (!menuparent) {
             const previousElement = document.querySelector('[aria-label="Go to my library account"]');
+            this.showDebug && console.log('accdebug getSubAccountMenu previousElement=', previousElement);
             const newUlTemplate = document.createElement('template');
             newUlTemplate.innerHTML = '<ul id="primo-account-sub-menu" class="primo-account-sub-menu"></ul>'
+            this.showDebug && console.log('accdebug getSubAccountMenu newUlTemplate=', newUlTemplate);
             !!newUlTemplate && !!previousElement && previousElement.after(newUlTemplate.content.cloneNode(true));
         }
-        return document.getElementById('primo-account-sub-menu');
+        const elementById = document.getElementById(submenuElementId);
+        this.showDebug && console.log('accdebug getSubAccountMenu response=', elementById);
+        return elementById;
     }
 
     private styleUserName = () => {
@@ -139,12 +150,12 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private reLabelFavourites(newLabel: string = 'Favourites') {
-        console.log('accdebug reLabelFavourites start newLabel=', newLabel);
+        this.showDebug && console.log('accdebug reLabelFavourites start newLabel=', newLabel);
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
 
         // update the label
         const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
-        console.log('accdebug reLabelFavourites savedItemsElement=', savedItemsElement);
+        this.showDebug && console.log('accdebug reLabelFavourites savedItemsElement=', savedItemsElement);
         !!savedItemsElement && (savedItemsElement.textContent = newLabel);
 
         if (!newFavouritesIcon) {
@@ -159,7 +170,7 @@ export class NdeUpdateAccountMenuCustomComponent {
                 <path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Zm0-88 200 86v-518H280v518l200-86Zm0-432H280h400-200Z"></path>
             </svg>`;
             const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
-            console.log('accdebug reLabelFavourites savedItemsMatIcon=', savedItemsMatIcon);
+            this.showDebug && console.log('accdebug reLabelFavourites savedItemsMatIcon=', savedItemsMatIcon);
             !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
 
             // tweak the looknfeel - we want "hollow" icons
@@ -267,17 +278,17 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const movedFavourite = document.getElementById(movedFavouriteId);
         if (!!movedFavourite) {
-            console.log('accdebug moveFavouritesButton not found', movedFavourite);
+            this.showDebug && console.log('accdebug moveFavouritesButton not found', movedFavourite);
             return; // done
         }
 
-        console.log('accdebug moveFavouritesButton movedFavourite=', movedFavourite);
+        this.showDebug && console.log('accdebug moveFavouritesButton movedFavourite=', movedFavourite);
         const wrappingUl = this.getSubAccountMenu();
-        console.log('accdebug moveFavouritesButton wrappingUl=', wrappingUl);
+        this.showDebug && console.log('accdebug moveFavouritesButton wrappingUl=', wrappingUl);
         const favouritesItem = document.querySelector('[aria-label="Go to my saved records"]');
-        console.log('accdebug moveFavouritesButton favouritesItem=', favouritesItem);
+        this.showDebug && console.log('accdebug moveFavouritesButton favouritesItem=', favouritesItem);
         if (!favouritesItem || !wrappingUl) {
-            console.log('accdebug moveFavouritesButton fail, no fav/wrap');
+            this.showDebug && console.log('accdebug moveFavouritesButton fail, no fav/wrap');
             return;
         }
 
@@ -458,5 +469,15 @@ export class NdeUpdateAccountMenuCustomComponent {
             </g>
         </svg>`;
         !!loggedoutButtonContentTemplate && !!loginButton && loginButton.appendChild(loggedoutButtonContentTemplate.content.cloneNode(true));
+    }
+
+    private getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            // @ts-ignore
+            return !!parts && parts.length > 0 ? parts?.pop().split(';').shift() : false;
+        }
+        return false;
     }
 }
