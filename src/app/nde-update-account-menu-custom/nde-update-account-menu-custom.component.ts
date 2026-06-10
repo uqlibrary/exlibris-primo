@@ -9,6 +9,9 @@ import {Component} from '@angular/core';
 })
 export class NdeUpdateAccountMenuCustomComponent {
     showDebug = false;
+    newAccountIconId = 'library-account-icon';
+    testId = 'library-account-icon';
+    accountIconHtml = `<svg data-testid="${this.testId}" id="${this.newAccountIconId}" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
     ngOnInit(): void {
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
             // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
@@ -18,38 +21,45 @@ export class NdeUpdateAccountMenuCustomComponent {
             }
 
             this.showDebug = Boolean(this.getCookie('showDebug'));
-            console.log('accdebug showDebug=', this.showDebug);
 
             const userNameAreaButton = document.querySelector('nde-user-area button');
-            this.showDebug && console.log('accdebug userNameAreaButton=', userNameAreaButton);
             if (!!userNameAreaButton) { // should always be present
                 this.attachArrowButtons(userNameAreaButton);
             }
 
             if (isLoggedOut) {
-                this.showDebug && console.log('accdebug logged OUT');
+                this.showDebug && console.log('accdebug logged OUT showDebug=', this.showDebug);
                 this.removeAccountButton();
                 this.addFeedbackButton();
 
                 this.reLabelFavourites('Session favourites');
                 this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
-                this.showDebug && console.log('accdebug logged IN');
-                this.reLabelAccountButton();
-                this.styleUserName();
+                this.showDebug && console.log('accdebug logged IN showDebug=', this.showDebug);
+                const resourceDeliveryItemId = 'newResourceDeliveryItem';
+                const menuUpdated = document.getElementById(resourceDeliveryItemId);
+                if (!!menuUpdated) {
+                    console.log('accdebug showDebug menu already updated, skip');
+                    return; // we have already updated the menu
+                }
+
                 this.addExtraMenuItems();
                 this.addFeedbackButton(); // must happen before logout move
 
-                // this.reLabelFavourites(); // done in moveFavouritesButton
+                this.reLabelFavourites(); // done in moveFavouritesButton
                 this.reLabelSearchHistory(); // probably deleted in configuration
+
+                this.reLabelAccountButton();
+                this.styleUserName();
 
                 this.moveFavouritesButton();
                 this.addPurchaseRequestItemButton();
-                this.addResourceDeliveryItemButton();
+                this.addResourceDeliveryItemButton(resourceDeliveryItemId);
 
                 this.moveLogoutButton();
+
             }
-            this.showDebug = true;
+            // this.showDebug = true;
         }, 100);
     }
 
@@ -57,21 +67,56 @@ export class NdeUpdateAccountMenuCustomComponent {
         return document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
     }
 
+    // create the submenu that will hold favourites and the logged in options just below the account button
     private getSubAccountMenu = () => {
         const submenuElementId = 'primo-account-sub-menu';
-        const menuparent = document.getElementById(submenuElementId);
-        this.showDebug && console.log('accdebug getSubAccountMenu menuparent=', menuparent);
-        if (!menuparent) {
-            const previousElement = document.querySelector('[aria-label="Go to my library account"]');
-            this.showDebug && console.log('accdebug getSubAccountMenu previousElement=', previousElement);
+        let menuparent = document.getElementById(submenuElementId);
+        if (menuparent) {
+            return menuparent;
+        }
+
+        const that = this;
+        // while the Account button seems to appear flakily _when our customisations are applied!!!!_ the Favourites button seems to be reliable. Let's hope that continues!!
+        const waitOnFavouritesMenuItem = setInterval(() => {
+            const favouritesMenuItem = document.querySelector('[aria-label="Go to my saved records"]');
+            if (!favouritesMenuItem) {
+                console.log('waiting on favourites element');
+                return;
+            }
+            clearInterval(waitOnFavouritesMenuItem);
+
+            const accountButtonAriaLabel = 'Go to my library account';
+            let accountButton = document.querySelector(`[aria-label="${accountButtonAriaLabel}"]`);
+            if (!accountButton) {
+                // they didn't provide the account button????? Add it! :(
+                console.log('accdebug they didnt provide the account button????? Add it! :(');
+                accountButton = this.createAccountButtonOnMenu(accountButtonAriaLabel, favouritesMenuItem);
+            }
+
             const newUlTemplate = document.createElement('template');
             newUlTemplate.innerHTML = '<ul id="primo-account-sub-menu" class="primo-account-sub-menu"></ul>'
-            this.showDebug && console.log('accdebug getSubAccountMenu newUlTemplate=', newUlTemplate);
-            !!newUlTemplate && !!previousElement && previousElement.after(newUlTemplate.content.cloneNode(true));
-        }
-        const elementById = document.getElementById(submenuElementId);
-        this.showDebug && console.log('accdebug getSubAccountMenu response=', elementById);
-        return elementById;
+            !!newUlTemplate && !!accountButton && accountButton.after(newUlTemplate.content.cloneNode(true));
+            menuparent = document.getElementById(submenuElementId);
+        }, 100);
+        return menuparent;
+    }
+
+    private createAccountButtonOnMenu = (accountButtonAriaLabel: string, favouritesMenuItem: any) => {
+        const currentVid = this.currentEnvironmentId();
+        const href = `/nde/account/overview?vid=${currentVid}&lang=en`;
+        const accountButtonHtml = `<a href="${href}" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator link-reset ng-star-inserted" aria-label="${accountButtonAriaLabel}" role="menuitem" aria-disabled="false">
+        <mat-icon role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="accountOverview">
+            ${this.accountIconHtml}
+        </mat-icon>
+        <span class="mat-mdc-menu-item-text">
+            <span>Library account</span>
+        </span>
+    </a>`;
+        const newAccountButtonTemplate = document.createElement('template');
+        newAccountButtonTemplate.innerHTML = accountButtonHtml;
+        // attach it just before the Favourites button
+        !!newAccountButtonTemplate && favouritesMenuItem.parentNode?.insertBefore(newAccountButtonTemplate.content.cloneNode(true), favouritesMenuItem);
+        return document.querySelector(`[aria-label="${accountButtonAriaLabel}"]`);
     }
 
     private styleUserName = () => {
@@ -125,7 +170,7 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private reLabelAccountButton() {
-        const newAccountIcon = document.getElementById('library-account-icon');
+        const newAccountIcon = document.getElementById(this.newAccountIconId);
         if (!!newAccountIcon) {
             return; // already done
         }
@@ -141,7 +186,7 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         // insert our own icon
         const accountIconTemplate = document.createElement('template');
-        accountIconTemplate.innerHTML = `<svg data-testid="library-account-icon" id="library-account-icon" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
+        accountIconTemplate.innerHTML = this.accountIconHtml;
         const accountMatIcon = document.querySelector('[aria-label="Go to my library account"] mat-icon');
         !!accountIconTemplate && !!accountMatIcon && accountMatIcon.appendChild(accountIconTemplate.content.cloneNode(true));
 
@@ -150,12 +195,10 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private reLabelFavourites(newLabel: string = 'Favourites') {
-        this.showDebug && console.log('accdebug reLabelFavourites start newLabel=', newLabel);
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
 
         // update the label
         const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
-        this.showDebug && console.log('accdebug reLabelFavourites savedItemsElement=', savedItemsElement);
         !!savedItemsElement && (savedItemsElement.textContent = newLabel);
 
         if (!newFavouritesIcon) {
@@ -170,7 +213,6 @@ export class NdeUpdateAccountMenuCustomComponent {
                 <path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Zm0-88 200 86v-518H280v518l200-86Zm0-432H280h400-200Z"></path>
             </svg>`;
             const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
-            this.showDebug && console.log('accdebug reLabelFavourites savedItemsMatIcon=', savedItemsMatIcon);
             !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
 
             // tweak the looknfeel - we want "hollow" icons
@@ -272,8 +314,6 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private moveFavouritesButton = () => {
-        this.reLabelFavourites();
-
         const movedFavouriteId = 'movedFavouriteWrapper';
 
         const movedFavourite = document.getElementById(movedFavouriteId);
@@ -334,7 +374,6 @@ export class NdeUpdateAccountMenuCustomComponent {
     <span class="mat-mdc-menu-item-text">
         <span _ngcontent-ng-purchaseR="">Purchase request</span>
     </span>
-    <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
 </a>
  </li>`;
         !!newPurchaseRequestItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newPurchaseRequestItemElementTemplate.content.cloneNode(true));
@@ -357,9 +396,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         return result;
     }
 
-    private addResourceDeliveryItemButton = () => {
-        const newResourceDeliveryItemId = 'newResourceDeliveryItem';
-
+    private addResourceDeliveryItemButton = (newResourceDeliveryItemId: string) => {
         const newResourceDeliveryItem = document.getElementById(newResourceDeliveryItemId);
         if (!!newResourceDeliveryItem) {
             return; // already done
@@ -388,7 +425,6 @@ export class NdeUpdateAccountMenuCustomComponent {
         <span class="mat-mdc-menu-item-text">
             <span _ngcontent-ng-purchaseR="">Resource delivery request </span>
         </span>
-        <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
     </a>
 </li>`;
         !!newResourceDeliveryItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newResourceDeliveryItemElementTemplate.content.cloneNode(true));
