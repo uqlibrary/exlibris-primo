@@ -9,19 +9,17 @@ import { Component } from '@angular/core';
 })
 export class NdeServicesPageBannerCustomComponent {
     ngOnInit(): void {
-        const isServicePageByUrl = window.location.pathname === '/nde/openurl';
-
         let showServicesBanner = true
 
+        const isServicePageByUrl = window.location.pathname === '/nde/openurl';
         if (!isServicePageByUrl) {
-            // items with this url are loaded from unvetted data and might be... non-optimal
+            // items with this url are loaded from unvetted data and might be complete rubbish
             showServicesBanner = false;
         }
 
-        // &rfr_id=info:sid%252Fprimo.exlibrisgroup.com-bX-Bx
+        // the url says we are on a Services page, but certain types don't show the banner
         if (showServicesBanner) {
-            // the url says we are on a Services page, but certain types don't show the banner
-
+            // &rfr_id=info:sid%252Fprimo.exlibrisgroup.com-bX-Bx
             const urlParams = new URLSearchParams(window.location.search);
             const rfrIds = urlParams.getAll('rfr_id')
             rfrIds.forEach(rfrid => {
@@ -32,15 +30,22 @@ export class NdeServicesPageBannerCustomComponent {
         }
 
         if (showServicesBanner) {
-            // the url says we are on a Services page, but if we have the item in stock, don't show the banner
-            const availabilityStatusLine = document.querySelector('.availability-status');
-            if (!!availabilityStatusLine && !availabilityStatusLine.classList.contains('no_inventory')) {
-                showServicesBanner = false;
-            }
-        }
+            const waitOnAvailability = setInterval(() => {
+                const availabilityStatusLine = document.querySelector('.availability-status button');
+                if (!availabilityStatusLine) {
+                    return;
+                }
+                clearInterval(waitOnAvailability);
 
-        if (showServicesBanner) {
-            this.addServicesPageWarningBanner();
+                // the url says we are on a Services page, but if we have the item in stock, don't show the banner
+                if (!availabilityStatusLine.getAttribute('aria-label')?.startsWith('Not available')) {
+                    showServicesBanner = false;
+                }
+
+                if (showServicesBanner) {
+                    this.addServicesPageWarningBanner();
+                }
+            }, 100);
         }
     }
 
