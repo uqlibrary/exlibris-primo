@@ -17,23 +17,26 @@ export class NdeUpdateAccountMenuCustomComponent {
             }
 
             const userNameAreaButton = document.querySelector('nde-user-area button');
+            console.log('accdebug userNameAreaButton=', userNameAreaButton);
             if (!!userNameAreaButton) { // should always be present
                 this.attachArrowButtons(userNameAreaButton);
             }
 
             if (isLoggedOut) {
+                console.log('accdebug logged OUT');
                 this.removeAccountButton();
                 this.addFeedbackButton();
 
                 this.reLabelFavourites('Session favourites');
                 this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
+                console.log('accdebug logged IN');
                 this.reLabelAccountButton();
                 this.styleUserName();
                 this.addExtraMenuItems();
                 this.addFeedbackButton(); // must happen before logout move
 
-                this.reLabelFavourites();
+                // this.reLabelFavourites(); // done in moveFavouritesButton
                 this.reLabelSearchHistory(); // probably deleted in configuration
 
                 this.moveFavouritesButton();
@@ -136,10 +139,12 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private reLabelFavourites(newLabel: string = 'Favourites') {
+        console.log('accdebug reLabelFavourites start newLabel=', newLabel);
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
 
         // update the label
         const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
+        console.log('accdebug reLabelFavourites savedItemsElement=', savedItemsElement);
         !!savedItemsElement && (savedItemsElement.textContent = newLabel);
 
         if (!newFavouritesIcon) {
@@ -154,6 +159,7 @@ export class NdeUpdateAccountMenuCustomComponent {
                 <path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Zm0-88 200 86v-518H280v518l200-86Zm0-432H280h400-200Z"></path>
             </svg>`;
             const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
+            console.log('accdebug reLabelFavourites savedItemsMatIcon=', savedItemsMatIcon);
             !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
 
             // tweak the looknfeel - we want "hollow" icons
@@ -255,16 +261,23 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private moveFavouritesButton = () => {
+        this.reLabelFavourites();
+
         const movedFavouriteId = 'movedFavouriteWrapper';
 
         const movedFavourite = document.getElementById(movedFavouriteId);
         if (!!movedFavourite) {
+            console.log('accdebug moveFavouritesButton not found', movedFavourite);
             return; // done
         }
 
+        console.log('accdebug moveFavouritesButton movedFavourite=', movedFavourite);
         const wrappingUl = this.getSubAccountMenu();
+        console.log('accdebug moveFavouritesButton wrappingUl=', wrappingUl);
         const favouritesItem = document.querySelector('[aria-label="Go to my saved records"]');
+        console.log('accdebug moveFavouritesButton favouritesItem=', favouritesItem);
         if (!favouritesItem || !wrappingUl) {
+            console.log('accdebug moveFavouritesButton fail, no fav/wrap');
             return;
         }
 
