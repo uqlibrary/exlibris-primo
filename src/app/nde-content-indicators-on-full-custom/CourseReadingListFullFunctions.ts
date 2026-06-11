@@ -1,70 +1,33 @@
-import {Component, inject, OnInit} from '@angular/core';
-// import {HttpClient, HttpClientJsonpModule, HttpClientModule} from '@angular/common/http';
-// import {NgIf} from '@angular/common';
-import {createFeatureSelector, Store} from '@ngrx/store';
-import {getPnx} from "../shared/getPnx";
-import {CRLiconHtml, getListTalisUrls} from "../shared/getListTalisUrls";
+import {inject} from '@angular/core';
+import {Store} from '@ngrx/store';
+import {selectSearchState} from "../shared/common";
+import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
+import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 interface TalisCourse {
     url: string;
     displayName: string;
 }
 
-// Selector
-export const selectSearchState = createFeatureSelector<any>('Search');
-
-@Component({
-    selector: 'custom-nde-display-course-reading-list-custom',
-    standalone: true,
-    // imports: [NgIf], // required here if used in the html template
-    templateUrl: './nde-display-course-reading-list-custom.component.html',
-    // imports: [
-    //     HttpClientModule,
-    //     HttpClientJsonpModule,
-    // ],
-})
-export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
+export class CourseReadingListFullFunctions {
     private store = inject(Store);
-    // private http = inject(HttpClient);
     searchState = this.store.selectSignal(selectSearchState);
-
-    courses: TalisCourse[] = [];
-    showReadingLists = false;
 
     private readonly UNSAFE_READING_LIST_BASE_URL = 'http://lr.library.uq.edu.au';
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
 
-    ngOnInit(): void {
-        if (!this.isFullDisplayPage()) {
+    private courses: TalisCourse[] = [];
+    private showReadingLists = false;
+
+    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface) => {
+        const listTalisUrls = getListTalisUrls(pnx);
+        if (!listTalisUrls || listTalisUrls.length === 0) {
             return;
         }
 
-        this.displayReadingListIndicator();
-    }
-
-    private isFullDisplayPage(): boolean {
-        return window.location.pathname.includes('fulldisplay');
-    }
-
-    private displayReadingListIndicator = () => {
-        const awaitPnx = setInterval(() => {
-            // once the pnx data is available, get the talis url list
-            const item = document.querySelector('.search-result-item');
-            const pnx = getPnx(this.searchState(), item);
-            if (!pnx?.control?.recordid) {
-                return;
-            }
-            clearInterval(awaitPnx);
-
-            const listTalisUrls = getListTalisUrls(pnx);
-            if (!listTalisUrls || listTalisUrls.length === 0) {
-                return;
-            }
-
-            if (!!listTalisUrls && listTalisUrls.length > 0) {
-                this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
-            }
-        }, 1000);
+        if (!!listTalisUrls && listTalisUrls.length > 0) {
+            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
+        }
     }
 
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
@@ -165,7 +128,7 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
 
         // we use this approach rather than "put this in the angular .html" because we need this block _in the flow_ for layout reasons, not stuck at the bottom
         let htmlContent = '' +
-`<div id="nui.brief.results.tabs.crl" _ngcontent-ng-crl="" tabindex="-1" class="ng-star-inserted crl-list-area">
+            `<div id="nui.brief.results.tabs.crl" _ngcontent-ng-crl="" tabindex="-1" class="ng-star-inserted crl-list-area">
     <nde-full-display-service-container _ngcontent-ng-crl="" _nghost-ng-crl="" class="ng-star-inserted">
         <div _ngcontent-ng-crl="">
             <h2 _ngcontent-ng-crl="" class="visually-hidden">Course reading lists</h2>
@@ -283,7 +246,7 @@ export class NdeDisplayCourseReadingListCustomComponent implements OnInit {
     private addCourseResourceIndicatorToHeader() {
         const template = document.createElement('template');
         // _course_reading_icon.scss file in reusable repo duplicates styles found on built in icons via _ngcontent-ng-crl indicator
-        template.innerHTML = CRLiconHtml;
+        template.innerHTML = courseReadingListIndicatorHtml();
         const iconlist = document.querySelector('.record-indication-wrapper');
         !!iconlist && iconlist.appendChild(template.content.cloneNode(true));
     }

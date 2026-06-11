@@ -2,9 +2,7 @@ import {Component, ElementRef, inject, OnInit} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {createFeatureSelector, Store} from '@ngrx/store';
 import {getPnx} from "../shared/getPnx";
-
-// Selector
-export const selectSearchState = createFeatureSelector<any>('Search');
+import {selectSearchState} from "../shared/common";
 
 @Component({
     selector: 'custom-nde-report-a-problem-custom',
@@ -74,7 +72,7 @@ export class NdeReportAProblemCustomComponent implements OnInit {
         // we may have trimmed in the middle of an encoded char, eg sit%20down trimmed to sit%2
         // which ends up with an 400 Bad Result as the url becomes rubbish
         const maxLengthEncodedChar = "%E2%82%AC";
-        [...Array(maxLengthEncodedChar.length)].map((_) => {
+        [...Array(maxLengthEncodedChar.length)].map((_, i) => {
             try {
                 decodeURIComponent(recordTitle);
             } catch {
