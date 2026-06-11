@@ -11,7 +11,7 @@ const culturalAdviceIconHtml: string =
 export const culturalAdviceIndicatorHtml = (uuid: string)=> {
     const contentIndicatorIconHtml = culturalAdviceIconHtml;
     const testId = 'cultural-advice-icon-label';
-    const contentIndicatorLabel = 'CULTURAL ADVICE';
+    const contentIndicatorLabel = "ADVISORY";
     return contentIndicatorHtml(contentIndicatorIconHtml, testId, contentIndicatorLabel, 'medium');
 }
 
