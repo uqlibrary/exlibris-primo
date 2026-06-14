@@ -234,48 +234,46 @@ export class CourseReadingListFullFunctions {
             }
         });
 
+        // when they tab into the panel header it has a big border and background colour
         const matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
         !!matExpansionHeader && matExpansionHeader.addEventListener("focusin", (event) => {
-            console.log('crl## focusin');
             !matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.add('cdk-focused')
             !matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.add('cdk-keyboard-focused')
         })
         !!matExpansionHeader && matExpansionHeader.addEventListener("focusout", (event) => {
-            console.log('crl## focus out');
             matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.remove('cdk-focused')
             matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.remove('cdk-keyboard-focused')
         })
 
+        const that = this;
         const crlTooltipId = 'crlLabel';
+        let mouseOverPrefix = 'Collapse';
 
         // handle the collapse-expand of the panel, mimicking the built-in
-        let mouseOverPrefix = 'Collapse';
-        // const panelToggleButton = document.getElementById('mat-expansion-panel-header-crl');
         !!matExpansionHeader && matExpansionHeader.addEventListener('click', function (event) {
             event.preventDefault();
 
-            const panel = document.querySelector('nde-full-display-crl');
-
-            const listArea = document.getElementById('uql-accordion-child-crl');
-
-            const panelHeader = panel?.querySelector('mat-expansion-panel-header');
-            panelHeader?.classList.toggle('mat-expanded');
-
-            if (!!listArea) {
-                console.log('crl## visibility=', !!listArea && listArea.style.visibility);
-                console.log('crl## height=', !!listArea && listArea.style.height);
-                panelHeader?.setAttribute(
-                    'aria-expanded',
-                    listArea.style.visibility === 'hidden' ? 'true' : 'false'
-                )
-                mouseOverPrefix = !!listArea && listArea.style.visibility === 'hidden' ? 'Collapse' : 'Expand';
-                listArea.style.visibility = listArea.style.visibility === 'hidden' ? 'visible' : 'hidden';
-
-                listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
-                listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
-            }
-            mouseoutTooltip(crlTooltipId);
+            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
+
+        function isKeyPressed(e: any, charKeyInput: string, numericKeyInput: number) {
+            const keyNumeric = e.charCode || e.keyCode;
+            const keyChar = e.key || e.code;
+            return keyChar === charKeyInput || keyNumeric === numericKeyInput;
+        }
+        function isReturnKeyPressed(e: any) {
+            return isKeyPressed(e, 'Enter', 13);
+        }
+        !!matExpansionHeader && matExpansionHeader.addEventListener('keydown', function (event) {
+            event.preventDefault();
+
+            if (!isReturnKeyPressed(event)) {
+                return;
+            }
+
+            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
+        });
+
         !!matExpansionHeader && matExpansionHeader.addEventListener('mouseover', function (event) {
             const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
             mouseoverTooltip(matExpansionHeader, mouseOverLabel, crlTooltipId);
@@ -284,6 +282,27 @@ export class CourseReadingListFullFunctions {
         !!matExpansionHeader && matExpansionHeader.addEventListener('mouseout', function (event) {
             mouseoutTooltip(crlTooltipId);
         });
+    }
+
+    private togglePanel = (mouseOverPrefix: string, crlTooltipId: string) => {
+        const panel = document.querySelector('nde-full-display-crl');
+
+        const listArea = document.getElementById('uql-accordion-child-crl');
+
+        const panelHeader = panel?.querySelector('mat-expansion-panel-header');
+        panelHeader?.classList.toggle('mat-expanded');
+
+        if (!!listArea) {
+            panelHeader?.setAttribute('aria-expanded', listArea.style.visibility === 'hidden' ? 'true' : 'false'
+            )
+            mouseOverPrefix = !!listArea && listArea.style.visibility === 'hidden' ? 'Collapse' : 'Expand';
+            listArea.style.visibility = listArea.style.visibility === 'hidden' ? 'visible' : 'hidden';
+
+            listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
+            listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
+        }
+        mouseoutTooltip(crlTooltipId);
+        return mouseOverPrefix;
     }
 
     private fixUnsafeReadingListUrl(url: string) {
