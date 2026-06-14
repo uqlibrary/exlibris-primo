@@ -168,7 +168,7 @@ export class CourseReadingListFullFunctions {
 
         let htmlContent = `<nde-full-display-crl _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
-                <mat-expansion-panel _ngcontent-ng-crl="" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
+                <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
                     <mat-expansion-panel-header _ngcontent-ng-crl="" role="button"
                             class="mat-expansion-panel-header mat-focus-indicator with-tooltip-anchor mat-expanded"
                             aria-labelledby="title.Course Reading Lists" id="mat-expansion-panel-header-crl"
@@ -234,12 +234,24 @@ export class CourseReadingListFullFunctions {
             }
         });
 
+        const matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
+        !!matExpansionHeader && matExpansionHeader.addEventListener("focusin", (event) => {
+            console.log('crl## focusin');
+            !matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.add('cdk-focused')
+            !matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.add('cdk-keyboard-focused')
+        })
+        !!matExpansionHeader && matExpansionHeader.addEventListener("focusout", (event) => {
+            console.log('crl## focus out');
+            matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.remove('cdk-focused')
+            matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.remove('cdk-keyboard-focused')
+        })
+
         const crlTooltipId = 'crlLabel';
 
         // handle the collapse-expand of the panel, mimicking the built-in
         let mouseOverPrefix = 'Collapse';
-        const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
-        !!panelToggleButton && panelToggleButton.addEventListener('click', function (event) {
+        // const panelToggleButton = document.getElementById('mat-expansion-panel-header-crl');
+        !!matExpansionHeader && matExpansionHeader.addEventListener('click', function (event) {
             event.preventDefault();
 
             const panel = document.querySelector('nde-full-display-crl');
@@ -264,12 +276,12 @@ export class CourseReadingListFullFunctions {
             }
             mouseoutTooltip(crlTooltipId);
         });
-        !!panelToggleButton && panelToggleButton.addEventListener('mouseover', function (event) {
+        !!matExpansionHeader && matExpansionHeader.addEventListener('mouseover', function (event) {
             const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
-            mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
+            mouseoverTooltip(matExpansionHeader, mouseOverLabel, crlTooltipId);
         });
 
-        !!panelToggleButton && panelToggleButton.addEventListener('mouseout', function (event) {
+        !!matExpansionHeader && matExpansionHeader.addEventListener('mouseout', function (event) {
             mouseoutTooltip(crlTooltipId);
         });
     }
