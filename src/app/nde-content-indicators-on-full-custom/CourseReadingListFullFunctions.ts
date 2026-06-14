@@ -1,6 +1,6 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {selectSearchState} from "../shared/common";
+import {isReturnKeyPressed, selectSearchState} from "../shared/common";
 import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
@@ -256,14 +256,6 @@ export class CourseReadingListFullFunctions {
             mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
 
-        function isKeyPressed(e: any, charKeyInput: string, numericKeyInput: number) {
-            const keyNumeric = e.charCode || e.keyCode;
-            const keyChar = e.key || e.code;
-            return keyChar === charKeyInput || keyNumeric === numericKeyInput;
-        }
-        function isReturnKeyPressed(e: any) {
-            return isKeyPressed(e, 'Enter', 13);
-        }
         !!matExpansionHeader && matExpansionHeader.addEventListener('keydown', function (event) {
             event.preventDefault();
 
