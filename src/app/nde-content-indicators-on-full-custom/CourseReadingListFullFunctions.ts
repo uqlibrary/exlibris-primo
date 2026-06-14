@@ -9,14 +9,14 @@ interface TalisCourse {
     displayName: string;
 }
 
-const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string) => {
+const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string, toolTipId: string) => {
     const rect = button?.getBoundingClientRect();
     const pix = 15 * mouseOverlabel.length;
 
     const tooltipLeft = rect?.left ? rect?.left - (pix / 4) : pix / 4;
     const tooltipTop = (rect?.top ?? 0) + 32;
 
-    const toolTipHtml = `<uql-tooltip class="cdk-overlay-connected-position-bounding-box" dir="ltr" style="top: 0px; left: 0px; height: 100%; width: 100%;">
+    const toolTipHtml = `<uql-tooltip id="${toolTipId}" class="cdk-overlay-connected-position-bounding-box" dir="ltr" style="top: 0px; left: 0px; height: 100%; width: 100%;">
     <div id="cdk-overlay-1" class="cdk-overlay-pane mat-mdc-tooltip-panel-below mat-mdc-tooltip-panel" style="top: ` + tooltipTop + `px; left: ` + tooltipLeft + `px; transform: translateY(8px);">
         <mat-tooltip-component aria-hidden="true" class="ng-star-inserted">
             <div class="mdc-tooltip mat-mdc-tooltip mat-mdc-tooltip-show" style="transform-origin: center top;">
@@ -31,8 +31,8 @@ const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string) => {
     !!template && parent?.appendChild(template.content.cloneNode(true));
 }
 
-const mouseoutTooltip = () => {
-    const tooltip = document.querySelector('uql-tooltip');
+const mouseoutTooltip = (toolTipId: string) => {
+    const tooltip = document.getElementById(toolTipId);
     !!tooltip && tooltip.remove();
 }
 
@@ -234,7 +234,9 @@ export class CourseReadingListFullFunctions {
             }
         });
 
-        // handle the collapse-expand of the panel, mimicking the build-in
+        const crlTooltipId = 'crlLabel';
+
+        // handle the collapse-expand of the panel, mimicking the built-in
         let mouseOverPrefix = 'Collapse';
         const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
         !!panelToggleButton && panelToggleButton.addEventListener('click', function (event) {
@@ -260,15 +262,15 @@ export class CourseReadingListFullFunctions {
                 listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
                 listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
             }
+            mouseoutTooltip(crlTooltipId);
         });
-        const listArea = document.getElementById('uql-accordion-child-crl');
         !!panelToggleButton && panelToggleButton.addEventListener('mouseover', function (event) {
             const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
-            mouseoverTooltip(panelToggleButton, mouseOverLabel);
+            mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
 
         !!panelToggleButton && panelToggleButton.addEventListener('mouseout', function (event) {
-            mouseoutTooltip();
+            mouseoutTooltip(crlTooltipId);
         });
     }
 
