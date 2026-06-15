@@ -256,10 +256,12 @@ export class CourseReadingListFullFunctions {
         });
 
         !!matExpansionHeader && matExpansionHeader.addEventListener('keydown', function (event) {
-            event.preventDefault();
             if (!isReturnKeyPressed(event)) {
                 return;
             }
+
+            event.preventDefault();
+
             mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
 
