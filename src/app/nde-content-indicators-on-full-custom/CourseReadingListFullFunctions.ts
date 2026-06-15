@@ -4,11 +4,6 @@ import {isReturnKeyPressed, selectSearchState} from "../shared/common";
 import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
-interface TalisCourse {
-    url: string;
-    displayName: string;
-}
-
 const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string, toolTipId: string) => {
     const rect = button?.getBoundingClientRect();
     const pix = 15 * mouseOverlabel.length;
@@ -42,9 +37,6 @@ export class CourseReadingListFullFunctions {
 
     private readonly UNSAFE_READING_LIST_BASE_URL = 'http://lr.library.uq.edu.au';
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
-
-    private courses: TalisCourse[] = [];
-    private showReadingLists = false;
 
     private matExpansionHeader: HTMLElement | null = null;
 
@@ -129,30 +121,12 @@ export class CourseReadingListFullFunctions {
                         // addCRLButtontoSidebar();
                     }
                 });
-
-            // Populate the courses array for display
-            this.courses = Object.entries(courseList).map(([url, displayName]) => ({
-                url: url.startsWith(this.UNSAFE_READING_LIST_BASE_URL)
-                    ? url.replace(this.UNSAFE_READING_LIST_BASE_URL, this.SAFE_READING_LIST_BASE_URL)
-                    : url,
-                displayName,
-            }));
-            this.showReadingLists = this.courses.length > 0;
-            /* END needed? */
-
         } catch (e) {
             console.log('Course reading list [full] error', e);
         }
     }
 
     private createAndAppendCourseList(talisCourses: { [s: string]: unknown; } | ArrayLike<unknown>) {
-        // TODO or remove
-        // // in rare instances prm-service-details-after fires twice. When it does, we get 2 CRL. Block this.
-        // const CRLSectionAlreadyAdded = document.getElementById('full-view-section-courseReadingLists');
-        // if (!!CRLSectionAlreadyAdded) { // place the check this late to prevent race conditions
-        //     return;
-        // }
-
         const linkOutIcon: string =
             '<mat-icon style="height: 20px; width: 18px;" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
             '<svg width="16" height="16" viewBox="0 0 24 24">' +
