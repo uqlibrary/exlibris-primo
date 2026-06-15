@@ -164,7 +164,7 @@ export class CourseReadingListFullFunctions {
                     <div class="mat-expansion-panel-content-wrapper">
                         <div role="region" id="uql-accordion-child-crl" class="mat-expansion-panel-content" id="cdk-accordion-child-crl" aria-labelledby=mat-expansion-panel-header-crl">
                             <div class="mat-expansion-panel-body">
-                                <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is on the Reading list for these subjects:</p>
+                                <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is listed on</p>
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
         for (const [url, displayName] of Object.entries(talisCourses) as [string, string][]) {
@@ -178,7 +178,31 @@ export class CourseReadingListFullFunctions {
         }
         htmlContent += `</ul>`;
         if (numberOfReadingLists >= maxNumberReadingListsDisplayed) {
-            htmlContent += `<div class="toggle-show-all-button"><button id="toggle-long-crl" class="collapsed"><span>${showAllButtonLabel}</span><span style="display: none">Show less</span></button></div>`;
+            htmlContent += `<div class="toggle-show-all-button">
+    <button id="toggle-long-crl" _ngcontent-ng-crl="" mat-button="" data-qa="full-display-crl-show-more-btn" mat-ripple-loader-class-name="mat-mdc-button-ripple" class="mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base" aria-label="Click for more suggestions">
+        <span class="mat-mdc-button-persistent-ripple mdc-button__ripple"></span>
+        <span class="mdc-button__label">
+            <span _ngcontent-ng-crl="" class="button-label flex-row">
+                <span id="toggle-long-crl-label">
+                    ${showAllButtonLabel}
+                </span>
+                <mat-icon _ngcontent-ng-crl="" role="img" class="toggle-long-crl-icon mat-icon notranslate mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Arrow-down-black">
+                    <svg width="100%" height="100%" viewBox="0 0 24 25" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+                        <mask id="mask0_882_2211" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
+                            <rect y="0.5" width="24" height="24"></rect>
+                        </mask>
+                        <g mask="url('/nde/fulldisplay?context=PC&amp;vid=61UQ_INST:61UQ_NDEUI_DALTS&amp;search_scope=61UQ_All&amp;lang=en&amp;docid=cdi_proquest_miscellaneous_3198305176#mask0_882_2211')">
+                            <path d="M11.9998 15.45C11.8665 15.45 11.7415 15.4292 11.6248 15.3875C11.5081 15.3458 11.3998 15.275 11.2998 15.175L6.6998 10.575C6.51647 10.3917 6.4248 10.1583 6.4248 9.87499C6.4248 9.59166 6.51647 9.35833 6.6998 9.17499C6.88314 8.99166 7.11647 8.89999 7.3998 8.89999C7.68314 8.89999 7.91647 8.99166 8.0998 9.17499L11.9998 13.075L15.8998 9.17499C16.0831 8.99166 16.3165 8.89999 16.5998 8.89999C16.8831 8.89999 17.1165 8.99166 17.2998 9.17499C17.4831 9.35833 17.5748 9.59166 17.5748 9.87499C17.5748 10.1583 17.4831 10.3917 17.2998 10.575L12.6998 15.175C12.5998 15.275 12.4915 15.3458 12.3748 15.3875C12.2581 15.4292 12.1331 15.45 11.9998 15.45Z"></path>
+                        </g>
+                    </svg>
+                </mat-icon>
+            </span>
+        </span>
+        <span class="mat-focus-indicator"></span>
+        <span class="mat-mdc-button-touch-target"></span>
+        <span class="mat-ripple mat-mdc-button-ripple"></span>
+    </button>
+</div>`;
         }
         htmlContent += `</div>
                 </div>
@@ -194,17 +218,21 @@ export class CourseReadingListFullFunctions {
 
         // handle the "Show all" / "Show less" button click when there are many courses
         const longToggleButton = document.getElementById('toggle-long-crl');
+        const longToggleButtonLabel = document.getElementById('toggle-long-crl-label');
+        // const longToggleButtonIcon = document.getElementById('toggle-long-crl-icon');
         !!longToggleButton && longToggleButton.addEventListener('click', function (event) {
             const hiddenCRL = document.querySelectorAll(`.${crlHiddenClass}`);
             if (hiddenCRL?.length > 0) {
                 // hiding the entries - show them
                 hiddenCRL.forEach(c => c.classList.remove(crlHiddenClass))
-                longToggleButton.innerHTML = showLessButtonLabel;
+                !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = showLessButtonLabel);
+                // !!longToggleButtonIcon && (longToggleButtonIcon.style.transform = 'none');
             } else {
                 // visible entries - hide them
                 const hideableCRL = document.querySelectorAll(`.${crlHideableClass}`);
                 hideableCRL?.forEach(c =>  c.classList.add(crlHiddenClass))
-                longToggleButton.innerHTML = showAllButtonLabel
+                !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = showAllButtonLabel);
+                // !!longToggleButtonIcon && (longToggleButtonIcon.style.transform = 'rotate(180deg)');
                 // scroll the top into view, rather than leaving it floating in the midle of the page
                 document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
             }
