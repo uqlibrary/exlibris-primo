@@ -19,6 +19,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
-    ['nde-filters-group-after', NdeCountOfFiltersCustomComponent],
+    ['nde-search-filters-side-nav-after', NdeCountOfFiltersCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
 ]);

@@ -12,3 +12,16 @@ nde-logo {
 body.custom-nde-theme nde-user-area button span {
     background-color: transparent !important;
 }
+
+nde-search-filters-side-nav .mat-mdc-checkbox .mat-internal-form-field label > div {
+            max-width: 185px;
+
+
+}
+/*nde-search-filters-side-nav {*/
+/*    .mat-mdc-checkbox .mat-internal-form-field {*/
+/*        label > div {*/
+/*            max-width: 185px;*/
+/*        }*/
+/*    }*/
+/*}*/

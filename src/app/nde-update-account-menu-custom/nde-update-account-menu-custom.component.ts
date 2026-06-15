@@ -1,11 +1,12 @@
 import {Component} from '@angular/core';
+import {currentEnvironmentId} from "../shared/common";
 
 @Component({
-  selector: 'custom-nde-update-account-menu-custom',
-  standalone: true,
-  imports: [],
-  templateUrl: './nde-update-account-menu-custom.component.html',
-  styleUrl: './nde-update-account-menu-custom.component.scss'
+    selector: 'custom-nde-update-account-menu-custom',
+    standalone: true,
+    imports: [],
+    templateUrl: './nde-update-account-menu-custom.component.html',
+    styleUrl: './nde-update-account-menu-custom.component.scss'
 })
 export class NdeUpdateAccountMenuCustomComponent {
     showDebug = false;
@@ -102,7 +103,7 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private createAccountButtonOnMenu = (accountButtonAriaLabel: string, favouritesMenuItem: any) => {
-        const currentVid = this.currentEnvironmentId();
+        const currentVid = currentEnvironmentId();
         const href = `/nde/account/overview?vid=${currentVid}&lang=en`;
         const accountButtonHtml = `<a href="${href}" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator link-reset ng-star-inserted" aria-label="${accountButtonAriaLabel}" role="menuitem" aria-disabled="false">
         <mat-icon role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="accountOverview">
@@ -347,7 +348,7 @@ export class NdeUpdateAccountMenuCustomComponent {
             return;
         }
 
-        const purchaseRequestLink = `/nde/purchaseRequest?vid=${(this.currentEnvironmentId())}&lang=en`;
+        const purchaseRequestLink = `/nde/purchaseRequest?vid=${(currentEnvironmentId())}&lang=en`;
 
         // https://www.streamlinehq.com/icons/download/saving-bank-1--27627
         const newPurchaseRequestItemElementTemplate = document.createElement('template');
@@ -374,23 +375,6 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!newPurchaseRequestItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newPurchaseRequestItemElementTemplate.content.cloneNode(true));
     }
 
-    private currentEnvironmentId = () => {
-        let result;
-
-        const paramName ='vid';
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has(paramName)) {
-            result = urlParams.get(paramName);
-        } else {
-            const pathSegments = window.location.pathname.split('/');
-            const institutionSegment = pathSegments.find(segment =>
-                segment.includes('61UQ_INST:')
-            );
-            result = institutionSegment || null;
-        }
-        return result;
-    }
-
     private addResourceDeliveryItemButton = (newResourceDeliveryItemId: string) => {
         const newResourceDeliveryItem = document.getElementById(newResourceDeliveryItemId);
         if (!!newResourceDeliveryItem) {
@@ -402,7 +386,7 @@ export class NdeUpdateAccountMenuCustomComponent {
             return;
         }
 
-        const resourceDeliveryLink = `/nde/blankIll?vid=${(this.currentEnvironmentId())}&lang=en`;
+        const resourceDeliveryLink = `/nde/blankIll?vid=${(currentEnvironmentId())}&lang=en`;
 
         const newResourceDeliveryItemElementTemplate = document.createElement('template');
         // https://www.streamlinehq.com/icons/ultimate-regular-free?search=delivery&icon=ico_xMA5XVKN6GelEGXS
