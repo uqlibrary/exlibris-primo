@@ -46,6 +46,8 @@ export class CourseReadingListFullFunctions {
     private courses: TalisCourse[] = [];
     private showReadingLists = false;
 
+    private matExpansionHeader: HTMLElement | null = null;
+
     public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface) => {
         const listTalisUrls = getListTalisUrls(pnx);
         if (!listTalisUrls || listTalisUrls.length === 0) {
@@ -234,15 +236,17 @@ export class CourseReadingListFullFunctions {
             }
         });
 
-        // when they tab into the panel header it gets a big border and background colour
-        const matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
-        !!matExpansionHeader && matExpansionHeader.addEventListener("focusin", (event) => {
-            !matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.add('cdk-focused')
-            !matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.add('cdk-keyboard-focused')
+        this.matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
+
+        // when they tab into the panel header, give it a big border and background colour
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusin", (event) => {
+            if (!!this.matExpansionHeader) {
+                !this.matExpansionHeader.classList.contains('cdk-focused') && this.matExpansionHeader.classList.add('cdk-focused')
+                !this.matExpansionHeader.classList.contains('cdk-keyboard-focused') && this.matExpansionHeader.classList.add('cdk-keyboard-focused')
+            }
         })
-        !!matExpansionHeader && matExpansionHeader.addEventListener("focusout", (event) => {
-            matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.remove('cdk-focused')
-            matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.remove('cdk-keyboard-focused')
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusout", (event) => {
+            this.removeClickStyles();
         })
 
         const that = this;
@@ -250,32 +254,35 @@ export class CourseReadingListFullFunctions {
         let mouseOverPrefix = 'Collapse';
 
         // handle the collapse-expand of the panel, mimicking the built-in
-        !!matExpansionHeader && matExpansionHeader.addEventListener('click', function (event) {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mousedown', function (event) {
             event.preventDefault();
             mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
-
-        !!matExpansionHeader && matExpansionHeader.addEventListener('keydown', function (event) {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('keydown', function (event) {
             if (!isReturnKeyPressed(event)) {
                 return;
             }
-
             event.preventDefault();
-
             mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
 
-        !!matExpansionHeader && matExpansionHeader.addEventListener('mouseover', function (event) {
+        // supply tooltip on hover
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function (event) {
             const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
             const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
             !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
-
-        !!matExpansionHeader && matExpansionHeader.addEventListener('mouseout', function (event) {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function (event) {
             mouseoutTooltip(crlTooltipId);
         });
     }
 
+    private removeClickStyles = () => {
+        if (!!this.matExpansionHeader) {
+            this.matExpansionHeader.classList.contains('cdk-focused') && this.matExpansionHeader.classList.remove('cdk-focused')
+            this.matExpansionHeader.classList.contains('cdk-keyboard-focused') && this.matExpansionHeader.classList.remove('cdk-keyboard-focused')
+        }
+    }
     private togglePanel = (mouseOverPrefix: string, crlTooltipId: string) => {
         const panel = document.querySelector('nde-full-display-crl');
 
@@ -293,6 +300,9 @@ export class CourseReadingListFullFunctions {
             listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
             listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
         }
+
+        this.removeClickStyles();
+
         mouseoutTooltip(crlTooltipId);
         return mouseOverPrefix;
     }
