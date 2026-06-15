@@ -1,6 +1,6 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {selectSearchState} from "../shared/common";
+import {isReturnKeyPressed, selectSearchState} from "../shared/common";
 import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
@@ -9,14 +9,14 @@ interface TalisCourse {
     displayName: string;
 }
 
-const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string) => {
+const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string, toolTipId: string) => {
     const rect = button?.getBoundingClientRect();
     const pix = 15 * mouseOverlabel.length;
 
     const tooltipLeft = rect?.left ? rect?.left - (pix / 4) : pix / 4;
     const tooltipTop = (rect?.top ?? 0) + 32;
 
-    const toolTipHtml = `<uql-tooltip class="cdk-overlay-connected-position-bounding-box" dir="ltr" style="top: 0px; left: 0px; height: 100%; width: 100%;">
+    const toolTipHtml = `<uql-tooltip id="${toolTipId}" class="cdk-overlay-connected-position-bounding-box" dir="ltr" style="top: 0px; left: 0px; height: 100%; width: 100%;">
     <div id="cdk-overlay-1" class="cdk-overlay-pane mat-mdc-tooltip-panel-below mat-mdc-tooltip-panel" style="top: ` + tooltipTop + `px; left: ` + tooltipLeft + `px; transform: translateY(8px);">
         <mat-tooltip-component aria-hidden="true" class="ng-star-inserted">
             <div class="mdc-tooltip mat-mdc-tooltip mat-mdc-tooltip-show" style="transform-origin: center top;">
@@ -31,8 +31,8 @@ const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string) => {
     !!template && parent?.appendChild(template.content.cloneNode(true));
 }
 
-const mouseoutTooltip = () => {
-    const tooltip = document.querySelector('uql-tooltip');
+const mouseoutTooltip = (toolTipId: string) => {
+    const tooltip = document.getElementById(toolTipId);
     !!tooltip && tooltip.remove();
 }
 
@@ -168,7 +168,7 @@ export class CourseReadingListFullFunctions {
 
         let htmlContent = `<nde-full-display-crl _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
-                <mat-expansion-panel _ngcontent-ng-crl="" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
+                <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
                     <mat-expansion-panel-header _ngcontent-ng-crl="" role="button"
                             class="mat-expansion-panel-header mat-focus-indicator with-tooltip-anchor mat-expanded"
                             aria-labelledby="title.Course Reading Lists" id="mat-expansion-panel-header-crl"
@@ -216,7 +216,7 @@ export class CourseReadingListFullFunctions {
         // Insert the course list as the first child of the target element
         !!targetElement && targetElement.prepend(template.content.cloneNode(true));
 
-        // handle the show-all show-less click when there are many courses
+        // handle the "Show all" / "Show less" button click when there are many courses
         const longToggleButton = document.getElementById('toggle-long-crl');
         !!longToggleButton && longToggleButton.addEventListener('click', function (event) {
             const hiddenCRL = document.querySelectorAll(`.${crlHiddenClass}`);
@@ -234,42 +234,65 @@ export class CourseReadingListFullFunctions {
             }
         });
 
-        // handle the collapse-expand of the panel, mimicking the build-in
+        // when they tab into the panel header it gets a big border and background colour
+        const matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
+        !!matExpansionHeader && matExpansionHeader.addEventListener("focusin", (event) => {
+            !matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.add('cdk-focused')
+            !matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.add('cdk-keyboard-focused')
+        })
+        !!matExpansionHeader && matExpansionHeader.addEventListener("focusout", (event) => {
+            matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.remove('cdk-focused')
+            matExpansionHeader.classList.contains('cdk-keyboard-focused') && matExpansionHeader.classList.remove('cdk-keyboard-focused')
+        })
+
+        const that = this;
+        const crlTooltipId = 'crlLabel';
         let mouseOverPrefix = 'Collapse';
-        const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
-        !!panelToggleButton && panelToggleButton.addEventListener('click', function (event) {
+
+        // handle the collapse-expand of the panel, mimicking the built-in
+        !!matExpansionHeader && matExpansionHeader.addEventListener('click', function (event) {
             event.preventDefault();
+            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
+        });
 
-            const panel = document.querySelector('nde-full-display-crl');
-
-            const listArea = document.getElementById('uql-accordion-child-crl');
-
-            const panelHeader = panel?.querySelector('mat-expansion-panel-header');
-            panelHeader?.classList.toggle('mat-expanded');
-
-            if (!!listArea) {
-                console.log('crl## visibility=', !!listArea && listArea.style.visibility);
-                console.log('crl## height=', !!listArea && listArea.style.height);
-                panelHeader?.setAttribute(
-                    'aria-expanded',
-                    listArea.style.visibility === 'hidden' ? 'true' : 'false'
-                )
-                mouseOverPrefix = !!listArea && listArea.style.visibility === 'hidden' ? 'Collapse' : 'Expand';
-                listArea.style.visibility = listArea.style.visibility === 'hidden' ? 'visible' : 'hidden';
-
-                listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
-                listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
+        !!matExpansionHeader && matExpansionHeader.addEventListener('keydown', function (event) {
+            event.preventDefault();
+            if (!isReturnKeyPressed(event)) {
+                return;
             }
-        });
-        const listArea = document.getElementById('uql-accordion-child-crl');
-        !!panelToggleButton && panelToggleButton.addEventListener('mouseover', function (event) {
-            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
-            mouseoverTooltip(panelToggleButton, mouseOverLabel);
+            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
 
-        !!panelToggleButton && panelToggleButton.addEventListener('mouseout', function (event) {
-            mouseoutTooltip();
+        !!matExpansionHeader && matExpansionHeader.addEventListener('mouseover', function (event) {
+            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
+            const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
+            !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
+
+        !!matExpansionHeader && matExpansionHeader.addEventListener('mouseout', function (event) {
+            mouseoutTooltip(crlTooltipId);
+        });
+    }
+
+    private togglePanel = (mouseOverPrefix: string, crlTooltipId: string) => {
+        const panel = document.querySelector('nde-full-display-crl');
+
+        const listArea = document.getElementById('uql-accordion-child-crl');
+
+        const panelHeader = panel?.querySelector('mat-expansion-panel-header');
+        panelHeader?.classList.toggle('mat-expanded');
+
+        if (!!listArea) {
+            panelHeader?.setAttribute('aria-expanded', listArea.style.visibility === 'hidden' ? 'true' : 'false'
+            )
+            mouseOverPrefix = !!listArea && listArea.style.visibility === 'hidden' ? 'Collapse' : 'Expand';
+            listArea.style.visibility = listArea.style.visibility === 'hidden' ? 'visible' : 'hidden';
+
+            listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
+            listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
+        }
+        mouseoutTooltip(crlTooltipId);
+        return mouseOverPrefix;
     }
 
     private fixUnsafeReadingListUrl(url: string) {

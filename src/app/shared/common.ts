@@ -18,3 +18,12 @@ export const contentIndicatorHtml= (contentIndicatorIconHtml: string, testId: st
     </div>
 </div>`;
 }
+
+function isKeyPressed(e: any, charKeyInput: string, numericKeyInput: number) {
+    const keyNumeric = e.charCode || e.keyCode;
+    const keyChar = e.key || e.code;
+    return keyChar === charKeyInput || keyNumeric === numericKeyInput;
+}
+export function isReturnKeyPressed(e: any) {
+    return isKeyPressed(e, 'Enter', 13);
+}
