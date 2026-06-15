@@ -216,7 +216,7 @@ export class CourseReadingListFullFunctions {
         // Insert the course list as the first child of the target element
         !!targetElement && targetElement.prepend(template.content.cloneNode(true));
 
-        // handle the show-all show-less click when there are many courses
+        // handle the "Show all" / "Show less" button click when there are many courses
         const longToggleButton = document.getElementById('toggle-long-crl');
         !!longToggleButton && longToggleButton.addEventListener('click', function (event) {
             const hiddenCRL = document.querySelectorAll(`.${crlHiddenClass}`);
@@ -234,7 +234,7 @@ export class CourseReadingListFullFunctions {
             }
         });
 
-        // when they tab into the panel header it has a big border and background colour
+        // when they tab into the panel header it gets a big border and background colour
         const matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
         !!matExpansionHeader && matExpansionHeader.addEventListener("focusin", (event) => {
             !matExpansionHeader.classList.contains('cdk-focused') && matExpansionHeader.classList.add('cdk-focused')
@@ -252,23 +252,21 @@ export class CourseReadingListFullFunctions {
         // handle the collapse-expand of the panel, mimicking the built-in
         !!matExpansionHeader && matExpansionHeader.addEventListener('click', function (event) {
             event.preventDefault();
-
             mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
 
         !!matExpansionHeader && matExpansionHeader.addEventListener('keydown', function (event) {
             event.preventDefault();
-
             if (!isReturnKeyPressed(event)) {
                 return;
             }
-
             mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
         });
 
         !!matExpansionHeader && matExpansionHeader.addEventListener('mouseover', function (event) {
             const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
-            mouseoverTooltip(matExpansionHeader, mouseOverLabel, crlTooltipId);
+            const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
+            !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
 
         !!matExpansionHeader && matExpansionHeader.addEventListener('mouseout', function (event) {
