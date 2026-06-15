@@ -1,4 +1,15 @@
 import {Component, ElementRef, inject} from '@angular/core';
+import {currentEnvironmentId} from "../shared/common";
+
+interface SearchResponse {
+    facets: [{
+        name: string,
+        values: {
+            value: string,
+            count: number,
+        }[],
+    }] | undefined
+}
 
 @Component({
     selector: 'custom-nde-count-of-filters-custom',
@@ -13,9 +24,10 @@ export class NdeCountOfFiltersCustomComponent {
 
     ngOnInit(): void {
         this.elementRoot = this.findHostRecordIndications();
-        const standardHtml = '<span class="filter-results-count ng-star-inserted">(RECORD_COUNT)</span>'
+        const standardHtml = '<span class="filter-results-count ng-star-inserted">(RECORD_COUNT)</span>';
 
         // get all entries that are missing the count display (in practice this is New records only - Show only has no displayed count, but doesn't provide the data in the aria-label)
+        // similar, but not identical code below in addCountsOnShowOnly
         const lines = this.elementRoot?.querySelectorAll('nde-filters-value label.mdc-label:has(button.facet-name):not(:has(button.facet-name + span.filter-results-count))');
         lines?.forEach(line => {
             const button = line?.querySelector('button');
@@ -31,14 +43,101 @@ export class NdeCountOfFiltersCustomComponent {
                 !!htmlTemplate && button?.after(htmlTemplate.content.cloneNode(true));
             }
          })
+
+        this.addCountsOnShowOnly();
     }
 
-    private findHostRecordIndications(soughtElement: string = 'nde-filters-group'): HTMLElement | null {
+    async fetchAPI(urlPath: string, headers: object = {}): Promise<any> {
+        /* istanbul ignore next */
+        const options = {
+            'Content-Type': 'application/json',
+            ...headers,
+        };
+
+        let urlPrefix = 'https://api.library.uq.edu.au/$VERSION$/primo/something'; // TBA
+        let urlSuffix = '';
+        const vidParam = currentEnvironmentId();
+        // const productionDomain = "search.library.uq.edu.au";
+        // if (window.location.hostname === productionDomain) {
+        //     if (vidParam === '61UQ_INST:61UQ_APPDEV') {
+        //         urlPrefix = urlPrefix.replace('$VERSION$', 'v1');
+        //     } else {
+        //         urlPrefix = urlPrefix.replace('$VERSION$', 'staging');
+        //     }
+        // } else if (window.location.hostname === 'localhost') { // localhost
+            urlPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
+            // no api key in code - use by param or counts wont be called
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('sp')) {
+                const apiKey = urlParams.get('sp');
+                urlSuffix = '&apikey=' + apiKey;
+            }
+        // } else { // sandbox domain
+        //     urlPrefix = urlPrefix.replace('$VERSION$', 'staging');
+        // }
+
+        const finalUrl = urlPrefix + urlPath + urlSuffix;
+        let response;
+        try {
+            response = await fetch(finalUrl, {
+                headers: options,
+            });
+        } catch (e) {
+            console.log('[NCFC03]', 'fail: ', finalUrl, e);
+        }
+
+        if (!response?.ok) {
+            let message = 'An error has occurred: ';
+            message += !!response ? `${response?.status} ${response?.statusText}` : 'unknown';
+            window.location.hostname === 'localhost' && console.log('[NCFC02]: ' + message);
+            throw new Error(`An error has occured: ${message}`);
+        }
+        return await response?.json();
+    }
+
+    async addCountsOnShowOnly() {
+        // this needs to be fancied to take all the current url parameters, per the api spec
+        const url = '?vid=61UQ_INST%3A61UQ_NDEUI_DALTS&tab=61UQ_All&scope=61UQ_All&q=title%2Ccontains%2Ccows&newspapersActive=true' +
+        '&pcAvailability=true&lang=eng&offset=0&limit=10&sort=rank&getMore=0&conVoc=true&inst=61UQ_INST&skipDelivery=true' +
+        '&disableSplitFacets=true';
+
+        const showOnlySectionId = 'tlevel'; // the label that matches the "Show only" page section we want to add Counts to
+
+        const html = '<span class="filter-results-count ng-star-inserted">(RECORD_COUNT)</span>';
+
+        await this.fetchAPI(url, {})
+            .then((response: SearchResponse) => {
+                // similar, but not identical code above in ngOnInit
+                response?.facets?.find(f => f.name === showOnlySectionId)?.values?.forEach(record => {
+                    const label = record?.value;
+                    const recordCount = record?.count
+                        ?.toString()
+                        ?.replace(/[^\d,]/g, '') // remove non-numeric values
+                        ?.trim() || '';
+
+                    if (!!label && !!recordCount) {
+                        const newHtml = html.replace('RECORD_COUNT', this.numberWithCommas(recordCount));
+
+                        // find the page element to insert the count into
+                        const button = document.querySelector(`nde-search-filters-side-nav [data-qa="tlevel.${label}"]`)
+
+                        const htmlTemplate = document.createElement('template');
+                        htmlTemplate.innerHTML = newHtml;
+                        !!htmlTemplate && button?.after(htmlTemplate.content.cloneNode(true));
+                    }
+                });
+            })
+            .catch((error) => {
+                console.log('[NCFC01] error loading primo search api ', error);
+            });
+    }
+
+    private findHostRecordIndications(soughtElement: string = 'nde-search-filters-side-nav'): HTMLElement | null {
         const nativeEl: HTMLElement = this.elementRef.nativeElement;
 
         let cursor: HTMLElement | null = nativeEl;
         while (cursor) {
-            // Check previous siblings at this level for nde-filters-group
+            // Check previous siblings at this level for nde-search-filters-side-nav
             let sibling = cursor.previousElementSibling as HTMLElement | null;
             while (sibling) {
                 if (sibling.tagName.toLowerCase() === soughtElement) {
