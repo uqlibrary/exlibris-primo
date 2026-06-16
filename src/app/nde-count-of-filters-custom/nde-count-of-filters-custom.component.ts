@@ -95,6 +95,17 @@ export class NdeCountOfFiltersCustomComponent {
         return await response?.json();
     }
 
+    /*
+     * in the filter sidebar, there are various groups that show counts for each filter type
+     * this is a useful indicator to users of what size data that filter would return
+     * on one of them the "Show only" doesnt provide the count - but the Primo Search api provides, so here we call it
+     * refs:
+     * API key management: https://developers.exlibrisgroup.com/manage/keys/
+     * swagger doc https://developers.exlibrisgroup.com/console/?url=/wp-content/uploads/primo/openapi/primoSearch.json
+     * console: https://developers.exlibrisgroup.com/console/?url=/wp-content/uploads/primo/openapi/primoSearch.json#//get%2Fprimo%2Fv1%2Fsearch
+     * api doc: https://developers.exlibrisgroup.com/alma/apis/
+     * general: https://developers.exlibrisgroup.com/primo/apis/
+     */
     async addCountsOnShowOnly() {
         // this needs to be fancied to take all the current url parameters, per the api spec
         const url = '?vid=61UQ_INST%3A61UQ_NDEUI_DALTS&tab=61UQ_All&scope=61UQ_All&q=title%2Ccontains%2Ccows&newspapersActive=true' +
