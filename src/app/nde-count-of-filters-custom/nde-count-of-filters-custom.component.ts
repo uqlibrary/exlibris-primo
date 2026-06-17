@@ -47,22 +47,21 @@ export class NdeCountOfFiltersCustomComponent {
         this.addCountsOnShowOnly();
     }
 
-    async fetchAPI(urlPath: string, headers: object = {}): Promise<any> {
+    async fetchAPI(urlParamString: string, headers: object = {}): Promise<any> {
         /* istanbul ignore next */
         const options = {
             'Content-Type': 'application/json',
             ...headers,
         };
 
-        let urlPrefix = 'https://api.library.uq.edu.au/$VERSION$/primo/something'; // TBA
+        let urlPrefix = 'https://api.library.uq.edu.au/$ENV$/primo/something'; // TBA
         let urlSuffix = '';
-        const vidParam = currentEnvironmentId();
         // const productionDomain = "search.library.uq.edu.au";
         // if (window.location.hostname === productionDomain) {
         //     if (vidParam === '61UQ_INST:61UQ_APPDEV') {
-        //         urlPrefix = urlPrefix.replace('$VERSION$', 'v1');
+        //         urlPrefix = urlPrefix.replace('$ENV$', 'v1');
         //     } else {
-        //         urlPrefix = urlPrefix.replace('$VERSION$', 'staging');
+        //         urlPrefix = urlPrefix.replace('$ENV$', 'staging');
         //     }
         // } else if (window.location.hostname === 'localhost') { // localhost
             urlPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
@@ -71,12 +70,14 @@ export class NdeCountOfFiltersCustomComponent {
             if (urlParams.has('sp')) {
                 const apiKey = urlParams.get('sp');
                 urlSuffix = '&apikey=' + apiKey;
+            } else {
+                return null;
             }
         // } else { // sandbox domain
-        //     urlPrefix = urlPrefix.replace('$VERSION$', 'staging');
+        //     urlPrefix = urlPrefix.replace('$ENV$', 'staging');
         // }
 
-        const finalUrl = urlPrefix + urlPath + urlSuffix;
+        const finalUrl = urlPrefix + '?' + urlParamString + urlSuffix;
         let response;
         try {
             response = await fetch(finalUrl, {
@@ -95,17 +96,25 @@ export class NdeCountOfFiltersCustomComponent {
         return await response?.json();
     }
 
+    /*
+     * in the filter sidebar, there are various groups that show counts for each filter type
+     * this is a useful indicator to users of what size data that filter would return
+     * on one of them the "Show only" doesnt provide the count - but the Primo Search api provides, so here we call it
+     * refs:
+     * API key management: https://developers.exlibrisgroup.com/manage/keys/
+     * swagger doc: https://developers.exlibrisgroup.com/console/?url=/wp-content/uploads/primo/openapi/primoSearch.json
+     * console: https://developers.exlibrisgroup.com/console/?url=/wp-content/uploads/primo/openapi/primoSearch.json#//get%2Fprimo%2Fv1%2Fsearch
+     * api doc: https://developers.exlibrisgroup.com/alma/apis/
+     * general: https://developers.exlibrisgroup.com/primo/apis/
+     * api response sample json: https://developers.exlibrisgroup.com/wp-content/uploads/primo/openapi/primoSearch.json
+     */
     async addCountsOnShowOnly() {
-        // this needs to be fancied to take all the current url parameters, per the api spec
-        const url = '?vid=61UQ_INST%3A61UQ_NDEUI_DALTS&tab=61UQ_All&scope=61UQ_All&q=title%2Ccontains%2Ccows&newspapersActive=true' +
-        '&pcAvailability=true&lang=eng&offset=0&limit=10&sort=rank&getMore=0&conVoc=true&inst=61UQ_INST&skipDelivery=true' +
-        '&disableSplitFacets=true';
-
         const showOnlySectionId = 'tlevel'; // the label that matches the "Show only" page section we want to add Counts to
 
         const html = '<span class="filter-results-count ng-star-inserted">(RECORD_COUNT)</span>';
 
-        await this.fetchAPI(url, {})
+        const params = this.getApiParams();
+        await this.fetchAPI(params, {})
             .then((response: SearchResponse) => {
                 // similar, but not identical code above in ngOnInit
                 response?.facets?.find(f => f.name === showOnlySectionId)?.values?.forEach(record => {
@@ -130,6 +139,67 @@ export class NdeCountOfFiltersCustomComponent {
             .catch((error) => {
                 console.log('[NCFC01] error loading primo search api ', error);
             });
+    }
+
+    private getApiParams = () => {
+        let paramString = 'vid=' + currentEnvironmentId() + '&inst=61UQ_INST'; // required parameters
+
+        const urlParams = new URLSearchParams(location.search);
+
+        let multiIncludeFacets: string[] = [];
+        let multiExcludeFacets: string[] = [];
+        urlParams?.forEach((value, key) => {
+            if (key === 'mfacet' || key === 'facet') {
+                if (value?.includes(',include,')) {
+                    const newIncludeFacet = 'facet_' + value
+                        .replaceAll(',', '%2C');
+                    multiIncludeFacets.push(newIncludeFacet);
+                }
+                if (value?.includes(',exclude,')) {
+                    const newExcludeFacet = 'facet_' + value
+                        ?.replace('exclude', 'exact')
+                        .replaceAll(',', '%2C');
+                    multiExcludeFacets.push(newExcludeFacet);
+                }
+            }
+        });
+        if (multiIncludeFacets.length === 1) {
+            paramString += `&qInclude=${(multiIncludeFacets.pop())}`;
+        } else if (multiIncludeFacets.length > 0) {
+            paramString += `&multiFacets=${multiIncludeFacets.join('%7C%2C%7C')}`;
+        }
+        if (multiExcludeFacets.length === 1) {
+            paramString += `&qExclude=${(multiExcludeFacets.pop())}`;
+        } else if (multiExcludeFacets.length > 0) {
+            paramString += `&qExclude=${multiExcludeFacets.join('%7C%2C%7C')}`;
+        }
+
+        if (urlParams.has('query')) {
+            let searchTerm = urlParams.get('query');
+            if (!searchTerm?.includes(',')) {
+                searchTerm = `any,contains,${searchTerm}`
+            }
+            paramString += `&q=${searchTerm}`; // required parameter
+        }
+
+        const apiKeys = {
+            // format - api key: FE url key
+            "offset": "offset",
+            "tab": "tab",  // required parameter
+            "scope": "search_scope", // required parameter
+            "pcAvailability": "pcAvailability",
+            "searchInFulltext": "searchInFulltext",
+        }
+        for (let [apiKey, FEkey] of Object.entries(apiKeys)) {
+            if (urlParams.has(FEkey)) {
+                paramString += `&${apiKey}=${urlParams.get(FEkey)}`;
+            }
+        }
+
+        // cache buster needed?
+        paramString += `&ts=${new Date().getTime()}`;
+
+        return paramString;
     }
 
     private findHostRecordIndications(soughtElement: string = 'nde-search-filters-side-nav'): HTMLElement | null {
