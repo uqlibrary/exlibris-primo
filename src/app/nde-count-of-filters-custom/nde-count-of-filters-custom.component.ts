@@ -1,5 +1,5 @@
 import {Component, ElementRef, inject} from '@angular/core';
-import {currentEnvironmentId} from "../shared/common";
+import {currentEnvironmentId, getCookieValue} from "../shared/common";
 
 interface SearchResponse {
     facets: [{
@@ -55,32 +55,43 @@ export class NdeCountOfFiltersCustomComponent {
             ...headers,
         };
 
-        let urlPrefix = 'https://api.library.uq.edu.au/$ENV$/alma/search'; // TBA
-        const urlPrefixStaging = urlPrefix.replace('$ENV$', 'staging');
-        let urlSuffix = '';
-        const productionDomain = "search.library.uq.edu.au";
-        // standard arrangement: prod-prod calls prod. Everything else (prod-appdev, prod-dac, sandbox-*) calls staging
-        if (window.location.hostname === productionDomain) {
+        let apiLibraryPrefix = 'https://api.library.uq.edu.au/$ENV$/alma/search';
+        const apiLibraryPrefixProduction = apiLibraryPrefix.replace('$ENV$', 'v1');
+        const apiLibraryPrefixStaging = apiLibraryPrefix.replace('$ENV$', 'staging');
+        const productionFEDomain = "search.library.uq.edu.au";
+        const sandboxFEDomain = "uq-psb.primo.exlibrisgroup.com";
+        const testCookie = getCookieValue('COUNT_TEST');
+        // standard arrangement: prod-* (except appdev)) calls prod. All Sandbox calls staging. prod-appdev calls staging
+        let apiPrefix = null;
+        let apiSuffix = '';
+        if (window.location.hostname === productionFEDomain) {
             if (currentEnvironmentId() === '61UQ_INST:61UQ_APPDEV') { // prod-appdev env
-                urlPrefix = urlPrefix.replace('$ENV$', 'v1');
+                apiPrefix = apiLibraryPrefixStaging;
             } else {
-                urlPrefix = urlPrefixStaging;
+                apiPrefix = apiLibraryPrefixProduction;
             }
         } else if (window.location.hostname === 'localhost') { // nde development environment
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('supplyapikey')) {
+            if (!!testCookie) {
+                apiPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
+                apiSuffix = '&apikey=' + testCookie;
+            } else if (urlParams.has('directapikey')) {
                 // retain the option to call the api directly
-                const apiKey = urlParams.get('supplyapikey');
-                urlPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
-                urlSuffix = '&apikey=' + apiKey;
+                const apiKey = urlParams.get('directapikey');
+                apiPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
+                apiSuffix = '&apikey=' + apiKey;
             } else {
-                urlPrefix = urlPrefixStaging;
+                apiPrefix = apiLibraryPrefixStaging; // must use non-cors browser for it to work
             }
-        } else { // sandbox domain
-            urlPrefix = urlPrefixStaging;
+        } else if (window.location.hostname === sandboxFEDomain && !!testCookie) {
+            // if the user has set the test cookie, then use it for the api value
+            apiPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
+            apiSuffix = '&apikey=' + testCookie;
+        } else { // sandbox & prod-nonprod envs
+            apiPrefix = apiLibraryPrefixStaging;
         }
 
-        const finalUrl = urlPrefix + '?' + urlParamString + urlSuffix;
+        const finalUrl = apiPrefix + '?' + urlParamString + apiSuffix;
         let response;
         try {
             response = await fetch(finalUrl, {
