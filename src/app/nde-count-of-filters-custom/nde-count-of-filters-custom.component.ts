@@ -58,6 +58,7 @@ export class NdeCountOfFiltersCustomComponent {
         let apiLibraryPrefix = 'https://api.library.uq.edu.au/$ENV$/alma/search';
         const apiLibraryPrefixProduction = apiLibraryPrefix.replace('$ENV$', 'v1');
         const apiLibraryPrefixStaging = apiLibraryPrefix.replace('$ENV$', 'staging');
+        const apiPrimoDirectPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
         const productionFEDomain = "search.library.uq.edu.au";
         const sandboxFEDomain = "uq-psb.primo.exlibrisgroup.com";
         const testCookie = getCookieValue('COUNT_TEST');
@@ -73,19 +74,19 @@ export class NdeCountOfFiltersCustomComponent {
         } else if (window.location.hostname === 'localhost') { // nde development environment
             const urlParams = new URLSearchParams(window.location.search);
             if (!!testCookie) {
-                apiPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
+                apiPrefix = apiPrimoDirectPrefix;
                 apiSuffix = '&apikey=' + testCookie;
             } else if (urlParams.has('directapikey')) {
                 // retain the option to call the api directly
                 const apiKey = urlParams.get('directapikey');
-                apiPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
+                apiPrefix = apiPrimoDirectPrefix;
                 apiSuffix = '&apikey=' + apiKey;
             } else {
                 apiPrefix = apiLibraryPrefixStaging; // must use non-cors browser for it to work
             }
         } else if (window.location.hostname === sandboxFEDomain && !!testCookie) {
             // if the user has set the test cookie, then use it for the api value
-            apiPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
+            apiPrefix = apiPrimoDirectPrefix;
             apiSuffix = '&apikey=' + testCookie;
         } else { // sandbox & prod-nonprod envs
             apiPrefix = apiLibraryPrefixStaging;
