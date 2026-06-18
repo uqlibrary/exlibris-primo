@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {currentEnvironmentId} from "../shared/common";
 
 @Component({
   selector: 'custom-nde-update-account-menu-custom',
@@ -312,7 +313,7 @@ export class NdeUpdateAccountMenuCustomComponent {
             return;
         }
 
-        const purchaseRequestLink = `/nde/purchaseRequest?vid=${(this.currentEnvironmentId())}&lang=en`;
+        const purchaseRequestLink = `/nde/purchaseRequest?vid=${(currentEnvironmentId())}&lang=en`;
 
         // https://www.streamlinehq.com/icons/download/saving-bank-1--27627
         const newPurchaseRequestItemElementTemplate = document.createElement('template');
@@ -340,23 +341,6 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!newPurchaseRequestItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newPurchaseRequestItemElementTemplate.content.cloneNode(true));
     }
 
-    private currentEnvironmentId = () => {
-        let result;
-
-        const paramName ='vid';
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has(paramName)) {
-            result = urlParams.get(paramName);
-        } else {
-            const pathSegments = window.location.pathname.split('/');
-            const institutionSegment = pathSegments.find(segment =>
-                segment.includes('61UQ_INST:')
-            );
-            result = institutionSegment || null;
-        }
-        return result;
-    }
-
     private addResourceDeliveryItemButton = () => {
         const newResourceDeliveryItemId = 'newResourceDeliveryItem';
 
@@ -370,7 +354,7 @@ export class NdeUpdateAccountMenuCustomComponent {
             return;
         }
 
-        const resourceDeliveryLink = `/nde/blankIll?vid=${(this.currentEnvironmentId())}&lang=en`;
+        const resourceDeliveryLink = `/nde/blankIll?vid=${(currentEnvironmentId())}&lang=en`;
 
         const newResourceDeliveryItemElementTemplate = document.createElement('template');
         // https://www.streamlinehq.com/icons/ultimate-regular-free?search=delivery&icon=ico_xMA5XVKN6GelEGXS

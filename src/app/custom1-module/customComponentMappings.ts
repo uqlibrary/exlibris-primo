@@ -11,6 +11,8 @@ import {
 import {
     NdeServicesPageBannerCustomComponent
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
+import {NdeCountOfFiltersCustomComponent} from "../nde-count-of-filters-custom/nde-count-of-filters-custom.component";
+
 export const selectorComponentMap = new Map<string, any>([
 
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
@@ -18,4 +20,5 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
+    ['nde-search-filters-side-nav-after', NdeCountOfFiltersCustomComponent],
 ]);
