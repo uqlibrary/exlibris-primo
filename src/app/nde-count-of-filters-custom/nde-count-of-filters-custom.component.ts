@@ -26,13 +26,13 @@ export class NdeCountOfFiltersCustomComponent {
         this.elementRoot = this.findHostRecordIndications();
         const standardHtml = '<span class="filter-results-count ng-star-inserted">(RECORD_COUNT)</span>';
 
-        // get all entries that are missing the count display (in practice this is New records only - Show only has no displayed count, but doesn't provide the data in the aria-label)
-        // similar, but not identical code below in addCountsOnShowOnly
+        // get all entries that are missing the count display and include the amount in the aria label
         const lines = this.elementRoot?.querySelectorAll('nde-filters-value label.mdc-label:has(button.facet-name):not(:has(button.facet-name + span.filter-results-count))');
         lines?.forEach(line => {
             const button = line?.querySelector('button');
             const label = button?.getAttribute('aria-label');
             if (label?.endsWith('search results')) {
+                // similar, but not identical code below in addCountsOnShowOnly
                 const recordCount = label
                     ?.replace(/[^\d,]/g, '') // remove non numeric values
                     ?.trim() || '';
@@ -41,6 +41,7 @@ export class NdeCountOfFiltersCustomComponent {
                 const htmlTemplate = document.createElement('template');
                 htmlTemplate.innerHTML = newHtml;
                 !!htmlTemplate && button?.after(htmlTemplate.content.cloneNode(true));
+                // we could do all this in the primo search api code below, but it is very slow and this is fast, so get the same data quicker where possible
             }
          })
 
@@ -54,28 +55,30 @@ export class NdeCountOfFiltersCustomComponent {
             ...headers,
         };
 
-        let urlPrefix = 'https://api.library.uq.edu.au/$ENV$/primo/something'; // TBA
+        let urlPrefix = 'https://api.library.uq.edu.au/$ENV$/alma/search'; // TBA
+        const urlPrefixStaging = urlPrefix.replace('$ENV$', 'staging');
         let urlSuffix = '';
-        // const productionDomain = "search.library.uq.edu.au";
-        // if (window.location.hostname === productionDomain) {
-        //     if (vidParam === '61UQ_INST:61UQ_APPDEV') {
-        //         urlPrefix = urlPrefix.replace('$ENV$', 'v1');
-        //     } else {
-        //         urlPrefix = urlPrefix.replace('$ENV$', 'staging');
-        //     }
-        // } else if (window.location.hostname === 'localhost') { // localhost
-            urlPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
-            // no api key in code - use by param or counts wont be called
+        const productionDomain = "search.library.uq.edu.au";
+        // standard arrangement: prod-prod calls prod. Everything else (prod-appdev, prod-dac, sandbox-*) calls staging
+        if (window.location.hostname === productionDomain) {
+            if (currentEnvironmentId() === '61UQ_INST:61UQ_APPDEV') { // prod-appdev env
+                urlPrefix = urlPrefix.replace('$ENV$', 'v1');
+            } else {
+                urlPrefix = urlPrefixStaging;
+            }
+        } else if (window.location.hostname === 'localhost') { // nde development environment
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('sp')) {
-                const apiKey = urlParams.get('sp');
+            if (urlParams.has('supplyapikey')) {
+                // retain the option to call the api directly
+                const apiKey = urlParams.get('supplyapikey');
+                urlPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
                 urlSuffix = '&apikey=' + apiKey;
             } else {
-                return null;
+                urlPrefix = urlPrefixStaging;
             }
-        // } else { // sandbox domain
-        //     urlPrefix = urlPrefix.replace('$ENV$', 'staging');
-        // }
+        } else { // sandbox domain
+            urlPrefix = urlPrefixStaging;
+        }
 
         const finalUrl = urlPrefix + '?' + urlParamString + urlSuffix;
         let response;
@@ -195,9 +198,6 @@ export class NdeCountOfFiltersCustomComponent {
                 paramString += `&${apiKey}=${urlParams.get(FEkey)}`;
             }
         }
-
-        // cache buster needed?
-        paramString += `&ts=${new Date().getTime()}`;
 
         return paramString;
     }
