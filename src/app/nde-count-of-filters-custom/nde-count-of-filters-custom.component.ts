@@ -187,11 +187,12 @@ export class NdeCountOfFiltersCustomComponent {
 
         const apiKeys = {
             // format - api key: FE url key
+            // eg "when we find 'searchInFulltext' in the current url, we should send that value as 'searchInFulltextUserSelection' to the api"
             "offset": "offset",
             "tab": "tab",  // required parameter
             "scope": "search_scope", // required parameter
             "pcAvailability": "pcAvailability",
-            "searchInFulltext": "searchInFulltext",
+            "searchInFulltextUserSelection": "searchInFulltext",
         }
         for (let [apiKey, FEkey] of Object.entries(apiKeys)) {
             if (urlParams.has(FEkey)) {
