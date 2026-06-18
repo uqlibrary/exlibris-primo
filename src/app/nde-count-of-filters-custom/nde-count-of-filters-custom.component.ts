@@ -60,7 +60,7 @@ export class NdeCountOfFiltersCustomComponent {
         const apiLibraryPrefixStaging = apiLibraryPrefix.replace('$ENV$', 'staging');
         const apiPrimoDirectPrefix = 'https://api-ap.hosted.exlibrisgroup.com/primo/v1/search';
         const productionFEDomain = "search.library.uq.edu.au";
-        const sandboxFEDomain = "uq-psb.primo.exlibrisgroup.com";
+        const sandboxFEDomain = ".primo.exlibrisgroup.com";
         const testCookie = getCookieValue('COUNT_TEST');
         // standard arrangement: prod-* (except appdev)) calls prod. All Sandbox calls staging. prod-appdev calls staging
         let apiPrefix = null;
@@ -84,8 +84,8 @@ export class NdeCountOfFiltersCustomComponent {
             } else {
                 apiPrefix = apiLibraryPrefixStaging; // must use non-cors browser for it to work
             }
-        } else if (window.location.hostname === sandboxFEDomain && !!testCookie) {
-            // if the user has set the test cookie, then use it for the api value
+        } else if (window.location.hostname.endsWith(sandboxFEDomain) && !!testCookie) {
+            // on sandbox, if the user has set the test cookie, then use it for the api value
             apiPrefix = apiPrimoDirectPrefix;
             apiSuffix = '&apikey=' + testCookie;
         } else { // sandbox & prod-nonprod envs
