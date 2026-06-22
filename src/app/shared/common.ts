@@ -8,7 +8,7 @@ export const isFullDisplayPage = () => {
 export const setRecordIdentifier = (uuid: string | null, prefix: string = 'record') => !!uuid ? `${prefix}-${uuid}` : `record-${uuid}-unknown`;
 
 export const contentIndicatorHtml= (contentIndicatorIconHtml: string, testId: string, contentIndicatorLabel: string, iconSize: string): string  => {
-    return `<div _ngcontent-ng-content-indicator="" class="record-indication-cont display-inline-block ng-star-inserted">
+    return `<div _ngcontent-ng-content-indicator="" class="record-indication-cont display-inline-block ng-star-inserted" data-testid="brief-cultural-advice-content-indicator">
     <mat-divider _ngcontent-ng-content-indicator="" role="separator" class="mat-divider nde-divider mat-divider-vertical" aria-orientation="vertical"></mat-divider>
     <div _ngcontent-ng-content-indicator="" class="display-inline">
         <mat-icon _ngcontent-ng-content-indicator="" role="img" class="mat-icon notranslate nde-mat-icon-size-${iconSize} mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="course-reading-list">
