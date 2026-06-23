@@ -136,7 +136,7 @@ export class CourseReadingListFullFunctions {
 
         const showAllButtonLabel = 'Show all';
         const showLessButtonLabel = 'Show less';
-        const maxNumberReadingListsDisplayed = 8; // when there are a lot of course, we show a 'show all' button when there are more than this number
+        const maxNumberReadingListsDisplayed = 5; // when there are a lot of course, we show a 'show all' button when there are more than this number
         const crlHiddenClass = 'uql-crl-list-hidden'; // courses which are actually hidden, add/remove this classname
         const crlHideableClass = `uql-crl-list-hideable`; // courses which are > maxNumberReadingListsDisplayed, find this to add/remove crlHiddenClass
 
