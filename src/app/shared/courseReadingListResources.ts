@@ -88,7 +88,7 @@ export const getListTalisUrls = (pnx: any, uid: string = '') => {
 // _content_indicator_icon.scss file in reusable repo duplicates looknfeel of built in primo icons via _ngcontent-ng-content-indicator
 export const courseReadingListIndicatorHtml = () => {
     const contentIndicatorIconHtml = `<svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" fit="" preserveAspectRatio="xMidYMid meet" focusable="false"><path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"></path></svg>`;
-    const testId = 'course-reading-list-icon-label';
+    const testId = 'course-reading-list-content-indicator-wrapper';
     const contentIndicatorLabel = 'COURSE READING LIST';
 
     return contentIndicatorHtml(contentIndicatorIconHtml, testId, contentIndicatorLabel, 'small');
