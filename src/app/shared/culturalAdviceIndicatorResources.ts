@@ -10,7 +10,7 @@ const culturalAdviceIconHtml: string =
 // _content_indicator_icon.scss file in reusable repo duplicates looknfeel of built in primo icons via _ngcontent-ng-content-indicator
 export const culturalAdviceIndicatorHtml = (uuid: string)=> {
     const contentIndicatorIconHtml = culturalAdviceIconHtml;
-    const testId = 'cultural-advice-icon-label';
+    const testId = 'brief-cultural-advice-content-indicator';
     const contentIndicatorLabel = "CULTURAL ADVICE";
     return contentIndicatorHtml(contentIndicatorIconHtml, testId, contentIndicatorLabel, 'medium');
 }
