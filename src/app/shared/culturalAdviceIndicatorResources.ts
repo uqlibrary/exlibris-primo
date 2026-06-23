@@ -41,7 +41,7 @@ const addCulturalAdviceBanner = (displayText: string) => {
         return;
     }
 
-    const bannerHtml = `<div id="${displayBlockId}" class="standardWarningBanner">
+    const bannerHtml = `<div id="${displayBlockId}" class="standardWarningBanner" data-testid="cultural-advice-banner">
     <div class="uq-icon uq-icon--standard--exclamation-triangle"></div>
 <p>
     ${displayText}
