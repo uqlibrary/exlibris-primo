@@ -19,7 +19,7 @@ export class NdeUpdateAccountMenuCustomComponent {
             }
 
             this.showDebug = Boolean(this.getCookie('showDebug'));
-            console.log('accdebug showDebug=', this.showDebug);
+            // console.log('accdebug showDebug=', this.showDebug);
 
             const userNameAreaButton = document.querySelector('nde-user-area button');
             this.showDebug && console.log('accdebug userNameAreaButton=', userNameAreaButton);
