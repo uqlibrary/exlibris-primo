@@ -1,3 +1,6 @@
+import {
+    NdeAccountInfoLinksCustomComponent
+} from "../nde-account-info-links-custom/nde-account-info-links-custom.component";
 import {NdeReportAProblemCustomComponent} from "../nde-report-a-problem-custom/nde-report-a-problem-custom.component";
 import {
     NdeUpdateAccountMenuCustomComponent
@@ -14,7 +17,7 @@ import {
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
-
+    ['nde-account-after', NdeAccountInfoLinksCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
