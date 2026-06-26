@@ -1,7 +1,6 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {isReturnKeyPressed, selectSearchState} from "../shared/common";
-import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
+import {isReturnKeyPressed, pnxInterface, selectSearchState} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string, toolTipId: string) => {

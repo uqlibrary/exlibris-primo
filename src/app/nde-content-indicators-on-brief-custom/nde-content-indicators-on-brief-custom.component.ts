@@ -1,5 +1,5 @@
 import {Component, ElementRef, inject} from '@angular/core';
-import {isFullDisplayPage, setRecordIdentifier} from "../shared/common";
+import {isFullDisplayPage, pnxInterface, setRecordIdentifier} from "../shared/common";
 import {CourseReadingListBriefFunctions} from "./CourseReadingListBriefFunctions";
 import {getPnx} from "../shared/getPnx";
 import {addCulturalAdviceIndicatorToHeader, pnxInterface} from "../shared/culturalAdviceIndicatorResources";

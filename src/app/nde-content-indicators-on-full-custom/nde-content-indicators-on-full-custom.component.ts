@@ -16,8 +16,6 @@ import {CourseReadingListFullFunctions} from "./CourseReadingListFullFunctions";
 export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
     private crl;
 
-    public hostRecordIndications: HTMLElement | null = null; // The nde-record-indications element this component is attached to
-
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
 
