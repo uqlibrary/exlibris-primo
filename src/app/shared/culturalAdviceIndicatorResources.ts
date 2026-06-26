@@ -12,7 +12,7 @@ export const culturalAdviceIndicatorHtml = (uuid: string)=> {
     const contentIndicatorIconHtml = culturalAdviceIconHtml;
     const testId = 'cultural-advice-icon-label';
     const contentIndicatorLabel = "CULTURAL ADVICE";
-    return contentIndicatorHtml(contentIndicatorIconHtml, testId, contentIndicatorLabel, 'medium');
+    return contentIndicatorHtml('uql-cultural-advice-content-indicator', contentIndicatorIconHtml, testId, contentIndicatorLabel, 'medium');
 }
 
 export const addCulturalAdviceIndicatorToHeader = (_item?: HTMLElement) => {

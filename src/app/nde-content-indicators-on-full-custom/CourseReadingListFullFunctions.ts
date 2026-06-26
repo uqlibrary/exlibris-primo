@@ -295,5 +295,16 @@ export class CourseReadingListFullFunctions {
         template.innerHTML = courseReadingListIndicatorHtml();
         const iconlist = document.querySelector('.record-indication-wrapper');
         !!iconlist && iconlist.appendChild(template.content.cloneNode(true));
+
+        // supply tooltip on hover
+        const crlTooltipId = `crl-icon-tooltip-full`;
+        const CRLIndicator = document.querySelector('nde-record-indications uql-course-resource-content-indicator');
+        !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
+            const mouseOverLabel = 'This resource is on a course reading list';
+            mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
+        });
+        !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {
+            mouseoutTooltip(crlTooltipId);
+        });
     }
 }
