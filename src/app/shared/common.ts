@@ -19,6 +19,14 @@ export const contentIndicatorHtml= (contentIndicatorIconHtml: string, testId: st
 </div>`;
 }
 
+function isKeyPressed(e: any, charKeyInput: string, numericKeyInput: number) {
+    const keyNumeric = e.charCode || e.keyCode;
+    const keyChar = e.key || e.code;
+    return keyChar === charKeyInput || keyNumeric === numericKeyInput;
+}
+export function isReturnKeyPressed(e: any) {
+    return isKeyPressed(e, 'Enter', 13);
+}
 export const currentEnvironmentId = () => {
     let result;
 
@@ -47,11 +55,29 @@ export function getCookieValue(name: string): string|undefined     {
     return undefined;
 }
 
-function isKeyPressed(e: any, charKeyInput: string, numericKeyInput: number) {
-    const keyNumeric = e.charCode || e.keyCode;
-    const keyChar = e.key || e.code;
-    return keyChar === charKeyInput || keyNumeric === numericKeyInput;
+export const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string, toolTipId: string) => {
+    const rect = button?.getBoundingClientRect();
+    const pix = 15 * mouseOverlabel.length;
+
+    const tooltipLeft = rect?.left ? rect?.left - (pix / 4) : pix / 4;
+    const tooltipTop = (rect?.top ?? 0) + 32;
+
+    const toolTipHtml = `<uql-tooltip id="${toolTipId}" class="cdk-overlay-connected-position-bounding-box" dir="ltr" style="top: 0px; left: 0px; height: 100%; width: 100%;">
+    <div id="cdk-overlay-1" class="cdk-overlay-pane mat-mdc-tooltip-panel-below mat-mdc-tooltip-panel" style="top: ` + tooltipTop + `px; left: ` + tooltipLeft + `px; transform: translateY(8px);">
+        <mat-tooltip-component aria-hidden="true" class="ng-star-inserted">
+            <div class="mdc-tooltip mat-mdc-tooltip mat-mdc-tooltip-show" style="transform-origin: center top;">
+                <div class="mat-mdc-tooltip-surface mdc-tooltip__surface">` + mouseOverlabel + `</div>
+            </div>
+        </mat-tooltip-component>
+    </div>
+</uql-tooltip>`;
+    const template = document.createElement('template');
+    !!template && (template.innerHTML = toolTipHtml);
+    const parent = document.querySelector('.cdk-overlay-container');
+    !!template && parent?.appendChild(template.content.cloneNode(true));
 }
-export function isReturnKeyPressed(e: any) {
-    return isKeyPressed(e, 'Enter', 13);
+
+export const mouseoutTooltip = (toolTipId: string) => {
+    const tooltip = document.getElementById(toolTipId);
+    !!tooltip && tooltip.remove();
 }

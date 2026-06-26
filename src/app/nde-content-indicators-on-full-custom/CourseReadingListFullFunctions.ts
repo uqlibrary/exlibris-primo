@@ -1,35 +1,8 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {isReturnKeyPressed, selectSearchState} from "../shared/common";
+import {isReturnKeyPressed, mouseoverTooltip, mouseoutTooltip, selectSearchState} from "../shared/common";
 import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
-
-const mouseoverTooltip = (button: HTMLElement, mouseOverlabel: string, toolTipId: string) => {
-    const rect = button?.getBoundingClientRect();
-    const pix = 15 * mouseOverlabel.length;
-
-    const tooltipLeft = rect?.left ? rect?.left - (pix / 4) : pix / 4;
-    const tooltipTop = (rect?.top ?? 0) + 32;
-
-    const toolTipHtml = `<uql-tooltip id="${toolTipId}" class="cdk-overlay-connected-position-bounding-box" dir="ltr" style="top: 0px; left: 0px; height: 100%; width: 100%;">
-    <div id="cdk-overlay-1" class="cdk-overlay-pane mat-mdc-tooltip-panel-below mat-mdc-tooltip-panel" style="top: ` + tooltipTop + `px; left: ` + tooltipLeft + `px; transform: translateY(8px);">
-        <mat-tooltip-component aria-hidden="true" class="ng-star-inserted">
-            <div class="mdc-tooltip mat-mdc-tooltip mat-mdc-tooltip-show" style="transform-origin: center top;">
-                <div class="mat-mdc-tooltip-surface mdc-tooltip__surface">` + mouseOverlabel + `</div>
-            </div>
-        </mat-tooltip-component>
-    </div>
-</uql-tooltip>`;
-    const template = document.createElement('template');
-    !!template && (template.innerHTML = toolTipHtml);
-    const parent = document.querySelector('.cdk-overlay-container');
-    !!template && parent?.appendChild(template.content.cloneNode(true));
-}
-
-const mouseoutTooltip = (toolTipId: string) => {
-    const tooltip = document.getElementById(toolTipId);
-    !!tooltip && tooltip.remove();
-}
 
 export class CourseReadingListFullFunctions {
     private store = inject(Store);
@@ -116,9 +89,6 @@ export class CourseReadingListFullFunctions {
                         });
 
                         this.createAndAppendCourseList(talisCourses);
-
-                        // TODO: if/when sidebar becomes available
-                        // addCRLButtontoSidebar();
                     }
                 });
         } catch (e) {
@@ -142,7 +112,7 @@ export class CourseReadingListFullFunctions {
 
         const targetElement = document.querySelector('nde-full-display-side-bar');
 
-        let htmlContent = `<nde-full-display-crl _nghost-ng-crl="" class="ng-star-inserted">
+        let htmlContent = `<uql-course-reading-list-sidebar-panel _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
                 <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
                     <mat-expansion-panel-header _ngcontent-ng-crl="" role="button"
@@ -209,7 +179,7 @@ export class CourseReadingListFullFunctions {
             </div>
         </mat-expansion-panel>
     </nde-collapsible-box>
-</nde-full-display-crl>`;
+</uql-course-reading-list-sidebar-panel>`;
         const template = document.createElement('template');
         template.innerHTML = htmlContent;
 
@@ -286,7 +256,7 @@ export class CourseReadingListFullFunctions {
         }
     }
     private togglePanel = (mouseOverPrefix: string, crlTooltipId: string) => {
-        const panel = document.querySelector('nde-full-display-crl');
+        const panel = document.querySelector('uql-course-reading-list-sidebar-panel');
 
         const listArea = document.getElementById('uql-accordion-child-crl');
 
