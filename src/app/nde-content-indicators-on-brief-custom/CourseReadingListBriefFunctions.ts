@@ -1,6 +1,6 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {selectSearchState, setRecordIdentifier} from "../shared/common";
+import {mouseoutTooltip, mouseoverTooltip, selectSearchState, setRecordIdentifier} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 export class CourseReadingListBriefFunctions {
@@ -86,8 +86,20 @@ export class CourseReadingListBriefFunctions {
         const template = document.createElement('template');
         template.innerHTML = courseReadingListIndicatorHtml();
 
-        const builtinIconlist = document.querySelector(`#${setRecordIdentifier(this.uuid, 'crl')} .record-indication-wrapper`);
+        const recordIdentifier = setRecordIdentifier(this.uuid, 'crl');
+        const builtinIconlist = document.querySelector(`#${recordIdentifier} .record-indication-wrapper`);
         !!builtinIconlist && builtinIconlist.appendChild(template.content.cloneNode(true));
+
+        // supply tooltip on hover
+        const crlTooltipId = `crl-icon-tooltip-${this.uuid}`;
+        const CRLIndicator = document.querySelector(`nde-record-indications#${recordIdentifier} uql-course-resource-content-indicator`);
+        const mouseOverLabel = 'This resource is on a course reading list';
+        !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
+            mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
+        });
+        !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {
+            mouseoutTooltip(crlTooltipId);
+        });
     }
 }
 

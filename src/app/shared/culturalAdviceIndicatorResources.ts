@@ -1,4 +1,4 @@
-import {contentIndicatorHtml} from "./common";
+import {contentIndicatorHtml, mouseoutTooltip, mouseoverTooltip} from "./common";
 
 export type pnxInterface = { control: { recordid: any; }; display: { lds05: any; lds04?: any; }; };
 
@@ -12,7 +12,7 @@ export const culturalAdviceIndicatorHtml = (uuid: string)=> {
     const contentIndicatorIconHtml = culturalAdviceIconHtml;
     const testId = 'brief-cultural-advice-content-indicator';
     const contentIndicatorLabel = "CULTURAL ADVICE";
-    return contentIndicatorHtml(contentIndicatorIconHtml, testId, contentIndicatorLabel, 'medium');
+    return contentIndicatorHtml('uql-cultural-advice-content-indicator', contentIndicatorIconHtml, testId, contentIndicatorLabel, 'medium');
 }
 
 export const addCulturalAdviceIndicatorToHeader = (_item?: HTMLElement) => {
@@ -22,6 +22,17 @@ export const addCulturalAdviceIndicatorToHeader = (_item?: HTMLElement) => {
     template.innerHTML = culturalAdviceIndicatorHtml(self.crypto.randomUUID());
     const iconList = item.querySelector('.record-indication-wrapper');
     !!iconList && iconList.appendChild(template.content.cloneNode(true));
+
+    // supply tooltip on hover
+    const crlTooltipId = `ca-icon-tooltip-full`;
+    const CRLIndicator = item.querySelector(`uql-cultural-advice-content-indicator`);
+    const mouseOverLabel = 'This resource has an advisory statement';
+    !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
+        mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
+    });
+    !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {
+        mouseoutTooltip(crlTooltipId);
+    });
 }
 
 export const displayPossibleCulturalAdviceIndicator = (pnx: pnxInterface) => {

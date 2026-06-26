@@ -91,5 +91,5 @@ export const courseReadingListIndicatorHtml = () => {
     const testId = 'course-reading-list-content-indicator-wrapper';
     const contentIndicatorLabel = 'COURSE READING LIST';
 
-    return contentIndicatorHtml(contentIndicatorIconHtml, testId, contentIndicatorLabel, 'small');
+    return contentIndicatorHtml('uql-course-resource-content-indicator', contentIndicatorIconHtml, testId, contentIndicatorLabel, 'small');
 }
