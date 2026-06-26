@@ -93,8 +93,8 @@ export class CourseReadingListBriefFunctions {
         // supply tooltip on hover
         const crlTooltipId = `crl-icon-tooltip-${this.uuid}`;
         const CRLIndicator = document.querySelector(`nde-record-indications#${recordIdentifier} uql-course-resource-content-indicator`);
+        const mouseOverLabel = 'This resource is on a course reading list';
         !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
-            const mouseOverLabel = 'This resource is on a course reading list';
             mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
         });
         !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {

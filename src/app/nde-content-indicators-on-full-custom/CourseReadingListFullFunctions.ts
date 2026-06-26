@@ -239,9 +239,9 @@ export class CourseReadingListFullFunctions {
         });
 
         // supply tooltip on hover
+        const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
+        const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function (event) {
-            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
-            const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
             !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function (event) {
@@ -299,8 +299,8 @@ export class CourseReadingListFullFunctions {
         // supply tooltip on hover
         const crlTooltipId = `crl-icon-tooltip-full`;
         const CRLIndicator = document.querySelector('nde-record-indications uql-course-resource-content-indicator');
+        const mouseOverLabel = 'This resource is on a course reading list';
         !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
-            const mouseOverLabel = 'This resource is on a course reading list';
             mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
         });
         !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {
