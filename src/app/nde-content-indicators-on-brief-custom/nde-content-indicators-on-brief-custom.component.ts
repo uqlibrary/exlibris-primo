@@ -2,7 +2,7 @@ import {Component, ElementRef, inject} from '@angular/core';
 import {isFullDisplayPage, pnxInterface, setRecordIdentifier} from "../shared/common";
 import {CourseReadingListBriefFunctions} from "./CourseReadingListBriefFunctions";
 import {getPnx} from "../shared/getPnx";
-import {addCulturalAdviceIndicatorToHeader, pnxInterface} from "../shared/culturalAdviceIndicatorResources";
+import {addCulturalAdviceIndicatorToHeader} from "../shared/culturalAdviceIndicatorResources";
 
 @Component({
   selector: 'custom-nde-content-indicators-on-brief-custom',
