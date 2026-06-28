@@ -1,7 +1,6 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {isReturnKeyPressed, mouseoverTooltip, mouseoutTooltip, selectSearchState} from "../shared/common";
-import {pnxInterface} from "../shared/culturalAdviceIndicatorResources";
+import {isReturnKeyPressed, mouseoverTooltip, mouseoutTooltip, pnxInterface, selectSearchState} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
 export class CourseReadingListFullFunctions {
