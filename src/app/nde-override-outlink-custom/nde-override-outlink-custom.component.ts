@@ -18,7 +18,7 @@ export class NdeOverrideOutlinkCustomComponent {
         // get the current element
         const hostRecord = findHostRecord(this.elementRef, 'nde-online-availability');
 
-        const earlistCommonParent = hostRecord?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode;
+        const earlistCommonParent = hostRecord?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode;
         const awaitButton = setInterval(() => {
             const button = earlistCommonParent?.querySelector('nde-online-availability button');
             if (!button) {
@@ -27,9 +27,9 @@ export class NdeOverrideOutlinkCustomComponent {
             clearInterval(awaitButton);
 
             const awaitPnx = setInterval(() => {
-                const item = document.querySelector('.search-result-item');
+                const item = earlistCommonParent?.querySelector('.search-result-item');
 
-                const pnx = getPnx(this.searchState(), item);
+                const pnx = !!item && getPnx(this.searchState(), item);
                 if (!pnx?.control?.recordid) {
                     return;
                 }
