@@ -12,3 +12,19 @@ nde-logo {
 body.custom-nde-theme nde-user-area button span {
     background-color: transparent !important;
 }
+
+nde-collapsible-box[_ngcontent-ng-crl] {
+    mat-expansion-panel {
+        background-color: var(--whiteBG);
+        margin-bottom: 1rem;
+    }
+    mat-expansion-panel.mat-expansion-panel {
+        border: 1px solid var(--border);
+    }
+}
+h2[_ngcontent-ng-crl] {
+    color: var(--darkText);
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
