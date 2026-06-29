@@ -20,7 +20,7 @@ export class NdeOverrideOutlinkCustomComponent {
 
         const earlistCommonParent = hostRecord?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode;
         const awaitButton = setInterval(() => {
-            const button = earlistCommonParent?.querySelector('button');
+            const button = earlistCommonParent?.querySelector('nde-online-availability button');
             if (!button) {
                 return;
             }
@@ -68,6 +68,11 @@ export class NdeOverrideOutlinkCustomComponent {
     }
 
     private isDirectLinkingAllowed(pnx: pnxInterface) {
+        // we allow linking on CDI records, because they offer a more complex set of buttons. Minimal occurance, apparently.
+        if (this.isCdiRecord(pnx)) {
+            return true;
+        }
+
         // we block direct linking on certain resource types
         // (primo links for all types, but it's a bad experience for the user)
         const typesWithNoDirectLinking = [
@@ -94,5 +99,9 @@ export class NdeOverrideOutlinkCustomComponent {
         }
 
         return true;
+    }
+
+    private isCdiRecord = (pnx: pnxInterface) => {
+        return !!pnx?.control?.iscdi && pnx?.control?.iscdi?.length > 0 && !!pnx?.control?.iscdi[0];
     }
 }
