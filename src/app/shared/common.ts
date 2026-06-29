@@ -2,7 +2,7 @@ import {ElementRef} from '@angular/core';
 import {createFeatureSelector} from "@ngrx/store";
 export const selectSearchState = createFeatureSelector<any>('Search');
 
-export type pnxInterface = { control: { recordid: any; }; display: { lds05: any; lds04?: any; type: any }; item: {delivery: { availability: any }}; };
+export type pnxInterface = { control: { recordid: any; iscdi: any; }; display: { lds05: any; lds04?: any; type: any }; item: {delivery: { availability: any }}; };
 
 export const isFullDisplayPage = () => {
     return window.location.pathname.includes('fulldisplay');
