@@ -20,7 +20,7 @@ export class NdeOverrideOutlinkCustomComponent {
 
         const earlistCommonParent = hostRecord?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode;
         const awaitButton = setInterval(() => {
-            const button = earlistCommonParent?.querySelector('button');
+            const button = earlistCommonParent?.querySelector('nde-online-availability button');
             if (!button) {
                 return;
             }
