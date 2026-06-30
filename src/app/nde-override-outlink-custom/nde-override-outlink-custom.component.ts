@@ -51,14 +51,16 @@ export class NdeOverrideOutlinkCustomComponent {
                 if (isFullDisplayPage()) {
                     clonedElement?.addEventListener('click', function (event) {
                         // scroll to the existing View it section (this should always be present for an online resource)
-                        const viewItSection = document.querySelector('nde-full-display-service-container:has(nde-view-it) mat-panel-title span');
-                        viewItSection?.scrollIntoView();
+                        const searchField = document.querySelector('#main-search-bar');
+                        searchField?.scrollIntoView();
                     });
                 } else {
                     clonedElement?.addEventListener('click', function (event) {
                         // click the link to the full result page
                         const linkToFull = earlistCommonParent?.querySelector('a');
                         !!linkToFull && linkToFull.click();
+                        const searchField = document.querySelector('#main-search-bar');
+                        searchField?.scrollIntoView();
                     });
                 }
 
