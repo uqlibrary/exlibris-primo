@@ -198,7 +198,7 @@ export class CourseReadingListFullFunctions {
                 // hiding the entries - show them
                 hiddenCRL.forEach(c => c.classList.remove(crlHiddenClass))
                 !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = buttonLabelShowLess);
-                // !!longToggleButtonIcon && (longToggleButtonIcon.style.transform = 'none');
+                !!longToggleButton && !longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.add('noneHidden');
             } else {
                 // visible entries - hide them
                 const hideableCRL = document.querySelectorAll(`.${crlHideableClass}`);
@@ -207,6 +207,7 @@ export class CourseReadingListFullFunctions {
                 // !!longToggleButtonIcon && (longToggleButtonIcon.style.transform = 'rotate(180deg)');
                 // scroll the top into view, rather than leaving it floating in the midle of the page
                 document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
+                !!longToggleButton && longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.remove('noneHidden');
             }
         });
 
