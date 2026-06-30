@@ -10,57 +10,58 @@ import {currentEnvironmentId} from "../shared/common";
 })
 export class NdeUpdateAccountMenuCustomComponent {
     showDebug = false;
-    newAccountIconId = 'library-account-icon';
-    testId = 'library-account-icon';
-    accountIconHtml = `<svg data-testid="${this.testId}" id="${this.newAccountIconId}" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
     ngOnInit(): void {
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
-            // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
-            const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn mat-icon svg');
-            if (isLoggedOut) {
-                this.attachLoggedoutButtonContents()
-            }
-
             this.showDebug = Boolean(this.getCookie('showDebug'));
 
+            const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn mat-icon svg');
+            if (isLoggedOut) {
+                this.attachLoggedoutButtonContents();
+                // when logged out, we don't show the account button
+                this.showHideAccountButton('hide');
+            } else {
+                // replace provided initials with the user's name
+                this.reLabelAccountButton();
+                this.styleUserName();
+            }
             const userNameAreaButton = document.querySelector('nde-user-area button');
+            this.showDebug && console.log('accdebug userNameAreaButton=', userNameAreaButton);
             if (!!userNameAreaButton) { // should always be present
                 this.attachArrowButtons(userNameAreaButton);
             }
 
+            // if the logout & login buttons both aren't present then the account menu is not open (it is recreated on each open)
+            const logoutButton = document.querySelector('button[aria-label=" Log out"]');
+            const loginButton = document.querySelector('button[aria-label=" Log In"]');
+            if (!logoutButton && !loginButton) {
+                // no menu is present
+                this.showDebug && console.log('menu## no account menu');
+                return;
+            }
+
+            // update the contents of the account menu
             if (isLoggedOut) {
-                this.showDebug && console.log('accdebug logged OUT showDebug=', this.showDebug);
-                this.removeAccountButton();
-                this.addFeedbackButton();
+                this.showDebug && console.log('menu## logged OUT');
+                this.addFeedbackMenuItem();
 
                 this.reLabelFavourites('Session favourites');
                 this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
-                this.showDebug && console.log('accdebug logged IN showDebug=', this.showDebug);
-                const resourceDeliveryItemId = 'newResourceDeliveryItem';
-                const menuUpdated = document.getElementById(resourceDeliveryItemId);
-                if (!!menuUpdated) {
-                    this.showDebug && console.log('accdebug showDebug menu already updated, skip');
-                    return; // we have already updated the menu
-                }
+                this.showDebug && console.log('menu## logged IN');
+                this.updateLoggedinFavouritesButton();
+                this.addPurchaseRequestItemMenuItem();
+                this.addResourceDeliveryItemMenuItem();
 
-                this.addExtraMenuItems();
-                this.addFeedbackButton(); // must happen before logout move
+                this.addLearningResourcesMenuItem();
+                this.addPrintBalanceMenuItem();
+                this.addBookARoomMenuItem();
+                this.addFeedbackMenuItem();
 
-                this.reLabelFavourites(); // done in moveFavouritesButton
                 this.reLabelSearchHistory(); // probably deleted in configuration
 
-                this.reLabelAccountButton();
-                this.styleUserName();
-
-                this.moveFavouritesButton();
-                this.addPurchaseRequestItemButton();
-                this.addResourceDeliveryItemButton(resourceDeliveryItemId);
-
                 this.moveLogoutButton();
-
             }
-            // this.showDebug = true;
+            this.showDebug = true;
         }, 100);
     }
 
@@ -68,56 +69,22 @@ export class NdeUpdateAccountMenuCustomComponent {
         return document.querySelector('.user-area-sub-menu .mat-mdc-menu-content');
     }
 
-    // create the submenu that will hold favourites and the logged in options just below the account button
     private getSubAccountMenu = () => {
         const submenuElementId = 'primo-account-sub-menu';
-        let menuparent = document.getElementById(submenuElementId);
-        if (menuparent) {
-            return menuparent;
-        }
-
-        const that = this;
-        // while the Account button seems to appear flakily _when our customisations are applied!!!!_ the Favourites button seems to be reliable. Let's hope that continues!!
-        const waitOnFavouritesMenuItem = setInterval(() => {
-            const favouritesMenuItem = document.querySelector('[aria-label="Go to my saved records"]');
-            if (!favouritesMenuItem) {
-                this.showDebug && console.log('waiting on favourites element');
-                return;
-            }
-            clearInterval(waitOnFavouritesMenuItem);
-
-            const accountButtonAriaLabel = 'Go to my library account';
-            let accountButton = document.querySelector(`[aria-label="${accountButtonAriaLabel}"]`);
-            if (!accountButton) {
-                // they didn't provide the account button????? Add it! :(
-                this.showDebug && console.log('accdebug they didnt provide the account button????? Add it! :(');
-                accountButton = this.createAccountButtonOnMenu(accountButtonAriaLabel, favouritesMenuItem);
-            }
-
+        const menuparent = document.getElementById(submenuElementId);
+        this.showDebug && console.log('menu## getSubAccountMenu menuparent=', menuparent);
+        if (!menuparent) {
+            const previousElement = document.querySelector('[aria-label="Go to my library account"]');
+            this.showDebug && console.log('menu## previousElement=', previousElement);
+            this.showDebug && console.log('menu## getSubAccountMenu previousElement=', previousElement);
             const newUlTemplate = document.createElement('template');
             newUlTemplate.innerHTML = '<ul id="primo-account-sub-menu" class="primo-account-sub-menu"></ul>'
-            !!newUlTemplate && !!accountButton && accountButton.after(newUlTemplate.content.cloneNode(true));
-            menuparent = document.getElementById(submenuElementId);
-        }, 100);
-        return menuparent;
-    }
-
-    private createAccountButtonOnMenu = (accountButtonAriaLabel: string, favouritesMenuItem: any) => {
-        const currentVid = currentEnvironmentId();
-        const href = `/nde/account/overview?vid=${currentVid}&lang=en`;
-        const accountButtonHtml = `<a href="${href}" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator link-reset ng-star-inserted" aria-label="${accountButtonAriaLabel}" role="menuitem" aria-disabled="false">
-        <mat-icon role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="accountOverview">
-            ${this.accountIconHtml}
-        </mat-icon>
-        <span class="mat-mdc-menu-item-text">
-            <span>Library account</span>
-        </span>
-    </a>`;
-        const newAccountButtonTemplate = document.createElement('template');
-        newAccountButtonTemplate.innerHTML = accountButtonHtml;
-        // attach it just before the Favourites button
-        !!newAccountButtonTemplate && favouritesMenuItem.parentNode?.insertBefore(newAccountButtonTemplate.content.cloneNode(true), favouritesMenuItem);
-        return document.querySelector(`[aria-label="${accountButtonAriaLabel}"]`);
+            this.showDebug && console.log('menu## getSubAccountMenu newUlTemplate=', newUlTemplate);
+            !!newUlTemplate && !!previousElement && previousElement.after(newUlTemplate.content.cloneNode(true));
+        }
+        const elementById = document.getElementById(submenuElementId);
+        this.showDebug && console.log('menu## getSubAccountMenu response=', elementById);
+        return elementById;
     }
 
     private styleUserName = () => {
@@ -164,14 +131,18 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!logoutIconTemplate && !!logoutMatIcon && logoutMatIcon.appendChild(logoutIconTemplate.content.cloneNode(true));
     }
 
-    private removeAccountButton() {
-        // when logged out, we don't show the account button
-        const accountButtonFound = document.querySelector(`.user-area-sub-menu a[aria-label="Go to my library account"]`);
-        !!accountButtonFound && accountButtonFound.remove();
+    private showHideAccountButton = (showHide: string) => {
+        const accountButtonFound = document.querySelector(`a[aria-label="Go to my library account"]`);
+        const accountButton = !!accountButtonFound && accountButtonFound as HTMLElement;
+        if (!accountButton) {
+            return;
+        }
+
+        accountButton.style.display = (showHide === 'show' ? 'flex' : 'none');
     }
 
     private reLabelAccountButton() {
-        const newAccountIcon = document.getElementById(this.newAccountIconId);
+        const newAccountIcon = document.getElementById('library-account-icon');
         if (!!newAccountIcon) {
             return; // already done
         }
@@ -180,6 +151,8 @@ export class NdeUpdateAccountMenuCustomComponent {
         if (!accountButtonFound) {
             return; // buttons not available yet
         }
+        // ensure any previous logged out state hasn't hidden the button!!
+        this.showHideAccountButton('show');
 
         // get rid of the existing icons
         const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
@@ -187,7 +160,7 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         // insert our own icon
         const accountIconTemplate = document.createElement('template');
-        accountIconTemplate.innerHTML = this.accountIconHtml;
+        accountIconTemplate.innerHTML = `<svg data-testid="library-account-icon" id="library-account-icon" class="library-account-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 3C14.2222 3 16 4.77778 16 7C16 9.22222 14.2222 11 12 11C9.77778 11 8 9.22222 8 7C8 4.77778 9.77778 3 12 3Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.59961 20.5716C4.59961 16.4685 7.91578 13.1523 12.0188 13.1523C16.1219 13.1523 19.438 16.4685 19.438 20.5716" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
         const accountMatIcon = document.querySelector('[aria-label="Go to my library account"] mat-icon');
         !!accountIconTemplate && !!accountMatIcon && accountMatIcon.appendChild(accountIconTemplate.content.cloneNode(true));
 
@@ -195,11 +168,13 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!accountMatIcon && accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
     }
 
-    private reLabelFavourites(newLabel: string = 'Favourites') {
+    private reLabelFavourites(newLabel: string) {
+        this.showDebug && console.log('accdebug reLabelFavourites start newLabel=', newLabel);
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
 
         // update the label
         const savedItemsElement = document.querySelector('[aria-label="Go to my saved records"] span span')
+        this.showDebug && console.log('accdebug reLabelFavourites savedItemsElement=', savedItemsElement);
         !!savedItemsElement && (savedItemsElement.textContent = newLabel);
 
         if (!newFavouritesIcon) {
@@ -214,6 +189,7 @@ export class NdeUpdateAccountMenuCustomComponent {
                 <path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Zm0-88 200 86v-518H280v518l200-86Zm0-432H280h400-200Z"></path>
             </svg>`;
             const savedItemsMatIcon = document.querySelector('[aria-label="Go to my saved records"] mat-icon');
+            this.showDebug && console.log('accdebug reLabelFavourites savedItemsMatIcon=', savedItemsMatIcon);
             !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
 
             // tweak the looknfeel - we want "hollow" icons
@@ -259,20 +235,8 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
     }
 
-    private addExtraMenuItems() {
-        // we add the Learning resources, Print balance, uqbookit and feedback links to the account menu
-        const accountMenu = this.getAccountMenu();
-        if (!accountMenu) {
-            return;
-        }
-
-        const newMenuItemAdded = document.getElementById('first-added-menu-item');
-        if (!!newMenuItemAdded) {
-            return; // we've already inserted the extra items
-        }
-
-        const extraLinksTemplate = document.createElement('template');
-        extraLinksTemplate.innerHTML = `<a id="first-added-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" href="https://www.library.uq.edu.au/learning-resources">
+    private addLearningResourcesMenuItem() {
+        const learningResourcesButtonHtml = `<a id="learning-resource-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-course-resources" aria-label="Go to Learning resources" href="https://www.library.uq.edu.au/learning-resources">
   <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
     <svg data-testid="library-learning-resources-icon" class="library-learning-resources-icon" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <path d="M11.9999 21.4003V6.78587C11.9999 6.78587 9.94278 4.51443 2.99986 4.42871C2.87129 4.42871 2.78558 4.47157 2.69986 4.55728C2.61415 4.643 2.57129 4.72871 2.57129 4.85729V18.5717C2.57129 18.786 2.74272 19.0003 2.99986 19.0003C9.94278 19.1288 11.9999 21.4003 11.9999 21.4003Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -286,45 +250,100 @@ export class NdeUpdateAccountMenuCustomComponent {
     <div class="textwrapper">
         <span class="primaryText">Learning resources</span>
     </div>
-</a>
-<a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" href="https://web.library.uq.edu.au/library-and-student-it-help/print-scan-and-copy/your-printing-account">
-    <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-      <svg data-testid="library-print-balance-icon" class="library-print-balance-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <g clip-path="url(#clip0_1723_14098)">
-          <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
-        </g>
-        <defs><clipPath id="clip0_1723_14098"><rect width="20" height="20" fill="white" transform="translate(2 2)"></rect></clipPath></defs>
-      </svg>
-    </mat-icon>
-    <div class="textwrapper">
-        <span class="primaryText">Print balance</span>
-    </div>
-</a>
-<a _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" href="https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb">
-    <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-      <svg data-testid="library-room-booking-icon" class="library-room-booking-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-    </mat-icon>
-    <div class="textwrapper">
-        <span class="primaryText">Book a room or desk</span>
-    </div>
 </a>`;
+
+        // we add the Learning resources, Print balance, uqbookit and feedback links to the account menu
+        const accountMenu = this.getAccountMenu();
+        if (!accountMenu) {
+            return;
+        }
+
+        const newMenuItemAdded = document.getElementById('learning-resource-menu-item');
+        if (!!newMenuItemAdded) {
+            return; // we've already inserted the extra items
+        }
+
+        const extraLinksTemplate = document.createElement('template');
+        extraLinksTemplate.innerHTML = learningResourcesButtonHtml;
         !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
     }
 
-    private moveFavouritesButton = () => {
+    private addPrintBalanceMenuItem() {
+        const printBalanceButtonHtml = `<a id="print-balance-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-print-balance" aria-label="Go to Print balance" href="https://web.library.uq.edu.au/library-and-student-it-help/print-scan-and-copy/your-printing-account">
+            <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+              <svg data-testid="library-print-balance-icon" class="library-print-balance-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <g clip-path="url(#clip0_1723_14098)">
+                  <path d="M3.01562 12C3.01563 14.3828 3.96219 16.668 5.64709 18.3529C7.33198 20.0378 9.6172 20.9844 12 20.9844C14.3828 20.9844 16.668 20.0378 18.3529 18.3529C20.0378 16.668 20.9844 14.3828 20.9844 12C20.9844 9.6172 20.0378 7.33198 18.3529 5.64709C16.668 3.96219 14.3828 3.01563 12 3.01562C9.6172 3.01563 7.33198 3.96219 5.64709 5.64709C3.96219 7.33198 3.01563 9.6172 3.01562 12Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M10.2031 13.7969C10.2031 14.1523 10.3085 14.4997 10.506 14.7952C10.7034 15.0907 10.984 15.321 11.3124 15.457C11.6407 15.593 12.002 15.6286 12.3506 15.5592C12.6991 15.4899 13.0193 15.3188 13.2706 15.0675C13.5219 14.8162 13.693 14.496 13.7623 14.1474C13.8317 13.7989 13.7961 13.4376 13.6601 13.1092C13.5241 12.7809 13.2938 12.5003 12.9983 12.3028C12.7028 12.1054 12.3554 12 12 12C11.6446 12 11.2972 11.8946 11.0017 11.6972C10.7062 11.4997 10.4759 11.2191 10.3399 10.8908C10.2039 10.5624 10.1683 10.2011 10.2377 9.85257C10.307 9.50401 10.4781 9.18384 10.7294 8.93254C10.9807 8.68125 11.3009 8.51011 11.6494 8.44078C11.998 8.37144 12.3593 8.40703 12.6876 8.54303C13.016 8.67903 13.2966 8.90934 13.494 9.20484C13.6915 9.50033 13.7969 9.84774 13.7969 10.2031" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12 7.20801V8.40592" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12 15.5938V16.7917" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+                <defs><clipPath id="clip0_1723_14098"><rect width="20" height="20" fill="white" transform="translate(2 2)"></rect></clipPath></defs>
+              </svg>
+            </mat-icon>
+            <div class="textwrapper">
+                <span class="primaryText">Print balance</span>
+            </div>
+        </a>`;
+
+        const accountMenu = this.getAccountMenu();
+        if (!accountMenu) {
+            return;
+        }
+
+        const newMenuItemAdded = document.getElementById('print-balance-menu-item');
+        if (!!newMenuItemAdded) {
+            return; // we've already inserted the extra items
+        }
+
+        const extraLinksTemplate = document.createElement('template');
+        extraLinksTemplate.innerHTML = printBalanceButtonHtml;
+        !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
+    }
+
+    private addBookARoomMenuItem() {
+        const bookRoomButtonHtml = `<a id="book-a-room-menu-item" _ngcontent-ng-c4231447735="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator" role="menuitem" aria-disabled="false" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" href="https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb">
+            <mat-icon _ngcontent-ng-c4231447735="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
+              <svg data-testid="library-room-booking-icon" class="library-room-booking-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </mat-icon>
+            <div class="textwrapper">
+                <span class="primaryText">Book a room or desk</span>
+            </div>
+        </a>`;
+
+        const accountMenu = this.getAccountMenu();
+        if (!accountMenu) {
+            return;
+        }
+
+        const newMenuItemAdded = document.getElementById('book-a-room-menu-item');
+        if (!!newMenuItemAdded) {
+            return; // we've already inserted the extra items
+        }
+
+        const extraLinksTemplate = document.createElement('template');
+        extraLinksTemplate.innerHTML = bookRoomButtonHtml;
+        !!extraLinksTemplate && !!accountMenu && accountMenu.appendChild(extraLinksTemplate.content.cloneNode(true));
+    }
+
+    private updateLoggedinFavouritesButton = () => {
+        this.reLabelFavourites('Favourites');
+
         const movedFavouriteId = 'movedFavouriteWrapper';
 
         const movedFavourite = document.getElementById(movedFavouriteId);
         if (!!movedFavourite) {
+            this.showDebug && console.log('menu## updateLoggedinFavouritesButton not found', movedFavourite);
             return; // done
         }
 
+        this.showDebug && console.log('menu## updateLoggedinFavouritesButton movedFavourite=', movedFavourite);
         const wrappingUl = this.getSubAccountMenu();
+        this.showDebug && console.log('menu## updateLoggedinFavouritesButton wrappingUl=', wrappingUl);
         const favouritesItem = document.querySelector('[aria-label="Go to my saved records"]');
+        // console.log('menu## updateLoggedinFavouritesButton favouritesItem=', favouritesItem);
         if (!favouritesItem || !wrappingUl) {
+            this.showDebug && console.log('menu## updateLoggedinFavouritesButton fail, no fav/wrap');
             return;
         }
 
@@ -335,16 +354,18 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!newLi && !!wrappingUl && wrappingUl.appendChild(newLi);
     }
 
-    private addPurchaseRequestItemButton = () => {
+    private addPurchaseRequestItemMenuItem = () => {
         const newPurchaseRequestItemId = 'newPurchaseRequestItem';
 
         const newPurchaseRequestItem = document.getElementById(newPurchaseRequestItemId);
         if (!!newPurchaseRequestItem) {
+            // console.log('menu## addPurchaseRequestItemMenuItem already found')
             return; // already done
         }
 
         const wrappingUl = this.getSubAccountMenu();
         if (!wrappingUl) {
+            // console.log('menu## addPurchaseRequestItemMenuItem no sub menu')
             return;
         }
 
@@ -370,12 +391,15 @@ export class NdeUpdateAccountMenuCustomComponent {
     <span class="mat-mdc-menu-item-text">
         <span _ngcontent-ng-purchaseR="">Purchase request</span>
     </span>
+    <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
 </a>
  </li>`;
         !!newPurchaseRequestItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newPurchaseRequestItemElementTemplate.content.cloneNode(true));
     }
 
-    private addResourceDeliveryItemButton = (newResourceDeliveryItemId: string) => {
+    private addResourceDeliveryItemMenuItem = () => {
+        const newResourceDeliveryItemId = 'newResourceDeliveryItem';
+
         const newResourceDeliveryItem = document.getElementById(newResourceDeliveryItemId);
         if (!!newResourceDeliveryItem) {
             return; // already done
@@ -404,12 +428,13 @@ export class NdeUpdateAccountMenuCustomComponent {
         <span class="mat-mdc-menu-item-text">
             <span _ngcontent-ng-purchaseR="">Resource delivery request </span>
         </span>
+        <div matripple="" class="mat-ripple mat-mdc-menu-ripple"></div>
     </a>
 </li>`;
         !!newResourceDeliveryItemElementTemplate && !!wrappingUl && wrappingUl.appendChild(newResourceDeliveryItemElementTemplate.content.cloneNode(true));
     }
 
-    private addFeedbackButton = () => {
+    private addFeedbackMenuItem = () => {
         const accountMenu = this.getAccountMenu();
         if (!accountMenu) {
             return;
