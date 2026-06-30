@@ -21,7 +21,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
-    ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
+    // ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
     ['nde-search-filters-side-nav-after', NdeCountOfFiltersCustomComponent],
     ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
