@@ -12,40 +12,50 @@ export class NdeUpdateAccountMenuCustomComponent {
     showDebug = false;
     ngOnInit(): void {
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
-            // replace provided initials with the user's name (note we cannot rely on the ng-star-inserted class, it isn't reliable :( )
+            this.showDebug = Boolean(this.getCookie('showDebug'));
+
             const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn mat-icon svg');
             if (isLoggedOut) {
-                this.attachLoggedoutButtonContents()
+                this.attachLoggedoutButtonContents();
+                // when logged out, we don't show the account button
+                this.showHideAccountButton('hide');
+            } else {
+                // replace provided initials with the user's name
+                this.reLabelAccountButton();
+                this.styleUserName();
             }
-
-            this.showDebug = Boolean(this.getCookie('showDebug'));
-            // console.log('accdebug showDebug=', this.showDebug);
-
             const userNameAreaButton = document.querySelector('nde-user-area button');
             this.showDebug && console.log('accdebug userNameAreaButton=', userNameAreaButton);
             if (!!userNameAreaButton) { // should always be present
                 this.attachArrowButtons(userNameAreaButton);
             }
 
+            // if the logout & login buttons both aren't present then the account menu is not open (it is recreated on each open)
+            const logoutButton = document.querySelector('button[aria-label=" Log out"]');
+            const loginButton = document.querySelector('button[aria-label=" Log In"]');
+            if (!logoutButton && !loginButton) {
+                // no menu is present
+                this.showDebug && console.log('menu## no account menu');
+                return;
+            }
+
+            // update the contents of the account menu
             if (isLoggedOut) {
-                this.showDebug && console.log('accdebug logged OUT');
-                this.removeAccountButton();
+                this.showDebug && console.log('menu## logged OUT');
                 this.addFeedbackMenuItem();
 
                 this.reLabelFavourites('Session favourites');
                 this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
-                this.showDebug && console.log('accdebug logged IN');
+                this.showDebug && console.log('menu## logged IN');
                 this.updateLoggedinFavouritesButton();
                 this.addPurchaseRequestItemMenuItem();
                 this.addResourceDeliveryItemMenuItem();
 
-                this.reLabelAccountButton();
-                this.styleUserName();
                 this.addLearningResourcesMenuItem();
                 this.addPrintBalanceMenuItem();
                 this.addBookARoomMenuItem();
-                this.addFeedbackMenuItem(); // must happen before logout move
+                this.addFeedbackMenuItem();
 
                 this.reLabelSearchHistory(); // probably deleted in configuration
 
@@ -62,17 +72,18 @@ export class NdeUpdateAccountMenuCustomComponent {
     private getSubAccountMenu = () => {
         const submenuElementId = 'primo-account-sub-menu';
         const menuparent = document.getElementById(submenuElementId);
-        this.showDebug && console.log('accdebug getSubAccountMenu menuparent=', menuparent);
+        this.showDebug && console.log('menu## getSubAccountMenu menuparent=', menuparent);
         if (!menuparent) {
             const previousElement = document.querySelector('[aria-label="Go to my library account"]');
-            this.showDebug && console.log('accdebug getSubAccountMenu previousElement=', previousElement);
+            this.showDebug && console.log('menu## previousElement=', previousElement);
+            this.showDebug && console.log('menu## getSubAccountMenu previousElement=', previousElement);
             const newUlTemplate = document.createElement('template');
             newUlTemplate.innerHTML = '<ul id="primo-account-sub-menu" class="primo-account-sub-menu"></ul>'
-            this.showDebug && console.log('accdebug getSubAccountMenu newUlTemplate=', newUlTemplate);
+            this.showDebug && console.log('menu## getSubAccountMenu newUlTemplate=', newUlTemplate);
             !!newUlTemplate && !!previousElement && previousElement.after(newUlTemplate.content.cloneNode(true));
         }
         const elementById = document.getElementById(submenuElementId);
-        this.showDebug && console.log('accdebug getSubAccountMenu response=', elementById);
+        this.showDebug && console.log('menu## getSubAccountMenu response=', elementById);
         return elementById;
     }
 
@@ -120,10 +131,14 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!logoutIconTemplate && !!logoutMatIcon && logoutMatIcon.appendChild(logoutIconTemplate.content.cloneNode(true));
     }
 
-    private removeAccountButton() {
-        // when logged out, we don't show the account button
-        const accountButtonFound = document.querySelector(`.user-area-sub-menu a[aria-label="Go to my library account"]`);
-        !!accountButtonFound && accountButtonFound.remove();
+    private showHideAccountButton = (showHide: string) => {
+        const accountButtonFound = document.querySelector(`a[aria-label="Go to my library account"]`);
+        const accountButton = !!accountButtonFound && accountButtonFound as HTMLElement;
+        if (!accountButton) {
+            return;
+        }
+
+        accountButton.style.display = (showHide === 'show' ? 'flex' : 'none');
     }
 
     private reLabelAccountButton() {
@@ -136,6 +151,8 @@ export class NdeUpdateAccountMenuCustomComponent {
         if (!accountButtonFound) {
             return; // buttons not available yet
         }
+        // ensure any previous logged out state hasn't hidden the button!!
+        this.showHideAccountButton('show');
 
         // get rid of the existing icons
         const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
@@ -151,7 +168,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!accountMatIcon && accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
     }
 
-    private reLabelFavourites(newLabel: string = 'Favourites') {
+    private reLabelFavourites(newLabel: string) {
         this.showDebug && console.log('accdebug reLabelFavourites start newLabel=', newLabel);
         const newFavouritesIcon = document.getElementById('library-favourites-icon');
 
@@ -310,23 +327,23 @@ export class NdeUpdateAccountMenuCustomComponent {
     }
 
     private updateLoggedinFavouritesButton = () => {
-        this.reLabelFavourites();
+        this.reLabelFavourites('Favourites');
 
         const movedFavouriteId = 'movedFavouriteWrapper';
 
         const movedFavourite = document.getElementById(movedFavouriteId);
         if (!!movedFavourite) {
-            this.showDebug && console.log('accdebug updateLoggedinFavouritesButton not found', movedFavourite);
+            this.showDebug && console.log('menu## updateLoggedinFavouritesButton not found', movedFavourite);
             return; // done
         }
 
-        this.showDebug && console.log('accdebug updateLoggedinFavouritesButton movedFavourite=', movedFavourite);
+        this.showDebug && console.log('menu## updateLoggedinFavouritesButton movedFavourite=', movedFavourite);
         const wrappingUl = this.getSubAccountMenu();
-        this.showDebug && console.log('accdebug updateLoggedinFavouritesButton wrappingUl=', wrappingUl);
+        this.showDebug && console.log('menu## updateLoggedinFavouritesButton wrappingUl=', wrappingUl);
         const favouritesItem = document.querySelector('[aria-label="Go to my saved records"]');
-        this.showDebug && console.log('accdebug updateLoggedinFavouritesButton favouritesItem=', favouritesItem);
+        // console.log('menu## updateLoggedinFavouritesButton favouritesItem=', favouritesItem);
         if (!favouritesItem || !wrappingUl) {
-            this.showDebug && console.log('accdebug updateLoggedinFavouritesButton fail, no fav/wrap');
+            this.showDebug && console.log('menu## updateLoggedinFavouritesButton fail, no fav/wrap');
             return;
         }
 
@@ -342,11 +359,13 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const newPurchaseRequestItem = document.getElementById(newPurchaseRequestItemId);
         if (!!newPurchaseRequestItem) {
+            // console.log('menu## addPurchaseRequestItemMenuItem already found')
             return; // already done
         }
 
         const wrappingUl = this.getSubAccountMenu();
         if (!wrappingUl) {
+            // console.log('menu## addPurchaseRequestItemMenuItem no sub menu')
             return;
         }
 
