@@ -103,11 +103,13 @@ export class CourseReadingListFullFunctions {
             '</svg>' +
             '</mat-icon>';
 
-        const showAllButtonLabel = 'Show all';
-        const showLessButtonLabel = 'Show less';
+        const buttonId = 'toggle-long-crl';
+        const buttonLabelId = 'toggle-long-crl-label';
+        const buttonLabelShowAll = 'Show all'; // initial value
+        const buttonLabelShowLess = 'Show less';
         const maxNumberReadingListsDisplayed = 5; // when there are a lot of course, we show a 'show all' button when there are more than this number
         const crlHiddenClass = 'uql-crl-list-hidden'; // courses which are actually hidden, add/remove this classname
-        const crlHideableClass = `uql-crl-list-hideable`; // courses which are > maxNumberReadingListsDisplayed, find this to add/remove crlHiddenClass
+        const crlHideableClass = `uql-crl-list-hideable`; // courses which are > maxNumberReadingListsDisplayed, add this classname so we find it to add/remove crlHiddenClass
 
         const targetElement = document.querySelector('nde-full-display-side-bar');
 
@@ -148,12 +150,12 @@ export class CourseReadingListFullFunctions {
         htmlContent += `</ul>`;
         if (numberOfReadingLists >= maxNumberReadingListsDisplayed) {
             htmlContent += `<div class="toggle-show-all-button">
-    <button id="toggle-long-crl" _ngcontent-ng-crl="" mat-button="" data-qa="full-display-crl-show-more-btn" mat-ripple-loader-class-name="mat-mdc-button-ripple" class="mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base" aria-label="Click for more suggestions">
+    <button id="${buttonId}" _ngcontent-ng-crl="" mat-button="" data-qa="full-display-crl-show-more-btn" mat-ripple-loader-class-name="mat-mdc-button-ripple" class="mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base" aria-label="Click for more suggestions">
         <span class="mat-mdc-button-persistent-ripple mdc-button__ripple"></span>
         <span class="mdc-button__label">
             <span _ngcontent-ng-crl="" class="button-label flex-row">
-                <span id="toggle-long-crl-label">
-                    ${showAllButtonLabel}
+                <span id="${buttonLabelId}">
+                    ${buttonLabelShowAll}
                 </span>
                 <mat-icon _ngcontent-ng-crl="" role="img" class="toggle-long-crl-icon mat-icon notranslate mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Arrow-down-black">
                     <svg width="100%" height="100%" viewBox="0 0 24 25" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
@@ -186,24 +188,25 @@ export class CourseReadingListFullFunctions {
         !!targetElement && targetElement.prepend(template.content.cloneNode(true));
 
         // handle the "Show all" / "Show less" button click when there are many courses
-        const longToggleButton = document.getElementById('toggle-long-crl');
-        const longToggleButtonLabel = document.getElementById('toggle-long-crl-label');
+        const longToggleButton = document.getElementById(buttonId);
+        const longToggleButtonLabel = document.getElementById(buttonLabelId);
         // const longToggleButtonIcon = document.getElementById('toggle-long-crl-icon');
         !!longToggleButton && longToggleButton.addEventListener('click', function (event) {
             const hiddenCRL = document.querySelectorAll(`.${crlHiddenClass}`);
             if (hiddenCRL?.length > 0) {
                 // hiding the entries - show them
                 hiddenCRL.forEach(c => c.classList.remove(crlHiddenClass))
-                !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = showLessButtonLabel);
-                // !!longToggleButtonIcon && (longToggleButtonIcon.style.transform = 'none');
+                !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = buttonLabelShowLess);
+                !!longToggleButton && !longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.add('noneHidden');
             } else {
                 // visible entries - hide them
                 const hideableCRL = document.querySelectorAll(`.${crlHideableClass}`);
                 hideableCRL?.forEach(c =>  c.classList.add(crlHiddenClass))
-                !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = showAllButtonLabel);
+                !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = buttonLabelShowAll);
                 // !!longToggleButtonIcon && (longToggleButtonIcon.style.transform = 'rotate(180deg)');
                 // scroll the top into view, rather than leaving it floating in the midle of the page
                 document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
+                !!longToggleButton && longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.remove('noneHidden');
             }
         });
 
