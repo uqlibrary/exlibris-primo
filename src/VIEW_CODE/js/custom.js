@@ -785,14 +785,15 @@ function whenPageLoaded(fn) {
 	//    At the top of this list view is the third place we put the custom indicator
 	// See canary tests for examples
 	function createCustomIconIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
-        const html = `<div class="customIndicator badge-item ${iconWrapperClassName} layout-row">
-    <prm-icon class="${iconWrapperClassName}Icon indicatorIcon badge-icon">
-        <md-icon role="presentation" class="md-primoExplore-theme">
-            <svg width="100%" height="100%" viewBox="0 0 24 24" focusable="false"><path d="${svgPathValue}"></path></svg>
-        </md-icon>
-    </prm-icon>
-    <span class="${iconWrapperClassName}Label customIndicatorLabel">${labelText}</span>
-</div>`;
+        const html =
+            `<div id="${uniqueId}" class="customIndicator badge-item ${iconWrapperClassName} layout-row">
+                <prm-icon class="${iconWrapperClassName}Icon indicatorIcon badge-icon">
+                    <md-icon role="presentation" class="md-primoExplore-theme">
+                        <svg width="100%" height="100%" viewBox="0 0 24 24" focusable="false"><path d="${svgPathValue}"></path></svg>
+                    </md-icon>
+                </prm-icon>
+                <span class="${iconWrapperClassName}Label customIndicatorLabel">${labelText}</span>
+            </div>`;
         const template = document.createElement('template');
         template.innerHTML = html;
         return template.content.cloneNode(true);
@@ -840,6 +841,31 @@ function whenPageLoaded(fn) {
 		return `prm-brief-result-container${specificClassName} #${parentDOMId}`;
 	}
 
+    const mouseoverTooltip = (hoveredElement, tooltiptext, tooltipId) => {
+        const tooltipLengthPixels = 15 * tooltiptext.length; // 16px rem; 15 seems to give a good result
+        const rect = hoveredElement?.getBoundingClientRect();
+        const centreOfElement = ((rect?.right - rect?.left) / 2) + rect.left || null;
+        const heightOfHoveredElement = rect?.bottom - rect?.top || 24;
+        const tooltipLeft = centreOfElement ? centreOfElement - (tooltipLengthPixels / 4) : tooltipLengthPixels / 4;
+        const tooltipTop = (rect?.top ?? 0) + (heightOfHoveredElement);
+        const toolTipHtml =
+            `<uql-tooltip id="${tooltipId}" class="md-panel-outer-wrapper md-primoExplore-theme md-panel-is-showing" style="pointer-events: none; z-index: 100;">
+                    <div class="md-panel-inner-wrapper" style="z-index: 101; top: ${tooltipTop}px; left: ${tooltipLeft}px;">
+                        <md-tooltip md-direction="" class="md-panel md-tooltip md-origin-bottom md-primoExplore-theme md-show"
+                                    tabindex="-1" style="pointer-events: all;" role="tooltip">
+                            <span>${tooltiptext}</span>
+                        </md-tooltip>
+                    </div>
+                </uql-tooltip>`;
+        const template = document.createElement('template');
+        !!template && (template.innerHTML = toolTipHtml);
+        !!template && document.body.appendChild(template.content.cloneNode(true));
+    }
+    const mouseoutTooltip = (toolTipId) => {
+        const tooltip = document.getElementById(toolTipId);
+        !!tooltip && tooltip.remove();
+    }
+
 	function addCulturalAdviceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full', intendedParentElement) {
 		const className = "culturalAdviceMark";
 		const thisIndicatorAbbrev = "cultadv";
@@ -856,6 +882,16 @@ function whenPageLoaded(fn) {
 		}
 
 		addCustomIconIndicatorToHeader(createdIndicator, intendedParentElement);
+
+        // add tooltip to icon
+        const tooltipId = `${uniqueId}-tooltip`;
+        const hoveredElement = document.getElementById(uniqueId);
+        !!hoveredElement && hoveredElement.addEventListener('mouseover', function (event) {
+            mouseoverTooltip(hoveredElement, 'This resource has an advisory statement', tooltipId);
+        });
+        !!hoveredElement && hoveredElement.addEventListener('mouseout', function (event) {
+            mouseoutTooltip(tooltipId);
+        });
 	}
 
 	function addCourseResourceIndicatorToHeader(recordId, uniqueIdSuffix, pageType='full', intendedParentElement) {
@@ -873,7 +909,17 @@ function whenPageLoaded(fn) {
 		}
 
 		addCustomIconIndicatorToHeader(createdIndicator, intendedParentElement);
-	}
+
+        // add tooltip to icon
+        const tooltipId = `${uniqueId}-tooltip`;
+        const hoveredElement = document.getElementById(uniqueId);
+        !!hoveredElement && hoveredElement.addEventListener('mouseover', function (event) {
+            mouseoverTooltip(hoveredElement, 'This resource is on a course reading list', tooltipId);
+        });
+        !!hoveredElement && hoveredElement.addEventListener('mouseout', function (event) {
+            mouseoutTooltip(tooltipId);
+        });
+    }
 
 	function getListTalisUrls(item) {
 		const TALIS_DOMAIN = "https://uq.rl.talis.com/";
