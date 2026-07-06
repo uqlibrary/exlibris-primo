@@ -333,7 +333,7 @@ export class NdeUpdateAccountMenuCustomComponent {
 
         const movedFavourite = document.getElementById(movedFavouriteId);
         if (!!movedFavourite) {
-            this.showDebug && console.log('menu## updateLoggedinFavouritesButton not found', movedFavourite);
+            this.showDebug && console.log('menu## updateLoggedinFavouritesButton found', movedFavourite);
             return; // done
         }
 
