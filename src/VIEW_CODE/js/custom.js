@@ -785,39 +785,17 @@ function whenPageLoaded(fn) {
 	//    At the top of this list view is the third place we put the custom indicator
 	// See canary tests for examples
 	function createCustomIconIndicator(svgPathValue, iconWrapperClassName, labelText, uniqueId) {
-
-		const iconClassName = `${iconWrapperClassName}Icon`;
-		const labelClassName = `${iconWrapperClassName}Label`;
-		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-		!!path && path.setAttribute("d", svgPathValue);
-
-		const svgCR = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-		!!svgCR && svgCR.setAttribute("width", "100%");
-		!!svgCR && svgCR.setAttribute("height", "100%");
-		!!svgCR && svgCR.setAttribute("viewBox", "0 0 24 24");
-		!!svgCR && svgCR.setAttribute("focusable", "false");
-		!!svgCR && !!path && svgCR.appendChild(path);
-
-		const mdIcon = document.createElement("md-icon");
-		!!mdIcon && mdIcon.setAttribute("role", "presentation");
-		!!mdIcon && (mdIcon.className = "md-primoExplore-theme");
-		!!mdIcon && !!svgCR && mdIcon.appendChild(svgCR);
-
-		const prmIcon = document.createElement("prm-icon");
-		!!prmIcon && prmIcon.classList.add(iconClassName, 'indicatorIcon', 'badge-icon');
-		!!prmIcon && !!mdIcon && prmIcon.appendChild(mdIcon);
-
-		const contentLabel = document.createElement("span");
-		!!contentLabel && contentLabel.classList.add(labelClassName, "customIndicatorLabel");
-		!!contentLabel && (contentLabel.innerHTML = labelText);
-
-		const iconWrapper = document.createElement("div");
-		// iconWrapperClassName is used to hide any duplicate icons, which shouldn't happen, but rarely there is a race condition
-		!!iconWrapper && iconWrapper.classList.add('customIndicator', 'badge-item', iconWrapperClassName, 'layout-row');
-		!!iconWrapper && !!prmIcon && iconWrapper.appendChild(prmIcon);
-		!!iconWrapper && !!contentLabel && iconWrapper.appendChild(contentLabel);
-
-		return iconWrapper;
+        const html = `<div class="customIndicator badge-item ${iconWrapperClassName} layout-row">
+    <prm-icon class="${iconWrapperClassName}Icon indicatorIcon badge-icon">
+        <md-icon role="presentation" class="md-primoExplore-theme">
+            <svg width="100%" height="100%" viewBox="0 0 24 24" focusable="false"><path d="${svgPathValue}"></path></svg>
+        </md-icon>
+    </prm-icon>
+    <span class="${iconWrapperClassName}Label customIndicatorLabel">${labelText}</span>
+</div>`;
+        const template = document.createElement('template');
+        template.innerHTML = html;
+        return template.content.cloneNode(true);
 	}
 
 	function addCustomIconIndicatorToHeader(createdIndicator, intendedParentElement = null) {
