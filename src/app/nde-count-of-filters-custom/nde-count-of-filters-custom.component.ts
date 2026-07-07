@@ -1,5 +1,5 @@
 import {Component, ElementRef, inject} from '@angular/core';
-import {currentEnvironmentId, getCookieValue} from "../shared/common";
+import {currentEnvironmentId, findHostRecord, getCookieValue} from "../shared/common";
 
 interface SearchResponse {
     facets: [{
@@ -23,7 +23,7 @@ export class NdeCountOfFiltersCustomComponent {
     private elementRoot: HTMLElement | null = null;
 
     ngOnInit(): void {
-        this.elementRoot = this.findHostRecordIndications();
+        this.elementRoot = findHostRecord(this.elementRef, 'nde-search-filters-side-nav');
         const standardHtml = '<span class="filter-results-count ng-star-inserted">(RECORD_COUNT)</span>';
 
         // get all entries that are missing the count display and include the amount in the aria label
@@ -213,37 +213,6 @@ export class NdeCountOfFiltersCustomComponent {
         }
 
         return paramString;
-    }
-
-    private findHostRecordIndications(soughtElement: string = 'nde-search-filters-side-nav'): HTMLElement | null {
-        const nativeEl: HTMLElement = this.elementRef.nativeElement;
-
-        let cursor: HTMLElement | null = nativeEl;
-        while (cursor) {
-            // Check previous siblings at this level for nde-search-filters-side-nav
-            let sibling = cursor.previousElementSibling as HTMLElement | null;
-            while (sibling) {
-                if (sibling.tagName.toLowerCase() === soughtElement) {
-                    return sibling;
-                }
-                // Also check if it's nested inside a sibling wrapper
-                const nested = sibling.querySelector(soughtElement);
-                if (nested) {
-                    return nested as HTMLElement;
-                }
-                sibling = sibling.previousElementSibling as HTMLElement | null;
-            }
-
-            // Move up one level and try again
-            cursor = cursor.parentElement;
-
-            // don't walk too far up the tree if not found
-            if (cursor?.tagName.toLowerCase() === 'main' || cursor?.tagName.toLowerCase() === 'body') {
-                break;
-            }
-        }
-
-        return null;
     }
 
     // Source - https://stackoverflow.com/a/2901298

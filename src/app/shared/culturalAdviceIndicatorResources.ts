@@ -1,4 +1,4 @@
-import {contentIndicatorHtml, mouseoutTooltip, mouseoverTooltip} from "./common";
+import {contentIndicatorHtml, mouseoutTooltip, mouseoverTooltip, pnxInterface} from "./common";
 
 export type pnxInterface = { control: { recordid: any; }; display: { lds05: any; lds04?: any; }; };
 
