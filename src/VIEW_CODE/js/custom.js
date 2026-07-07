@@ -1211,64 +1211,142 @@ function whenPageLoaded(fn) {
 		}
 	}
 
-	function displayReadingListIndicatorOnSomeFullRecords($http, vm) {
+    function saveLocalStorageCache(cacheName, cache) {
+        try {
+            console.log('cch### saveLocalStorageCache cache=', cache);
+            localStorage.setItem(cacheName, JSON.stringify(cache));
+        } catch (e) {
+            // localStorage might be full or unavailable; fail silently
+        }
+    }
+
+    // write all the talis entries in one local storage entry
+    function getLocalStorageCache(cacheName, expiryPeriodMilliseconds) {
+        let cache = {};
+        try {
+            cache = JSON.parse(localStorage.getItem(cacheName)) || {};
+            console.log('cch### getLocalStorageCache 1 cache=', cache);
+        } catch (e) {
+            cache = {};
+        }
+
+        // strip out anything older than 1 day
+        const now = Date.now();
+        let changed = false;
+        for (const url in cache) {
+            if (!cache[url] || !cache[url].date || (now - cache[url].date) > expiryPeriodMilliseconds) {
+                delete cache[url];
+                console.log('cch### getLocalStorageCache 2 clearing', cache[url].date, url);
+                changed = true;
+            } else {
+                console.log('cch### getLocalStorageCache 2 cache valid for:', cache[url].date, url);
+            }
+        }
+        if (changed) {
+            console.log('cch### getLocalStorageCache 3 updating cache=', cache);
+            saveLocalStorageCache(cacheName, cache);
+        }
+        return cache;
+    }
+
+    function displayReadingListIndicatorOnSomeFullRecords($http, vm) {
 		const unsafeReadingListBaseUrl = 'http://lr.library.uq.edu.au';
 		const safeReadingListBaseUrl = 'https://uq.rl.talis.com';
 
-		const talisCourses  = {};
-		let courseList = {}; // associative arrays are done in js as objects
+        const talisCourses  = {};
+        let courseList = {}; // associative arrays are done in js as objects
 
-		async function getTalisDataFromAllApiCalls(listUrls) {
-			const listUrlsToCall = listUrls.filter(url => url.startsWith('http'))
-			const promiseList = listUrlsToCall.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
-			// get all the urls then sort them into a non-repeating list
-			await Promise.allSettled(promiseList)
-				.then(response => {
-					response.forEach(r => {
-						if (!r.status || r.status !== 'fulfilled' || !r.value || !r.value.data) {
-							return;
-						}
-						for (let talisUrl in r.value.data) {
-							const subjectCode = r.value.data[talisUrl];
-							!courseList[talisUrl] && (courseList[talisUrl] = subjectCode);
-						}
-					});
-				})
-				.finally(() => {
-					if (Object.keys(courseList).length > 0) {
-						const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
-						if (!!recordid) {
-							const waitForJIElement = setInterval(() => {
-								const journalIndicationElement = document.querySelector('.full-view-container prm-search-result-journal-indication-line');
-								if (!journalIndicationElement) {
-									return;
-								}
-								clearInterval(waitForJIElement);
-								addCourseResourceIndicatorToHeader(recordid, "full", null, journalIndicationElement);
-							}, 100);
-						}
+        const TALIS_CACHE_KEY = 'uqlTalisCourseList';
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const TEN_MINUTES_MS = 10 * 60 * 1000;
+        const CACHE_LENGTH_MS = TEN_MINUTES_MS;
 
-						// sort by course code for display
-						let sortable = [];
-						for (let talisUrl in courseList) {
-							const subjectCode = courseList[talisUrl];
-							sortable.push([talisUrl, subjectCode]);
-						}
-						sortable.sort(function (a, b) {
-							return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
-						});
-						sortable.forEach((entry) => {
-							const subjectCode = entry[1];
-							const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
-							talisCourses[talisUrl] = subjectCode;
-						});
+        async function getTalisDataFromAllApiCalls(listUrls) {
+            const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
-						createAndAppendCourseList(talisCourses);
+            // load valid (non-expired) cache entries
+            const talisCache = getLocalStorageCache(TALIS_CACHE_KEY, CACHE_LENGTH_MS);
+            console.log('cch### getTalisDataFromAllApiCalls talisCache=', talisCache);
 
-						addCRLButtontoSidebar();
-					}
-				});
-		}
+            // split urls into ones we already have cached, and ones we still need to fetch
+            const urlsNeedingFetch = [];
+            listUrlsToCall.forEach(talisUrl => {
+                if (talisCache[talisUrl] && typeof talisCache[talisUrl].courseCode !== 'undefined') {
+                    console.log('cch### getTalisDataFromAllApiCalls AA fetch from cache:', talisUrl);
+                    !courseList[talisUrl] && (courseList[talisUrl] = talisCache[talisUrl].courseCode);
+                } else {
+                    console.log('cch### getTalisDataFromAllApiCalls AA fetch from talis:', talisUrl);
+                    urlsNeedingFetch.push(talisUrl);
+                }
+            });
+            console.log('cch### getTalisDataFromAllApiCalls courseList from cache=', courseList);
+            console.log('cch### getTalisDataFromAllApiCalls urlsNeedingFetch=', urlsNeedingFetch);
+
+            const promiseList = urlsNeedingFetch.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
+            // get all the urls then sort them into a non-repeating list
+            await Promise.allSettled(promiseList)
+                .then(response => {
+                    let cacheChanged = false;
+                    response.forEach(r => {
+                        if (!r.status || r.status !== 'fulfilled' || !r.value || !r.value.data) {
+                            return;
+                        }
+                        // console.log('cch### getTalisDataFromAllApiCalls r=', r);
+                        // console.log('cch### getTalisDataFromAllApiCalls r.value=', r.value);
+                        // console.log('cch### getTalisDataFromAllApiCalls r.value.config=', r.value?.config);
+                        console.log('cch### getTalisDataFromAllApiCalls r.value.config.url=', r.value?.config?.url);
+                        console.log('cch### getTalisDataFromAllApiCalls r.value.data=', r.value.data);
+                        for (let talisUrl in r.value.data) {
+                            const subjectCode = r.value.data[talisUrl];
+                            !courseList[talisUrl] && (courseList[talisUrl] = subjectCode);
+
+                            // write freshly-fetched value into localStorage cache
+                            const requestedUrl = r.value?.config?.url;
+                            if (!!requestedUrl) {
+                                talisCache[requestedUrl] = {courseCode: subjectCode, date: Date.now()};
+                                cacheChanged = true;
+                            }
+                        }
+                    });
+                    if (cacheChanged) {
+                        saveLocalStorageCache(TALIS_CACHE_KEY, talisCache);
+                    }
+                })
+                .finally(() => {
+                    if (Object.keys(courseList).length > 0) {
+                        const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+                        if (!!recordid) {
+                            const waitForJIElement = setInterval(() => {
+                                const journalIndicationElement = document.querySelector('.full-view-container prm-search-result-journal-indication-line');
+                                if (!journalIndicationElement) {
+                                    return;
+                                }
+                                clearInterval(waitForJIElement);
+                                addCourseResourceIndicatorToHeader(recordid, "full", null, journalIndicationElement);
+                            }, 100);
+                        }
+
+                        // sort by course code for display
+                        let sortable = [];
+                        for (let talisUrl in courseList) {
+                            const subjectCode = courseList[talisUrl];
+                            sortable.push([talisUrl, subjectCode]);
+                        }
+                        sortable.sort(function (a, b) {
+                            return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
+                        });
+                        sortable.forEach((entry) => {
+                            const subjectCode = entry[1];
+                            const talisUrl = fixUnsafeReadingListUrl(addUrlParam(entry[0], 'login', true));
+                            talisCourses[talisUrl] = subjectCode;
+                        });
+
+                        createAndAppendCourseList(talisCourses);
+
+                        addCRLButtontoSidebar();
+                    }
+                });
+        }
 
 		function fixUnsafeReadingListUrl(url) {
 			return url.replace(unsafeReadingListBaseUrl, safeReadingListBaseUrl);
