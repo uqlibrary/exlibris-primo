@@ -1,7 +1,5 @@
 import {contentIndicatorHtml, mouseoutTooltip, mouseoverTooltip, pnxInterface} from "./common";
 
-export type pnxInterface = { control: { recordid: any; }; display: { lds05: any; lds04?: any; }; };
-
 const culturalAdviceIconHtml: string =
     `<svg width="100%" height="100%" viewBox="0 0 24 24" focusable="false">
     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
