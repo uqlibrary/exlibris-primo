@@ -1236,10 +1236,10 @@ function whenPageLoaded(fn) {
         for (const url in cache) {
             if (!cache[url] || !cache[url].date || (now - cache[url].date) > expiryPeriodMilliseconds) {
                 delete cache[url];
-                console.log('cch### getLocalStorageCache 2 clearing', cache[url].date, url);
+                console.log('cch### getLocalStorageCache 2 clearing', url, cache[url]);
                 changed = true;
             } else {
-                console.log('cch### getLocalStorageCache 2 cache valid for:', cache[url].date, url);
+                console.log('cch### getLocalStorageCache 2 cache valid for:', url, cache[url]);
             }
         }
         if (changed) {
@@ -1249,17 +1249,17 @@ function whenPageLoaded(fn) {
         return cache;
     }
 
+    const TALIS_CACHE_KEY = 'uqlTalisCourseList';
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+    const TEN_MINUTES_MS = 10 * 60 * 1000;
+    const CACHE_LENGTH_MS = TEN_MINUTES_MS;
+
     function displayReadingListIndicatorOnSomeFullRecords($http, vm) {
 		const unsafeReadingListBaseUrl = 'http://lr.library.uq.edu.au';
 		const safeReadingListBaseUrl = 'https://uq.rl.talis.com';
 
         const talisCourses  = {};
         let courseList = {}; // associative arrays are done in js as objects
-
-        const TALIS_CACHE_KEY = 'uqlTalisCourseList';
-        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-        const TEN_MINUTES_MS = 10 * 60 * 1000;
-        const CACHE_LENGTH_MS = TEN_MINUTES_MS;
 
         async function getTalisDataFromAllApiCalls(listUrls) {
             const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
