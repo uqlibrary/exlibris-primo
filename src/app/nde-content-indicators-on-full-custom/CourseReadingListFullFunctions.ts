@@ -164,7 +164,6 @@ export class CourseReadingListFullFunctions {
         );
 
         try {
-            // const talisCourses = {}
             let cacheChanged = false;
             await Promise.allSettled(promises)
                 .then(responses => {
@@ -175,13 +174,11 @@ export class CourseReadingListFullFunctions {
                         const data = result.value; // now typed as {[key: string]: string}
                         for (const talisUrl in data) {
                             const subjectCode = data[talisUrl];
-                            console.log('subjectCode=', subjectCode);
                             if (!courseList[talisUrl]) {
                                 !courseList[subjectCode] && (courseList[subjectCode] = talisUrl);
                             }
 
                             // write freshly-fetched value into localStorage cache
-                            // const requestedUrl = String(result?.value.config?.url) || '';
                             const requestedUrl = pnxUrlsNeedingFetch[index];
                             if (!!requestedUrl) {
                                 talisCache[requestedUrl] = {
@@ -196,7 +193,7 @@ export class CourseReadingListFullFunctions {
                     if (Object.keys(courseList).length > 0) {
                         this.addCourseResourceIndicatorToHeader();
 
-                        console.log('courseList stringify=', JSON.stringify(courseList));
+                        // sort by coursecode for display
                         courseList = Object.keys(courseList)
                             .sort()
                             .reduce((prev: {[key: string]: string}, subjCode) => {
@@ -205,8 +202,6 @@ export class CourseReadingListFullFunctions {
                                 },
                                 {}
                             );
-                        console.log('courseList after=', JSON.stringify(courseList));
-                        console.log('courseList 2=', courseList);
 
                         this.createAndAppendCourseList(courseList);
                     }
@@ -220,7 +215,6 @@ export class CourseReadingListFullFunctions {
     }
 
     private createAndAppendCourseList(talisCourses: { [s: string]: string; } | ArrayLike<unknown>) {
-        console.log('createAndAppendCourseList talisCourses=', talisCourses);
         const linkOutIcon: string =
             '<mat-icon style="height: 20px; width: 18px;" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
             '<svg width="16" height="16" viewBox="0 0 24 24">' +
