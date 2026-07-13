@@ -3,6 +3,17 @@ import {Store} from '@ngrx/store';
 import {isReturnKeyPressed, mouseoverTooltip, mouseoutTooltip, pnxInterface, selectSearchState} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
+const TALIS_CACHE_KEY = 'uqlTalisCourseList';
+const ONE_DAY_MS = 24 * 60 * 60 * 1000; // prod
+const TEN_MINUTES_MS = 10 * 60 * 1000; // debug, maybe sandbox?
+const CACHE_LENGTH_MS = TEN_MINUTES_MS;
+
+interface CacheEntry {
+    date: number;
+    courseCode: string;
+}
+type Cache = Record<string, CacheEntry>;
+
 export class CourseReadingListFullFunctions {
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
@@ -23,11 +34,66 @@ export class CourseReadingListFullFunctions {
         }
     }
 
+    private saveLocalStorageCache(cacheName: string, cache: Cache) {
+        try {
+            console.log('cch### saveLocalStorageCache cache=', cacheName, cache);
+            localStorage.setItem(cacheName, JSON.stringify(cache));
+        } catch (e) {
+            // localStorage might be full or unavailable; fail silently
+        }
+    }
+
+    // write all the talis entries in one local storage entry
+    private getLocalStorageCache(cacheName: string, expiryPeriodMilliseconds: number): any {
+        let cache: Cache = {};
+        try {
+            cache = JSON.parse(localStorage.getItem(cacheName) || '') || {};
+            console.log('cch### getLocalStorageCache 1 cache=', cache);
+        } catch (e) {
+            cache = {};
+        }
+
+        // strip out anything older than 1 day
+        const now = Date.now();
+        let changed = false;
+        for (const url in cache) {
+            if (!cache[url] || !cache[url].date || (now - cache[url].date) > expiryPeriodMilliseconds) {
+                delete cache[url];
+                console.log('cch### getLocalStorageCache 2 clearing', cache[url].date, url);
+                changed = true;
+            } else {
+                console.log('cch### getLocalStorageCache 2 cache valid for:', cache[url].date, url);
+            }
+        }
+        if (changed) {
+            console.log('cch### getLocalStorageCache 3 updating cache=', cache);
+            this.saveLocalStorageCache(cacheName, cache);
+        }
+        return cache;
+    }
+
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
         const courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
-        const promises = listUrlsToCall.map(url =>
+        // load valid (non-expired) cache entries
+        const talisCache = this.getLocalStorageCache(TALIS_CACHE_KEY, CACHE_LENGTH_MS);
+        console.log('cch### getTalisDataFromAllApiCalls talisCache=', talisCache);
+
+        // split urls into ones we already have cached, and ones we still need to fetch
+        const urlsNeedingFetch: string[] = [];
+        listUrlsToCall.forEach(talisUrl => {
+            if (talisCache[talisUrl] && typeof talisCache[talisUrl].courseCode !== 'undefined') {
+                console.log('cch### getTalisDataFromAllApiCalls AA fetch from cache:', talisUrl);
+                !courseList[talisUrl] && (courseList[talisUrl] = talisCache[talisUrl].courseCode);
+            } else {
+                console.log('cch### getTalisDataFromAllApiCalls AA fetch from talis:', talisUrl);
+                urlsNeedingFetch.push(talisUrl);
+            }
+        });
+        console.log('cch### getTalisDataFromAllApiCalls courseList from cache=', courseList);
+        console.log('cch### getTalisDataFromAllApiCalls urlsNeedingFetch=', urlsNeedingFetch);
+        const promises = urlsNeedingFetch.map(url =>
             new Promise<{ [key: string]: string } | null>((resolve) => {
                 const callbackName = `talis_cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
                 const script = document.createElement('script');
@@ -56,17 +122,36 @@ export class CourseReadingListFullFunctions {
             const talisCourses = {}
             await Promise.allSettled(promises)
                 .then(responses => {
-                    responses.forEach((result) => {
+                    let cacheChanged = false;
+                    responses.forEach((result, index) => {
                         if (result.status !== 'fulfilled' || !result?.value) {
                             return;
                         }
+                        console.log('cch### getTalisDataFromAllApiCalls loop result=', result);
                         const data = result.value; // now typed as {[key: string]: string}
+                        console.log('cch### getTalisDataFromAllApiCalls loop data=', data);
                         for (const talisUrl in data) {
+                            console.log('cch### getTalisDataFromAllApiCalls loop talisUrl=', talisUrl);
+                            const courseName = data[talisUrl];
                             if (!courseList[talisUrl]) {
-                                courseList[talisUrl] = data[talisUrl];
+                                console.log('cch### getTalisDataFromAllApiCalls loop courseList[talisUrl]=', courseList[talisUrl]);
+                                courseList[talisUrl] = courseName;
+                                // console.log('cch### getTalisDataFromAllApiCalls loop data[talisUrl]=', data[talisUrl]);
+                            }
+
+                            // write freshly-fetched value into localStorage cache
+                            // const requestedUrl = String(result?.value.config?.url) || '';
+                            const requestedUrl = urlsNeedingFetch[index];
+                            if (!!requestedUrl) {
+                                talisCache[requestedUrl] = {courseCode: courseName, date: Date.now()};
+                                cacheChanged = true;
                             }
                         }
                     });
+                    if (cacheChanged) {
+                        console.log('cch### getTalisDataFromAllApiCalls updating cache=', talisCache);
+                        this.saveLocalStorageCache(TALIS_CACHE_KEY, talisCache);
+                    }
                 }).finally(() => {
                     if (Object.keys(courseList).length > 0) {
                         this.addCourseResourceIndicatorToHeader();
