@@ -17,6 +17,7 @@ type Cache = Record<string, CacheEntry>;
 class LocalStorageCacheManager {
     private static instance: LocalStorageCacheManager;
     private static expiryPeriodMilliseconds: number;
+    private static cacheName: string;
     private cache: Cache = {};
 
     // fallback mutex chain, used only if navigator.locks isn't available
@@ -25,8 +26,9 @@ class LocalStorageCacheManager {
     // no constructor on singleton
     private constructor() {}
 
-    public static getInstance(expiryPeriodMilliseconds: number): LocalStorageCacheManager {
+    public static getInstance(cacheName: string, expiryPeriodMilliseconds: number): LocalStorageCacheManager {
         this.expiryPeriodMilliseconds = expiryPeriodMilliseconds;
+        this.cacheName = cacheName;
 
         if (!LocalStorageCacheManager.instance) {
             LocalStorageCacheManager.instance = new LocalStorageCacheManager();
@@ -34,20 +36,24 @@ class LocalStorageCacheManager {
         return LocalStorageCacheManager.instance;
     }
 
-    public saveLocalStorageCache(cacheName: string, cache: Cache) {
+    public saveLocalStorageCache(cache: Cache) {
         try {
-            console.log('cch### saveLocalStorageCache cache=', cacheName, cache);
-            localStorage.setItem(cacheName, JSON.stringify(cache));
+            console.log('cch### saveLocalStorageCache cache=', LocalStorageCacheManager.cacheName, cache);
+            localStorage.setItem(LocalStorageCacheManager.cacheName, JSON.stringify(cache));
         } catch (e) {
             // localStorage might be full or unavailable; fail silently
         }
     }
 
     // write all the talis entries in one local storage entry
-    public getLocalStorageCache(cacheName: string): any {
+    public getLocalStorageCache(): any {
         try {
-            this.cache = JSON.parse(localStorage.getItem(cacheName) || '') || {};
-            console.log('cch### getLocalStorageCache 1 cache=', this.cache);
+            if (Object.keys(this.cache).length === 0) {
+                this.cache = JSON.parse(localStorage.getItem(LocalStorageCacheManager.cacheName) || '') || {};
+                console.log('cch### getLocalStorageCache 1 read cache=', this.cache);
+            } else {
+                console.log('cch### getLocalStorageCache 1 cache known=', this.cache);
+            }
         } catch (e) {
             this.cache = {};
         }
@@ -55,7 +61,7 @@ class LocalStorageCacheManager {
         let changed = this.cleanCacheList();
         if (changed) {
             console.log('cch### getLocalStorageCache 3 updating cache=', this.cache);
-            this.saveLocalStorageCache(cacheName, this.cache);
+            this.saveLocalStorageCache(this.cache);
         }
         return this.cache;
     }
@@ -76,7 +82,7 @@ class LocalStorageCacheManager {
         return changed;
     }
 }
-const cacheManager = LocalStorageCacheManager.getInstance(CACHE_LENGTH_MS);
+const cacheManager = LocalStorageCacheManager.getInstance(TALIS_CACHE_KEY, CACHE_LENGTH_MS);
 
 export class CourseReadingListFullFunctions {
     private store = inject(Store);
@@ -103,7 +109,7 @@ export class CourseReadingListFullFunctions {
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
         // load valid (non-expired) cache entries
-        let talisCache = cacheManager.getLocalStorageCache(TALIS_CACHE_KEY);
+        let talisCache = cacheManager.getLocalStorageCache();
         // talisCache = cacheManager.cleanCacheList();
 
         // split urls into ones we already have cached, and ones we still need to fetch
@@ -119,18 +125,18 @@ export class CourseReadingListFullFunctions {
                 }
 
             } else {
+                // not in cache, we need to fetch it
                 pnxUrlsNeedingFetch.push(talisUrl);
             }
-            // type aCourseList = { [obj: string]: { subjCode: string }};
-            courseList = Object.keys(courseList)
-                .sort()
-                // .reduce((prev, subjCode) => {
-                .reduce((prev: {[key: string]: string}, subjCode) => {
-                        prev[subjCode] = courseList[subjCode];
-                        return prev;
-                    },
-                    {}
-                );
+            // courseList = Object.keys(courseList)
+            //     .sort()
+            //     // .reduce((prev, subjCode) => {
+            //     .reduce((prev: {[key: string]: string}, subjCode) => {
+            //             prev[subjCode] = courseList[subjCode];
+            //             return prev;
+            //         },
+            //         {}
+            //     );
         });
         const promises = pnxUrlsNeedingFetch.map(url =>
             new Promise<{ [key: string]: string } | null>((resolve) => {
@@ -158,7 +164,7 @@ export class CourseReadingListFullFunctions {
         );
 
         try {
-            const talisCourses = {}
+            // const talisCourses = {}
             let cacheChanged = false;
             await Promise.allSettled(promises)
                 .then(responses => {
@@ -169,6 +175,7 @@ export class CourseReadingListFullFunctions {
                         const data = result.value; // now typed as {[key: string]: string}
                         for (const talisUrl in data) {
                             const subjectCode = data[talisUrl];
+                            console.log('subjectCode=', subjectCode);
                             if (!courseList[talisUrl]) {
                                 !courseList[subjectCode] && (courseList[subjectCode] = talisUrl);
                             }
@@ -189,23 +196,22 @@ export class CourseReadingListFullFunctions {
                     if (Object.keys(courseList).length > 0) {
                         this.addCourseResourceIndicatorToHeader();
 
-                        // sort by course code for display
-                        let sortable = [];
-                        for (let talisUrl in courseList) {
-                            const subjectCode = courseList[talisUrl];
-                            sortable.push([talisUrl, subjectCode]);
-                        }
-                        sortable.forEach((entry) => {
-                            const subjectCode = entry[0];
-                            const talisUrl = this.fixUnsafeReadingListUrl(this.addUrlParam(entry[1], 'login', true));
-                            // @ts-ignore
-                            talisCourses[talisUrl] = subjectCode;
-                        });
+                        console.log('courseList stringify=', JSON.stringify(courseList));
+                        courseList = Object.keys(courseList)
+                            .sort()
+                            .reduce((prev: {[key: string]: string}, subjCode) => {
+                                    prev[subjCode] = courseList[subjCode];
+                                    return prev;
+                                },
+                                {}
+                            );
+                        console.log('courseList after=', JSON.stringify(courseList));
+                        console.log('courseList 2=', courseList);
 
-                        this.createAndAppendCourseList(talisCourses);
+                        this.createAndAppendCourseList(courseList);
                     }
                     if (cacheChanged) {
-                        cacheManager.saveLocalStorageCache(TALIS_CACHE_KEY, talisCache);
+                        cacheManager.saveLocalStorageCache(talisCache);
                     }
                 });
         } catch (e) {
@@ -213,7 +219,8 @@ export class CourseReadingListFullFunctions {
         }
     }
 
-    private createAndAppendCourseList(talisCourses: { [s: string]: unknown; } | ArrayLike<unknown>) {
+    private createAndAppendCourseList(talisCourses: { [s: string]: string; } | ArrayLike<unknown>) {
+        console.log('createAndAppendCourseList talisCourses=', talisCourses);
         const linkOutIcon: string =
             '<mat-icon style="height: 20px; width: 18px;" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
             '<svg width="16" height="16" viewBox="0 0 24 24">' +
@@ -256,10 +263,12 @@ export class CourseReadingListFullFunctions {
                                 <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is listed on</p>
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
-        for (const [url, displayName] of Object.entries(talisCourses) as [string, string][]) {
+        for (const [displayName, url] of Object.entries(talisCourses) as [string, string][]) {
+            let linkedUrl = this.fixUnsafeReadingListUrl(url);
+            linkedUrl = this.addUrlParam(linkedUrl, 'login', true);
             const className = numberOfReadingLists < maxNumberReadingListsDisplayed ? 'uql-crl-list-constant': `${crlHideableClass} ${crlHiddenClass}`;
             htmlContent += `<li class="uql-crl-list ${className}">
-                <a class="uql-crl-list-item" href="${url}" target="_blank">
+                <a class="uql-crl-list-item" href="${linkedUrl}" target="_blank">
                     <span>${displayName}</span>
                     ${linkOutIcon}
                 </a></li>`;
