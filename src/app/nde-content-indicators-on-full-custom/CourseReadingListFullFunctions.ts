@@ -14,6 +14,70 @@ interface CacheEntry {
 }
 type Cache = Record<string, CacheEntry>;
 
+class LocalStorageCacheManager {
+    private static instance: LocalStorageCacheManager;
+    private static expiryPeriodMilliseconds: number;
+    private cache: Cache = {};
+
+    // fallback mutex chain, used only if navigator.locks isn't available
+    private fallbackLocks: Map<string, Promise<void>> = new Map();
+
+    // no constructor on singleton
+    private constructor() {}
+
+    public static getInstance(expiryPeriodMilliseconds: number): LocalStorageCacheManager {
+        this.expiryPeriodMilliseconds = expiryPeriodMilliseconds;
+
+        if (!LocalStorageCacheManager.instance) {
+            LocalStorageCacheManager.instance = new LocalStorageCacheManager();
+        }
+        return LocalStorageCacheManager.instance;
+    }
+
+    public saveLocalStorageCache(cacheName: string, cache: Cache) {
+        try {
+            console.log('cch### saveLocalStorageCache cache=', cacheName, cache);
+            localStorage.setItem(cacheName, JSON.stringify(cache));
+        } catch (e) {
+            // localStorage might be full or unavailable; fail silently
+        }
+    }
+
+    // write all the talis entries in one local storage entry
+    public getLocalStorageCache(cacheName: string): any {
+        try {
+            this.cache = JSON.parse(localStorage.getItem(cacheName) || '') || {};
+            console.log('cch### getLocalStorageCache 1 cache=', this.cache);
+        } catch (e) {
+            this.cache = {};
+        }
+
+        let changed = this.cleanCacheList();
+        if (changed) {
+            console.log('cch### getLocalStorageCache 3 updating cache=', this.cache);
+            this.saveLocalStorageCache(cacheName, this.cache);
+        }
+        return this.cache;
+    }
+
+    // strip out anything older than the defined expiry period (initial planning: one day)
+    private cleanCacheList = () => {
+        const now = Date.now();
+        let changed = false;
+        for (const url in this.cache) {
+            if (!this.cache[url] || !this.cache[url].date || (now - this.cache[url].date) >  LocalStorageCacheManager.expiryPeriodMilliseconds) {
+                console.log('cch### getLocalStorageCache 2 clearing', this.cache[url]);
+                delete this.cache[url];
+                changed = true;
+            } else {
+                console.log('cch### getLocalStorageCache 2 cache valid for:', this.cache[url].date, url);
+            }
+        }
+        return changed;
+    }
+}
+const cacheManager = LocalStorageCacheManager.getInstance(CACHE_LENGTH_MS);
+
 export class CourseReadingListFullFunctions {
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
@@ -34,50 +98,13 @@ export class CourseReadingListFullFunctions {
         }
     }
 
-    private saveLocalStorageCache(cacheName: string, cache: Cache) {
-        try {
-            console.log('cch### saveLocalStorageCache cache=', cacheName, cache);
-            localStorage.setItem(cacheName, JSON.stringify(cache));
-        } catch (e) {
-            // localStorage might be full or unavailable; fail silently
-        }
-    }
-
-    // write all the talis entries in one local storage entry
-    private getLocalStorageCache(cacheName: string, expiryPeriodMilliseconds: number): any {
-        let cache: Cache = {};
-        try {
-            cache = JSON.parse(localStorage.getItem(cacheName) || '') || {};
-            console.log('cch### getLocalStorageCache 1 cache=', cache);
-        } catch (e) {
-            cache = {};
-        }
-
-        // strip out anything older than 1 day
-        const now = Date.now();
-        let changed = false;
-        for (const url in cache) {
-            if (!cache[url] || !cache[url].date || (now - cache[url].date) > expiryPeriodMilliseconds) {
-                delete cache[url];
-                console.log('cch### getLocalStorageCache 2 clearing', cache[url].date, url);
-                changed = true;
-            } else {
-                console.log('cch### getLocalStorageCache 2 cache valid for:', cache[url].date, url);
-            }
-        }
-        if (changed) {
-            console.log('cch### getLocalStorageCache 3 updating cache=', cache);
-            this.saveLocalStorageCache(cacheName, cache);
-        }
-        return cache;
-    }
-
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
         const courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
         // load valid (non-expired) cache entries
-        const talisCache = this.getLocalStorageCache(TALIS_CACHE_KEY, CACHE_LENGTH_MS);
+        let talisCache = cacheManager.getLocalStorageCache(TALIS_CACHE_KEY);
+        // talisCache = cacheManager.cleanCacheList();
         console.log('cch### getTalisDataFromAllApiCalls talisCache=', talisCache);
 
         // split urls into ones we already have cached, and ones we still need to fetch
@@ -120,9 +147,9 @@ export class CourseReadingListFullFunctions {
 
         try {
             const talisCourses = {}
+            let cacheChanged = false;
             await Promise.allSettled(promises)
                 .then(responses => {
-                    let cacheChanged = false;
                     responses.forEach((result, index) => {
                         if (result.status !== 'fulfilled' || !result?.value) {
                             return;
@@ -148,10 +175,6 @@ export class CourseReadingListFullFunctions {
                             }
                         }
                     });
-                    if (cacheChanged) {
-                        console.log('cch### getTalisDataFromAllApiCalls updating cache=', talisCache);
-                        this.saveLocalStorageCache(TALIS_CACHE_KEY, talisCache);
-                    }
                 }).finally(() => {
                     if (Object.keys(courseList).length > 0) {
                         this.addCourseResourceIndicatorToHeader();
@@ -173,6 +196,10 @@ export class CourseReadingListFullFunctions {
                         });
 
                         this.createAndAppendCourseList(talisCourses);
+                    }
+                    if (cacheChanged) {
+                        console.log('cch### getTalisDataFromAllApiCalls updating cache=', talisCache);
+                        cacheManager.saveLocalStorageCache(TALIS_CACHE_KEY, talisCache);
                     }
                 });
         } catch (e) {
