@@ -99,28 +99,40 @@ export class CourseReadingListFullFunctions {
     }
 
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
-        const courseList: { [key: string]: string } = {};
+        let courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
         // load valid (non-expired) cache entries
         let talisCache = cacheManager.getLocalStorageCache(TALIS_CACHE_KEY);
         // talisCache = cacheManager.cleanCacheList();
-        console.log('cch### getTalisDataFromAllApiCalls talisCache=', talisCache);
 
         // split urls into ones we already have cached, and ones we still need to fetch
-        const urlsNeedingFetch: string[] = [];
+        const pnxUrlsNeedingFetch: string[] = [];
         listUrlsToCall.forEach(talisUrl => {
-            if (talisCache[talisUrl] && typeof talisCache[talisUrl].courseCode !== 'undefined') {
-                console.log('cch### getTalisDataFromAllApiCalls AA fetch from cache:', talisUrl);
-                !courseList[talisUrl] && (courseList[talisUrl] = talisCache[talisUrl].courseCode);
+            const talisCacheElement = talisCache[talisUrl];
+            if (talisCacheElement && typeof talisCacheElement?.courses !== 'undefined') {
+                if (typeof courseList === 'undefined') {
+                    courseList = {};
+                }
+                for (let url in talisCacheElement?.courses) {
+                    courseList[talisCacheElement?.courses[url]] = url;
+                }
+
             } else {
-                console.log('cch### getTalisDataFromAllApiCalls AA fetch from talis:', talisUrl);
-                urlsNeedingFetch.push(talisUrl);
+                pnxUrlsNeedingFetch.push(talisUrl);
             }
+            // type aCourseList = { [obj: string]: { subjCode: string }};
+            courseList = Object.keys(courseList)
+                .sort()
+                // .reduce((prev, subjCode) => {
+                .reduce((prev: {[key: string]: string}, subjCode) => {
+                        prev[subjCode] = courseList[subjCode];
+                        return prev;
+                    },
+                    {}
+                );
         });
-        console.log('cch### getTalisDataFromAllApiCalls courseList from cache=', courseList);
-        console.log('cch### getTalisDataFromAllApiCalls urlsNeedingFetch=', urlsNeedingFetch);
-        const promises = urlsNeedingFetch.map(url =>
+        const promises = pnxUrlsNeedingFetch.map(url =>
             new Promise<{ [key: string]: string } | null>((resolve) => {
                 const callbackName = `talis_cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
                 const script = document.createElement('script');
@@ -154,23 +166,21 @@ export class CourseReadingListFullFunctions {
                         if (result.status !== 'fulfilled' || !result?.value) {
                             return;
                         }
-                        console.log('cch### getTalisDataFromAllApiCalls loop result=', result);
                         const data = result.value; // now typed as {[key: string]: string}
-                        console.log('cch### getTalisDataFromAllApiCalls loop data=', data);
                         for (const talisUrl in data) {
-                            console.log('cch### getTalisDataFromAllApiCalls loop talisUrl=', talisUrl);
-                            const courseName = data[talisUrl];
+                            const subjectCode = data[talisUrl];
                             if (!courseList[talisUrl]) {
-                                console.log('cch### getTalisDataFromAllApiCalls loop courseList[talisUrl]=', courseList[talisUrl]);
-                                courseList[talisUrl] = courseName;
-                                // console.log('cch### getTalisDataFromAllApiCalls loop data[talisUrl]=', data[talisUrl]);
+                                !courseList[subjectCode] && (courseList[subjectCode] = talisUrl);
                             }
 
                             // write freshly-fetched value into localStorage cache
                             // const requestedUrl = String(result?.value.config?.url) || '';
-                            const requestedUrl = urlsNeedingFetch[index];
+                            const requestedUrl = pnxUrlsNeedingFetch[index];
                             if (!!requestedUrl) {
-                                talisCache[requestedUrl] = {courseCode: courseName, date: Date.now()};
+                                talisCache[requestedUrl] = {
+                                    courses: result.value,
+                                    date: Date.now()
+                                }
                                 cacheChanged = true;
                             }
                         }
@@ -185,12 +195,9 @@ export class CourseReadingListFullFunctions {
                             const subjectCode = courseList[talisUrl];
                             sortable.push([talisUrl, subjectCode]);
                         }
-                        sortable.sort(function (a, b) {
-                            return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
-                        });
                         sortable.forEach((entry) => {
-                            const subjectCode = entry[1];
-                            const talisUrl = this.fixUnsafeReadingListUrl(this.addUrlParam(entry[0], 'login', true));
+                            const subjectCode = entry[0];
+                            const talisUrl = this.fixUnsafeReadingListUrl(this.addUrlParam(entry[1], 'login', true));
                             // @ts-ignore
                             talisCourses[talisUrl] = subjectCode;
                         });
@@ -198,7 +205,6 @@ export class CourseReadingListFullFunctions {
                         this.createAndAppendCourseList(talisCourses);
                     }
                     if (cacheChanged) {
-                        console.log('cch### getTalisDataFromAllApiCalls updating cache=', talisCache);
                         cacheManager.saveLocalStorageCache(TALIS_CACHE_KEY, talisCache);
                     }
                 });
