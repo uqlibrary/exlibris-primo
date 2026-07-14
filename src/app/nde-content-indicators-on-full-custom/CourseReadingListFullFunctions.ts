@@ -1,6 +1,6 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {isReturnKeyPressed, mouseoverTooltip, mouseoutTooltip, pnxInterface, selectSearchState} from "../shared/common";
+import {isReturnKeyPressed, mouseoutTooltip, mouseoverTooltip, pnxInterface, selectSearchState} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 import {talisCacheManager} from "../shared/LocalStorageCacheManager";
 
@@ -90,11 +90,8 @@ export class CourseReadingListFullFunctions {
 
                             // write freshly-fetched value into localStorage cache
                             const requestedUrl = pnxUrlsNeedingFetch[index];
-                            if (!!requestedUrl) {
-                                talisCache[requestedUrl] = {
-                                    courses: result.value,
-                                    expiryDate: Date.now()
-                                }
+                            if (!!requestedUrl && result?.value) {
+                                talisCache[requestedUrl] = talisCacheManager.formattedCacheEntry(result.value)
                                 cacheChanged = true;
                             }
                         }

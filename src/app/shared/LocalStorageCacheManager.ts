@@ -18,11 +18,11 @@ class LocalStorageCacheManager {
     private constructor() {}
 
     public static getInstance(cacheName: string, expiryPeriodMilliseconds: number): LocalStorageCacheManager {
-        console.log('cache### ### getInstance', cacheName);
+        console.log('cache### CACHMGR getInstance', cacheName);
         if (!LocalStorageCacheManager.instance) {
             LocalStorageCacheManager.expiryPeriodMilliseconds = expiryPeriodMilliseconds;
             LocalStorageCacheManager.cacheName = cacheName;
-            console.log('cache### ### new cache manager');
+            console.log('cache### CACHMGR new cache manager');
             LocalStorageCacheManager.instance = new LocalStorageCacheManager();
 
             LocalStorageCacheManager.windowCacheExpiry = Date.now() +  TEN_MINUTES_MS; // we ensure we look at actual localstorage occasionally
@@ -33,8 +33,15 @@ class LocalStorageCacheManager {
     // write all the talis entries in one local storage entry
     public saveLocalStorageCache(cache: Cache) {
         try {
-            console.log('cache### saveLocalStorageCache cache=', LocalStorageCacheManager.cacheName, cache);
-            localStorage.setItem(LocalStorageCacheManager.cacheName, JSON.stringify(cache));
+            console.log('cache### CACHMGR saveLocalStorageCache 1 this.cache=', LocalStorageCacheManager.cacheName, this.cache);
+            console.log('cache### CACHMGR saveLocalStorageCache 2 cache=', LocalStorageCacheManager.cacheName, cache);
+            this.cache = {
+                ...this.cache,
+                ...cache
+            };
+            // console.log('cache### CACHMGR saveLocalStorageCache 3 newCache=', LocalStorageCacheManager.cacheName, newCache);
+            localStorage.setItem(LocalStorageCacheManager.cacheName, JSON.stringify(this.cache));
+            console.log('cache### CACHMGR saveLocalStorageCache 3 cache updated to ', JSON.parse(localStorage.getItem(LocalStorageCacheManager.cacheName) || ''))
         } catch (e) {
             // localStorage might be full or unavailable; fail silently
         }
@@ -44,10 +51,10 @@ class LocalStorageCacheManager {
         try {
             if (LocalStorageCacheManager.windowCacheExpiry < Date.now() || this.cacheEmptied()) {
                 this.cache = JSON.parse(localStorage.getItem(LocalStorageCacheManager.cacheName) || '') || {};
-                console.log('cache### %% getLocalStorageCache 1 refresh cache from localstorage=', this.cache);
+                console.log('cache### CACHMGR %% getLocalStorageCache 1 refresh cache from localstorage=', this.cache);
                 LocalStorageCacheManager.windowCacheExpiry = Date.now() + TEN_MINUTES_MS;
             } else {
-                console.log('cache### getLocalStorageCache 1 use existing cache=', this.cache);
+                console.log('cache### CACHMGR getLocalStorageCache 1 use existing cache=', this.cache);
             }
         } catch (e) {
             this.cache = {};
@@ -55,7 +62,7 @@ class LocalStorageCacheManager {
 
         let changed = this.cleanCacheList();
         if (changed) {
-            console.log('cache### getLocalStorageCache 3 out of date entries to clear=', this.cache);
+            console.log('cache### CACHMGR getLocalStorageCache 3 out of date entries to clear=', this.cache);
             this.saveLocalStorageCache(this.cache);
         }
         return this.cache;
@@ -71,18 +78,25 @@ class LocalStorageCacheManager {
         let changed = false;
         for (const url in this.cache) {
             if (!this.cache[url] || !this.cache[url].expiryDate || (now - this.cache[url].expiryDate) >  LocalStorageCacheManager.expiryPeriodMilliseconds) {
-                console.log('cache### getLocalStorageCache 2 clearing', this.cache[url]);
+                console.log('cache### CACHMGR getLocalStorageCache 2 clearing', this.cache[url]);
                 delete this.cache[url];
                 changed = true;
             } else {
-                console.log('cache### getLocalStorageCache 2 cache valid for:', this.cache[url].expiryDate, url);
+                // console.log('cache### CACHMGR getLocalStorageCache 2 cache valid for:', this.cache[url].expiryDate, url);
             }
         }
         return changed;
     }
+
+    public  formattedCacheEntry = (courseList: { [key: string]: string; } | null): { courses: { [key: string]: string; } | null; expiryDate: number; } => {
+        return {
+            courses: courseList,
+            expiryDate: Date.now()
+        };
+    }
 }
 
 const TALIS_CACHE_KEY = 'uqlTalisCourseList';
-const CACHE_LENGTH_MS = window.location.hostname === 'localhost' ? TEN_MINUTES_MS : ONE_DAY_MS;
+const CACHE_LENGTH_MS = ONE_DAY_MS; //  window.location.hostname === 'localhost' ? TEN_MINUTES_MS : ONE_DAY_MS;
 
 export const talisCacheManager = LocalStorageCacheManager.getInstance(TALIS_CACHE_KEY, CACHE_LENGTH_MS);

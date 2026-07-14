@@ -2,6 +2,7 @@ import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {mouseoutTooltip, mouseoverTooltip, selectSearchState, setRecordIdentifier} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
+import {talisCacheManager} from "../shared/LocalStorageCacheManager";
 
 export class CourseReadingListBriefFunctions {
     private store = inject(Store);
@@ -30,6 +31,37 @@ export class CourseReadingListBriefFunctions {
         const courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
+        const COURSE_READING_FOUND = 'hascourse';
+        const NO_COURSE_READING = 'nodata';
+
+        let talisCache = talisCacheManager.getLocalStorageCache();
+        let found: string = '';
+        let uncachedUrls: Array<string> = [];
+        listUrlsToCall.forEach(talisUrl => {
+            if (found !== COURSE_READING_FOUND) {
+                const talisCacheEntry = talisCache[talisUrl];
+                if (talisCacheEntry && typeof talisCacheEntry?.courses !== 'undefined' && talisCacheEntry?.courses !== null) {
+                    // we have a reading list
+                    found = COURSE_READING_FOUND;
+                } else if (talisCacheEntry && typeof talisCacheEntry?.expiryDate !== 'undefined') {
+                    // we have an entry in cache, so we dont need to fetch, but its not a reading list
+                    found = NO_COURSE_READING;
+                } else {
+                    // not in cache, we need to fetch it
+                    uncachedUrls.push(talisUrl);
+                }
+            }
+        })
+        if (found === COURSE_READING_FOUND) {
+            this.showCourseResourceIndicator(); // no need to fetch - show indicator
+            return;
+        } else if (found === NO_COURSE_READING) {
+            return; // no need to fetch, but not a reading list either
+        }
+        if (uncachedUrls.length === 0) {
+            return; // nothing left to fetch
+        }
+
         const makeRequest = (url: string) =>
             new Promise<{ [key: string]: string }>((resolve, reject) => {
                 const callbackName = `talis_cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -54,23 +86,31 @@ export class CourseReadingListBriefFunctions {
                 document.head.appendChild(script);
             });
 
+        let cacheChanged = false;
         try {
             let data: { [key: string]: string } | null = null;
-            for (const url of listUrlsToCall) {
+            for (const url of uncachedUrls) {
                 try {
                     data = await makeRequest(url);
+
+                    talisCache[url] = talisCacheManager.formattedCacheEntry(data)
+                    cacheChanged = true;
+
                     break; // success — stop trying further urls
-                } catch {
+                } catch (e) {
                     // this url failed, try the next one
+                    talisCache[url] = talisCacheManager.formattedCacheEntry(null);
+                    cacheChanged = true;
                 }
             }
 
-            if (data) {
-                for (const talisUrl in data) {
-                    if (!courseList[talisUrl]) {
-                        courseList[talisUrl] = data[talisUrl];
-                    }
+            for (const talisUrl in data) {
+                if (!courseList[talisUrl]) {
+                    courseList[talisUrl] = data[talisUrl];
                 }
+            }
+            if (cacheChanged) {
+                talisCacheManager.saveLocalStorageCache(talisCache);
             }
 
             if (Object.keys(courseList).length > 0) {
