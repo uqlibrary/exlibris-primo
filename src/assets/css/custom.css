@@ -28,3 +28,9 @@ h2[_ngcontent-ng-crl] {
     font-size: 1rem;
     text-transform: uppercase;
 }
+
+/* pre-hide excess entries on course reading list sidebar item (duplicates reusable style) */
+body.custom-nde-theme nde-full-display-crl ul.course-resource-list li.uql-crl-list.uql-crl-list-hidden, body.custom-nde-theme uql-course-reading-list-sidebar-panel ul.course-resource-list li.uql-crl-list.uql-crl-list-hidden {
+    display: none;
+}
+/* END pre-hide excess entries on course reading list sidebar item (duplicates reusable style) */

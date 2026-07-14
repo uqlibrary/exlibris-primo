@@ -1,7 +1,8 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {isReturnKeyPressed, mouseoverTooltip, mouseoutTooltip, pnxInterface, selectSearchState} from "../shared/common";
+import {isReturnKeyPressed, mouseoutTooltip, mouseoverTooltip, pnxInterface, selectSearchState} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
+import {talisCacheManager} from "../shared/LocalStorageCacheManager";
 
 export class CourseReadingListFullFunctions {
     private store = inject(Store);
@@ -24,10 +25,30 @@ export class CourseReadingListFullFunctions {
     }
 
     private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
-        const courseList: { [key: string]: string } = {};
+        let courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
-        const promises = listUrlsToCall.map(url =>
+        // load valid (non-expired) cache entries
+        let talisCache = talisCacheManager.getLocalStorageCache();
+
+        // split urls into ones we already have cached, and ones we still need to fetch
+        const pnxUrlsNeedingFetch: string[] = [];
+        listUrlsToCall.forEach(talisUrl => {
+            const talisCacheEntry = talisCache[talisUrl];
+            if (talisCacheEntry && typeof talisCacheEntry?.courses !== 'undefined') {
+                if (typeof courseList === 'undefined') {
+                    courseList = {};
+                }
+                for (let url in talisCacheEntry?.courses) {
+                    courseList[talisCacheEntry?.courses[url]] = url;
+                }
+
+            } else {
+                // not in cache, we need to fetch it
+                pnxUrlsNeedingFetch.push(talisUrl);
+            }
+        });
+        const promises = pnxUrlsNeedingFetch.map(url =>
             new Promise<{ [key: string]: string } | null>((resolve) => {
                 const callbackName = `talis_cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
                 const script = document.createElement('script');
@@ -53,17 +74,25 @@ export class CourseReadingListFullFunctions {
         );
 
         try {
-            const talisCourses = {}
+            let cacheChanged = false;
             await Promise.allSettled(promises)
                 .then(responses => {
-                    responses.forEach((result) => {
+                    responses.forEach((result, index) => {
                         if (result.status !== 'fulfilled' || !result?.value) {
                             return;
                         }
                         const data = result.value; // now typed as {[key: string]: string}
                         for (const talisUrl in data) {
+                            const subjectCode = data[talisUrl];
                             if (!courseList[talisUrl]) {
-                                courseList[talisUrl] = data[talisUrl];
+                                !courseList[subjectCode] && (courseList[subjectCode] = talisUrl);
+                            }
+
+                            // write freshly-fetched value into localStorage cache
+                            const requestedUrl = pnxUrlsNeedingFetch[index];
+                            if (!!requestedUrl && result?.value) {
+                                talisCache[requestedUrl] = talisCacheManager.formattedCacheEntry(result.value)
+                                cacheChanged = true;
                             }
                         }
                     });
@@ -71,23 +100,20 @@ export class CourseReadingListFullFunctions {
                     if (Object.keys(courseList).length > 0) {
                         this.addCourseResourceIndicatorToHeader();
 
-                        // sort by course code for display
-                        let sortable = [];
-                        for (let talisUrl in courseList) {
-                            const subjectCode = courseList[talisUrl];
-                            sortable.push([talisUrl, subjectCode]);
-                        }
-                        sortable.sort(function (a, b) {
-                            return a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0;
-                        });
-                        sortable.forEach((entry) => {
-                            const subjectCode = entry[1];
-                            const talisUrl = this.fixUnsafeReadingListUrl(this.addUrlParam(entry[0], 'login', true));
-                            // @ts-ignore
-                            talisCourses[talisUrl] = subjectCode;
-                        });
+                        // sort by coursecode for display
+                        courseList = Object.keys(courseList)
+                            .sort()
+                            .reduce((prev: {[key: string]: string}, subjCode) => {
+                                    prev[subjCode] = courseList[subjCode];
+                                    return prev;
+                                },
+                                {}
+                            );
 
-                        this.createAndAppendCourseList(talisCourses);
+                        this.createAndAppendCourseList(courseList);
+                    }
+                    if (cacheChanged) {
+                        talisCacheManager.saveLocalStorageCache(talisCache);
                     }
                 });
         } catch (e) {
@@ -95,7 +121,7 @@ export class CourseReadingListFullFunctions {
         }
     }
 
-    private createAndAppendCourseList(talisCourses: { [s: string]: unknown; } | ArrayLike<unknown>) {
+    private createAndAppendCourseList(talisCourses: { [s: string]: string; } | ArrayLike<unknown>) {
         const linkOutIcon: string =
             '<mat-icon style="height: 20px; width: 18px;" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
             '<svg width="16" height="16" viewBox="0 0 24 24">' +
@@ -138,10 +164,12 @@ export class CourseReadingListFullFunctions {
                                 <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is listed on</p>
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
-        for (const [url, displayName] of Object.entries(talisCourses) as [string, string][]) {
+        for (const [displayName, url] of Object.entries(talisCourses) as [string, string][]) {
+            let linkedUrl = this.fixUnsafeReadingListUrl(url);
+            linkedUrl = this.addUrlParam(linkedUrl, 'login', true);
             const className = numberOfReadingLists < maxNumberReadingListsDisplayed ? 'uql-crl-list-constant': `${crlHideableClass} ${crlHiddenClass}`;
             htmlContent += `<li class="uql-crl-list ${className}">
-                <a class="uql-crl-list-item" href="${url}" target="_blank">
+                <a class="uql-crl-list-item" href="${linkedUrl}" target="_blank">
                     <span>${displayName}</span>
                     ${linkOutIcon}
                 </a></li>`;

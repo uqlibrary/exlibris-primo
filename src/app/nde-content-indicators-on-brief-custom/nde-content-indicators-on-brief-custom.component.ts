@@ -48,7 +48,6 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
     }
 
     private displayCulturalAdviceIndicator(pnx: pnxInterface, item: HTMLElement | null | undefined) {
-        console.log('crl## displayCulturalAdviceIndicator');
         const recordId = !!pnx?.control?.recordid; // eg 61UQ_ALMA51124881340003131
         const culturalAdviceProvided = !!pnx?.display?.lds05; // eg ["Cultural advice - Aboriginal and Torres Strait Islander peoples"]
         if (!!item && culturalAdviceProvided && recordId) {
