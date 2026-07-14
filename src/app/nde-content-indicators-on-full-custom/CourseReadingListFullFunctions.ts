@@ -3,22 +3,21 @@ import {Store} from '@ngrx/store';
 import {isReturnKeyPressed, mouseoverTooltip, mouseoutTooltip, pnxInterface, selectSearchState} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 
-const TALIS_CACHE_KEY = 'uqlTalisCourseList';
-const ONE_DAY_MS = 24 * 60 * 60 * 1000; // prod
-const TEN_MINUTES_MS = 10 * 60 * 1000; // debug, maybe sandbox?
-const CACHE_LENGTH_MS = TEN_MINUTES_MS;
-
 interface CacheEntry {
     expiryDate: number;
     courseCode: string;
 }
 type Cache = Record<string, CacheEntry>;
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const TEN_MINUTES_MS = 10 * 60 * 1000;
 
 class LocalStorageCacheManager {
     private static instance: LocalStorageCacheManager;
     private static expiryPeriodMilliseconds: number;
     private static cacheName: string;
     private cache: Cache = {};
+
+    private static windowCacheExpiry: number = 0;
 
     // fallback mutex chain, used only if navigator.locks isn't available
     private fallbackLocks: Map<string, Promise<void>> = new Map();
@@ -27,17 +26,19 @@ class LocalStorageCacheManager {
     private constructor() {}
 
     public static getInstance(cacheName: string, expiryPeriodMilliseconds: number): LocalStorageCacheManager {
+        console.log('cache### ### getInstance', cacheName);
         if (!LocalStorageCacheManager.instance) {
-            this.expiryPeriodMilliseconds = expiryPeriodMilliseconds;
-            this.cacheName = cacheName;
+            LocalStorageCacheManager.expiryPeriodMilliseconds = expiryPeriodMilliseconds;
+            LocalStorageCacheManager.cacheName = cacheName;
             console.log('cache### ### new cache manager');
             LocalStorageCacheManager.instance = new LocalStorageCacheManager();
-        } else {
-            console.log('cache### ### reuse cache manager');
+
+            LocalStorageCacheManager.windowCacheExpiry = Date.now() +  TEN_MINUTES_MS; // we ensure we look at actual localstorage occasionally
         }
         return LocalStorageCacheManager.instance;
     }
 
+    // write all the talis entries in one local storage entry
     public saveLocalStorageCache(cache: Cache) {
         try {
             console.log('cache### saveLocalStorageCache cache=', LocalStorageCacheManager.cacheName, cache);
@@ -47,14 +48,14 @@ class LocalStorageCacheManager {
         }
     }
 
-    // write all the talis entries in one local storage entry
     public getLocalStorageCache(): any {
         try {
-            if (Object.keys(this.cache).length === 0) {
+            if (LocalStorageCacheManager.windowCacheExpiry < Date.now() || this.cacheEmptied()) {
                 this.cache = JSON.parse(localStorage.getItem(LocalStorageCacheManager.cacheName) || '') || {};
-                console.log('cache### getLocalStorageCache 1 get cache from localstorage=', this.cache);
+                console.log('cache### %% getLocalStorageCache 1 refresh cache from localstorage=', this.cache);
+                LocalStorageCacheManager.windowCacheExpiry = Date.now() + TEN_MINUTES_MS;
             } else {
-                console.log('cache### getLocalStorageCache 1 get existing cache=', this.cache);
+                console.log('cache### getLocalStorageCache 1 use existing cache=', this.cache);
             }
         } catch (e) {
             this.cache = {};
@@ -66,6 +67,10 @@ class LocalStorageCacheManager {
             this.saveLocalStorageCache(this.cache);
         }
         return this.cache;
+    }
+
+    private cacheEmptied = () => {
+        return Object.keys(this.cache).length === 0;
     }
 
     // strip out anything older than the defined expiry period (initial planning: one day)
@@ -84,7 +89,11 @@ class LocalStorageCacheManager {
         return changed;
     }
 }
-const cacheManager = LocalStorageCacheManager.getInstance(TALIS_CACHE_KEY, CACHE_LENGTH_MS);
+
+const TALIS_CACHE_KEY = 'uqlTalisCourseList';
+const CACHE_LENGTH_MS = window.location.hostname === 'localhost' ? TEN_MINUTES_MS : ONE_DAY_MS;
+
+const talisCacheManager = LocalStorageCacheManager.getInstance(TALIS_CACHE_KEY, CACHE_LENGTH_MS);
 
 export class CourseReadingListFullFunctions {
     private store = inject(Store);
@@ -111,8 +120,7 @@ export class CourseReadingListFullFunctions {
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
         // load valid (non-expired) cache entries
-        let talisCache = cacheManager.getLocalStorageCache();
-        // talisCache = cacheManager.cleanCacheList();
+        let talisCache = talisCacheManager.getLocalStorageCache();
 
         // split urls into ones we already have cached, and ones we still need to fetch
         const pnxUrlsNeedingFetch: string[] = [];
@@ -199,7 +207,7 @@ export class CourseReadingListFullFunctions {
                         this.createAndAppendCourseList(courseList);
                     }
                     if (cacheChanged) {
-                        cacheManager.saveLocalStorageCache(talisCache);
+                        talisCacheManager.saveLocalStorageCache(talisCache);
                     }
                 });
         } catch (e) {
