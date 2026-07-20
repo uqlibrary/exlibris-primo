@@ -6,6 +6,112 @@ function whenPageLoaded(fn) {
 	}
 }
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const TEN_MINUTES_MS = 10 * 60 * 1000;
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
+class LocalStorageCacheManager {
+    static #instance;
+    static #expiryPeriodMilliseconds;
+    static #cacheName;
+
+    static #talisCacheList = {};
+
+    static #windowCacheRefreshTime = 0;
+
+    constructor(cacheNameIN, expiryPeriodMillisecondsIN) {
+        if (LocalStorageCacheManager.instance) {
+            return LocalStorageCacheManager.instance
+        }
+        this.expiryPeriodMilliseconds = expiryPeriodMillisecondsIN;
+        this.cacheName = cacheNameIN;
+        this.talisCacheList = {};
+        this.setCacheRefreshTime(); // we ensure we update the list in this object with the value from localstorage occasionally
+        LocalStorageCacheManager.instance = this;
+    }
+
+    setCacheRefreshTime() {
+        this.windowCacheRefreshTime = Date.now() + TEN_MINUTES_MS;
+    }
+
+    // write all the talis entries in one local storage entry
+    saveLocalStorageCache(newCache) {
+        console.log('cch### saveLocalStorageCache start newCache=', newCache)
+        console.log('cch### saveLocalStorageCache start this.talisCacheList=', JSON.parse(JSON.stringify(this.talisCacheList)));
+        try {
+            this.talisCacheList = {
+                ...this.talisCacheList,
+                ...newCache
+            };
+            localStorage.setItem(this.cacheName, JSON.stringify(this.talisCacheList));
+        } catch (e) {
+            console.log('cch### [LPTC01] LocalStorageCacheManager: unable to write to local storage');
+            // localStorage might be full or unavailable; fail with no further handling
+        }
+    }
+
+    getLocalStorageCache() {
+        try {
+            if (this.windowCacheRefreshTime < Date.now() || this.isCacheEmpty()) {
+                this.talisCacheList = JSON.parse(localStorage.getItem(this.cacheName) || '') || {};
+                this.setCacheRefreshTime();
+            }
+        } catch (e) {
+            console.log('[LPTC02] LocalStorageCacheManager: local storage contents currently unavailable');
+            this.talisCacheList = {};
+        }
+
+        let changesToSave = this.cleanCacheList();
+        if (changesToSave) {
+            this.saveLocalStorageCache(this.talisCacheList);
+        }
+        return this.talisCacheList;
+    }
+
+    isCacheEmpty() {
+        return Object.keys(this.talisCacheList).length === 0;
+    }
+
+    // strip out anything older than the defined expiry period (initial planning: one day)
+    cleanCacheList() {
+        const now = Date.now();
+        let changed = false;
+        for (const url in this.talisCacheList) {
+            const cacheEntryForUrl = this.talisCacheList[url];
+            const cacheEntryExpiryDate = cacheEntryForUrl?.expiryDate;
+            if (!cacheEntryForUrl || !cacheEntryForUrl.expiryDate
+                || !cacheEntryExpiryDate
+                || (now - cacheEntryExpiryDate) >  this.expiryPeriodMilliseconds
+                || (!!cacheEntryForUrl.date && (now - cacheEntryForUrl.date) >  this.expiryPeriodMilliseconds) // during dev, in case Stacey has the old expiry entry
+            ) {
+                delete this.talisCacheList[url];
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    inCache(url) {
+        if (!this.talisCacheList[url]) {
+            console.log('cch## url not in cache', url, this.talisCacheList);
+            return false;
+        }
+        if (this.talisCacheList[url].courses === null) {
+            console.log('cch## url IS cached but cached as empty', url, this.talisCacheList);
+            return false;
+        }
+        console.log('cch## url IS cached', url, this.talisCacheList);
+        return true;
+    }
+
+    formattedCacheEntry(courseList) {
+        return {
+            courses: courseList,
+            expiryDate: Date.now()
+        };
+    }
+}
+
 (function () {
 	"use strict";
 
@@ -23,9 +129,6 @@ function whenPageLoaded(fn) {
 				$sceDelegateProvider.resourceUrlWhitelist(urlWhitelist);
 			},
 		]);
-
-	function getSearchParam(name) {
-	}
 
     const currentEnvironmentId = () => {
         let result;
@@ -46,7 +149,12 @@ function whenPageLoaded(fn) {
     const vidParam = currentEnvironmentId();
 	const primoHomepageLink = `https://${window.location.hostname}/discovery/search?vid=${vidParam}&offset=0`;
 
-	function getPrimoHomepageLabel() {
+    // setup the cache manager for talis reading lists (for course reading list display)
+    const TALIS_CACHE_KEY = 'uqlTalisCourseList';
+    const CACHE_EXPIRY_MS = window.location.hostname === 'uq-psb.primo.exlibrisgroup.com' ? ONE_HOUR_MS : ONE_DAY_MS;
+    const talisCacheManager = new LocalStorageCacheManager(TALIS_CACHE_KEY, CACHE_EXPIRY_MS);
+
+    function getPrimoHomepageLabel() {
 		// determine if we are in the public environment, colloquially referred to as prod-prod
 		// (to distinguish it from prod-dev and sandbox-prod)
 		const isPubliclyViewable = isDomainProd() && currentEnvironmentId() === '61UQ_INST:61UQ';
@@ -1113,6 +1221,11 @@ function whenPageLoaded(fn) {
 
 		// Insert the course list as the first child of the target element
 		targetElement.insertAdjacentElement("afterend", tempContainer);
+
+        // const html = '<div id="full-view-section-courseReadingLists" class="full-view-section readingListCitations" tabindex="-1"></div>';
+        // const template = document.createElement('template')
+        // template.innerHTML = html;
+        // !!template && targetElement.insertAdjacentElement("afterend", template.content.cloneNode(true));
 	}
 
 	function displayCulturalAdviceIndicatorOnSomeFullRecords(vm) {
@@ -1211,49 +1324,6 @@ function whenPageLoaded(fn) {
 		}
 	}
 
-    function saveLocalStorageCache(cacheName, cache) {
-        try {
-            console.log('cch### saveLocalStorageCache cache=', cache);
-            localStorage.setItem(cacheName, JSON.stringify(cache));
-        } catch (e) {
-            // localStorage might be full or unavailable; fail silently
-        }
-    }
-
-    // write all the talis entries in one local storage entry
-    function getLocalStorageCache(cacheName, expiryPeriodMilliseconds) {
-        let cache = {};
-        try {
-            cache = JSON.parse(localStorage.getItem(cacheName)) || {};
-            console.log('cch### getLocalStorageCache 1 cache=', cache);
-        } catch (e) {
-            cache = {};
-        }
-
-        // strip out anything older than 1 day
-        const now = Date.now();
-        let changed = false;
-        for (const url in cache) {
-            if (!cache[url] || !cache[url].date || (now - cache[url].date) > expiryPeriodMilliseconds) {
-                delete cache[url];
-                console.log('cch### getLocalStorageCache 2 clearing', url, cache[url]);
-                changed = true;
-            } else {
-                console.log('cch### getLocalStorageCache 2 cache valid for:', url, cache[url]);
-            }
-        }
-        if (changed) {
-            console.log('cch### getLocalStorageCache 3 updating cache=', cache);
-            saveLocalStorageCache(cacheName, cache);
-        }
-        return cache;
-    }
-
-    const TALIS_CACHE_KEY = 'uqlTalisCourseList';
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-    const TEN_MINUTES_MS = 10 * 60 * 1000;
-    const CACHE_LENGTH_MS = TEN_MINUTES_MS;
-
     function displayReadingListIndicatorOnSomeFullRecords($http, vm) {
 		const unsafeReadingListBaseUrl = 'http://lr.library.uq.edu.au';
 		const safeReadingListBaseUrl = 'https://uq.rl.talis.com';
@@ -1265,7 +1335,7 @@ function whenPageLoaded(fn) {
             const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
             // load valid (non-expired) cache entries
-            const talisCache = getLocalStorageCache(TALIS_CACHE_KEY, CACHE_LENGTH_MS);
+            const talisCache = talisCacheManager.getLocalStorageCache();
 
             // split [urls from pnx] into ones we already have cached, and ones we still need to fetch
             const pnxUrlsNeedingFetch = [];
@@ -1291,6 +1361,7 @@ function whenPageLoaded(fn) {
                         },
                         {}
                     );
+                // courseList = ...[courseList];
             });
 
             const promiseList = pnxUrlsNeedingFetch.map(url => $http.jsonp(url, {jsonpCallbackParam: 'cb'}));
@@ -1298,27 +1369,26 @@ function whenPageLoaded(fn) {
             await Promise.allSettled(promiseList)
                 .then(response => {
                     let cacheChanged = false;
-                    response.forEach(r => {
-                        if (!r.status || r.status !== 'fulfilled' || !r.value || !r.value.data) {
+                    response.forEach((r, index) => {
+                        const requestedUrl = pnxUrlsNeedingFetch[index];
+                        if (!r.status || r.status !== 'fulfilled') {
+                            talisCache[requestedUrl] = talisCacheManager.formattedCacheEntry(null);
+                            cacheChanged = true;
                             return;
                         }
-                        for (let talisUrl in r.value.data) {
+                        for (let talisUrl in r?.value?.data) {
                             const subjectCode = r.value.data[talisUrl];
                             !courseList[subjectCode] && (courseList[subjectCode] = talisUrl);
 
                             // write freshly-fetched value into localStorage cache
-                            const requestedUrl = r.value?.config?.url;
                             if (!!requestedUrl) {
-                                talisCache[requestedUrl] = {
-                                    courses: r.value.data,
-                                    date: Date.now()
-                                };
+                                talisCache[requestedUrl] = talisCacheManager.formattedCacheEntry(r.value.data);
                                 cacheChanged = true;
                             }
                         }
                     });
                     if (cacheChanged) {
-                        saveLocalStorageCache(TALIS_CACHE_KEY, talisCache);
+                        talisCacheManager.saveLocalStorageCache(talisCache);
                     }
                 })
                 .finally(() => {
@@ -1417,43 +1487,125 @@ function whenPageLoaded(fn) {
 	}
 
 	function displayReadingListIndicatorOnSomeBriefRecords($http, $scope, vm) {
-		function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall) {
-			const url = listTalisUrls.shift();
-			url.startsWith("http") && $http.jsonp(url, {jsonpCallbackParam: "cb"})
+        const COURSE_READING_FOUND = 'hascourse';
+        const NO_COURSE_READING = 'nodata';
+        let talisCache = talisCacheManager.getLocalStorageCache();
+        // let cacheChanged = false;
+
+        const showCourseResourceIndicator = () => {
+            // we can identify this entry in the brief results list by pnx data
+            const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // eg 61UQ_ALMA51124881340003131
+            if (!!recordid) {
+                const parentCtrl = $scope.$ctrl.parentCtrl;
+                const sectionWrapper = parentCtrl.$element[0];
+
+                const waitForJIElement = setInterval(() => {
+                    const journalIndicationElement = sectionWrapper.querySelector('prm-search-result-journal-indication-line');
+                    if (!journalIndicationElement) {
+                        return;
+                    }
+                    clearInterval(waitForJIElement);
+
+                    const isSelectedVersion = sectionWrapper.classList.contains('list-item-wrapper');
+                    const pageType = isSelectedVersion ? 'specificversion' : 'brief';
+                    addCourseResourceIndicatorToHeader(recordid, "brief", pageType, journalIndicationElement);
+                }, 100);
+            }
+        }
+
+        function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, isLast, tempLoopId) {
+			const url = listUrlsToCall.shift();
+            console.log('cch### ', tempLoopId, url, 'start, isLast=', isLast, listUrlsToCall);
+            console.log('cch### ', tempLoopId, url, 'call', url);
+            // let cacheChanged = false;
+            url.startsWith("http") && $http.jsonp(url, {jsonpCallbackParam: "cb"})
 				.then(function handleSuccess(response) {
+                    console.log('cch### ', tempLoopId, url, 'found & add to local cache', url);
+                    talisCache[url] = talisCacheManager.formattedCacheEntry(response?.data || null);
+                    // cacheChanged = true;
+
 					$scope.listsFound = response.data || null;
-					if (!$scope.listsFound && listUrlsToCall.length > 0) {
-						getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
+                    if (!!$scope.listsFound) {
+                        talisCacheManager.saveLocalStorageCache(talisCache); // write the cache here as we won't proceed any further on this thread, and the finally only applies we have proceed the entire list
+                        showCourseResourceIndicator();
+                        console.log('cch### ', tempLoopId, url, 'FOUND ONE!', url);
+                        // cacheChanged = false;
+                    } else if (!isLast) {
+                        getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, Object.keys(listUrlsToCall).length === 1, tempLoopId);
 					}
-					if (!!$scope.listsFound) {
-						const recordid = !!vm?.parentCtrl?.item?.pnx?.control?.recordid && vm.parentCtrl.item.pnx.control.recordid; // 61UQ_ALMA51124881340003131
-						if (!!recordid) {
-							const parentCtrl = $scope.$ctrl.parentCtrl;
-							const sectionWrapper = parentCtrl.$element[0];
-
-							const waitForJIElement = setInterval(() => {
-								const journalIndicationElement = sectionWrapper.querySelector('prm-search-result-journal-indication-line');
-								if (!journalIndicationElement) {
-									return;
-								}
-								clearInterval(waitForJIElement);
-
-								const isSelectedVersion = sectionWrapper.classList.contains('list-item-wrapper');
-								const pageType = isSelectedVersion ? 'specificversion' : 'brief';
-								addCourseResourceIndicatorToHeader(recordid, "brief", pageType, journalIndicationElement);
-							}, 100);
-						}
-					}
+                    // else we are done, because we only need to know if there is _an_ entry with CRL for brief records!
 				})
 				.catch(() => {
-					if (!$scope.listsFound && listUrlsToCall.length > 0) {
-						getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall);
-					}
-				});
+                    // catch fires when we get a 404 from talis
+					// if (!$scope.listsFound
+                    //     // && Object.keys(listUrlsToCall).length > 0
+                    // ) {
+                        talisCache[url] = talisCacheManager.formattedCacheEntry(null);
+                    console.log('cch### ', tempLoopId, url, 'NOT found & add to local cache', JSON.parse(JSON.stringify(talisCache)));
+                    if (!!isLast) {
+                        // we only write the cache back to local storage on the last call, to minimise read-write
+                        console.log('cch### ', tempLoopId, url, 'finally, save cache', talisCache);
+                        talisCacheManager.saveLocalStorageCache(talisCache);
+                    } else {
+                        getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, Object.keys(uncachedUrls).length === 1, tempLoopId);
+                    }
+				// })
+                // .finally(() => {
+                //     console.log('cch### ', tempLoopId, url, 'finally, cacheChanged=', cacheChanged);
+                //     console.log('cch### ', tempLoopId, url, 'finally, isLast=', isLast);
+                //     // console.log('cch### ', tempLoopId, url, 'finally, $scope.listsFound=', $scope.listsFound);
+                //     if (
+                //         // !$scope.listsFound && // if we found a list, the cache will have been updated further up
+                //         !!isLast && // we only write the cache back to local storage on the last call, to minimise read-write
+                //         !!cacheChanged
+                //     ) {
+                //         console.log('cch### ', tempLoopId, url, 'finally, save cache', talisCache);
+                //         talisCacheManager.saveLocalStorageCache(talisCache);
+                //     } else {
+                //         console.log('cch### ', tempLoopId, url, 'finally, NOT save cache', talisCache);
+                //     }
+                });
+            return cacheChanged;
 		}
 
 		const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
-		!!listTalisUrls && listTalisUrls.length > 0 && getTalisDataFromFirstSuccessfulApiCall(listTalisUrls);
+
+        let found = '';
+        let uncachedUrls = [];
+        listTalisUrls.forEach(talisUrl => {
+            // if (found !== COURSE_READING_FOUND) {
+                const talisCacheEntry = talisCache[talisUrl];
+                if (talisCacheEntry && typeof talisCacheEntry?.courses !== 'undefined' && talisCacheEntry?.courses !== null) { // courses are null when talis originally 404ed for this entry
+                    // we have a reading list
+                    console.log('cch### FOUND ONE IN CACHE!!', talisUrl);
+                    found = COURSE_READING_FOUND;
+                } else if (talisCacheEntry && typeof talisCacheEntry?.expiryDate !== 'undefined') { // check the date to confirm it's a valid entry and not a miss
+                    // we have an entry in cache, so we don't need to fetch, but it's not a reading list
+                    found = NO_COURSE_READING;
+                } else {
+                    // not in cache, we need to fetch it
+                    uncachedUrls.push(talisUrl);
+                }
+            // }
+        })
+        if (found === COURSE_READING_FOUND) {
+            showCourseResourceIndicator(); // no need to fetch - show indicator
+            return;
+        } else if (found === NO_COURSE_READING) {
+            return; // no need to fetch, but not a reading list either
+        }
+        console.log('cch### uncachedUrls', uncachedUrls);
+        if (Object.keys(uncachedUrls).length === 0) {
+            return; // nothing left to fetch
+        }
+
+        // fetch the uncached urls from talis
+        console.log('cch### return, Object.keys(uncachedUrls).length', Object.keys(uncachedUrls).length);
+        const tempLoopId = self.crypto.randomUUID();
+        const cacheChanged = getTalisDataFromFirstSuccessfulApiCall(uncachedUrls, Object.keys(uncachedUrls).length === 1, tempLoopId);
+        console.log('cch### return, save cache', talisCache);
+        console.log('cch### return, cacheChanged=', cacheChanged);
+        !!cacheChanged && talisCacheManager.saveLocalStorageCache(talisCache);
 	}
 
 	function isDirectLinkingAllowed(vm) {
