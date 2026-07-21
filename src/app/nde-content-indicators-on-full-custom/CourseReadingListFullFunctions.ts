@@ -78,7 +78,10 @@ export class CourseReadingListFullFunctions {
             await Promise.allSettled(promises)
                 .then(responses => {
                     responses.forEach((result, index) => {
+                        const requestedUrl = pnxUrlsNeedingFetch[index];
                         if (result.status !== 'fulfilled' || !result?.value) {
+                            !!requestedUrl && (talisCache[requestedUrl] = talisCacheManager.formattedCacheEntry(null));
+                            cacheChanged = true;
                             return;
                         }
                         const data = result.value; // now typed as {[key: string]: string}
@@ -87,14 +90,10 @@ export class CourseReadingListFullFunctions {
                             if (!courseList[talisUrl]) {
                                 !courseList[subjectCode] && (courseList[subjectCode] = talisUrl);
                             }
-
-                            // write freshly-fetched value into localStorage cache
-                            const requestedUrl = pnxUrlsNeedingFetch[index];
-                            if (!!requestedUrl && result?.value) {
-                                talisCache[requestedUrl] = talisCacheManager.formattedCacheEntry(result.value)
-                                cacheChanged = true;
-                            }
                         }
+                        // write freshly-fetched value into localStorage cache
+                        !!requestedUrl && (talisCache[requestedUrl] = talisCacheManager.formattedCacheEntry(result.value));
+                        cacheChanged = true;
                     });
                 }).finally(() => {
                     if (Object.keys(courseList).length > 0) {
