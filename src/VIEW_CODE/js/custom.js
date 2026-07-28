@@ -115,6 +115,11 @@ class LocalStorageCacheManager {
 (function () {
 	"use strict";
 
+    // initialise the cache manager for talis reading lists (for course reading list display)
+    const TALIS_CACHE_KEY = 'uqlTalisCourseList';
+    const CACHE_EXPIRY_MS = window.location.hostname === 'uq-psb.primo.exlibrisgroup.com' ? TEN_MINUTES_MS : ONE_DAY_MS;
+    const talisCacheManager = new LocalStorageCacheManager(TALIS_CACHE_KEY, CACHE_EXPIRY_MS);
+
 	var app = angular
 		.module("viewCustom", ["angularLoad"])
 		//per https://support.talis.com/hc/en-us/articles/115002712709-Primo-Explore-Integrations-with-Talis-Aspire and https://github.com/alfi1/primo-aspire-api/blob/master/getAspireLists_Angular1-6.js
@@ -149,21 +154,16 @@ class LocalStorageCacheManager {
     const vidParam = currentEnvironmentId();
 	const primoHomepageLink = `https://${window.location.hostname}/discovery/search?vid=${vidParam}&offset=0`;
 
-    // setup the cache manager for talis reading lists (for course reading list display)
-    const TALIS_CACHE_KEY = 'uqlTalisCourseList';
-    const CACHE_EXPIRY_MS = window.location.hostname === 'uq-psb.primo.exlibrisgroup.com' ? ONE_HOUR_MS : ONE_DAY_MS;
-    const talisCacheManager = new LocalStorageCacheManager(TALIS_CACHE_KEY, CACHE_EXPIRY_MS);
-
     function getPrimoHomepageLabel() {
 		// determine if we are in the public environment, colloquially referred to as prod-prod
 		// (to distinguish it from prod-dev and sandbox-prod)
 		const isPubliclyViewable = isDomainProd() && currentEnvironmentId() === '61UQ_INST:61UQ';
 
 		// modifier possibilities:
-		// 61UQ_INST:61UQ            => "PROD" (unless public domain)
-		// 61UQ_INST:61UQ_APPDEV     => "APPDEV"
-		// 61UQ_INST:61UQ_DALTS      => "DALTS" (formerly DAC)
-		// 61UQ_INST:61UQ_CANARY     => "CANARY"
+		// 61UQ_INST:61UQ            => "PROD" (unless public domain name)
+		// 61UQ_INST:61UQ_APPDEV     => "APPDEV" (general development)
+		// 61UQ_INST:61UQ_DALTS      => "DALTS" (formerly DAC, Stacey's dev area)
+		// 61UQ_INST:61UQ_CANARY     => "CANARY", for e2e tests
 		const labelModifier = isPubliclyViewable ? '' : vidParam?.replace('61UQ_INST:61UQ_', '');
 		let primoHomepageLabel;
 		if (isDomainProd()) {
@@ -1490,7 +1490,6 @@ class LocalStorageCacheManager {
         const COURSE_READING_FOUND = 'hascourse';
         const NO_COURSE_READING = 'nodata';
         let talisCache = talisCacheManager.getLocalStorageCache();
-        // let cacheChanged = false;
 
         const showCourseResourceIndicator = () => {
             // we can identify this entry in the brief results list by pnx data
@@ -1517,19 +1516,16 @@ class LocalStorageCacheManager {
 			const url = listUrlsToCall.shift();
             console.log('cch### ', tempLoopId, url, 'start, isLast=', isLast, listUrlsToCall);
             console.log('cch### ', tempLoopId, url, 'call', url);
-            // let cacheChanged = false;
             url.startsWith("http") && $http.jsonp(url, {jsonpCallbackParam: "cb"})
 				.then(function handleSuccess(response) {
                     console.log('cch### ', tempLoopId, url, 'found & add to local cache', url);
                     talisCache[url] = talisCacheManager.formattedCacheEntry(response?.data || null);
-                    // cacheChanged = true;
 
 					$scope.listsFound = response.data || null;
                     if (!!$scope.listsFound) {
                         talisCacheManager.saveLocalStorageCache(talisCache); // write the cache here as we won't proceed any further on this thread, and the finally only applies we have proceed the entire list
                         showCourseResourceIndicator();
                         console.log('cch### ', tempLoopId, url, 'FOUND ONE!', url);
-                        // cacheChanged = false;
                     } else if (!isLast) {
                         getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, Object.keys(listUrlsToCall).length === 1, tempLoopId);
 					}
@@ -1537,10 +1533,7 @@ class LocalStorageCacheManager {
 				})
 				.catch(() => {
                     // catch fires when we get a 404 from talis
-					// if (!$scope.listsFound
-                    //     // && Object.keys(listUrlsToCall).length > 0
-                    // ) {
-                        talisCache[url] = talisCacheManager.formattedCacheEntry(null);
+                    talisCache[url] = talisCacheManager.formattedCacheEntry(null);
                     console.log('cch### ', tempLoopId, url, 'NOT found & add to local cache', JSON.parse(JSON.stringify(talisCache)));
                     if (!!isLast) {
                         // we only write the cache back to local storage on the last call, to minimise read-write
@@ -1549,21 +1542,6 @@ class LocalStorageCacheManager {
                     } else {
                         getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, Object.keys(uncachedUrls).length === 1, tempLoopId);
                     }
-				// })
-                // .finally(() => {
-                //     console.log('cch### ', tempLoopId, url, 'finally, cacheChanged=', cacheChanged);
-                //     console.log('cch### ', tempLoopId, url, 'finally, isLast=', isLast);
-                //     // console.log('cch### ', tempLoopId, url, 'finally, $scope.listsFound=', $scope.listsFound);
-                //     if (
-                //         // !$scope.listsFound && // if we found a list, the cache will have been updated further up
-                //         !!isLast && // we only write the cache back to local storage on the last call, to minimise read-write
-                //         !!cacheChanged
-                //     ) {
-                //         console.log('cch### ', tempLoopId, url, 'finally, save cache', talisCache);
-                //         talisCacheManager.saveLocalStorageCache(talisCache);
-                //     } else {
-                //         console.log('cch### ', tempLoopId, url, 'finally, NOT save cache', talisCache);
-                //     }
                 });
             return cacheChanged;
 		}
@@ -1573,20 +1551,18 @@ class LocalStorageCacheManager {
         let found = '';
         let uncachedUrls = [];
         listTalisUrls.forEach(talisUrl => {
-            // if (found !== COURSE_READING_FOUND) {
-                const talisCacheEntry = talisCache[talisUrl];
-                if (talisCacheEntry && typeof talisCacheEntry?.courses !== 'undefined' && talisCacheEntry?.courses !== null) { // courses are null when talis originally 404ed for this entry
-                    // we have a reading list
-                    console.log('cch### FOUND ONE IN CACHE!!', talisUrl);
-                    found = COURSE_READING_FOUND;
-                } else if (talisCacheEntry && typeof talisCacheEntry?.expiryDate !== 'undefined') { // check the date to confirm it's a valid entry and not a miss
-                    // we have an entry in cache, so we don't need to fetch, but it's not a reading list
-                    found = NO_COURSE_READING;
-                } else {
-                    // not in cache, we need to fetch it
-                    uncachedUrls.push(talisUrl);
-                }
-            // }
+            const talisCacheEntry = talisCache[talisUrl];
+            if (talisCacheEntry && typeof talisCacheEntry?.courses !== 'undefined' && talisCacheEntry?.courses !== null) { // courses are null when talis originally 404ed for this entry
+                // we have a reading list
+                console.log('cch### FOUND ONE IN CACHE!!', talisUrl);
+                found = COURSE_READING_FOUND;
+            } else if (talisCacheEntry && typeof talisCacheEntry?.expiryDate !== 'undefined') { // check the date to confirm it's a valid entry and not a miss
+                // we have an entry in cache, so we don't need to fetch, but it's not a reading list
+                found = NO_COURSE_READING;
+            } else {
+                // not in cache, we need to fetch it
+                uncachedUrls.push(talisUrl);
+            }
         })
         if (found === COURSE_READING_FOUND) {
             showCourseResourceIndicator(); // no need to fetch - show indicator
@@ -1637,7 +1613,7 @@ class LocalStorageCacheManager {
 	}
 
 	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm) {
-		// for some types, the availabnility link loads the resource directly when we want them to go to the full view
+		// for some types, the availability link loads the resource directly when we want them to go to the full view
 		// we cant override the click on the extant element
 		// so delete it and insert static text that will pick up the overall parent click to the full record
 		const maxCount = 50;
