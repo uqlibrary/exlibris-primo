@@ -32,12 +32,21 @@ export const getListTalisUrls = (pnx: any, uid: string = '') => {
 
     const materialType = pnx?.display?.type?.[0];
     const isRestrictedCheckType = RESTRICTED_CHECK_LIST.includes(materialType);
+    const lcnPattern = (r: string) => {
+        return `${TALIS_DOMAIN}lcn/${r}/lists.json`;
+    }
 
     // LCN (Library Control Number)
     if (pnx?.control?.sourcerecordid?.length > 0) {
         pnx.control.sourcerecordid.forEach((r: string) => {
-            // console.log(uid, "CRL:: getListTalisUrls LCN - pnx?.control?.sourcerecordid r=", r);
-            list.push(`${TALIS_DOMAIN}lcn/${r}/lists.json`);
+            list.push(lcnPattern(r));
+        });
+    }
+    if (pnx?.display?.dedupmemberids?.length > 0) {
+        pnx.display.dedupmemberids.forEach((r: string) => {
+            if (!list.includes(lcnPattern(r))) {
+                list.push(lcnPattern(r));
+            }
         });
     }
 
