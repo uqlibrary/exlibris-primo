@@ -951,13 +951,23 @@ function whenPageLoaded(fn) {
 			"working_paper",
 		];
 		const isRestrictedCheckType = restrictedCheckList.includes(materialType);
+        const lcnPattern = r => {
+            return `${TALIS_DOMAIN}lcn/${r}/lists.json`;
+        }
 
 		// LCN
 		if (!!item?.pnx?.control?.sourcerecordid && item.pnx.control.sourcerecordid.length > 0) {
 			item.pnx.control.sourcerecordid.forEach(r => {
-				list.push(TALIS_DOMAIN + 'lcn/' + r + '/lists.json');
+                list.push(lcnPattern(r));
 			})
 		}
+        if (pnx?.display?.dedupmemberids?.length > 0) {
+            pnx.display.dedupmemberids.forEach((r) => {
+                if (!list.includes(lcnPattern(r))) {
+                    list.push(lcnPattern(r));
+                }
+            });
+        }
 
 		// DOI
 		if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
