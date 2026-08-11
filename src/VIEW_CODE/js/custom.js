@@ -1069,8 +1069,8 @@ class LocalStorageCacheManager {
                 list.push(lcnPattern(r));
 			})
 		}
-        if (pnx?.display?.dedupmemberids?.length > 0) {
-            pnx.display.dedupmemberids.forEach((r) => {
+        if (!!item?.pnx?.display?.dedupmemberids && item.pnx.display.dedupmemberids.length > 0) {
+            item.pnx.display.dedupmemberids.forEach((r) => {
                 if (!list.includes(lcnPattern(r))) {
                     list.push(lcnPattern(r));
                 }
