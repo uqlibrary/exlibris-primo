@@ -139,8 +139,8 @@ export class CourseReadingListFullFunctions {
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
         for (const [url, displayName] of Object.entries(talisCourses) as [string, string][]) {
-            const className = numberOfReadingLists < maxNumberReadingListsDisplayed ? 'uql-crl-list-constant': `${crlHideableClass} ${crlHiddenClass}`;
-            htmlContent += `<li class="uql-crl-list ${className}">
+            const classNames = numberOfReadingLists < maxNumberReadingListsDisplayed ? 'uql-crl-list-constant': `${crlHideableClass} ${crlHiddenClass}`;
+            htmlContent += `<li class="uql-crl-list ${classNames}">
                 <a class="uql-crl-list-item" href="${url}" target="_blank">
                     <span>${displayName}</span>
                     ${linkOutIcon}
@@ -148,7 +148,7 @@ export class CourseReadingListFullFunctions {
             numberOfReadingLists++;
         }
         htmlContent += `</ul>`;
-        if (numberOfReadingLists >= maxNumberReadingListsDisplayed) {
+        if (numberOfReadingLists > maxNumberReadingListsDisplayed) {
             htmlContent += `<div class="toggle-show-all-button">
     <button id="${buttonId}" _ngcontent-ng-crl="" mat-button="" data-qa="full-display-crl-show-more-btn" mat-ripple-loader-class-name="mat-mdc-button-ripple" class="mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base" aria-label="Click for more suggestions">
         <span class="mat-mdc-button-persistent-ripple mdc-button__ripple"></span>
