@@ -95,6 +95,12 @@ export class CourseReadingListFullFunctions {
         }
     }
 
+    private isVisible(elm: HTMLElement | Element,) {
+        const rect = elm.getBoundingClientRect();
+        const viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+        return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+    }
+
     private createAndAppendCourseList(talisCourses: { [s: string]: unknown; } | ArrayLike<unknown>) {
         const linkOutIcon: string =
             '<mat-icon style="height: 20px; width: 18px;" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
@@ -121,7 +127,7 @@ export class CourseReadingListFullFunctions {
                             aria-labelledby="title.Course Reading Lists" id="mat-expansion-panel-header-crl"
                             tabindex="0" aria-controls="cdk-accordion-child-crl" aria-expanded="true"
                             aria-disabled="false">
-                        <span class="mat-content">
+                        <span class="mat-content" id="crl-sidebar-heading-wrapper">
                             <h2 _ngcontent-ng-crl="" id="title.Course Reading Lists">Course Reading Lists</h2>
                             <span _ngcontent-ng-crl="" mattooltipposition="below" aria-hidden="true"
                                 class="mat-mdc-tooltip-trigger tooltip-anchor" aria-describedby="cdk-describedby-message-ng-crl"
@@ -184,6 +190,8 @@ export class CourseReadingListFullFunctions {
         const template = document.createElement('template');
         template.innerHTML = htmlContent;
 
+        const that = this;
+
         // Insert the course list as the first child of the target element
         !!targetElement && targetElement.prepend(template.content.cloneNode(true));
 
@@ -201,11 +209,14 @@ export class CourseReadingListFullFunctions {
             } else {
                 // visible entries - hide them
                 const hideableCRL = document.querySelectorAll(`.${crlHideableClass}`);
-                hideableCRL?.forEach(c =>  c.classList.add(crlHiddenClass))
+                hideableCRL?.forEach(c => c.classList.add(crlHiddenClass));
                 !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = buttonLabelShowAll);
-                // !!longToggleButtonIcon && (longToggleButtonIcon.style.transform = 'rotate(180deg)');
-                // scroll the top into view, rather than leaving it floating in the midle of the page
-                document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
+
+                const sidebarWrapper = document.getElementById('crl-sidebar-heading-wrapper');
+                if (!!sidebarWrapper && !that.isVisible(sidebarWrapper)) {
+                    // scroll the top into view, rather than leaving it floating in the midle of the page IF the top is currently off the page
+                    document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
+                }
                 !!longToggleButton && longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.remove('noneHidden');
             }
         });
@@ -223,7 +234,6 @@ export class CourseReadingListFullFunctions {
             this.removeClickStyles();
         })
 
-        const that = this;
         const crlTooltipId = 'crlLabel';
         let mouseOverPrefix = 'Collapse';
 
