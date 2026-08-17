@@ -8,7 +8,7 @@ const culturalAdviceIconHtml: string =
 // _content_indicator_icon.scss file in reusable repo duplicates looknfeel of built in primo icons via _ngcontent-ng-content-indicator
 export const culturalAdviceIndicatorHtml = (uuid: string)=> {
     const contentIndicatorIconHtml = culturalAdviceIconHtml;
-    const testId = 'cultural-advice-icon-label';
+    const testId = 'brief-cultural-advice-content-indicator';
     const contentIndicatorLabel = "CULTURAL ADVICE";
     return contentIndicatorHtml('uql-cultural-advice-content-indicator', contentIndicatorIconHtml, testId, contentIndicatorLabel, 'medium');
 }
@@ -50,7 +50,7 @@ const addCulturalAdviceBanner = (displayText: string) => {
         return;
     }
 
-    const bannerHtml = `<div id="${displayBlockId}" class="standardWarningBanner">
+    const bannerHtml = `<div id="${displayBlockId}" class="standardWarningBanner" data-testid="cultural-advice-banner">
     <div class="uq-icon uq-icon--standard--exclamation-triangle"></div>
 <p>
     ${displayText}

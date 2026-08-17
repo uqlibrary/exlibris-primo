@@ -169,11 +169,11 @@ export class CourseReadingListFullFunctions {
                                 <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is listed on</p>
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
-        for (const [url, displayName] of Object.entries(talisCourses) as [string, string][]) {
+        for (const [displayName, url] of Object.entries(talisCourses) as [string, string][]) {
             let linkedUrl = this.fixUnsafeReadingListUrl(url);
             linkedUrl = this.addUrlParam(linkedUrl, 'login', true);
-            const classNames = numberOfReadingLists < maxNumberReadingListsDisplayed ? 'uql-crl-list-constant': `${crlHideableClass} ${crlHiddenClass}`;
-            htmlContent += `<li class="uql-crl-list ${classNames}">
+            const className = numberOfReadingLists < maxNumberReadingListsDisplayed ? 'uql-crl-list-constant': `${crlHideableClass} ${crlHiddenClass}`;
+            htmlContent += `<li class="uql-crl-list ${className}">
                 <a class="uql-crl-list-item" href="${linkedUrl}" target="_blank">
                     <span>${displayName}</span>
                     ${linkOutIcon}
