@@ -1077,7 +1077,8 @@ class LocalStorageCacheManager {
             });
         }
 
-		// DOI
+
+        // DOI
 		if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
 			item.pnx.addata.doi.forEach(r => {
 				list.push(TALIS_DOMAIN + 'doi/' + r + '/lists.json');
