@@ -376,16 +376,13 @@ export class NdeUpdateAccountMenuCustomComponent {
         newPurchaseRequestItemElementTemplate.innerHTML = `<li id="${newPurchaseRequestItemId}">
      <a href="${purchaseRequestLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Go to my saved records" role="menuitem" aria-disabled="false">
     <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
-        <svg style="opacity: 70%" data-testid="library-purchase-request-icon" id="library-purchase-request-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M1.5 23.25h21" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M1.5 20.25h21" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M3 9.75v7.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M6 9.75v7.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M10.5 9.75v7.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M13.5 9.75v7.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M18 9.75v7.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M21 9.75v7.5" stroke-width="1.5"></path>
-          <path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M22.5 6.7499h-21l9.689 -5.762c0.2419 -0.15548 0.5234 -0.238144 0.811 -0.238144 0.2876 0 0.5691 0.082664 0.811 0.238144l9.689 5.762Z" stroke-width="1.5"></path>
+        <svg class="purchaseRequestIcon" width="100%" height="100%" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+            <path d="M7 6C7 3.23858 9.01472 1 11.5 1C13.9853 1 16 3.23858 16 6"></path>
+            <path d="M2.86957 5.83334C2.95445 5.07413 3.59635 4.5 4.36029 4.5H19.6397C20.4036 4.5 21.0455 5.07413 21.1304 5.83334L23.2547 24.8333C23.354 25.7222 22.6584 26.5 21.7639 26.5H2.23606C1.34164 26.5 0.645972 25.7222 0.745351 24.8333L2.86957 5.83334Z"></path>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 21.9946C6 21.7185 6.24421 21.4946 6.54545 21.4946H17.4545C17.7558 21.4946 18 21.7185 18 21.9946C18 22.2708 17.7558 22.4946 17.4545 22.4946H6.54545C6.24421 22.4946 6 22.2708 6 21.9946Z"></path>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12.144 18.9974L12.1466 18.9992L12.144 18.9974ZM11.9992 18.9089C12.2604 18.755 12.8269 18.4548 13.574 18.2468C14.4698 17.9973 15.7119 17.8583 17 18.3597V11.383C15.1719 10.5691 13.3719 11.2391 12.5183 11.6788L12 11.9457L11.4817 11.6787C10.6282 11.2391 8.82815 10.569 7 11.383V18.3601C8.2808 17.8634 9.52287 18.0043 10.4165 18.251C11.1696 18.459 11.7413 18.759 11.9992 18.9089Z"></path>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12.1407 18.0257L12.1433 18.0272L12.1407 18.0257ZM11.9992 17.9481C12.2544 17.8131 12.808 17.5498 13.5378 17.3673C14.4131 17.1485 15.6267 17.0266 16.8852 17.4664V11.3476C15.0991 10.6338 13.3404 11.2214 12.5064 11.607L12 11.8411L11.4936 11.607C10.6597 11.2214 8.90097 10.6337 7.11479 11.3476V17.4667C8.36619 17.0311 9.57974 17.1547 10.4529 17.3711C11.1887 17.5534 11.7472 17.8166 11.9992 17.9481ZM6 17.8353V11.1922C6 10.8983 6.18523 10.6302 6.47717 10.5015C8.79746 9.47837 11.0489 10.2666 12 10.7063C12.9513 10.2666 15.2026 9.47848 17.5228 10.5015C17.8148 10.6302 18 10.8983 18 11.1922V17.8353C18 18.4022 17.3425 18.7745 16.7791 18.526C14.6501 17.5873 12.4912 18.8586 12.4697 18.8717C12.2161 19.0234 11.8514 19.0594 11.5388 18.8763L11.5351 18.8743L11.5304 18.8717C11.5115 18.8605 9.32858 17.597 7.22097 18.526C6.65713 18.7747 6.00006 18.4016 6 17.8353Z"></path>
+            <path d="M11.441 11.353H12.5558V18.3033H11.441V11.353Z"></path>
         </svg>
     </mat-icon>
     <span class="mat-mdc-menu-item-text">

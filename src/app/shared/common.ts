@@ -10,7 +10,7 @@ export const isFullDisplayPage = () => {
 
 export const setRecordIdentifier = (uuid: string | null, prefix: string = 'record') => !!uuid ? `${prefix}-${uuid}` : `record-${uuid}-unknown`;
 
-export const contentIndicatorHtml= (contentIndicatorType: string, contentIndicatorIconHtml: string, testId: string, contentIndicatorLabel: string, iconSize: string): string  => {
+export const contentIndicatorHtml = (contentIndicatorType: string, contentIndicatorIconHtml: string, testId: string, contentIndicatorLabel: string, iconSize: string): string  => {
     return `<${contentIndicatorType} _ngcontent-ng-content-indicator="" class="record-indication-cont display-inline-block ng-star-inserted" data-testid="${testId}">
     <mat-divider _ngcontent-ng-content-indicator="" role="separator" class="mat-divider nde-divider mat-divider-vertical" aria-orientation="vertical"></mat-divider>
     <div _ngcontent-ng-content-indicator="" class="display-inline">
