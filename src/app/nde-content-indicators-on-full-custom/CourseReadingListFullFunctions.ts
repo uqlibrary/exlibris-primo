@@ -128,14 +128,14 @@ export class CourseReadingListFullFunctions {
 
     private createAndAppendCourseList(talisCourses: { [s: string]: string; } | ArrayLike<unknown>) {
         const linkOutIcon: string =
-            '<mat-icon style="height: 20px; width: 18px;" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
-            '<svg width="16" height="16" viewBox="0 0 24 24">' +
-            '<path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>' +
-            '</svg>' +
+            '<mat-icon class="linkOut" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24">' +
+                    '<path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>' +
+                '</svg>' +
             '</mat-icon>';
-        // arow buttons are flipped with css, rather than having a second svg
-        const showMoreLessArrow = `<svg width="100%" height="100%" viewBox="0 0 24 25" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
-                <mask id="mask0_882_2211" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
+        // arrow buttons are flipped with css, rather than having a second svg
+        const showMoreLessArrow = `<svg class="showMoreLessArrow" width="100%" height="100%" viewBox="0 0 24 25" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+                <mask id="mask0_882_2211" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
                     <rect y="0.5" width="24" height="24"></rect>
                 </mask>
                 <g mask="url('/nde/fulldisplay?context=PC&amp;vid=61UQ_INST:61UQ_NDEUI_DALTS&amp;search_scope=61UQ_All&amp;lang=en&amp;docid=cdi_proquest_miscellaneous_3198305176#mask0_882_2211')">
