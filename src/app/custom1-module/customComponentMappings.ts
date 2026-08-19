@@ -16,6 +16,7 @@ import {NdeOverrideOutlinkCustomComponent} from "../nde-override-outlink-custom/
 import {
     NdeServicesPageBannerCustomComponent
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
+import {NdeOptionsButtonCustom} from "../nde-options-button-component/nde-options-button-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
@@ -23,6 +24,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
     ['nde-search-filters-side-nav-after', NdeCountOfFiltersCustomComponent],
+    ['nde-search-results-container-after', NdeOptionsButtonCustom],
     ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
