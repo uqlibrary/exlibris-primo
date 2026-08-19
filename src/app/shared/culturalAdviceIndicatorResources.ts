@@ -25,10 +25,16 @@ export const addCulturalAdviceIndicatorToHeader = (_item?: HTMLElement) => {
     const crlTooltipId = `ca-icon-tooltip-full`;
     const CRLIndicator = item.querySelector(`uql-cultural-advice-content-indicator`);
     const mouseOverLabel = 'This resource has an advisory statement';
-    !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
+    !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function () {
         mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
     });
-    !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {
+    !!CRLIndicator && CRLIndicator.addEventListener('focusin', function () {
+        mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
+    });
+    !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function () {
+        mouseoutTooltip(crlTooltipId);
+    });
+    !!CRLIndicator && CRLIndicator.addEventListener('focusout', function () {
         mouseoutTooltip(crlTooltipId);
     });
 }
