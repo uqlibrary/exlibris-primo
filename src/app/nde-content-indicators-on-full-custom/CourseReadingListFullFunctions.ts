@@ -176,6 +176,7 @@ export class CourseReadingListFullFunctions {
                     <div class="mat-expansion-panel-content-wrapper">
                         <div role="region" id="uql-accordion-child-crl" class="mat-expansion-panel-content" id="cdk-accordion-child-crl" aria-labelledby=mat-expansion-panel-header-crl">
                             <div class="mat-expansion-panel-body">
+                                <div _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>
                                 <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is listed on</p>
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
