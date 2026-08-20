@@ -228,7 +228,6 @@ export class CourseReadingListFullFunctions {
         // handle the "Show all" / "Show less" button click when there are many courses
         const longToggleButton = document.getElementById(buttonId);
         const longToggleButtonLabel = document.getElementById(buttonLabelId);
-        // const longToggleButtonIcon = document.getElementById('toggle-long-crl-icon');
         !!longToggleButton && longToggleButton.addEventListener('click', function (event) {
             const hiddenCRL = document.querySelectorAll(`.${crlHiddenClass}`);
             if (hiddenCRL?.length > 0) {
@@ -244,7 +243,7 @@ export class CourseReadingListFullFunctions {
 
                 const sidebarWrapper = document.getElementById('crl-sidebar-heading-wrapper');
                 if (!!sidebarWrapper && !that.isVisible(sidebarWrapper)) {
-                    // scroll the top into view, rather than leaving it floating in the midle of the page IF the top is currently off the page
+                    // scroll the top into view, IF the top is currently off the page (rather than leaving it floating in the middle of the page)
                     document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
                 }
                 !!longToggleButton && longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.remove('noneHidden');
@@ -265,28 +264,29 @@ export class CourseReadingListFullFunctions {
         })
 
         const crlTooltipId = 'crlLabel';
-        let mouseOverPrefix = 'Collapse';
 
         // handle the collapse-expand of the panel, mimicking the built-in
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mousedown', function (event) {
             event.preventDefault();
-            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
+            that.togglePanel(crlTooltipId);
         });
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('keydown', function (event) {
             if (!isReturnKeyPressed(event)) {
                 return;
             }
             event.preventDefault();
-            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
+            that.togglePanel(crlTooltipId);
         });
 
         // supply tooltip on hover
         const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
-        const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function (event) {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function () {
+            const listArea1 = document.getElementById('uql-accordion-child-crl');
+            let mouseOverPrefix = listArea1?.style.visibility === 'hidden' ? 'Expand' : 'Collapse';
+            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
             !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function (event) {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function () {
             mouseoutTooltip(crlTooltipId);
         });
     }
@@ -297,7 +297,7 @@ export class CourseReadingListFullFunctions {
             this.matExpansionHeader.classList.contains('cdk-keyboard-focused') && this.matExpansionHeader.classList.remove('cdk-keyboard-focused')
         }
     }
-    private togglePanel = (mouseOverPrefix: string, crlTooltipId: string) => {
+    private togglePanel = (crlTooltipId: any) => {
         const panel = document.querySelector('uql-course-reading-list-sidebar-panel');
 
         const listArea = document.getElementById('uql-accordion-child-crl');
@@ -306,11 +306,8 @@ export class CourseReadingListFullFunctions {
         panelHeader?.classList.toggle('mat-expanded');
 
         if (!!listArea) {
-            panelHeader?.setAttribute('aria-expanded', listArea.style.visibility === 'hidden' ? 'true' : 'false'
-            )
-            mouseOverPrefix = !!listArea && listArea.style.visibility === 'hidden' ? 'Collapse' : 'Expand';
+            panelHeader?.setAttribute('aria-expanded', listArea.style.visibility === 'hidden' ? 'true' : 'false');
             listArea.style.visibility = listArea.style.visibility === 'hidden' ? 'visible' : 'hidden';
-
             listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
             listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
         }
@@ -318,7 +315,6 @@ export class CourseReadingListFullFunctions {
         this.removeClickStyles();
 
         mouseoutTooltip(crlTooltipId);
-        return mouseOverPrefix;
     }
 
     private fixUnsafeReadingListUrl(url: string) {
