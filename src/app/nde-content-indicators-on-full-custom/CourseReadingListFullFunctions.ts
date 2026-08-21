@@ -13,18 +13,18 @@ export class CourseReadingListFullFunctions {
 
     private matExpansionHeader: HTMLElement | null = null;
 
-    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface) => {
+    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface, isLoggedIn: boolean) => {
         const listTalisUrls = getListTalisUrls(pnx);
         if (!listTalisUrls || listTalisUrls.length === 0) {
             return;
         }
 
         if (!!listTalisUrls && listTalisUrls.length > 0) {
-            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
+            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx, isLoggedIn);
         }
     }
 
-    private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
+    private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any, isLoggedIn: boolean) {
         let courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
@@ -109,7 +109,7 @@ export class CourseReadingListFullFunctions {
                                 {}
                             );
 
-                        this.createAndAppendCourseList(courseList);
+                        this.createAndAppendCourseList(courseList, isLoggedIn);
                     }
                     if (cacheChanged) {
                         talisCacheManager.saveLocalStorageCache(talisCache);
@@ -126,13 +126,23 @@ export class CourseReadingListFullFunctions {
         return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
     }
 
-    private createAndAppendCourseList(talisCourses: { [s: string]: string; } | ArrayLike<unknown>) {
+    private createAndAppendCourseList(talisCourses: any, isLoggedIn: boolean = false) {
         const linkOutIcon: string =
-            '<mat-icon style="height: 20px; width: 18px;" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
-            '<svg width="16" height="16" viewBox="0 0 24 24">' +
-            '<path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>' +
-            '</svg>' +
+            '<mat-icon class="linkOut" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24">' +
+                    '<path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"></path>' +
+                '</svg>' +
             '</mat-icon>';
+        // arrow buttons are flipped with css, rather than having a second svg
+        const showMoreLessArrow = `<svg class="showMoreLessArrow" width="100%" height="100%" viewBox="0 0 24 25" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+                <mask id="mask0_882_2211" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
+                    <rect y="0.5" width="24" height="24"></rect>
+                </mask>
+                <g mask="url('/nde/fulldisplay?context=PC&amp;vid=61UQ_INST:61UQ_NDEUI_DALTS&amp;search_scope=61UQ_All&amp;lang=en&amp;docid=cdi_proquest_miscellaneous_3198305176#mask0_882_2211')">
+                    <path d="M11.9998 15.45C11.8665 15.45 11.7415 15.4292 11.6248 15.3875C11.5081 15.3458 11.3998 15.275 11.2998 15.175L6.6998 10.575C6.51647 10.3917 6.4248 10.1583 6.4248 9.87499C6.4248 9.59166 6.51647 9.35833 6.6998 9.17499C6.88314 8.99166 7.11647 8.89999 7.3998 8.89999C7.68314 8.89999 7.91647 8.99166 8.0998 9.17499L11.9998 13.075L15.8998 9.17499C16.0831 8.99166 16.3165 8.89999 16.5998 8.89999C16.8831 8.89999 17.1165 8.99166 17.2998 9.17499C17.4831 9.35833 17.5748 9.59166 17.5748 9.87499C17.5748 10.1583 17.4831 10.3917 17.2998 10.575L12.6998 15.175C12.5998 15.275 12.4915 15.3458 12.3748 15.3875C12.2581 15.4292 12.1331 15.45 11.9998 15.45Z"></path>
+                </g>
+            </svg>`;
+        const headerArrow = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path></svg>`;
 
         const buttonId = 'toggle-long-crl';
         const buttonLabelId = 'toggle-long-crl-label';
@@ -144,6 +154,13 @@ export class CourseReadingListFullFunctions {
 
         const targetElement = document.querySelector('nde-full-display-side-bar');
 
+        // note that we don't need to make it update on change of login state
+        // because log IN on prod goes through auth and reloads the page
+        // and log OUT goes off to a different page
+        // on sandbox (with exlibris login) this will not update on change
+        const loginPrompt = (loggedIn: boolean) => !loggedIn
+            ? '<div id="crl-login-banner" _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>'
+            : '';
         let htmlContent = `<uql-course-reading-list-sidebar-panel _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
                 <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
@@ -160,12 +177,13 @@ export class CourseReadingListFullFunctions {
                             </span>
                         </span>
                         <span id="uql-mat-expansion-panel-header-button" class="mat-expansion-indicator ng-star-inserted">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path></svg>
+                            ${headerArrow}
                         </span>
                     </mat-expansion-panel-header>
                     <div class="mat-expansion-panel-content-wrapper">
                         <div role="region" id="uql-accordion-child-crl" class="mat-expansion-panel-content" id="cdk-accordion-child-crl" aria-labelledby=mat-expansion-panel-header-crl">
                             <div class="mat-expansion-panel-body">
+                                ${loginPrompt(isLoggedIn)}
                                 <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is listed on</p>
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
@@ -191,14 +209,7 @@ export class CourseReadingListFullFunctions {
                     ${buttonLabelShowAll}
                 </span>
                 <mat-icon _ngcontent-ng-crl="" role="img" class="toggle-long-crl-icon mat-icon notranslate mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Arrow-down-black">
-                    <svg width="100%" height="100%" viewBox="0 0 24 25" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
-                        <mask id="mask0_882_2211" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
-                            <rect y="0.5" width="24" height="24"></rect>
-                        </mask>
-                        <g mask="url('/nde/fulldisplay?context=PC&amp;vid=61UQ_INST:61UQ_NDEUI_DALTS&amp;search_scope=61UQ_All&amp;lang=en&amp;docid=cdi_proquest_miscellaneous_3198305176#mask0_882_2211')">
-                            <path d="M11.9998 15.45C11.8665 15.45 11.7415 15.4292 11.6248 15.3875C11.5081 15.3458 11.3998 15.275 11.2998 15.175L6.6998 10.575C6.51647 10.3917 6.4248 10.1583 6.4248 9.87499C6.4248 9.59166 6.51647 9.35833 6.6998 9.17499C6.88314 8.99166 7.11647 8.89999 7.3998 8.89999C7.68314 8.89999 7.91647 8.99166 8.0998 9.17499L11.9998 13.075L15.8998 9.17499C16.0831 8.99166 16.3165 8.89999 16.5998 8.89999C16.8831 8.89999 17.1165 8.99166 17.2998 9.17499C17.4831 9.35833 17.5748 9.59166 17.5748 9.87499C17.5748 10.1583 17.4831 10.3917 17.2998 10.575L12.6998 15.175C12.5998 15.275 12.4915 15.3458 12.3748 15.3875C12.2581 15.4292 12.1331 15.45 11.9998 15.45Z"></path>
-                        </g>
-                    </svg>
+                    ${showMoreLessArrow}
                 </mat-icon>
             </span>
         </span>
@@ -225,7 +236,6 @@ export class CourseReadingListFullFunctions {
         // handle the "Show all" / "Show less" button click when there are many courses
         const longToggleButton = document.getElementById(buttonId);
         const longToggleButtonLabel = document.getElementById(buttonLabelId);
-        // const longToggleButtonIcon = document.getElementById('toggle-long-crl-icon');
         !!longToggleButton && longToggleButton.addEventListener('click', function (event) {
             const hiddenCRL = document.querySelectorAll(`.${crlHiddenClass}`);
             if (hiddenCRL?.length > 0) {
@@ -241,7 +251,7 @@ export class CourseReadingListFullFunctions {
 
                 const sidebarWrapper = document.getElementById('crl-sidebar-heading-wrapper');
                 if (!!sidebarWrapper && !that.isVisible(sidebarWrapper)) {
-                    // scroll the top into view, rather than leaving it floating in the midle of the page IF the top is currently off the page
+                    // scroll the top into view, IF the top is currently off the page (rather than leaving it floating in the middle of the page)
                     document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
                 }
                 !!longToggleButton && longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.remove('noneHidden');
@@ -262,28 +272,29 @@ export class CourseReadingListFullFunctions {
         })
 
         const crlTooltipId = 'crlLabel';
-        let mouseOverPrefix = 'Collapse';
 
         // handle the collapse-expand of the panel, mimicking the built-in
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mousedown', function (event) {
             event.preventDefault();
-            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
+            that.togglePanel(crlTooltipId);
         });
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('keydown', function (event) {
             if (!isReturnKeyPressed(event)) {
                 return;
             }
             event.preventDefault();
-            mouseOverPrefix = that.togglePanel(mouseOverPrefix, crlTooltipId);
+            that.togglePanel(crlTooltipId);
         });
 
         // supply tooltip on hover
         const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
-        const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function (event) {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function () {
+            const listArea1 = document.getElementById('uql-accordion-child-crl');
+            let mouseOverPrefix = listArea1?.style.visibility === 'hidden' ? 'Expand' : 'Collapse';
+            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
             !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function (event) {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function () {
             mouseoutTooltip(crlTooltipId);
         });
     }
@@ -294,7 +305,7 @@ export class CourseReadingListFullFunctions {
             this.matExpansionHeader.classList.contains('cdk-keyboard-focused') && this.matExpansionHeader.classList.remove('cdk-keyboard-focused')
         }
     }
-    private togglePanel = (mouseOverPrefix: string, crlTooltipId: string) => {
+    private togglePanel = (crlTooltipId: any) => {
         const panel = document.querySelector('uql-course-reading-list-sidebar-panel');
 
         const listArea = document.getElementById('uql-accordion-child-crl');
@@ -303,11 +314,8 @@ export class CourseReadingListFullFunctions {
         panelHeader?.classList.toggle('mat-expanded');
 
         if (!!listArea) {
-            panelHeader?.setAttribute('aria-expanded', listArea.style.visibility === 'hidden' ? 'true' : 'false'
-            )
-            mouseOverPrefix = !!listArea && listArea.style.visibility === 'hidden' ? 'Collapse' : 'Expand';
+            panelHeader?.setAttribute('aria-expanded', listArea.style.visibility === 'hidden' ? 'true' : 'false');
             listArea.style.visibility = listArea.style.visibility === 'hidden' ? 'visible' : 'hidden';
-
             listArea.style.unicodeBidi = listArea.style.height === '0px' ? '' : 'isolate';
             listArea.style.height = listArea.style.height === '0px' ? '' : '0px';
         }
@@ -315,7 +323,6 @@ export class CourseReadingListFullFunctions {
         this.removeClickStyles();
 
         mouseoutTooltip(crlTooltipId);
-        return mouseOverPrefix;
     }
 
     private fixUnsafeReadingListUrl(url: string) {
