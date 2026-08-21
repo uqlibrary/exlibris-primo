@@ -13,18 +13,18 @@ export class CourseReadingListFullFunctions {
 
     private matExpansionHeader: HTMLElement | null = null;
 
-    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface) => {
+    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface, isLoggedIn: boolean) => {
         const listTalisUrls = getListTalisUrls(pnx);
         if (!listTalisUrls || listTalisUrls.length === 0) {
             return;
         }
 
         if (!!listTalisUrls && listTalisUrls.length > 0) {
-            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx);
+            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx, isLoggedIn);
         }
     }
 
-    private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any) {
+    private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any, isLoggedIn: boolean) {
         let courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
@@ -109,7 +109,7 @@ export class CourseReadingListFullFunctions {
                                 {}
                             );
 
-                        this.createAndAppendCourseList(courseList);
+                        this.createAndAppendCourseList(courseList, isLoggedIn);
                     }
                     if (cacheChanged) {
                         talisCacheManager.saveLocalStorageCache(talisCache);
@@ -126,7 +126,7 @@ export class CourseReadingListFullFunctions {
         return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
     }
 
-    private createAndAppendCourseList(talisCourses: { [s: string]: string; } | ArrayLike<unknown>) {
+    private createAndAppendCourseList(talisCourses: any, isLoggedIn: boolean = false) {
         const linkOutIcon: string =
             '<mat-icon class="linkOut" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24">' +
@@ -154,6 +154,13 @@ export class CourseReadingListFullFunctions {
 
         const targetElement = document.querySelector('nde-full-display-side-bar');
 
+        // note that we don't need to make it update on change of login state
+        // because log IN on prod goes through auth and reloads the page
+        // and log OUT goes off to a different page
+        // on sandbox (with exlibris login) this will not update on change
+        const loginPrompt = (loggedIn: boolean) => !loggedIn
+            ? '<div id="crl-login-banner" _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>'
+            : '';
         let htmlContent = `<uql-course-reading-list-sidebar-panel _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
                 <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
@@ -176,7 +183,7 @@ export class CourseReadingListFullFunctions {
                     <div class="mat-expansion-panel-content-wrapper">
                         <div role="region" id="uql-accordion-child-crl" class="mat-expansion-panel-content" id="cdk-accordion-child-crl" aria-labelledby=mat-expansion-panel-header-crl">
                             <div class="mat-expansion-panel-body">
-                                <div _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>
+                                ${loginPrompt(isLoggedIn)}
                                 <p _ngcontent-ng-crl="" id="search-within-desc" class="mat-body-medium">This resource is listed on</p>
                                 <ul class="course-resource-list">`;
         let numberOfReadingLists = 0;
