@@ -36,8 +36,6 @@ class LocalStorageCacheManager {
 
     // write all the talis entries in one local storage entry
     saveLocalStorageCache(newCache) {
-        console.log('cch### saveLocalStorageCache start newCache=', newCache)
-        console.log('cch### saveLocalStorageCache start this.talisCacheList=', JSON.parse(JSON.stringify(this.talisCacheList)));
         try {
             this.talisCacheList = {
                 ...this.talisCacheList,
@@ -45,7 +43,7 @@ class LocalStorageCacheManager {
             };
             localStorage.setItem(this.cacheName, JSON.stringify(this.talisCacheList));
         } catch (e) {
-            console.log('cch### [LPTC01] LocalStorageCacheManager: unable to write to local storage');
+            console.log('[LPTC01] LocalStorageCacheManager: unable to write to local storage');
             // localStorage might be full or unavailable; fail with no further handling
         }
     }
@@ -93,14 +91,11 @@ class LocalStorageCacheManager {
 
     inCache(url) {
         if (!this.talisCacheList[url]) {
-            console.log('cch## url not in cache', url, this.talisCacheList);
             return false;
         }
         if (this.talisCacheList[url].courses === null) {
-            console.log('cch## url IS cached but cached as empty', url, this.talisCacheList);
             return false;
         }
-        console.log('cch## url IS cached', url, this.talisCacheList);
         return true;
     }
 
@@ -1525,18 +1520,14 @@ class LocalStorageCacheManager {
 
         function getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, isLast, tempLoopId) {
 			const url = listUrlsToCall.shift();
-            console.log('cch### ', tempLoopId, url, 'start, isLast=', isLast, listUrlsToCall);
-            console.log('cch### ', tempLoopId, url, 'call', url);
             url.startsWith("http") && $http.jsonp(url, {jsonpCallbackParam: "cb"})
 				.then(function handleSuccess(response) {
-                    console.log('cch### ', tempLoopId, url, 'found & add to local cache', url);
                     talisCache[url] = talisCacheManager.formattedCacheEntry(response?.data || null);
 
 					$scope.listsFound = response.data || null;
                     if (!!$scope.listsFound) {
                         talisCacheManager.saveLocalStorageCache(talisCache); // write the cache here as we won't proceed any further on this thread, and the finally only applies we have proceed the entire list
                         showCourseResourceIndicator();
-                        console.log('cch### ', tempLoopId, url, 'FOUND ONE!', url);
                     } else if (!isLast) {
                         getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, Object.keys(listUrlsToCall).length === 1, tempLoopId);
 					}
@@ -1545,10 +1536,8 @@ class LocalStorageCacheManager {
 				.catch(() => {
                     // catch fires when we get a 404 from talis
                     talisCache[url] = talisCacheManager.formattedCacheEntry(null);
-                    console.log('cch### ', tempLoopId, url, 'NOT found & add to local cache', JSON.parse(JSON.stringify(talisCache)));
                     if (!!isLast) {
                         // we only write the cache back to local storage on the last call, to minimise read-write
-                        console.log('cch### ', tempLoopId, url, 'finally, save cache', talisCache);
                         talisCacheManager.saveLocalStorageCache(talisCache);
                     } else {
                         getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, Object.keys(uncachedUrls).length === 1, tempLoopId);
@@ -1565,7 +1554,6 @@ class LocalStorageCacheManager {
             const talisCacheEntry = talisCache[talisUrl];
             if (talisCacheEntry && typeof talisCacheEntry?.courses !== 'undefined' && talisCacheEntry?.courses !== null) { // courses are null when talis originally 404ed for this entry
                 // we have a reading list
-                console.log('cch### FOUND ONE IN CACHE!!', talisUrl);
                 found = COURSE_READING_FOUND;
             } else if (talisCacheEntry && typeof talisCacheEntry?.expiryDate !== 'undefined') { // check the date to confirm it's a valid entry and not a miss
                 // we have an entry in cache, so we don't need to fetch, but it's not a reading list
@@ -1581,17 +1569,13 @@ class LocalStorageCacheManager {
         } else if (found === NO_COURSE_READING) {
             return; // no need to fetch, but not a reading list either
         }
-        console.log('cch### uncachedUrls', uncachedUrls);
         if (Object.keys(uncachedUrls).length === 0) {
             return; // nothing left to fetch
         }
 
         // fetch the uncached urls from talis
-        console.log('cch### return, Object.keys(uncachedUrls).length', Object.keys(uncachedUrls).length);
         const tempLoopId = self.crypto.randomUUID();
         const cacheChanged = getTalisDataFromFirstSuccessfulApiCall(uncachedUrls, Object.keys(uncachedUrls).length === 1, tempLoopId);
-        console.log('cch### return, save cache', talisCache);
-        console.log('cch### return, cacheChanged=', cacheChanged);
         !!cacheChanged && talisCacheManager.saveLocalStorageCache(talisCache);
 	}
 
