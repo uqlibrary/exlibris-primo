@@ -16,9 +16,13 @@ import {NdeOverrideOutlinkCustomComponent} from "../nde-override-outlink-custom/
 import {
     NdeServicesPageBannerCustomComponent
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
+import {
+    NdePurchaseRequestHeaderComponentComponent
+} from "../nde-purchase-request-header-component/nde-purchase-request-header-component.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
+    ['nde-blank-alma-purchase-request-after', NdePurchaseRequestHeaderComponentComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
