@@ -4,10 +4,10 @@ import {Component, ElementRef, inject} from '@angular/core';
   selector: 'custom-nde-purchase-request-header-component',
   standalone: true,
   imports: [],
-  templateUrl: './nde-purchase-request-header-component.component.html',
-  styleUrl: './nde-purchase-request-header-component.component.scss'
+  templateUrl: './nde-purchase-request-header-custom.component.html',
+  styleUrl: './nde-purchase-request-header-custom.component.scss'
 })
-export class NdePurchaseRequestHeaderComponentComponent {
+export class NdePurchaseRequestHeaderCustomComponent {
     private elementRef = inject(ElementRef);
     public hostElement: HTMLElement | null = null;
 

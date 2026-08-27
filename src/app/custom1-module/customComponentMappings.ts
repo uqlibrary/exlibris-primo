@@ -17,12 +17,12 @@ import {
     NdeServicesPageBannerCustomComponent
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
 import {
-    NdePurchaseRequestHeaderComponentComponent
-} from "../nde-purchase-request-header-component/nde-purchase-request-header-component.component";
+    NdePurchaseRequestHeaderCustomComponent
+} from "../nde-purchase-request-header-component/nde-purchase-request-header-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
-    ['nde-blank-alma-purchase-request-after', NdePurchaseRequestHeaderComponentComponent],
+    ['nde-blank-alma-purchase-request-after', NdePurchaseRequestHeaderCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
