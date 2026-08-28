@@ -1543,7 +1543,6 @@ class LocalStorageCacheManager {
                         getTalisDataFromFirstSuccessfulApiCall(listUrlsToCall, Object.keys(uncachedUrls).length === 1, tempLoopId);
                     }
                 });
-            return cacheChanged;
 		}
 
 		const listTalisUrls = vm?.parentCtrl?.item && getListTalisUrls(vm.parentCtrl.item);
@@ -1578,10 +1577,7 @@ class LocalStorageCacheManager {
         // fetch the uncached urls from talis
         console.log('cch### return, Object.keys(uncachedUrls).length', Object.keys(uncachedUrls).length);
         const tempLoopId = self.crypto.randomUUID();
-        const cacheChanged = getTalisDataFromFirstSuccessfulApiCall(uncachedUrls, Object.keys(uncachedUrls).length === 1, tempLoopId);
-        console.log('cch### return, save cache', talisCache);
-        console.log('cch### return, cacheChanged=', cacheChanged);
-        !!cacheChanged && talisCacheManager.saveLocalStorageCache(talisCache);
+        getTalisDataFromFirstSuccessfulApiCall(uncachedUrls, Object.keys(uncachedUrls).length === 1, tempLoopId);
 	}
 
 	function isDirectLinkingAllowed(vm) {
