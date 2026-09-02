@@ -1071,7 +1071,13 @@ class LocalStorageCacheManager {
                 }
             });
         }
-
+        if (!!item?.pnx?.display?.dedupmemberids && item.pnx.display.mms.length > 0) {
+            item.pnx.display.mms.forEach((r) => {
+                if (!list.includes(lcnPattern(r))) {
+                    list.push(lcnPattern(r));
+                }
+            });
+        }
 
         // DOI
 		if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
