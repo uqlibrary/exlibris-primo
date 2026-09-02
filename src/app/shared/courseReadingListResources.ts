@@ -49,7 +49,13 @@ export const getListTalisUrls = (pnx: any, uid: string = '') => {
             }
         });
     }
-
+    if (pnx?.display?.mms?.length > 0) {
+        pnx.display.mms.forEach((r: string) => {
+            if (!list.includes(lcnPattern(r))) {
+                list.push(lcnPattern(r));
+            }
+        });
+    }
     // DOI
     if (pnx?.addata?.doi?.length > 0) {
         pnx.addata.doi.forEach((r: string) => {
