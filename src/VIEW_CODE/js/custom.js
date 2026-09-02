@@ -968,7 +968,7 @@ function whenPageLoaded(fn) {
                 }
             });
         }
-        if (!!item?.pnx?.display?.dedupmemberids && item.pnx.display.mms.length > 0) {
+        if (!!item?.pnx?.display?.mms && item.pnx.display.mms.length > 0) {
             item.pnx.display.mms.forEach((r) => {
                 if (!list.includes(lcnPattern(r))) {
                     list.push(lcnPattern(r));
