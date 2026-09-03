@@ -21,10 +21,10 @@ export class NdeOptionsButtonCustom {
             const optionsTooltipId = 'optionsbutton7649764';
             const optionsLabel = 'Options for more results';
             optionsButton.addEventListener('mouseover', function () {
-                mouseoverTooltip(optionsButton, optionsLabel, optionsTooltipId);
+                mouseoverTooltip(optionsButton, optionsLabel, optionsTooltipId, false);
             });
             optionsButton.addEventListener('focusin', function () {
-                mouseoverTooltip(optionsButton, optionsLabel, optionsTooltipId);
+                mouseoverTooltip(optionsButton, optionsLabel, optionsTooltipId, false);
             });
             optionsButton.addEventListener('mouseout', function () {
                 mouseoutTooltip(optionsTooltipId);
