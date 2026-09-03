@@ -137,7 +137,13 @@ export class CourseReadingListBriefFunctions {
         !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
             mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
         });
+        !!CRLIndicator && CRLIndicator.addEventListener('focusin', function (event) {
+            mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
+        });
         !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {
+            mouseoutTooltip(crlTooltipId);
+        });
+        !!CRLIndicator && CRLIndicator.addEventListener('focusout', function (event) {
             mouseoutTooltip(crlTooltipId);
         });
     }
