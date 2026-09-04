@@ -22,6 +22,9 @@ import {
 import {
     NdeCitationFinderHeroCustomComponent
 } from "../nde-citation-finder-hero-custom/nde-citation-finder-hero-custom.component";
+import {
+    NdeDatabaseSearchHeroCustomComponent
+} from "../nde-database-search-hero-custom/nde-database-search-hero-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
@@ -35,4 +38,5 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
+    ['nde-general-search-header-after', NdeDatabaseSearchHeroCustomComponent],
 ]);
