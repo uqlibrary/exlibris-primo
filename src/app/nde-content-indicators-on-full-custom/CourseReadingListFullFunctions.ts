@@ -306,17 +306,13 @@ export class CourseReadingListFullFunctions {
 
         // supply tooltip on hover
         const panelToggleButton = document.getElementById('uql-mat-expansion-panel-header-button');
-        const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function () {
-            !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
-        });
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('focusin', function () {
+            const listArea1 = document.getElementById('uql-accordion-child-crl');
+            let mouseOverPrefix = listArea1?.style.visibility === 'hidden' ? 'Expand' : 'Collapse';
+            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
             !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function () {
-            mouseoutTooltip(crlTooltipId);
-        });
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('focusout', function () {
             mouseoutTooltip(crlTooltipId);
         });
     }
@@ -368,16 +364,10 @@ export class CourseReadingListFullFunctions {
         const crlTooltipId = `crl-icon-tooltip-full`;
         const CRLIndicator = document.querySelector('nde-record-indications uql-course-resource-content-indicator');
         const mouseOverLabel = 'This resource is on a course reading list';
-        !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function () {
+        !!CRLIndicator && CRLIndicator.addEventListener('mouseover', function (event) {
             mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
         });
-        !!CRLIndicator && CRLIndicator.addEventListener('focusin', function () {
-            mouseoverTooltip(CRLIndicator, mouseOverLabel, crlTooltipId);
-        });
-        !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function () {
-            mouseoutTooltip(crlTooltipId);
-        });
-        !!CRLIndicator && CRLIndicator.addEventListener('focusout', function () {
+        !!CRLIndicator && CRLIndicator.addEventListener('mouseout', function (event) {
             mouseoutTooltip(crlTooltipId);
         });
     }
