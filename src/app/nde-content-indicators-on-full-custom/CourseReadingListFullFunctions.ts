@@ -152,7 +152,25 @@ export class CourseReadingListFullFunctions {
         const crlHiddenClass = 'uql-crl-list-hidden'; // courses which are actually hidden, add/remove this classname
         const crlHideableClass = `uql-crl-list-hideable`; // courses which are > maxNumberReadingListsDisplayed, add this classname so we find it to add/remove crlHiddenClass
 
-        const targetElement = document.querySelector('nde-full-display-side-bar');
+        let targetElement = document.querySelector('nde-full-display-side-bar');
+        // the sidebar doesn't exist if this page has no sidebar children (then we have to create it)
+        if (!targetElement) {
+            const parentElement = document.querySelector('.full-view-content');
+            if (!parentElement) {
+                // should always exist
+                return;
+            }
+
+            const sidebarHtmlWrapper =
+                `<div _ngcontent-ng-crl="" class="flex-column full-view-right-content ng-star-inserted">
+                    <nde-full-display-side-bar _ngcontent-ng-crl=""></nde-full-display-side-bar>
+                </div>`;
+            const sidebarTemplate = document.createElement('template');
+            sidebarTemplate.innerHTML = sidebarHtmlWrapper;
+            !!sidebarTemplate && parentElement?.appendChild(sidebarTemplate.content.cloneNode(true));
+
+            targetElement = document.querySelector('nde-full-display-side-bar');
+        }
 
         // note that we don't need to make it update on change of login state
         // because log IN on prod goes through auth and reloads the page
