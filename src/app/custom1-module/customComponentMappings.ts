@@ -19,10 +19,15 @@ import {
 import {
     NdePurchaseRequestHeaderCustomComponent
 } from "../nde-purchase-request-header-component/nde-purchase-request-header-custom.component";
+import {
+    NdeCitationFinderHeroCustomComponent
+} from "../nde-citation-finder-hero-custom/nde-citation-finder-hero-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
     ['nde-blank-alma-purchase-request-after', NdePurchaseRequestHeaderCustomComponent],
+    ['nde-ill-request-after', NdePurchaseRequestHeaderCustomComponent],
+    ['nde-fetch-item-after', NdeCitationFinderHeroCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
