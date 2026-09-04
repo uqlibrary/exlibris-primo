@@ -58,7 +58,7 @@ export function getCookieValue(name: string): string|undefined     {
     return undefined;
 }
 
-export const mouseoverTooltip = (hoveredElement: HTMLElement | Element, mouseOverlabel: string, toolTipId: string) => {
+export const mouseoverTooltip = (hoveredElement: HTMLElement | Element, mouseOverlabel: string, toolTipId: string, isSmall: boolean = true) => {
     const tooltipLengthPixels = 15 * mouseOverlabel.length; // 16px rem; 15 seems to give a good result
     const rect = hoveredElement?.getBoundingClientRect();
     const centreOfElement = ((rect?.right - rect?.left) / 2) + rect.left || null;
@@ -67,11 +67,13 @@ export const mouseoverTooltip = (hoveredElement: HTMLElement | Element, mouseOve
     const tooltipTop = (rect?.top ?? 0) + (heightOfHoveredElement);
 
     const tooltipPositionStyling = `top: ` + tooltipTop + `px; left: ` + tooltipLeft + `px;`;
+    let tooltipSizeClass = 'mat-mdc-tooltip-surface';
+    !isSmall && (tooltipSizeClass += ' mat-mdc-tooltip-surface-large')
     const toolTipHtml = `<uql-tooltip id="${toolTipId}" class="cdk-overlay-connected-position-bounding-box" dir="ltr" style="top: 0; left: 0; height: 100%; width: 100%;">
     <div class="cdk-overlay-pane mat-mdc-tooltip-panel-below mat-mdc-tooltip-panel" style="` + tooltipPositionStyling +` transform: translateY(8px);">
         <mat-tooltip-component aria-hidden="true" class="ng-star-inserted">
             <div class="mdc-tooltip mat-mdc-tooltip mat-mdc-tooltip-show" style="transform-origin: center top;">
-                <div class="mat-mdc-tooltip-surface mdc-tooltip__surface">` + mouseOverlabel + `</div>
+                <div class="` + tooltipSizeClass + ` mdc-tooltip__surface">` + mouseOverlabel + `</div>
             </div>
         </mat-tooltip-component>
     </div>
