@@ -1,18 +1,5 @@
 import {Component, ElementRef, inject} from '@angular/core';
-
-const getHeroElement = (heroLabel: any) => {
-    const heroHtml = `
-                <div class="uq-hero">
-                    <div class="uq-hero-container">
-                        <div class="uq-hero__content">
-                            <h1 class="uq-hero__title">${heroLabel}</h1>
-                        </div>
-                    </div>
-                </div>`;
-    const heroTemplate = document.createElement('template');
-    heroTemplate.innerHTML = heroHtml;
-    return heroTemplate?.content?.cloneNode(true);
-}
+import {findHostElement, getHeroElement} from "../shared/common";
 
 @Component({
     selector: 'custom-nde-purchase-request-header-component',
@@ -25,11 +12,10 @@ export class NdePurchaseRequestHeaderCustomComponent {
     private elementRef = inject(ElementRef);
 
     ngOnInit(): void {
-        // console.log('### start');
         const awaitLoad = setInterval(() => {
-            let hostElement = this.findHostElement('nde-blank-alma-purchase-request', 'nde-full-view');
+            let hostElement = findHostElement('nde-blank-alma-purchase-request', 'nde-full-view', this.elementRef.nativeElement);
             if (!hostElement) {
-                hostElement = this.findHostElement('nde-ill-request', 'nde-full-view');
+                hostElement = findHostElement('nde-ill-request', 'nde-full-view', this.elementRef.nativeElement);
             }
             const displayedTitleElement = hostElement?.querySelector('h2.request-title');
             const heroLabel = displayedTitleElement?.textContent;
@@ -48,38 +34,5 @@ export class NdePurchaseRequestHeaderCustomComponent {
             !!newHeroElement && h1?.parentNode?.replaceChild(newHeroElement, h1);
 
         }, 1000);
-    }
-
-    private findHostElement(desiredTagName: string, stopTagName: string): HTMLElement | null {
-        let cursor: HTMLElement | null = this.elementRef.nativeElement;
-        while (cursor) {
-            // Check previous siblings at this level for nde-base-request-form
-            let sibling = cursor.previousElementSibling as HTMLElement | null;
-            console.log('### ',desiredTagName, ': sibling=', sibling);
-            while (sibling) {
-                if (sibling.tagName.toLowerCase() === desiredTagName) {
-                    return sibling;
-                }
-                // Also check if it's nested inside a sibling wrapper
-                // because the 'after' element is generally a sibling
-                const nested = sibling.querySelector(desiredTagName);
-                if (nested) {
-                    return nested as HTMLElement;
-                }
-                sibling = sibling.previousElementSibling as HTMLElement | null;
-            }
-
-            // Move up one level and try again
-            cursor = cursor.parentElement;
-
-            if (
-                cursor?.tagName.toLowerCase().startsWith(stopTagName) ||
-                cursor?.tagName.toLowerCase() === 'body'
-            ) {
-                break;
-            }
-        }
-
-        return null;
     }
 }

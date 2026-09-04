@@ -1,5 +1,6 @@
 import {ElementRef} from '@angular/core';
 import {createFeatureSelector} from "@ngrx/store";
+
 export const selectSearchState = createFeatureSelector<any>('Search');
 
 export type pnxInterface = { control: { recordid: any; iscdi: any; }; display: { lds05: any; lds04?: any; type: any }; item: {delivery: { availability: any }}; };
@@ -111,6 +112,52 @@ export function findHostRecord(elementRef: ElementRef, soughtElement: string = '
 
         // don't walk too far up the tree if not found
         if (cursor?.tagName.toLowerCase() === 'main' || cursor?.tagName.toLowerCase() === 'body') {
+            break;
+        }
+    }
+
+    return null;
+}
+
+export const getHeroElement = (heroLabel: any) => {
+    const heroHtml = `
+                <div class="uq-hero">
+                    <div class="uq-hero-container">
+                        <div class="uq-hero__content">
+                            <h1 class="uq-hero__title">${heroLabel}</h1>
+                        </div>
+                    </div>
+                </div>`;
+    const heroTemplate = document.createElement('template');
+    heroTemplate.innerHTML = heroHtml;
+    return heroTemplate?.content?.cloneNode(true);
+}
+
+export function findHostElement(desiredTagName: string, stopTagName: string, nativeElement: HTMLElement): HTMLElement | null {
+    let cursor: HTMLElement | null = nativeElement;
+    while (cursor) {
+        // Check previous siblings at this level for nde-base-request-form
+        let sibling = cursor.previousElementSibling as HTMLElement | null;
+        while (sibling) {
+            if (sibling.tagName.toLowerCase() === desiredTagName) {
+                return sibling;
+            }
+            // Also check if it's nested inside a sibling wrapper
+            // because the 'after' element is generally a sibling
+            const nested = sibling.querySelector(desiredTagName);
+            if (nested) {
+                return nested as HTMLElement;
+            }
+            sibling = sibling.previousElementSibling as HTMLElement | null;
+        }
+
+        // Move up one level and try again
+        cursor = cursor.parentElement;
+
+        if (
+            cursor?.tagName.toLowerCase().startsWith(stopTagName) ||
+            cursor?.tagName.toLowerCase() === 'body'
+        ) {
             break;
         }
     }
