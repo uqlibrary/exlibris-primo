@@ -1,8 +1,17 @@
 import {ElementRef} from '@angular/core';
-import {createFeatureSelector} from "@ngrx/store";
+import {createFeatureSelector, createSelector} from '@ngrx/store';
 export const selectSearchState = createFeatureSelector<any>('Search');
 
 export type pnxInterface = { control: { recordid: any; iscdi: any; }; display: { lds05: any; lds04?: any; type: any }; item: {delivery: { availability: any }}; };
+
+interface UserState {
+    isLoggedIn: boolean;
+}
+const selectUserFeature = createFeatureSelector<UserState>('user');
+export const selectIsLoggedIn = createSelector(
+    selectUserFeature,
+    (state) => state.isLoggedIn
+);
 
 export const isFullDisplayPage = () => {
     return window.location.pathname.includes('fulldisplay');

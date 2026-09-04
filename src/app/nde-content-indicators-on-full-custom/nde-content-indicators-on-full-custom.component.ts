@@ -1,6 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {isFullDisplayPage, selectSearchState} from "../shared/common";
+import {isFullDisplayPage, selectIsLoggedIn, selectSearchState} from "../shared/common";
 import {getPnx} from "../shared/getPnx";
 import {
     displayPossibleCulturalAdviceBanner,
@@ -18,6 +18,7 @@ export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
 
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
+    private loggedIn = this.store.selectSignal(selectIsLoggedIn);
 
     constructor() {
         this.crl = new CourseReadingListFullFunctions();
@@ -35,7 +36,7 @@ export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
             }
             clearInterval(awaitPnx);
 
-            this.crl.displayCourseReadingListIndicatorAndList(pnx);
+            this.crl.displayCourseReadingListIndicatorAndList(pnx, this.loggedIn());
 
             displayPossibleCulturalAdviceIndicator(pnx);
 
