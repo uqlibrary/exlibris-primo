@@ -14,10 +14,13 @@ export class NdeDatabaseSearchHeroCustomComponent {
     ngOnInit(): void {
         const hostElement = findHostElement(this.elementRef.nativeElement);
 
-        const className = 'uq-hero';
-        addClassName(hostElement, className);
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has("query")) {
+            // only the dbsearch homepage gets a big hero header
+            addClassName(hostElement, 'uq-hero');
 
-        const h1 = hostElement?.querySelector('h1');
-        addClassName(h1, 'uq-hero__content');
+            const h1 = hostElement?.querySelector('h1');
+            addClassName(h1, 'uq-hero__content');
+        }
     }
 }
