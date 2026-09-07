@@ -128,3 +128,60 @@ export function findHostRecord(elementRef: ElementRef, soughtElement: string = '
 
     return null;
 }
+
+const sharedHeroId = "uqHero";
+
+export const getExistingHero = (heroType: string) => {
+    const selectors = `#${sharedHeroId}.${heroType}`;
+    return document.querySelector(selectors);
+}
+export const getHeroElement = (heroLabel: string | null | undefined, heroType: string) => {
+    const existingHero = getExistingHero(heroType);
+    if (!!existingHero) {
+        return null;
+    }
+
+    clearExistingHero();
+
+    // hard code the colour to avoid FOUC
+    const heroHtml = `
+        <div class="uq-hero ${heroType}" id="${sharedHeroId}">
+            <div class="uq-hero-container">
+                <div class="uq-hero__content">
+                    <h1 class="uq-hero__title" style="color: #fff">${heroLabel}</h1>
+                </div>
+            </div>
+        </div>`;
+    const heroTemplate = document.createElement('template');
+    heroTemplate.innerHTML = heroHtml;
+    return heroTemplate?.content?.cloneNode(true);
+}
+
+
+export function findHostElement(nativeElement: HTMLElement): Element | null {
+    const cursor: HTMLElement | null = nativeElement;
+    const nodeName = cursor?.nodeName.replace('-AFTER-FROM-REMOTE-0', '').toLowerCase();
+    const cursorGrandparent = cursor?.parentNode?.parentNode;
+    const parent = !!nodeName && cursorGrandparent?.querySelector(nodeName);
+    if (!!parent) {
+        return parent;
+    }
+    return null;
+}
+
+export const addClassName = (hostElement: HTMLElement | HTMLHeadingElement | Element | null | undefined, className: string) => {
+    !!hostElement && !hostElement.classList.contains(className) && hostElement.classList.add(className);
+}
+export const removeClassName = (hostElement: HTMLElement | HTMLHeadingElement | Element | null | undefined, className: string) => {
+    !!hostElement && !!hostElement.classList.contains(className) && hostElement.classList.remove(className);
+}
+
+export const clearExistingHero = () => {
+    // if one of the other components (mostly Citation Finder) has left a header behind, delete it
+    const replaceableHero = document.getElementById(sharedHeroId);
+    if (!!replaceableHero) {
+        if (!!replaceableHero) {
+            replaceableHero.remove();
+        }
+    }
+}
