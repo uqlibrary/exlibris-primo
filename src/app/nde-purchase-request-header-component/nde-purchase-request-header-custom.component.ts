@@ -13,9 +13,10 @@ export class NdePurchaseRequestHeaderCustomComponent {
 
     ngOnInit(): void {
         const awaitLoad = setInterval(() => {
-            let hostElement = findHostElement('nde-blank-alma-purchase-request', 'nde-full-view', this.elementRef.nativeElement);
+            let hostElement = findHostElement(this.elementRef.nativeElement);
+            console.log('### hostElement=', hostElement);
             if (!hostElement) {
-                hostElement = findHostElement('nde-ill-request', 'nde-full-view', this.elementRef.nativeElement);
+                hostElement = findHostElement(this.elementRef.nativeElement);
             }
             const displayedTitleElement = hostElement?.querySelector('h2.request-title');
             const heroLabel = displayedTitleElement?.textContent;
@@ -28,7 +29,7 @@ export class NdePurchaseRequestHeaderCustomComponent {
             // remove the displayed title so we can replace it with a hero banner
             displayedTitleElement?.remove();
 
-            const newHeroElement = getHeroElement(heroLabel);
+            const newHeroElement = getHeroElement(heroLabel, 'purchrequest');
 
             const h1 = document.querySelector('h1');
             !!newHeroElement && h1?.parentNode?.replaceChild(newHeroElement, h1);

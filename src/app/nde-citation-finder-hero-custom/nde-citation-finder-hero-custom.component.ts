@@ -12,22 +12,19 @@ export class NdeCitationFinderHeroCustomComponent {
     private elementRef = inject(ElementRef);
 
     ngOnInit(): void {
-        const awaitLoad = setInterval(() => {
-            const hostElement = findHostElement('nde-fetch-item', 'nde-full-view', this.elementRef.nativeElement);
-            const displayedTitleElement = hostElement?.querySelector('h1');
-            const heroLabel = displayedTitleElement?.textContent;
-            if (!displayedTitleElement) {
-                return;
-            }
+        const hostElement = findHostElement(this.elementRef.nativeElement);
+        const displayedTitleElement = hostElement?.querySelector('h1');
+        const heroLabel = displayedTitleElement?.textContent;
+        if (!displayedTitleElement) {
+            return;
+        }
 
-            clearInterval(awaitLoad);
 
-            // remove the displayed title so we can replace it with a hero banner
-            displayedTitleElement?.remove();
+        // remove the displayed title so we can replace it with a hero banner
+        displayedTitleElement?.remove();
 
-            const newHeroElement = getHeroElement(heroLabel);
+        const newHeroElement = getHeroElement(heroLabel, 'citationfinder');
 
-            !!newHeroElement && hostElement?.parentNode?.insertBefore(newHeroElement, hostElement);
-        }, 1000);
+        !!newHeroElement && hostElement?.parentNode?.insertBefore(newHeroElement, hostElement);
     }
 }

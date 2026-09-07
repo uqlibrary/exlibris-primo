@@ -25,10 +25,14 @@ import {
 import {
     NdeDatabaseSearchHeroCustomComponent
 } from "../nde-database-search-hero-custom/nde-database-search-hero-custom.component";
+import {
+    NdeCollectionDiscoveryHeroCustomComponent
+} from "../nde-collection-discovery-hero-custom/nde-collection-discovery-hero-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
     ['nde-blank-alma-purchase-request-after', NdePurchaseRequestHeaderCustomComponent],
+    ['nde-collection-discovery-lobby-header-after', NdeCollectionDiscoveryHeroCustomComponent],
     ['nde-ill-request-after', NdePurchaseRequestHeaderCustomComponent],
     ['nde-fetch-item-after', NdeCitationFinderHeroCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],

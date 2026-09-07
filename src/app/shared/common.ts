@@ -1,4 +1,4 @@
-import {ElementRef} from '@angular/core';
+import {Component, ElementRef} from '@angular/core';
 import {createFeatureSelector} from "@ngrx/store";
 
 export const selectSearchState = createFeatureSelector<any>('Search');
@@ -119,48 +119,61 @@ export function findHostRecord(elementRef: ElementRef, soughtElement: string = '
     return null;
 }
 
-export const getHeroElement = (heroLabel: any) => {
+const sharedHeroId = "uqHero";
+
+export const getExistingHero = (heroType: string) => {
+    const selectors = `#${sharedHeroId}.${heroType}`;
+    return document.querySelector(selectors);
+}
+export const getHeroElement = (heroLabel: string | null | undefined, heroType: string) => {
+    const existingHero = getExistingHero(heroType);
+    if (!!existingHero) {
+        return null;
+    }
+
+    const replaceableHero = document.getElementById(sharedHeroId);
+    if (!!replaceableHero) {
+        if (!!replaceableHero) {
+            replaceableHero.remove();
+        }
+    }
+
+    // hard code the colour to avoid FOUC
     const heroHtml = `
-                <div class="uq-hero">
-                    <div class="uq-hero-container">
-                        <div class="uq-hero__content">
-                            <h1 class="uq-hero__title">${heroLabel}</h1>
-                        </div>
-                    </div>
-                </div>`;
+        <div class="uq-hero ${heroType}" id="${sharedHeroId}">
+            <div class="uq-hero-container">
+                <div class="uq-hero__content">
+                    <h1 class="uq-hero__title" style="color: #fff">${heroLabel}</h1>
+                </div>
+            </div>
+        </div>`;
     const heroTemplate = document.createElement('template');
     heroTemplate.innerHTML = heroHtml;
     return heroTemplate?.content?.cloneNode(true);
 }
 
-export function findHostElement(desiredTagName: string, stopTagName: string, nativeElement: HTMLElement): HTMLElement | null {
-    let cursor: HTMLElement | null = nativeElement;
-    while (cursor) {
-        // Check previous siblings at this level for nde-base-request-form
-        let sibling = cursor.previousElementSibling as HTMLElement | null;
-        while (sibling) {
-            if (sibling.tagName.toLowerCase() === desiredTagName) {
-                return sibling;
-            }
-            // Also check if it's nested inside a sibling wrapper
-            // because the 'after' element is generally a sibling
-            const nested = sibling.querySelector(desiredTagName);
-            if (nested) {
-                return nested as HTMLElement;
-            }
-            sibling = sibling.previousElementSibling as HTMLElement | null;
-        }
 
-        // Move up one level and try again
-        cursor = cursor.parentElement;
+export function findHostElement(nativeElement: HTMLElement): Element | null {
+    const cursor: HTMLElement | null = nativeElement;
+    const nodeName = cursor?.nodeName.replace('-AFTER-FROM-REMOTE-0', '').toLowerCase();
+    const cursorGrandparent = cursor?.parentNode?.parentNode;
+    const parent = !!nodeName && cursorGrandparent?.querySelector(nodeName);
+    if (!!parent) {
+        return parent;
+    }
+    return null;
+}
 
-        if (
-            cursor?.tagName.toLowerCase().startsWith(stopTagName) ||
-            cursor?.tagName.toLowerCase() === 'body'
-        ) {
-            break;
+export const addClassName = (hostElement: HTMLElement | HTMLHeadingElement | Element | null | undefined, className: string) => {
+    !!hostElement && !hostElement.classList.contains(className) && hostElement.classList.add(className);
+}
+
+export const clearExistingHero = () => {
+    // if one of the other components (mostly Citation Finder) has left a header behind, delete it
+    const replaceableHero = document.getElementById(sharedHeroId);
+    if (!!replaceableHero) {
+        if (!!replaceableHero) {
+            replaceableHero.remove();
         }
     }
-
-    return null;
 }
