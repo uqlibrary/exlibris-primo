@@ -1,4 +1,4 @@
-import {Component, ElementRef} from '@angular/core';
+import {ElementRef} from '@angular/core';
 import {createFeatureSelector} from "@ngrx/store";
 
 export const selectSearchState = createFeatureSelector<any>('Search');
@@ -122,8 +122,7 @@ export function findHostRecord(elementRef: ElementRef, soughtElement: string = '
 const sharedHeroId = "uqHero";
 
 export const getExistingHero = (heroType: string) => {
-    const selectors = `#${sharedHeroId}.${heroType}`;
-    return document.querySelector(selectors);
+    return document.querySelector(`#${sharedHeroId}.hero-${heroType}`);
 }
 export const getHeroElement = (heroLabel: string | null | undefined, heroType: string) => {
     const existingHero = getExistingHero(heroType);
@@ -135,7 +134,7 @@ export const getHeroElement = (heroLabel: string | null | undefined, heroType: s
 
     // hard code the colour to avoid FOUC
     const heroHtml = `
-        <div class="uq-hero ${heroType}" id="${sharedHeroId}">
+        <div class="uq-hero hero-${heroType}" id="${sharedHeroId}">
             <div class="uq-hero-container">
                 <div class="uq-hero__content">
                     <h1 class="uq-hero__title" style="color: #fff">${heroLabel}</h1>
