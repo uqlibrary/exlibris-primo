@@ -19,6 +19,5 @@ export class NdeDatabaseSearchHeroCustomComponent {
 
         const h1 = hostElement?.querySelector('h1');
         addClassName(h1, 'uq-hero__content');
-        // !!h1 && (h1.style.maxWidth = '16ch'); //shrink the title area to give more space tot he search field
     }
 }

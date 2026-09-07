@@ -131,12 +131,7 @@ export const getHeroElement = (heroLabel: string | null | undefined, heroType: s
         return null;
     }
 
-    const replaceableHero = document.getElementById(sharedHeroId);
-    if (!!replaceableHero) {
-        if (!!replaceableHero) {
-            replaceableHero.remove();
-        }
-    }
+    clearExistingHero();
 
     // hard code the colour to avoid FOUC
     const heroHtml = `
@@ -166,6 +161,9 @@ export function findHostElement(nativeElement: HTMLElement): Element | null {
 
 export const addClassName = (hostElement: HTMLElement | HTMLHeadingElement | Element | null | undefined, className: string) => {
     !!hostElement && !hostElement.classList.contains(className) && hostElement.classList.add(className);
+}
+export const removeClassName = (hostElement: HTMLElement | HTMLHeadingElement | Element | null | undefined, className: string) => {
+    !!hostElement && !!hostElement.classList.contains(className) && hostElement.classList.remove(className);
 }
 
 export const clearExistingHero = () => {
