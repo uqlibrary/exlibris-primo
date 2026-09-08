@@ -16,25 +16,12 @@ import {NdeOverrideOutlinkCustomComponent} from "../nde-override-outlink-custom/
 import {
     NdeServicesPageBannerCustomComponent
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
-import {
-    NdePurchaseRequestHeaderCustomComponent
-} from "../nde-purchase-request-header-custom/nde-purchase-request-header-custom.component";
-import {
-    NdeCitationFinderHeroCustomComponent
-} from "../nde-citation-finder-hero-custom/nde-citation-finder-hero-custom.component";
-import {NdeOptionsButtonCustom} from "../nde-options-button-component/nde-options-button-custom.component";
-import {
-    NdeDatabaseSearchHeroCustomComponent
-} from "../nde-database-search-hero-custom/nde-database-search-hero-custom.component";import {
-    NdeCollectionDiscoveryHeroCustomComponent
-} from "../nde-collection-discovery-hero-custom/nde-collection-discovery-hero-custom.component";
+import {NdeHeroBlockCustomComponent} from "../nde-hero-block-custom/nde-hero-block-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
-    ['nde-blank-alma-purchase-request-after', NdePurchaseRequestHeaderCustomComponent],
-    ['nde-collection-discovery-lobby-header-after', NdeCollectionDiscoveryHeroCustomComponent],
-    ['nde-ill-request-after', NdePurchaseRequestHeaderCustomComponent],
-    ['nde-fetch-item-after', NdeCitationFinderHeroCustomComponent],
+    ['nde-blank-alma-purchase-request-after', NdeHeroBlockCustomComponent],
+    ['nde-ill-request-after', NdeHeroBlockCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
@@ -43,5 +30,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
-    ['nde-general-search-header-after', NdeDatabaseSearchHeroCustomComponent],
+    ['nde-collection-discovery-lobby-header-after', NdeHeroBlockCustomComponent],
+    ['nde-fetch-item-after', NdeHeroBlockCustomComponent],
+    ['nde-general-search-header-after', NdeHeroBlockCustomComponent],
 ]);
