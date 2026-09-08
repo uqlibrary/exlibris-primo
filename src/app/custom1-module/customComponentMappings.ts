@@ -17,6 +17,7 @@ import {
     NdeServicesPageBannerCustomComponent
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
 import {NdeHeroBlockCustomComponent} from "../nde-hero-block-custom/nde-hero-block-custom.component";
+import {NdeOptionsButtonCustom} from "../nde-options-button-component/nde-options-button-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
