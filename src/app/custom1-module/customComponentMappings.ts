@@ -32,4 +32,5 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-collection-discovery-lobby-header-after', NdeHeroBlockCustomComponent],
     ['nde-fetch-item-after', NdeHeroBlockCustomComponent],
     ['nde-general-search-header-after', NdeHeroBlockCustomComponent],
+    ['nde-landing-page-after', NdeHeroBlockCustomComponent],
 ]);
