@@ -15,6 +15,8 @@ export class NdeHeroBlockCustomComponent {
         const hostElement = findHostElement(this.elementRef.nativeElement);
         if (window.location.pathname.startsWith('/nde/collectionDiscovery')) {
             clearExistingHero(); // so can go from citation finder to colldisc and lose citation finder header
+        } else if (window.location.pathname.startsWith('/nde/home')) {
+            clearExistingHero(); // so can go from citation finder to home and lose citation finder header
         } else if (window.location.pathname.startsWith('/nde/citationlinker')) {
             this.writeCitationFinderHero(hostElement);
         } else if (window.location.pathname.startsWith('/nde/dbsearch')) {
