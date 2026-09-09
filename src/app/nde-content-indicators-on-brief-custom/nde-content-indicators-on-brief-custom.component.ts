@@ -40,7 +40,7 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
 
             clearInterval(awaitPnx);
 
-            this.crl.displayCourseReadingListIndicator(pnx, item);
+            // this.crl.displayCourseReadingListIndicator(pnx, item);
 
             this.displayCulturalAdviceIndicator(pnx, item);
 

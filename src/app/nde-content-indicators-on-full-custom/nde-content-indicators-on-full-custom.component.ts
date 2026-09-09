@@ -36,7 +36,7 @@ export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
             }
             clearInterval(awaitPnx);
 
-            this.crl.displayCourseReadingListIndicatorAndList(pnx, this.loggedIn());
+            // this.crl.displayCourseReadingListIndicatorAndList(pnx, this.loggedIn());
 
             displayPossibleCulturalAdviceIndicator(pnx);
 
