@@ -775,7 +775,7 @@ class LocalStorageCacheManager {
 			}
 		},
 		// id = buttonId value. Can we insert the variable here?
-		template: '<a id="utility-bar-primo-guide" data-testid="utility-bar-primo-guide" href="https://guides.library.uq.edu.au/how-to-find/using-library-search" target="_blank" aria-labelledby="helpLinklabel">' +
+		template: '<a id="utility-bar-primo-guide" data-testid="utility-bar-primo-guide" href="https://guides.library.uq.edu.au/tools-and-techniques/using-library-search" target="_blank" aria-labelledby="helpLinklabel">' +
 					'<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24">' +
 						'<g transform="translate(3, 3) scale(0.7)">' +
 							'<path ' +
