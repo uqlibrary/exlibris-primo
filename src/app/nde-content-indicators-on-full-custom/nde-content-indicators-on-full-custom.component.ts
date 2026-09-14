@@ -38,9 +38,9 @@ export class NdeContentIndicatorsOnFullCustomComponent implements OnInit {
 
             // this.crl.displayCourseReadingListIndicatorAndList(pnx, this.loggedIn());
 
-            displayPossibleCulturalAdviceIndicator(pnx);
+            // displayPossibleCulturalAdviceIndicator(pnx);
 
-            displayPossibleCulturalAdviceBanner(pnx);
+            // displayPossibleCulturalAdviceBanner(pnx);
         }, 100);
     }
 }
