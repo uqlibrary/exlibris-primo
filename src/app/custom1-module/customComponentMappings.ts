@@ -6,11 +6,11 @@ import {
     NdeUpdateAccountMenuCustomComponent
 } from "../nde-update-account-menu-custom/nde-update-account-menu-custom.component";
 import {
-    NdeContentIndicatorsOnFullCustomComponent
-} from "../nde-content-indicators-on-full-custom/nde-content-indicators-on-full-custom.component";
-import {
-    NdeContentIndicatorsOnBriefCustomComponent
-} from "../nde-content-indicators-on-brief-custom/nde-content-indicators-on-brief-custom.component";
+    NdeContentIndicatorsCulturalAdviceCustomComponent
+} from "../nde-content-indicators-cultural-advice-custom/nde-content-indicators-cultural-advice-custom.component";
+// import {
+//     NdeContentIndicatorsOnBriefCustomComponent
+// } from "../nde-content-indicators-on-brief-custom/nde-content-indicators-on-brief-custom.component";
 import {NdeCountOfFiltersCustomComponent} from "../nde-count-of-filters-custom/nde-count-of-filters-custom.component";
 import {NdeOverrideOutlinkCustomComponent} from "../nde-override-outlink-custom/nde-override-outlink-custom.component";
 import {
@@ -21,11 +21,11 @@ import {NdeOptionsButtonCustom} from "../nde-options-button-component/nde-option
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
-    ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
+    ['nde-record-indications-after', NdeContentIndicatorsCulturalAdviceCustomComponent],
+    // ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
     ['nde-search-filters-side-nav-after', NdeCountOfFiltersCustomComponent],
     ['nde-search-results-container-after', NdeOptionsButtonCustom],
-    ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
 ]);
