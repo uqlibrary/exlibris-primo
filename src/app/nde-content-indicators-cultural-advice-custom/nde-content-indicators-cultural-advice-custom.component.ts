@@ -1,11 +1,15 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Observable, of} from 'rxjs';
-import {auditTime, distinctUntilChanged, map, shareReplay} from 'rxjs/operators';
+import {from, Observable, of} from 'rxjs';
+import {auditTime, distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import {NdeStoreService} from "../services/nde-store.service";
 import {isFullDisplayPage} from "../shared/common";
 import {MatDivider} from "@angular/material/divider";
 import {MatIcon} from "@angular/material/icon";
+import {
+    CourseReadingListBriefFunctions
+} from "../nde-content-indicators-on-brief-custom/CourseReadingListBriefFunctions";
+import {getListTalisUrls} from "../shared/courseReadingListResources";
 
 @Component({
     selector: 'custom-nde-content-indicators-cultural-advice-custom',
@@ -19,10 +23,14 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
 
     // Reactive flag used in the template
     hasContentAdvice$: Observable<boolean> = of(false);
+    hasReadingList$: Observable<boolean> = of(false);
 
-    constructor(private storeSvc: NdeStoreService) {}
+    crl: any;
 
-    // TODO also add banner!!
+    constructor(private storeSvc: NdeStoreService) {
+        this.crl = new CourseReadingListBriefFunctions()
+        // this.crl = new CourseReadingListFullFunctions();
+    }
 
     ngOnInit() {
         const record$ = this.storeSvc.getRecord$(this.hostComponent).pipe(
@@ -37,6 +45,19 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
             map((record) => this.handleCulturalAdviceAdvisement()),
             distinctUntilChanged()
         );
+
+        // manually add CRL on brief records
+        if (isFullDisplayPage()) {
+            return;
+        }
+        this.hasReadingList$ = record$.pipe(
+            switchMap(() => from(this.getCrl())),
+            distinctUntilChanged()
+        );
+    }
+
+    private async getCrl(): Promise<boolean> {
+        return await this.crl.displayCourseReadingListIndicator(this.hostComponent, false);
     }
 
     // a record needs a cultural advice label if the record has a lds04 entry

@@ -9,25 +9,21 @@ export class CourseReadingListBriefFunctions {
     public searchState = this.store.selectSignal(selectSearchState);
 
     public uuid: string | null = null;
+    private insertComponents: boolean = true;
 
-    public displayCourseReadingListIndicator = (pnx: any, item: any) => {
-            const recIdEl = item?.querySelector('[data-recordid]') || item?.querySelector('a[ng-href*="docid="], a[href*="docid="], a[href*="doc="]');
-            const recId = !!recIdEl && (recIdEl.getAttribute('data-recordid') || recIdEl.getAttribute('docid') || ((recIdEl.getAttribute('href') || '').match(/(?:docid|doc)=([^&]+)/) || [])[1]);
-            if (!recId) {
-                // should never happen?
-                return;
-            }
+    public displayCourseReadingListIndicator = (pnx: any, insertComponents = true) => {
+        this.insertComponents = insertComponents;
 
-            const listTalisUrls = getListTalisUrls(pnx, String(this.uuid));
-            if (!listTalisUrls || listTalisUrls.length === 0) {
-                return;
-            }
+        const listTalisUrls = getListTalisUrls(pnx, ''); // String(this.uuid));
+        if (!listTalisUrls || listTalisUrls.length === 0) {
+            return false;
+        }
 
-            !!listTalisUrls && listTalisUrls.length > 0 && this.getTalisDataFromAnyApiCalls(listTalisUrls);
+        return this.getTalisDataFromAnyApiCalls(listTalisUrls);
     }
 
     // we want to know if any of the talis are available, so we stop once we have a single success
-    private async getTalisDataFromAnyApiCalls(listUrls: string[]) {
+    private async getTalisDataFromAnyApiCalls(listUrls: string[]): Promise<boolean> {
         const courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
@@ -35,33 +31,34 @@ export class CourseReadingListBriefFunctions {
         const NO_COURSE_READING = 'nodata';
 
         let talisCache = talisCacheManager.getLocalStorageCache();
-        let found: string = '';
+        let courseFound: string = '';
         let uncachedUrls: Array<string> = [];
         listUrlsToCall.forEach(talisUrl => {
-            if (found !== COURSE_READING_FOUND) {
+            if (courseFound !== COURSE_READING_FOUND) {
                 const talisCacheEntry = talisCache[talisUrl];
                 if (talisCacheEntry && typeof talisCacheEntry?.courses !== 'undefined' && talisCacheEntry?.courses !== null) {
                     // we have a reading list
-                    found = COURSE_READING_FOUND;
+                    courseFound = COURSE_READING_FOUND;
                 } else if (talisCacheEntry && typeof talisCacheEntry?.expiryDate !== 'undefined') {
                     // we have an entry in cache, so we dont need to fetch, but its not a reading list
-                    found = NO_COURSE_READING;
+                    courseFound = NO_COURSE_READING;
                 } else {
                     // not in cache, we need to fetch it
                     uncachedUrls.push(talisUrl);
                 }
             }
         })
-        if (found === COURSE_READING_FOUND) {
-            this.showCourseResourceIndicator(); // no need to fetch - show indicator
-            return;
-        } else if (found === NO_COURSE_READING) {
-            return; // no need to fetch, but not a reading list either
-        }
-        if (uncachedUrls.length === 0) {
-            return; // nothing left to fetch
+        if (courseFound === COURSE_READING_FOUND) {
+            this.insertComponents && this.showCourseResourceIndicator(); // no need to fetch - show indicator
+            return true;
+        } else if (courseFound === NO_COURSE_READING) {
+            return false; // no need to fetch, but not a reading list either
         }
 
+        if (uncachedUrls.length === 0) {
+            return false; // nothing left to fetch
+        }
+        let result = false;
         const makeRequest = (url: string) =>
             new Promise<{ [key: string]: string }>((resolve, reject) => {
                 const callbackName = `talis_cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -114,12 +111,14 @@ export class CourseReadingListBriefFunctions {
             }
 
             if (Object.keys(courseList).length > 0) {
-                this.showCourseResourceIndicator();
+                this.insertComponents && this.showCourseResourceIndicator();
+                result = true;
             }
         } catch (e) {
             // Promise.any throws AggregateError if ALL urls fail
             // no talis at all for this record
         }
+        return result;
     }
 
     private showCourseResourceIndicator() {

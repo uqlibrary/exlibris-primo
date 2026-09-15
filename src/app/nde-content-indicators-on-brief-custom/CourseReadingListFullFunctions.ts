@@ -1,30 +1,41 @@
 import {inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {isReturnKeyPressed, mouseoutTooltip, mouseoverTooltip, pnxInterface, selectSearchState} from "../shared/common";
+import {
+    isFullDisplayPage,
+    isReturnKeyPressed,
+    mouseoutTooltip,
+    mouseoverTooltip,
+    pnxInterface,
+    selectSearchState
+} from "../shared/common";
 import {courseReadingListIndicatorHtml, getListTalisUrls} from "../shared/courseReadingListResources";
 import {talisCacheManager} from "../shared/LocalStorageCacheManager";
 
 export class CourseReadingListFullFunctions {
     private store = inject(Store);
     searchState = this.store.selectSignal(selectSearchState);
+    uuid: string = '';
+    panelId = `uql-course-reading-list-sidebar-panel`;
 
     private readonly UNSAFE_READING_LIST_BASE_URL = 'http://lr.library.uq.edu.au';
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
 
     private matExpansionHeader: HTMLElement | null = null;
+    private insertComponents: boolean = false;
 
-    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface, isLoggedIn: boolean) => {
+    public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface, isLoggedIn: boolean, insertComponents = true) => {
+        this.insertComponents = insertComponents;
+        console.log('### displayCourseReadingListIndicatorAndList start', pnx);
         const listTalisUrls = getListTalisUrls(pnx);
+        console.log('### displayCourseReadingListIndicatorAndList listTalisUrls=', listTalisUrls);
         if (!listTalisUrls || listTalisUrls.length === 0) {
-            return;
+            return false;
         }
 
-        if (!!listTalisUrls && listTalisUrls.length > 0) {
-            this.getTalisDataFromAllApiCalls(listTalisUrls, pnx, isLoggedIn);
-        }
+        return this.getTalisDataFromAllApiCalls(listTalisUrls, isLoggedIn);
     }
 
-    private async getTalisDataFromAllApiCalls(listUrls: string[], pnx: any, isLoggedIn: boolean) {
+    private async getTalisDataFromAllApiCalls(listUrls: string[], isLoggedIn: boolean): Promise<boolean> {
         let courseList: { [key: string]: string } = {};
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
@@ -41,11 +52,13 @@ export class CourseReadingListFullFunctions {
                 }
                 for (let url in talisCacheEntry?.courses) {
                     courseList[talisCacheEntry?.courses[url]] = url;
+                    console.log('### url check:: cache has', url);
                 }
 
             } else {
                 // not in cache, we need to fetch it
                 pnxUrlsNeedingFetch.push(talisUrl);
+                console.log('### url check:: fetch', talisUrl);
             }
         });
         const promises = pnxUrlsNeedingFetch.map(url =>
@@ -73,6 +86,7 @@ export class CourseReadingListFullFunctions {
             })
         );
 
+        let coursesFound = false;
         try {
             let cacheChanged = false;
             await Promise.allSettled(promises)
@@ -97,7 +111,8 @@ export class CourseReadingListFullFunctions {
                     });
                 }).finally(() => {
                     if (Object.keys(courseList).length > 0) {
-                        this.addCourseResourceIndicatorToHeader();
+                        coursesFound = true;
+                        this.insertComponents && this.addCourseResourceIndicatorToHeader();
 
                         // sort by coursecode for display
                         courseList = Object.keys(courseList)
@@ -109,7 +124,7 @@ export class CourseReadingListFullFunctions {
                                 {}
                             );
 
-                        this.createAndAppendCourseList(courseList, isLoggedIn);
+                        this.insertComponents && this.createAndAppendCourseList(courseList, isLoggedIn);
                     }
                     if (cacheChanged) {
                         talisCacheManager.saveLocalStorageCache(talisCache);
@@ -118,6 +133,7 @@ export class CourseReadingListFullFunctions {
         } catch (e) {
             console.log('Course reading list [full] error', e);
         }
+        return coursesFound;
     }
 
     private isVisible(elm: HTMLElement | Element,) {
@@ -127,6 +143,10 @@ export class CourseReadingListFullFunctions {
     }
 
     private createAndAppendCourseList(talisCourses: any, isLoggedIn: boolean = false) {
+        // if (!isFullDisplayPage()) {
+        //     return;
+        // }
+
         const linkOutIcon: string =
             '<mat-icon class="linkOut" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24">' +
@@ -179,7 +199,7 @@ export class CourseReadingListFullFunctions {
         const loginPrompt = (loggedIn: boolean) => !loggedIn
             ? '<div id="crl-login-banner" _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>'
             : '';
-        let htmlContent = `<uql-course-reading-list-sidebar-panel _nghost-ng-crl="" class="ng-star-inserted">
+        let htmlContent = `<${this.panelId} _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
                 <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
                     <mat-expansion-panel-header _ngcontent-ng-crl="" role="button"

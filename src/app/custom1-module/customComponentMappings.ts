@@ -8,9 +8,9 @@ import {
 import {
     NdeContentIndicatorsCulturalAdviceCustomComponent
 } from "../nde-content-indicators-cultural-advice-custom/nde-content-indicators-cultural-advice-custom.component";
-// import {
-//     NdeContentIndicatorsOnBriefCustomComponent
-// } from "../nde-content-indicators-on-brief-custom/nde-content-indicators-on-brief-custom.component";
+import {
+    NdeContentIndicatorsOnBriefCustomComponent
+} from "../nde-content-indicators-on-brief-custom/nde-content-indicators-on-brief-custom.component";
 import {NdeCountOfFiltersCustomComponent} from "../nde-count-of-filters-custom/nde-count-of-filters-custom.component";
 import {NdeOverrideOutlinkCustomComponent} from "../nde-override-outlink-custom/nde-override-outlink-custom.component";
 import {
@@ -22,10 +22,10 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-record-indications-after', NdeContentIndicatorsCulturalAdviceCustomComponent],
-    // ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
     ['nde-search-filters-side-nav-after', NdeCountOfFiltersCustomComponent],
     ['nde-search-results-container-after', NdeOptionsButtonCustom],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
+    ['nde-search-result-item-container-after', NdeContentIndicatorsOnBriefCustomComponent],
 ]);

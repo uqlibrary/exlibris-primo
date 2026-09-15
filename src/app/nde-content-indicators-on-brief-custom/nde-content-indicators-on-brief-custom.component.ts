@@ -1,8 +1,11 @@
-import {Component, ElementRef, inject} from '@angular/core';
+import {Component, ElementRef, inject, Input} from '@angular/core';
+import {Observable, of} from 'rxjs';
 import {isFullDisplayPage, pnxInterface, setRecordIdentifier} from "../shared/common";
-import {CourseReadingListBriefFunctions} from "./CourseReadingListBriefFunctions";
 import {getPnx} from "../shared/getPnx";
 import {addCulturalAdviceIndicatorToHeader} from "../shared/culturalAdviceIndicatorResources";
+import {CourseReadingListFullFunctions} from "./CourseReadingListFullFunctions";
+import {auditTime, distinctUntilChanged, map, shareReplay} from "rxjs/operators";
+import {NdeStoreService} from "../services/nde-store.service";
 
 @Component({
   selector: 'custom-nde-content-indicators-on-brief-custom',
@@ -11,40 +14,53 @@ import {addCulturalAdviceIndicatorToHeader} from "../shared/culturalAdviceIndica
   templateUrl: './nde-content-indicators-on-brief-custom.component.html',
 })
 export class NdeContentIndicatorsOnBriefCustomComponent {
+    @Input() hostComponent!: any;
+
     private elementRef = inject(ElementRef);
     private crl;
     public hostRecordIndications: HTMLElement | null = null; // The nde-record-indications element this component is attached to
 
-    constructor() {
-        this.crl = new CourseReadingListBriefFunctions();
+    // Reactive flag used in the template
+    hasReadingList$: Observable<boolean> = of(false);
+
+    constructor(private storeSvc: NdeStoreService) {
+        console.log('### nde-content-indicators-on-brief construct');
+        this.crl = new CourseReadingListFullFunctions();
     }
     ngOnInit(): void {
-        if (isFullDisplayPage()) {
+        console.log('### nde-content-indicators-on-brief ngOnInit');
+        if (!isFullDisplayPage()) {
+            console.log('### nde-content-indicators-on-brief not full skip');
             return;
         }
+
+        const record$ = this.storeSvc.getRecord$(this.hostComponent).pipe(
+            // Defer to next microtask so we compute *after* the store settles to the new record
+            auditTime(0),
+            shareReplay({bufferSize: 1, refCount: true})
+        );
+        // Record stream: emits whenever Fullview selected record or Listview row record changes
+
+        const existingCrlPanel = document.getElementById(this.crl.panelId);
+        console.log('### createAndAppendCourseList existingCrlPanel=', existingCrlPanel);
+        !!existingCrlPanel && existingCrlPanel.remove();
+
+        const ISLOGGEDINTOBEDONE = true;
+        this.hasReadingList$ = record$.pipe(
+            map((record) => !isFullDisplayPage() && !!this.crl.displayCourseReadingListIndicatorAndList(this.hostComponent, ISLOGGEDINTOBEDONE)),
+            distinctUntilChanged()
+        );
 
         // get the current element
         this.hostRecordIndications = this.findHostRecordIndications();
         this.crl.uuid = self.crypto.randomUUID();
 
+        // NEEDED?
         // set an id attribute on element
         !!this.hostRecordIndications && (this.hostRecordIndications.id = setRecordIdentifier(this.crl.uuid, 'crl'));
 
-        const awaitPnx = setInterval(() => {
-            // get the ultimate parent of this brief result
-            const item = this.hostRecordIndications?.parentElement?.parentElement?.parentElement;
-            const pnx = !!item && getPnx(this.crl.searchState(), item);
-            if (!pnx?.control?.recordid) { // pnx not ready yet
-                return;
-            }
-
-            clearInterval(awaitPnx);
-
-            this.crl.displayCourseReadingListIndicator(pnx, item);
-
-            this.displayCulturalAdviceIndicator(pnx, item);
-
-        }, 1000);
+        const TODOISLOGGEDIN = true;
+        this.crl.displayCourseReadingListIndicatorAndList(this.hostComponent, TODOISLOGGEDIN);
     }
 
     private displayCulturalAdviceIndicator(pnx: pnxInterface, item: HTMLElement | null | undefined) {
