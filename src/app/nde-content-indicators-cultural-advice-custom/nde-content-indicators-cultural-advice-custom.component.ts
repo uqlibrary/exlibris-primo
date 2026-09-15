@@ -34,24 +34,27 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
 
         // set the 'if' on the html template to true when the pnx shows cultural advice needed
         this.hasContentAdvice$ = record$.pipe(
-            map((record) => this.hasLds04()),
+            map((record) => this.handleCulturalAdviceAdvisement()),
             distinctUntilChanged()
         );
     }
 
-    // a record needs a cultural advice label if the record has an lds04 entry
-    private hasLds04(): boolean {
+    // a record needs a cultural advice label if the record has a lds04 entry
+    private handleCulturalAdviceAdvisement(): boolean {
+        // remove the banner if it's left over from a previous view
+        // (eg search, then record with CA, then next-record-arrow to record without CA)
+        const bannerId = `culturalAdviceBanner`;
+        const previousCulturalAdviceBanner = document.getElementById(bannerId);
+        !!previousCulturalAdviceBanner && previousCulturalAdviceBanner.remove();
+
         const needsCulturalAdvice = !!this.hostComponent?.display?.lds04 ?? null;
 
-        // add a banner to the page once if its a full record
-        const bannerExists = document.getElementById('culturalAdviceBanner');
-        if (isFullDisplayPage() && !bannerExists && needsCulturalAdvice) {
+        // add a banner to the page if it's a full record
+        if (isFullDisplayPage() && needsCulturalAdvice) {
             const html = `
-<div id="culturalAdviceBanner" class="standardWarningBanner" data-testid="cultural-advice-banner">
+<div id="${bannerId}" class="standardWarningBanner" data-testid="cultural-advice-banner">
     <div class="uq-icon uq-icon--standard--exclamation-triangle"></div>
-<p>
-    ${this.hostComponent.display.lds04}
-</p>
+    <p>${this.hostComponent.display.lds04}</p>
 </div>`;
             const template = document.createElement('template');
             template.innerHTML = html;
