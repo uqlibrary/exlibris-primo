@@ -27,7 +27,7 @@ const RESTRICTED_CHECK_LIST = [
     'working_paper',
 ];
 
-export const getListTalisUrls = (pnx: any, uid: string = '') => {
+export const getListTalisUrls = (pnx: any) => {
     const list: string[] = [];
 
     const materialType = pnx?.display?.type?.[0];

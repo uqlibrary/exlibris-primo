@@ -11,10 +11,15 @@ export class CourseReadingListBriefFunctions {
     public uuid: string | null = null;
     private insertComponents: boolean = true;
 
-    public displayCourseReadingListIndicator = (pnx: any, insertComponents = true) => {
+    /**
+     * add a Content Indicator to the brief result list on the search results page to show when the item is on a course reading list
+     * @param pnx
+     * @param insertComponents boolean - should this insert the components? (otherwise just return true/false that its required)
+     */
+    public displayCourseReadingListIndicator = (pnx: any, insertComponents: boolean = true) => {
         this.insertComponents = insertComponents;
 
-        const listTalisUrls = getListTalisUrls(pnx, ''); // String(this.uuid));
+        const listTalisUrls = getListTalisUrls(pnx); // String(this.uuid));
         if (!listTalisUrls || listTalisUrls.length === 0) {
             return false;
         }
