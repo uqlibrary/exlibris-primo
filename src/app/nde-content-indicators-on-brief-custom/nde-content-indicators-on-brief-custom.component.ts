@@ -24,13 +24,13 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
     hasReadingList$: Observable<boolean> = of(false);
 
     constructor(private storeSvc: NdeStoreService) {
-        console.log('### nde-content-indicators-on-brief construct');
+        // console.log('### nde-content-indicators-on-brief construct');
         this.crl = new CourseReadingListFullFunctions();
     }
     ngOnInit(): void {
-        console.log('### nde-content-indicators-on-brief ngOnInit');
+        // console.log('### nde-content-indicators-on-brief ngOnInit');
         if (!isFullDisplayPage()) {
-            console.log('### nde-content-indicators-on-brief not full skip');
+            // console.log('### nde-content-indicators-on-brief not full skip');
             return;
         }
 
@@ -42,8 +42,17 @@ export class NdeContentIndicatorsOnBriefCustomComponent {
         // Record stream: emits whenever Fullview selected record or Listview row record changes
 
         const existingCrlPanel = document.getElementById(this.crl.panelId);
-        console.log('### createAndAppendCourseList existingCrlPanel=', existingCrlPanel);
+        // console.log('### createAndAppendCourseList existingCrlPanel=', existingCrlPanel);
         !!existingCrlPanel && existingCrlPanel.remove();
+
+        // if removing that leaves the sidebar empty, remove it too
+        const ndeSidebar = document.querySelector('div.full-view-right-content:has(> nde-full-display-side-bar)');
+        console.log('### ndeSidebar=', ndeSidebar);
+        if (!!ndeSidebar && !ndeSidebar?.innerHTML?.toString().includes('nde-collapsible-box')) {
+            // no contents now, remove the sidebar too
+            console.log('### ndeSidebar has no children, remove');
+            ndeSidebar.remove();
+        }
 
         const ISLOGGEDINTOBEDONE = true;
         this.hasReadingList$ = record$.pipe(

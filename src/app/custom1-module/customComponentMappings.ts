@@ -27,5 +27,5 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-search-results-container-after', NdeOptionsButtonCustom],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
-    ['nde-search-result-item-container-after', NdeContentIndicatorsOnBriefCustomComponent],
+    // ['nde-search-result-item-container-after', NdeContentIndicatorsOnBriefCustomComponent],
 ]);

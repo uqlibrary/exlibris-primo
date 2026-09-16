@@ -25,13 +25,14 @@ export class CourseReadingListFullFunctions {
 
     public displayCourseReadingListIndicatorAndList = (pnx: pnxInterface, isLoggedIn: boolean, insertComponents = true) => {
         this.insertComponents = insertComponents;
-        console.log('### displayCourseReadingListIndicatorAndList start', pnx);
+        // console.log('### displayCourseReadingListIndicatorAndList start', pnx);
         const listTalisUrls = getListTalisUrls(pnx);
-        console.log('### displayCourseReadingListIndicatorAndList listTalisUrls=', listTalisUrls);
+        // console.log('### displayCourseReadingListIndicatorAndList listTalisUrls=', listTalisUrls);
         if (!listTalisUrls || listTalisUrls.length === 0) {
             return false;
         }
 
+        console.log('### getTalisDataFromAllApiCalls call A');
         return this.getTalisDataFromAllApiCalls(listTalisUrls, isLoggedIn);
     }
 
@@ -52,13 +53,13 @@ export class CourseReadingListFullFunctions {
                 }
                 for (let url in talisCacheEntry?.courses) {
                     courseList[talisCacheEntry?.courses[url]] = url;
-                    console.log('### url check:: cache has', url);
+                    // console.log('### url check:: cache has', url);
                 }
 
             } else {
                 // not in cache, we need to fetch it
                 pnxUrlsNeedingFetch.push(talisUrl);
-                console.log('### url check:: fetch', talisUrl);
+                // console.log('### url check:: fetch', talisUrl);
             }
         });
         const promises = pnxUrlsNeedingFetch.map(url =>
