@@ -1,5 +1,5 @@
 import {Component, ElementRef, inject} from '@angular/core';
-import {addClassName, clearExistingHero, findHostElement, getHeroElement} from "../shared/common";
+import {addClassName, findHostElement, getHeroElement} from "../shared/common";
 
 @Component({
   selector: 'custom-nde-hero-block-custom',
@@ -13,11 +13,7 @@ export class NdeHeroBlockCustomComponent {
 
     ngOnInit(): void {
         const hostElement = findHostElement(this.elementRef.nativeElement);
-        if (window.location.pathname.startsWith('/nde/collectionDiscovery')) {
-            clearExistingHero(); // so can go from citation finder to colldisc and lose citation finder header
-        } else if (window.location.pathname.startsWith('/nde/home')) {
-            clearExistingHero(); // so can go from citation finder to home and lose citation finder header
-        } else if (window.location.pathname.startsWith('/nde/citationlinker')) {
+        if (window.location.pathname.startsWith('/nde/citationlinker')) {
             this.writeCitationFinderHero(hostElement);
         } else if (window.location.pathname.startsWith('/nde/dbsearch')) {
             this.writeDbSearchHero(hostElement);
@@ -40,7 +36,8 @@ export class NdeHeroBlockCustomComponent {
 
         const newHeroElement = getHeroElement(heroLabel, 'citationfinder');
 
-        !!newHeroElement && hostElement?.parentNode?.insertBefore(newHeroElement, hostElement);
+        // insert it inside the nde-fetch because that is the element that is deleted by the routing
+        !!newHeroElement && hostElement?.insertBefore(newHeroElement, hostElement.children[0]);
     }
 
     private writeDbSearchHero(hostElement: Element | null){

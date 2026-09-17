@@ -130,8 +130,6 @@ export const getHeroElement = (heroLabel: string | null | undefined, heroType: s
         return null;
     }
 
-    clearExistingHero();
-
     // hard code the colour to avoid FOUC
     const heroHtml = `
         <div class="uq-hero hero-${heroType}" id="${sharedHeroId}">
@@ -162,15 +160,6 @@ export const addClassName = (hostElement: HTMLElement | HTMLHeadingElement | Ele
     !!hostElement && !hostElement.classList.contains(className) && hostElement.classList.add(className);
 }
 export const removeClassName = (hostElement: HTMLElement | HTMLHeadingElement | Element | null | undefined, className: string) => {
-    !!hostElement && !!hostElement.classList.contains(className) && hostElement.classList.remove(className);
+    !!hostElement && hostElement.classList.contains(className) && hostElement.classList.remove(className);
 }
 
-export const clearExistingHero = () => {
-    // if one of the other components (mostly Citation Finder) has left a header behind, delete it
-    const replaceableHero = document.getElementById(sharedHeroId);
-    if (!!replaceableHero) {
-        if (!!replaceableHero) {
-            replaceableHero.remove();
-        }
-    }
-}

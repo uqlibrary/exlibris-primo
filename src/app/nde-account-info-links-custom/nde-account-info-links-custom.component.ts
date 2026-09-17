@@ -1,5 +1,4 @@
 import {Component} from '@angular/core';
-import {clearExistingHero} from "../shared/common";
 
 @Component({
   selector: 'custom-nde-account-info-links-custom',
@@ -10,7 +9,6 @@ import {clearExistingHero} from "../shared/common";
 })
 export class NdeAccountInfoLinksCustomComponent {
     ngOnInit(): void {
-        clearExistingHero(); // that citation finder doesn't clean up properly! :(
         setInterval(() => {
             // no clearInterval - we have to keep watching to insert it, as primo clears it as the account tabs change :(
             this.addLinksToLoans();
