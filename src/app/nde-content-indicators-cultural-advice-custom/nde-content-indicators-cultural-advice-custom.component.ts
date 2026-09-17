@@ -8,8 +8,9 @@ import {
     isReturnKeyPressed,
     mouseoutTooltip,
     mouseoverTooltip,
+    selectIsLoggedIn,
     selectSearchState,
-    setRecordIdentifier
+    setRecordIdentifier,
 } from "../shared/common";
 import {MatDivider} from "@angular/material/divider";
 import {MatIcon} from "@angular/material/icon";
@@ -37,6 +38,7 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
 
     private store = inject(Store);
     public searchState = this.store.selectSignal(selectSearchState);
+    private loggedIn = this.store.selectSignal(selectIsLoggedIn);
 
     public uuid: string | null = null;
     private insertComponents: boolean = true;
@@ -82,17 +84,15 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
     private async handleReadingListIndicatorAndListDisplay(): Promise<boolean> {
         console.log('### handleReadingListIndicatorAndListDisplay start')
         this.removePreviousSidebar();
-        const TODOISLOGGEDIN = false; // TODO
-        return await this.displayCourseReadingListIndicator(this.hostComponent, TODOISLOGGEDIN, false);
+        return await this.displayCourseReadingListIndicator(this.hostComponent, false);
     }
 
     /**
      * add a Content Indicator to the brief result list on the search results page to show when the item is on a course reading list
      * @param pnx
-     * @param isLoggedIn boolean
      * @param insertComponents boolean - should this insert the components? (otherwise just return true/false that its required)
      */
-    public displayCourseReadingListIndicator = (pnx: any, isLoggedIn: boolean = true, insertComponents: boolean = true) => {
+    public displayCourseReadingListIndicator = (pnx: any, insertComponents: boolean = true) => {
         console.log('### displayCourseReadingListIndicator start')
         this.insertComponents = insertComponents;
 
@@ -101,12 +101,12 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
             return false;
         }
 
-        const talisDataFound = this.getTalisDataFromAnyApiCalls(listTalisUrls, isLoggedIn);
+        const talisDataFound = this.getTalisDataFromAnyApiCalls(listTalisUrls);
         return talisDataFound;
     }
 
     // we want to know if any of the talis are available, so we stop once we have a single success
-    private async getTalisDataFromAnyApiCalls(listTalisUrls: string[], isLoggedIn: boolean): Promise<boolean> {
+    private async getTalisDataFromAnyApiCalls(listTalisUrls: string[]): Promise<boolean> {
         console.log('### getTalisDataFromAnyApiCalls start')
         const courseList: { [key: string]: string } = {};
         const listUrlsToCall = listTalisUrls.filter(url => url.startsWith('http'));
@@ -157,7 +157,7 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
                 // this is a bit bodgy, but the first record on a search shows the CRL sidebar of an actual CRL record further down the page, on expansion
                 //
                 if (pnx?.display?.title && pageTitle?.innerHTML?.trim().startsWith(pnx?.display?.title)) {
-                    await this.getTalisDataFromAllApiCalls(listTalisUrls, isLoggedIn);
+                    await this.getTalisDataFromAllApiCalls(listTalisUrls);
                 }
             }
             console.log('### found CRL icon type A');
@@ -230,7 +230,7 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
         // if (isFullDisplayPage() && result && !this.allProcessStarted) {
         if (isFullDisplayPage() && result) {
             console.log('### getTalisDataFromAllApiCalls call C', this.uuid); // , this.allProcessStarted
-            await this.getTalisDataFromAllApiCalls(listTalisUrls, isLoggedIn);
+            await this.getTalisDataFromAllApiCalls(listTalisUrls);
         }
         return result;
     }
@@ -289,7 +289,7 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
         return '';
     }
 
-    private async getTalisDataFromAllApiCalls(listUrls: string[], isLoggedIn: boolean): Promise<boolean> {
+    private async getTalisDataFromAllApiCalls(listUrls: string[]): Promise<boolean> {
         console.log('### getTalisDataFromAllApiCalls start');
         let courseList: { [key: string]: string } = {};
 
@@ -384,8 +384,7 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
                                 {}
                             );
 
-                        // this.insertComponents && this.createAndAppendCourseList(courseList, isLoggedIn);
-                        this.createAndAppendCourseList(courseList, isLoggedIn);
+                        this.createAndAppendCourseList(courseList);
                     }
                     if (cacheChanged) {
                         talisCacheManager.saveLocalStorageCache(talisCache);
@@ -413,10 +412,12 @@ export class NdeContentIndicatorsCulturalAdviceCustomComponent {
         return `${url}${separator}${param}`;
     }
 
-    private createAndAppendCourseList(talisCourses: any, isLoggedIn: boolean = false) {
+    private createAndAppendCourseList(talisCourses: any) {
         // if (!isFullDisplayPage()) {
         //     return;
         // }
+
+        const isLoggedIn = this.loggedIn();
 
         const linkOutIcon: string =
             '<mat-icon class="linkOut" role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size-default primary-stroke mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="GES">' +
