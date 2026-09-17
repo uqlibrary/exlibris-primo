@@ -34,7 +34,6 @@ export class NdeContentIndicatorsCustomComponent {
     public searchState = this.store.selectSignal(selectSearchState);
     private loggedIn = this.store.selectSignal(selectIsLoggedIn);
 
-    public uuid: string | null = null;
     panelId = `uql-course-reading-list-sidebar-panel`;
     private readonly UNSAFE_READING_LIST_BASE_URL = 'http://lr.library.uq.edu.au';
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
@@ -43,9 +42,7 @@ export class NdeContentIndicatorsCustomComponent {
 
     private TALIS_DOMAIN = 'https://uq.rl.talis.com/';
 
-    constructor(private storeSvc: NdeStoreService) {
-        this.uuid = self.crypto.randomUUID();
-    }
+    constructor(private storeSvc: NdeStoreService) {}
 
     ngOnInit() {
         const record$ = this.storeSvc.getRecord$(this.hostComponent).pipe(
@@ -69,16 +66,11 @@ export class NdeContentIndicatorsCustomComponent {
 
     private async handleReadingListIndicatorAndListDisplay(): Promise<boolean> {
         this.removePreviousSidebar();
-        return await this.displayCourseReadingListIndicator(this.hostComponent, false);
+        return await this.displayCourseReadingListIndicator(this.hostComponent);
     }
 
-    /**
-     * add a Content Indicator to the brief result list on the search results page to show when the item is on a course reading list
-     * @param pnx
-     * @param insertComponents boolean - should this insert the components? (otherwise just return true/false that its required)
-     */
-    public displayCourseReadingListIndicator = (pnx: any, insertComponents: boolean = true) => {
-        const listTalisUrls = this.getListTalisUrls(pnx); // String(this.uuid));
+    public displayCourseReadingListIndicator = (pnx: any) => {
+        const listTalisUrls = this.getListTalisUrls(pnx);
         if (!listTalisUrls || listTalisUrls.length === 0) {
             return false;
         }
@@ -199,6 +191,7 @@ export class NdeContentIndicatorsCustomComponent {
         return hasCourses;
     }
 
+    // that first talis api that getTalisDataFromAnyApiCalls called will now be cached, so it isn't re-called
     private async getTalisDataFromAllApiCalls(listUrls: string[]): Promise<boolean> {
         let courseList: { [key: string]: string } = {};
 
