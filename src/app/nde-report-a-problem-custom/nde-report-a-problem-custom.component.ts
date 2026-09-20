@@ -51,6 +51,7 @@ export class NdeReportAProblemCustomComponent implements OnInit {
 
     private getRecordTitle = () => {
         const item = document.querySelector('.search-result-item');
+        // get the pnx data (alma data about the record)
         const pnx = !!item && getPnx(this.searchState(), item);
         if (!pnx) {
             return '';
@@ -105,7 +106,6 @@ export class NdeReportAProblemCustomComponent implements OnInit {
         return '';
     }
 
-    // get the pnx data (alma data about the record)
     private getDocId = (): string => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('docid')) {

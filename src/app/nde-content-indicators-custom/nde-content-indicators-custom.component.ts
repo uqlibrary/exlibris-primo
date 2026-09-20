@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, inject, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {from, Observable, of} from 'rxjs';
 import {auditTime, distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
@@ -15,6 +15,7 @@ import {MatDivider} from "@angular/material/divider";
 import {MatIcon} from "@angular/material/icon";
 import {Store} from '@ngrx/store';
 import {talisCacheManager} from "../shared/LocalStorageCacheManager";
+import {getPnx} from "../shared/getPnx";
 
 @Component({
     selector: 'custom-nde-content-indicators-custom',
@@ -24,6 +25,8 @@ import {talisCacheManager} from "../shared/LocalStorageCacheManager";
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NdeContentIndicatorsCustomComponent {
+    private elementRef = inject(ElementRef);
+
     @Input() hostComponent!: any;
 
     // Reactive flag used in the template
@@ -39,12 +42,14 @@ export class NdeContentIndicatorsCustomComponent {
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
     private matExpansionHeader: HTMLElement | null = null;
 
+    private uuid = '';
 
     private TALIS_DOMAIN = 'https://uq.rl.talis.com/';
 
     constructor(private storeSvc: NdeStoreService) {}
 
     ngOnInit() {
+        this.uuid = self.crypto.randomUUID();
         const record$ = this.storeSvc.getRecord$(this.hostComponent).pipe(
             // Defer to next microtask so we compute *after* the store settles to the new record
             auditTime(0),
@@ -70,7 +75,25 @@ export class NdeContentIndicatorsCustomComponent {
     }
 
     public displayCourseReadingListIndicator = (pnx: any) => {
-        const listTalisUrls = this.getListTalisUrls(pnx);
+        const nativeEl: HTMLElement = this.elementRef.nativeElement;
+
+        let listTalisUrls: Array<string> = [];
+
+        // climb up to parent wrapping the whole header
+        let item: HTMLElement | null | undefined = nativeEl;
+        let found:boolean = false;
+        let valid = true;
+        while (!found && valid) {
+            item = item?.parentElement;
+            found = item?.classList.contains('search-result-item') || false;
+
+            valid = item?.nodeName.toLowerCase() !== 'nde-app-layout'; // if we have gone too high in the tree, quit
+        }
+        if (found) {
+            const pnx = !!item && getPnx(this.searchState(), item);
+            listTalisUrls = this.getListTalisUrls(pnx);
+        }
+
         if (!listTalisUrls || listTalisUrls.length === 0) {
             return false;
         }
@@ -609,6 +632,7 @@ export class NdeContentIndicatorsCustomComponent {
         }
 
         // LCN (Library Control Number)
+        console.log('###', this.uuid,'crl: pnx=', pnx);
         if (pnx?.control?.sourcerecordid?.length > 0) {
             pnx.control.sourcerecordid.forEach((r: string) => {
                 list.push(lcnPattern(r));
@@ -628,6 +652,7 @@ export class NdeContentIndicatorsCustomComponent {
                 }
             });
         }
+
         // DOI
         if (pnx?.addata?.doi?.length > 0) {
             pnx.addata.doi.forEach((r: string) => {
@@ -669,6 +694,7 @@ export class NdeContentIndicatorsCustomComponent {
             });
         }
 
+        console.log('###', this.uuid,'crl: list=', list);
         return list;
     }
 }
