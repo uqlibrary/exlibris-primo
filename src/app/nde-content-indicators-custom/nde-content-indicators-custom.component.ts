@@ -359,26 +359,6 @@ export class NdeContentIndicatorsCustomComponent {
         const crlHiddenClass = 'uql-crl-list-hidden'; // courses which are actually hidden, add/remove this classname
         const crlHideableClass = `uql-crl-list-hideable`; // courses which are > maxNumberReadingListsDisplayed, add this classname so we find it to add/remove crlHiddenClass
 
-        let targetElement = document.querySelector('nde-full-display-side-bar');
-        // if the sidebar doesn't exist then this page has no sidebar children so we have to create it
-        if (!targetElement) {
-            const parentElement = document.querySelector('.full-view-content');
-            if (!parentElement) {
-                // should always exist
-                return;
-            }
-
-            const sidebarHtmlWrapper =
-                `<div _ngcontent-ng-crl="" class="flex-column full-view-right-content ng-star-inserted">
-                    <nde-full-display-side-bar _ngcontent-ng-crl=""></nde-full-display-side-bar>
-                </div>`;
-            const sidebarTemplate = document.createElement('template');
-            sidebarTemplate.innerHTML = sidebarHtmlWrapper;
-            !!sidebarTemplate && parentElement?.appendChild(sidebarTemplate.content.cloneNode(true));
-
-            targetElement = document.querySelector('nde-full-display-side-bar');
-        }
-
         // note that we don't need to make it update on change of login state
         // because log IN on prod goes through auth and reloads the page
         // and log OUT goes off to a different page
@@ -456,6 +436,26 @@ export class NdeContentIndicatorsCustomComponent {
 
         const that = this;
 
+        let targetElement = document.querySelector('nde-full-display-side-bar');
+        // if the sidebar doesn't exist then this page has no sidebar children so we have to create it
+        if (!targetElement) {
+            const parentElement = document.querySelector('.full-view-content');
+            if (!parentElement) {
+                // should always exist
+                return;
+            }
+
+            const sidebarHtmlWrapper =
+                `<div _ngcontent-ng-crl="" class="flex-column full-view-right-content ng-star-inserted" id="createdSidebar">
+                    <nde-full-display-side-bar _ngcontent-ng-crl=""></nde-full-display-side-bar>
+                </div>`;
+            const sidebarTemplate = document.createElement('template');
+            sidebarTemplate.innerHTML = sidebarHtmlWrapper;
+            !!sidebarTemplate && parentElement?.appendChild(sidebarTemplate.content.cloneNode(true));
+
+            targetElement = document.querySelector('nde-full-display-side-bar');
+        }
+
         // Insert the course list as the first child of the target element
         !!targetElement && targetElement.prepend(template.content.cloneNode(true));
 
@@ -523,6 +523,18 @@ export class NdeContentIndicatorsCustomComponent {
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function () {
             mouseoutTooltip(crlTooltipId);
         });
+
+        // now watch for the original sidebar to appear - if it does, move our element and delete our sidebar
+        const waitOnSuppliedSidebar = setInterval(() => {
+            const suppliedSidebar = document.querySelector('.full-view-right-content:not(#createdSidebar)');
+            if (!suppliedSidebar) {
+                return;
+            }
+            clearInterval(waitOnSuppliedSidebar);
+
+            const ourCrlPanel = document.querySelector('uql-course-reading-list-sidebar-panel');
+            !!ourCrlPanel && suppliedSidebar?.insertBefore(ourCrlPanel, suppliedSidebar.firstChild);
+        }, 100);
     }
 
     private isVisible(elm: HTMLElement | Element,) {
