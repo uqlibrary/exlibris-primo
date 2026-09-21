@@ -1,8 +1,25 @@
 import {ElementRef} from '@angular/core';
 import {createFeatureSelector, createSelector} from '@ngrx/store';
 export const selectSearchState = createFeatureSelector<any>('Search');
+type PnxState = { entities: { [x: string]: { pnx: any; }; }; };
 
-export type pnxInterface = { control: { recordid: any; iscdi: any; }; display: { lds05: any; lds04?: any; type: any }; item: {delivery: { availability: any }}; };
+// get the pnx data (alma data about the record)
+// based on https://github.com/jeremymcwilliams/nde-get-pnx-custom/blob/main/nde-get-pnx-custom.component.ts
+// the pnx supplies a array of results, that maps to the results down the page (one for full results, a number for brief)
+export const getPnx = (state: PnxState, item: any) => {
+
+    const recordIdElement = item?.querySelector( '[data-recordid]') || item?.querySelector( 'a[ng-href*="docid="], a[href*="docid="], a[href*="doc="]');
+    const recordId = recordIdElement?.getAttribute( 'data-recordid') || recordIdElement?.getAttribute( 'docid') || ((recordIdElement?.getAttribute( 'href') || '').match(/(?:docid|doc)=([^&]+)/) || [])[1];
+
+    return state?.entities?.[recordId]?.pnx;
+}
+
+export type pnxInterface = {
+    control: { recordid: any; iscdi: any; sourcerecordid: any; };
+    display: { lds05: any; lds04?: any; type: any; title: any; dedupmemberids: any; mms: any };
+    item: {delivery: { availability: any }};
+    addata: { doi: any; isbn: any; eisbn: any; eissn: any; issn: any }
+} | null;
 
 interface UserState {
     isLoggedIn: boolean;
@@ -127,4 +144,12 @@ export function findHostRecord(elementRef: ElementRef, soughtElement: string = '
     }
 
     return null;
+}
+
+export const getDocId = (): string => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('docid')) {
+        return urlParams.get('docid') + '';
+    }
+    return '';
 }
