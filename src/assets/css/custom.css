@@ -6,6 +6,10 @@ nde-logo {
   width: 0;
   height: 0;
   display: none;
+    a:hover {
+        background-color: #fff;
+        cursor: default;
+    }
 }
 
 /* don't show the initials-icon while we wait for the component to overwrite initials with the username */
