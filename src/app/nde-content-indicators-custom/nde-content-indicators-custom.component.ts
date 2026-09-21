@@ -346,8 +346,8 @@ export class NdeContentIndicatorsCustomComponent {
 
         // note that we don't need to make it update on change of login state
         // because log IN on prod goes through auth and reloads the page
-        // and log OUT goes off to a different page
-        // on sandbox (with exlibris login) this will not update on change
+        // and log OUT goes off to a different page.
+        // On sandbox (with exlibris login) this will not update on change
         const loginPrompt = (loggedIn: boolean) => !loggedIn
             ? '<div id="crl-login-banner" _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>'
             : '';
@@ -508,6 +508,20 @@ export class NdeContentIndicatorsCustomComponent {
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function () {
             mouseoutTooltip(crlTooltipId);
         });
+
+        // there seem to be edge timing conditions where this code manages to produce multiple panels. Delete duplicates.
+        const startUrl = window.location.href;
+        const waitOnExtraPanels = setInterval(() => {
+            const extraSidebars = document.querySelectorAll('uql-course-reading-list-sidebar-panel:not(:first-of-type)');
+            if (startUrl !== window.location.href) {
+                clearInterval(waitOnExtraPanels);
+            }
+            if (!extraSidebars) {
+                return;
+            }
+
+            extraSidebars.forEach(s => s.remove());
+        }, 100);
 
         // now watch for the original sidebar to appear - if it does, move our element and delete our sidebar
         const waitOnSuppliedSidebar = setInterval(() => {
