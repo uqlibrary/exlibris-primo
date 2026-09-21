@@ -1,7 +1,6 @@
 import {Component, ElementRef, inject} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {getPnx} from "../shared/getPnx";
-import {findHostRecord, isFullDisplayPage, pnxInterface, selectSearchState} from "../shared/common";
+import {findHostRecord, getPnx, isFullDisplayPage, pnxInterface, selectSearchState} from "../shared/common";
 
 @Component({
   selector: 'custom-nde-override-outlink-custom',

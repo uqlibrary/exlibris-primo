@@ -4,10 +4,12 @@ import {from, Observable, of} from 'rxjs';
 import {auditTime, distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import {NdeStoreService} from "../services/nde-store.service";
 import {
+    getPnx,
     isFullDisplayPage,
     isReturnKeyPressed,
     mouseoutTooltip,
     mouseoverTooltip,
+    pnxInterface,
     selectIsLoggedIn,
     selectSearchState,
 } from "../shared/common";
@@ -15,7 +17,6 @@ import {MatDivider} from "@angular/material/divider";
 import {MatIcon} from "@angular/material/icon";
 import {Store} from '@ngrx/store';
 import {talisCacheManager} from "../shared/LocalStorageCacheManager";
-import {getPnx} from "../shared/getPnx";
 
 @Component({
     selector: 'custom-nde-content-indicators-custom',
@@ -42,14 +43,12 @@ export class NdeContentIndicatorsCustomComponent {
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
     private matExpansionHeader: HTMLElement | null = null;
 
-    private uuid = '';
-
     private TALIS_DOMAIN = 'https://uq.rl.talis.com/';
+    private pnx: pnxInterface = null;
 
     constructor(private storeSvc: NdeStoreService) {}
 
     ngOnInit() {
-        this.uuid = self.crypto.randomUUID();
         const record$ = this.storeSvc.getRecord$(this.hostComponent).pipe(
             // Defer to next microtask so we compute *after* the store settles to the new record
             auditTime(0),
@@ -64,36 +63,39 @@ export class NdeContentIndicatorsCustomComponent {
         );
 
         this.hasReadingList$ = record$.pipe(
-            switchMap(() => from(this.handleReadingListIndicatorAndListDisplay())),
+            switchMap((record) => from(this.handleReadingListIndicatorAndListDisplay(record))),
             distinctUntilChanged()
         );
     }
 
-    private async handleReadingListIndicatorAndListDisplay(): Promise<boolean> {
+    private async handleReadingListIndicatorAndListDisplay(record: any): Promise<boolean> {
         this.removePreviousSidebar();
-        return await this.displayCourseReadingListIndicator(this.hostComponent);
+        return await this.displayCourseReadingListIndicator(record);
     }
 
-    public displayCourseReadingListIndicator = (pnx: any) => {
-        const nativeEl: HTMLElement = this.elementRef.nativeElement;
+    public displayCourseReadingListIndicator = (record: any) => {
+        if (!!record?.pnx) {
+            // works on full
+            this.pnx = record?.pnx
+        } else {
+            // works on brief
+            const nativeEl: HTMLElement = this.elementRef.nativeElement;
 
-        let listTalisUrls: Array<string> = [];
+            // climb up to parent wrapping the whole header
+            let item: HTMLElement | null | undefined = nativeEl;
+            let found:boolean = false;
+            let valid = true;
+            while (!found && valid) {
+                item = item?.parentElement;
+                found = item?.classList.contains('search-result-item') || false;
 
-        // climb up to parent wrapping the whole header
-        let item: HTMLElement | null | undefined = nativeEl;
-        let found:boolean = false;
-        let valid = true;
-        while (!found && valid) {
-            item = item?.parentElement;
-            found = item?.classList.contains('search-result-item') || false;
-
-            valid = item?.nodeName.toLowerCase() !== 'nde-app-layout'; // if we have gone too high in the tree, quit
+                valid = item?.nodeName.toLowerCase() !== 'nde-app-layout'; // if we have gone too high in the tree, quit
+            }
+            if (found) {
+                this.pnx = !!item && getPnx(this.searchState(), item);
+            }
         }
-        if (found) {
-            const pnx = !!item && getPnx(this.searchState(), item);
-            listTalisUrls = this.getListTalisUrls(pnx);
-        }
-
+        const listTalisUrls = !!this.pnx && this.getListTalisUrls();
         if (!listTalisUrls || listTalisUrls.length === 0) {
             return false;
         }
@@ -119,7 +121,7 @@ export class NdeContentIndicatorsCustomComponent {
                     // we have a reading list
                     courseFound = COURSE_READING_FOUND;
                 } else if (talisCacheEntry && typeof talisCacheEntry?.expiryDate !== 'undefined') {
-                    // we have an entry in cache, so we dont need to fetch, but its not a reading list
+                    // we have an entry in cache, so we don't need to fetch, but it's not a reading list
                     courseFound = NO_COURSE_READING;
                 } else {
                     // not in cache, we need to fetch it
@@ -129,16 +131,7 @@ export class NdeContentIndicatorsCustomComponent {
         })
         if (courseFound === COURSE_READING_FOUND) {
             if (isFullDisplayPage()) {
-                const pnx = this.hostComponent;
-
-                const pageTitle = document.querySelector('nde-record-title h3');
-
-                // this is bodgy, but the first record on a search shows the CRL sidebar of an actual CRL record further down the referring search list?!?!?!
-                // and none of the pnx ids match!!!! :(
-                // "startsWith" is because the author is included in the displayed title
-                if (pnx?.display?.title && pageTitle?.innerHTML?.trim().startsWith(pnx?.display?.title)) {
-                    await this.getTalisDataFromAllApiCalls(listTalisUrls);
-                }
+                await this.getTalisDataFromAllApiCalls(listTalisUrls);
             }
             return true;
         } else if (courseFound === NO_COURSE_READING) {
@@ -217,9 +210,6 @@ export class NdeContentIndicatorsCustomComponent {
     // that first talis api that getTalisDataFromAnyApiCalls called will now be cached, so it isn't re-called
     private async getTalisDataFromAllApiCalls(listUrls: string[]): Promise<boolean> {
         let courseList: { [key: string]: string } = {};
-
-        const pnxId = this.hostComponent?.display?.identifier;
-
         const listUrlsToCall = listUrls.filter(url => url.startsWith('http'));
 
         // load valid (non-expired) cache entries
@@ -313,11 +303,6 @@ export class NdeContentIndicatorsCustomComponent {
         } catch (e) {
             console.log('Course reading list [full] error', e);
         }
-
-        const newcourseList = {
-            id: pnxId,
-            courses: courseList,
-        };
         return hasCourses;
     }
 
@@ -578,7 +563,7 @@ export class NdeContentIndicatorsCustomComponent {
         previousReadingListSidebar?.length > 0 && previousReadingListSidebar.forEach(b => b.remove());
 
         // if removing that leaves the sidebar empty, remove it too
-        const ndeSidebar = document.querySelector('div.full-view-right-content:has(> nde-full-display-side-bar)');
+        const ndeSidebar = document.getElementById('createdSidebar');
         // we cant do a straight "no children" because they include all these dumb '<!---->' in there! :(
         if (!!ndeSidebar && !ndeSidebar?.innerHTML?.toString().includes('nde-collapsible-box')) {
             // no contents now, remove the sidebar too
@@ -611,54 +596,54 @@ export class NdeContentIndicatorsCustomComponent {
         return needsCulturalAdvice;
     }
 
-    private getListTalisUrls = (pnx: any) => {
+    private getListTalisUrls = () => {
         // Material types that should not use ISBN/ISSN lookups
-        const RESTRICTED_CHECK_LIST = [
-            'article',
-            'book_chapter',
-            'conference_paper',
-            'conference_proceeding',
-            'dataset',
-            'design',
-            'government_document',
-            'magazinearticle',
-            'magazine_article',
-            'market_research',
-            'newsletterarticle',
-            'newsletter_article',
-            'newspaper_article',
-            'patent',
-            'questionnaire',
-            'reference_entry',
-            'report',
-            'review',
-            'web_resource',
-            'working_paper',
-        ];
+        const nonISBNTypes = [
+                'article',
+                'book_chapter',
+                'conference_paper',
+                'conference_proceeding',
+                'dataset',
+                'design',
+                'government_document',
+                'magazinearticle',
+                'magazine_article',
+                'market_research',
+                'newsletterarticle',
+                'newsletter_article',
+                'newspaper_article',
+                'patent',
+                'questionnaire',
+                'reference_entry',
+                'report',
+                'review',
+                'web_resource',
+                'working_paper',
+            ];
+
+        const materialType = this.pnx?.display?.type?.[0];
+        const isRestrictedCheckType = nonISBNTypes.includes(materialType);
+
         const list: string[] = [];
 
-        const materialType = pnx?.display?.type?.[0];
-        const isRestrictedCheckType = RESTRICTED_CHECK_LIST.includes(materialType);
+        // LCN (Library Control Number)
         const lcnPattern = (r: string) => {
             return `${this.TALIS_DOMAIN}lcn/${r}/lists.json`;
         }
-
-        // LCN (Library Control Number)
-        console.log('###', this.uuid,'crl: pnx=', pnx);
-        if (pnx?.control?.sourcerecordid?.length > 0) {
-            pnx.control.sourcerecordid.forEach((r: string) => {
+        if (this.pnx?.control?.sourcerecordid?.length > 0) {
+            this.pnx?.control.sourcerecordid.forEach((r: string) => {
                 list.push(lcnPattern(r));
             });
         }
-        if (pnx?.display?.dedupmemberids?.length > 0) {
-            pnx.display.dedupmemberids.forEach((r: string) => {
+        if (this.pnx?.display?.dedupmemberids?.length > 0) {
+            this.pnx?.display.dedupmemberids.forEach((r: string) => {
                 if (!list.includes(lcnPattern(r))) {
                     list.push(lcnPattern(r));
                 }
             });
         }
-        if (pnx?.display?.mms?.length > 0) {
-            pnx.display.mms.forEach((r: string) => {
+        if (this.pnx?.display?.mms?.length > 0) {
+            this.pnx?.display.mms.forEach((r: string) => {
                 if (!list.includes(lcnPattern(r))) {
                     list.push(lcnPattern(r));
                 }
@@ -666,15 +651,15 @@ export class NdeContentIndicatorsCustomComponent {
         }
 
         // DOI
-        if (pnx?.addata?.doi?.length > 0) {
-            pnx.addata.doi.forEach((r: string) => {
+        if (this.pnx?.addata?.doi?.length > 0) {
+            this.pnx?.addata.doi.forEach((r: string) => {
                 list.push(`${this.TALIS_DOMAIN}doi/${r}/lists.json`);
             });
         }
 
         // EISBN (Electronic ISBN)
-        if (!isRestrictedCheckType && pnx?.addata?.eisbn?.length > 0) {
-            pnx.addata.eisbn.forEach((r: string) => {
+        if (!isRestrictedCheckType && this.pnx?.addata?.eisbn?.length > 0) {
+            this.pnx?.addata.eisbn.forEach((r: string) => {
                 const isbn = r.replace(/[^0-9X]+/gi, '');
                 if ([10, 13].includes(isbn.length)) {
                     list.push(`${this.TALIS_DOMAIN}eisbn/${isbn}/lists.json`);
@@ -683,8 +668,8 @@ export class NdeContentIndicatorsCustomComponent {
         }
 
         // ISBN
-        if (!isRestrictedCheckType && pnx?.addata?.isbn?.length > 0) {
-            pnx.addata.isbn.forEach((r: string) => {
+        if (!isRestrictedCheckType && this.pnx?.addata?.isbn?.length > 0) {
+            this.pnx?.addata.isbn.forEach((r: string) => {
                 const isbn = r.replace(/[^0-9X]+/gi, '');
                 if ([10, 13].includes(isbn.length)) {
                     list.push(`${this.TALIS_DOMAIN}isbn/${isbn}/lists.json`);
@@ -693,20 +678,20 @@ export class NdeContentIndicatorsCustomComponent {
         }
 
         // EISSN (Electronic ISSN)
-        if (!isRestrictedCheckType && pnx?.addata?.eissn?.length > 0) {
-            pnx.addata.eissn.forEach((r: string) => {
+        if (!isRestrictedCheckType && this.pnx?.addata?.eissn?.length > 0) {
+            this.pnx?.addata.eissn.forEach((r: string) => {
                 list.push(`${this.TALIS_DOMAIN}eissn/${r}/lists.json`);
             });
         }
 
         // ISSN
-        if (!isRestrictedCheckType && pnx?.addata?.issn?.length > 0) {
-            pnx.addata.issn.forEach((r: string) => {
+        if (!isRestrictedCheckType && this.pnx?.addata?.issn?.length > 0) {
+            this.pnx?.addata.issn.forEach((r: string) => {
                 list.push(`${this.TALIS_DOMAIN}issn/${r}/lists.json`);
             });
         }
 
-        console.log('###', this.uuid,'crl: list=', list);
+        console.log('###','crl: list=', list);
         return list;
     }
 }
