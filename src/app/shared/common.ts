@@ -154,7 +154,6 @@ export const getDocId = (): string => {
     return '';
 }
 
-
 const sharedHeroId = "uqHero";
 
 export const getExistingHero = (heroType: string) => {

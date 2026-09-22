@@ -4,12 +4,14 @@ import {from, Observable, of} from 'rxjs';
 import {auditTime, distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import {NdeStoreService} from "../services/nde-store.service";
 import {
+    addClassName,
     getPnx,
     isFullDisplayPage,
     isReturnKeyPressed,
     mouseoutTooltip,
     mouseoverTooltip,
     pnxInterface,
+    removeClassName,
     selectIsLoggedIn,
     selectSearchState,
 } from "../shared/common";
@@ -453,7 +455,7 @@ export class NdeContentIndicatorsCustomComponent {
                 // hiding the entries - show them
                 hiddenCRL.forEach(c => c.classList.remove(crlHiddenClass))
                 !!longToggleButtonLabel && (longToggleButtonLabel.innerHTML = buttonLabelShowLess);
-                !!longToggleButton && !longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.add('noneHidden');
+                addClassName(longToggleButton, 'noneHidden');
             } else {
                 // visible entries - hide them
                 const hideableCRL = document.querySelectorAll(`.${crlHideableClass}`);
@@ -465,7 +467,7 @@ export class NdeContentIndicatorsCustomComponent {
                     // scroll the top into view, IF the top is currently off the page (rather than leaving it floating in the middle of the page)
                     document.getElementById('mat-expansion-panel-header-crl')?.scrollIntoView();
                 }
-                !!longToggleButton && longToggleButton.classList.contains('noneHidden') && longToggleButton.classList.remove('noneHidden');
+                removeClassName(longToggleButton, 'noneHidden');
             }
         });
 
@@ -473,10 +475,7 @@ export class NdeContentIndicatorsCustomComponent {
 
         // when they tab into the panel header, give it a big border and background colour
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusin", (event) => {
-            if (!!this.matExpansionHeader) {
-                !this.matExpansionHeader.classList.contains('cdk-focused') && this.matExpansionHeader.classList.add('cdk-focused')
-                !this.matExpansionHeader.classList.contains('cdk-keyboard-focused') && this.matExpansionHeader.classList.add('cdk-keyboard-focused')
-            }
+            this.addClickStyles();
         })
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusout", (event) => {
             this.removeClickStyles();
@@ -542,11 +541,13 @@ export class NdeContentIndicatorsCustomComponent {
         return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
     }
 
+    private addClickStyles = () => {
+        addClassName(this.matExpansionHeader, 'cdk-focused');
+        addClassName(this.matExpansionHeader, 'cdk-keyboard-focused');
+    }
     private removeClickStyles = () => {
-        if (!!this.matExpansionHeader) {
-            this.matExpansionHeader.classList.contains('cdk-focused') && this.matExpansionHeader.classList.remove('cdk-focused')
-            this.matExpansionHeader.classList.contains('cdk-keyboard-focused') && this.matExpansionHeader.classList.remove('cdk-keyboard-focused')
-        }
+        removeClassName(this.matExpansionHeader, 'cdk-focused');
+        removeClassName(this.matExpansionHeader, 'cdk-keyboard-focused');
     }
     private togglePanel = (crlTooltipId: any) => {
         const panel = document.querySelector('uql-course-reading-list-sidebar-panel');
