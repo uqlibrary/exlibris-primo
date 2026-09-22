@@ -1,8 +1,7 @@
 import {Component, ElementRef, inject, OnInit} from '@angular/core';
 import {NgIf} from '@angular/common';
-import {createFeatureSelector, Store} from '@ngrx/store';
-import {getPnx} from "../shared/getPnx";
-import {selectSearchState} from "../shared/common";
+import {Store} from '@ngrx/store';
+import {getDocId, getPnx, selectSearchState} from "../shared/common";
 
 @Component({
     selector: 'custom-nde-report-a-problem-custom',
@@ -51,6 +50,7 @@ export class NdeReportAProblemCustomComponent implements OnInit {
 
     private getRecordTitle = () => {
         const item = document.querySelector('.search-result-item');
+        // get the pnx data (alma data about the record)
         const pnx = !!item && getPnx(this.searchState(), item);
         if (!pnx) {
             return '';
@@ -98,19 +98,11 @@ export class NdeReportAProblemCustomComponent implements OnInit {
             return encodeURIComponent(pnx.search.recordid);
         }
 
-        if (this.getDocId() !== '') {
-            return this.getDocId();
+        if (getDocId() !== '') {
+            return getDocId();
         }
 
         return '';
     }
 
-    // get the pnx data (alma data about the record)
-    private getDocId = (): string => {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('docid')) {
-            return urlParams.get('docid') + '';
-        }
-        return '';
-    }
 }

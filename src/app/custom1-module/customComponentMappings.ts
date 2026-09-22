@@ -6,11 +6,8 @@ import {
     NdeUpdateAccountMenuCustomComponent
 } from "../nde-update-account-menu-custom/nde-update-account-menu-custom.component";
 import {
-    NdeContentIndicatorsOnFullCustomComponent
-} from "../nde-content-indicators-on-full-custom/nde-content-indicators-on-full-custom.component";
-import {
-    NdeContentIndicatorsOnBriefCustomComponent
-} from "../nde-content-indicators-on-brief-custom/nde-content-indicators-on-brief-custom.component";
+    NdeContentIndicatorsCustomComponent
+} from "../nde-content-indicators-custom/nde-content-indicators-custom.component";
 import {NdeCountOfFiltersCustomComponent} from "../nde-count-of-filters-custom/nde-count-of-filters-custom.component";
 import {NdeOverrideOutlinkCustomComponent} from "../nde-override-outlink-custom/nde-override-outlink-custom.component";
 import {
@@ -24,11 +21,10 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-blank-alma-purchase-request-after', NdeHeroBlockCustomComponent],
     ['nde-ill-request-after', NdeHeroBlockCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
-    ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
+    ['nde-record-indications-after', NdeContentIndicatorsCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
     ['nde-search-filters-side-nav-after', NdeCountOfFiltersCustomComponent],
     ['nde-search-results-container-after', NdeOptionsButtonCustom],
-    // ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
     ['nde-collection-discovery-lobby-header-after', NdeHeroBlockCustomComponent],
