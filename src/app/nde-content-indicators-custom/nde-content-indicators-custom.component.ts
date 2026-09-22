@@ -4,26 +4,20 @@ import {from, Observable, of} from 'rxjs';
 import {auditTime, distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import {NdeStoreService} from "../services/nde-store.service";
 import {
+    addClassName,
     getPnx,
     isFullDisplayPage,
     isReturnKeyPressed,
     mouseoutTooltip,
     mouseoverTooltip,
     pnxInterface,
+    removeClassName,
     selectIsLoggedIn,
     selectSearchState,
 } from "../shared/common";
 import {MatDivider} from "@angular/material/divider";
 import {MatIcon} from "@angular/material/icon";
 import {Store} from '@ngrx/store';
-import {
-    addClassName,
-    isReturnKeyPressed,
-    mouseoutTooltip,
-    mouseoverTooltip,
-    pnxInterface, removeClassName,
-    selectSearchState
-} from "../shared/common";
 import {talisCacheManager} from "../shared/LocalStorageCacheManager";
 
 @Component({

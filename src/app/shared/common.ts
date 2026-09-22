@@ -146,6 +146,14 @@ export function findHostRecord(elementRef: ElementRef, soughtElement: string = '
     return null;
 }
 
+export const getDocId = (): string => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('docid')) {
+        return urlParams.get('docid') + '';
+    }
+    return '';
+}
+
 const sharedHeroId = "uqHero";
 
 export const getExistingHero = (heroType: string) => {
