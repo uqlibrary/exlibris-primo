@@ -17,9 +17,12 @@ import {
     NdeServicesPageBannerCustomComponent
 } from "../nde-services-page-banner-custom/nde-services-page-banner-custom.component";
 import {NdeOptionsButtonCustom} from "../nde-options-button-component/nde-options-button-custom.component";
+import {NdeHeroBlockCustomComponent} from "../nde-hero-block-custom/nde-hero-block-custom.component";
 
 export const selectorComponentMap = new Map<string, any>([
     ['nde-account-after', NdeAccountInfoLinksCustomComponent],
+    ['nde-blank-alma-purchase-request-after', NdeHeroBlockCustomComponent],
+    ['nde-ill-request-after', NdeHeroBlockCustomComponent],
     ['nde-full-display-service-container-after', NdeReportAProblemCustomComponent],
     ['nde-full-display-container-after', NdeContentIndicatorsOnFullCustomComponent],
     ['nde-online-availability-after', NdeOverrideOutlinkCustomComponent],
@@ -28,4 +31,8 @@ export const selectorComponentMap = new Map<string, any>([
     // ['nde-record-indications-after', NdeContentIndicatorsOnBriefCustomComponent],
     ['nde-record-availability-after', NdeServicesPageBannerCustomComponent],
     ['nde-user-area-after', NdeUpdateAccountMenuCustomComponent],
+    ['nde-collection-discovery-lobby-header-after', NdeHeroBlockCustomComponent],
+    ['nde-fetch-item-after', NdeHeroBlockCustomComponent],
+    ['nde-general-search-header-after', NdeHeroBlockCustomComponent],
+    ['nde-landing-page-after', NdeHeroBlockCustomComponent],
 ]);

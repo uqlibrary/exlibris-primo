@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {currentEnvironmentId} from "../shared/common";
+import {addClassName, currentEnvironmentId, removeClassName} from "../shared/common";
 
 @Component({
   selector: 'custom-nde-update-account-menu-custom',
@@ -92,7 +92,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         const userNameDisplayArea = document.querySelector('nde-user-area button.user-area-btn span:not(.mat-mdc-button-persistent-ripple):not(.mat-focus-indicator):not(.mat-mdc-button-touch-target):not(.mat-ripple)');
         if (!userNameDisplayArea?.classList.contains('styledUserName')) {
             !!desiredUserDisplayName && !!userNameDisplayArea && (userNameDisplayArea.textContent = desiredUserDisplayName);
-            !!userNameDisplayArea && !userNameDisplayArea.classList.contains('styledUserName') && userNameDisplayArea.classList.add('styledUserName');
+            addClassName(userNameDisplayArea, 'styledUserName');
         }
     }
 
@@ -165,7 +165,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!accountIconTemplate && !!accountMatIcon && accountMatIcon.appendChild(accountIconTemplate.content.cloneNode(true));
 
         // tweak the looknfeel - we want "hollow" icons
-        !!accountMatIcon && accountMatIcon.classList.contains('grey-icon-color-no-stroke') && accountMatIcon.classList.remove('grey-icon-color-no-stroke');
+        removeClassName(accountMatIcon, 'grey-icon-color-no-stroke');
     }
 
     private reLabelFavourites(newLabel: string) {
@@ -193,7 +193,7 @@ export class NdeUpdateAccountMenuCustomComponent {
             !!favouritesIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(favouritesIconTemplate.content.cloneNode(true));
 
             // tweak the looknfeel - we want "hollow" icons
-            !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
+            removeClassName(savedItemsMatIcon, 'grey-icon-color-no-stroke');
         }
     }
 
@@ -232,7 +232,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!searchHistoryIconTemplate && !!savedItemsMatIcon && savedItemsMatIcon.appendChild(searchHistoryIconTemplate.content.cloneNode(true));
 
         // tweak the looknfeel - we want "hollow" icons
-        !!savedItemsMatIcon && !!savedItemsMatIcon.classList.contains('grey-icon-color-no-stroke') && savedItemsMatIcon.classList.remove('grey-icon-color-no-stroke');
+        removeClassName(savedItemsMatIcon, 'grey-icon-color-no-stroke');
     }
 
     private addLearningResourcesMenuItem() {
