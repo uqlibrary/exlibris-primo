@@ -2114,9 +2114,6 @@ class LocalStorageCacheManager {
 					{
 						url: 'https://web.library.uq.edu.au/find-and-borrow/request-items',
 						title: 'Help for requests',
-					}, {
-						url: 'https://auth.library.uq.edu.au/login?relais_return=1',
-						title: 'Document Delivery Portal',
 					}
 				];
 				addLinksToAccountArea('request', true, displayLinks);
