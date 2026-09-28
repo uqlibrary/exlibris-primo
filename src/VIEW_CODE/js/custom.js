@@ -2178,7 +2178,7 @@ class LocalStorageCacheManager {
 						url: 'https://web.library.uq.edu.au/find-and-borrow/library-memberships',
 						title: 'Update your details',
 					}, {
-						url: 'https://guides.library.uq.edu.au/how-to-find/using-library-search/save-options-and-alerts#s-lg-box-22848997',
+						url: 'https://guides.library.uq.edu.au/tools-and-techniques/using-library-search/save-options-and-alerts#s-lg-box-wrapper-26777583',
 						title: 'Information on search history',
 					}
 				];
