@@ -14,11 +14,11 @@ export class NdeUpdateAccountMenuCustomComponent {
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
             this.showDebug = Boolean(this.getCookie('showDebug'));
 
+            this.hideAccountButton(); // hide it initally then show it if we are logged in. This seems a more robust way to do it?
+
             const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn mat-icon svg');
             if (isLoggedOut) {
                 this.attachLoggedoutButtonContents();
-                // when logged out, we don't show the account button
-                this.showHideAccountButton('hide');
             } else {
                 // replace provided initials with the user's name
                 this.reLabelAccountButton();
@@ -48,6 +48,7 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
                 this.showDebug && console.log('menu## logged IN');
+                this.showAccountButton();
                 this.updateLoggedinFavouritesButton();
                 this.addPurchaseRequestItemMenuItem();
                 this.addResourceDeliveryItemMenuItem();
@@ -131,6 +132,16 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!logoutIconTemplate && !!logoutMatIcon && logoutMatIcon.appendChild(logoutIconTemplate.content.cloneNode(true));
     }
 
+    private showAccountButton = () => {
+        this.showDebug && console.log('accountButton showAccountButton');
+        this.showHideAccountButton('show');
+    }
+
+    private hideAccountButton = () => {
+        this.showDebug && console.log('accountButton hideAccountButton');
+        this.showHideAccountButton('hide');
+    }
+
     private showHideAccountButton = (showHide: string) => {
         const accountButtonFound = document.querySelector(`a[aria-label="Go to my library account"]`);
         const accountButton = !!accountButtonFound && accountButtonFound as HTMLElement;
@@ -151,8 +162,6 @@ export class NdeUpdateAccountMenuCustomComponent {
         if (!accountButtonFound) {
             return; // buttons not available yet
         }
-        // ensure any previous logged out state hasn't hidden the button!!
-        this.showHideAccountButton('show');
 
         // get rid of the existing icons
         const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
@@ -374,7 +383,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         // https://www.streamlinehq.com/icons/download/saving-bank-1--27627
         const newPurchaseRequestItemElementTemplate = document.createElement('template');
         newPurchaseRequestItemElementTemplate.innerHTML = `<li id="${newPurchaseRequestItemId}">
-     <a href="${purchaseRequestLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Go to my saved records" role="menuitem" aria-disabled="false">
+     <a href="${purchaseRequestLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Make a Purchase request" role="menuitem" aria-disabled="false">
     <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
         <svg class="purchaseRequestIcon" width="100%" height="100%" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
             <path d="M7 6C7 3.23858 9.01472 1 11.5 1C13.9853 1 16 3.23858 16 6"></path>
@@ -412,7 +421,7 @@ export class NdeUpdateAccountMenuCustomComponent {
         const newResourceDeliveryItemElementTemplate = document.createElement('template');
         // https://www.streamlinehq.com/icons/ultimate-regular-free?search=delivery&icon=ico_xMA5XVKN6GelEGXS
         newResourceDeliveryItemElementTemplate.innerHTML = `<li id="${newResourceDeliveryItemId}">
-     <a href="${resourceDeliveryLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Go to my saved records" role="menuitem" aria-disabled="false">
+     <a href="${resourceDeliveryLink}" _ngcontent-ng-purchaseR="" tabindex="0" mat-menu-item="" class="mat-mdc-menu-item mat-focus-indicator ng-star-inserted" aria-label="Request Resource delivery" role="menuitem" aria-disabled="false">
         <mat-icon _ngcontent-ng-purchaseR="" role="img" class="mat-icon notranslate nde-mat-icon-size account-option-icon mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="savedRecords">
             <svg style="opacity: 70%;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
               <path style="fill: none" stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M0.755981 16.5H16.714c0.3596 0.0006 0.7075 -0.128 0.9803 -0.3624 0.2727 -0.2344 0.4522 -0.559 0.5057 -0.9146l1.864 -12.446c0.0534 -0.35513 0.2324 -0.67933 0.5045 -0.91366 0.2722 -0.23434 0.6194 -0.36326 0.9785 -0.36334h1.709" stroke-width="1.5"></path>
