@@ -14,11 +14,11 @@ export class NdeUpdateAccountMenuCustomComponent {
         setInterval(() => { // never ended as we have to re add the user's name every time they log in
             this.showDebug = Boolean(this.getCookie('showDebug'));
 
+            this.hideAccountButton(); // hide it initally then show it if we are logged in. This seems a more robust way to do it?
+
             const isLoggedOut = document.querySelector('nde-user-area button.user-area-btn mat-icon svg');
             if (isLoggedOut) {
                 this.attachLoggedoutButtonContents();
-                // when logged out, we don't show the account button
-                this.showHideAccountButton('hide');
             } else {
                 // replace provided initials with the user's name
                 this.reLabelAccountButton();
@@ -48,6 +48,7 @@ export class NdeUpdateAccountMenuCustomComponent {
                 this.reLabelSearchHistory(); // probably deleted in configuration
             } else {
                 this.showDebug && console.log('menu## logged IN');
+                this.showAccountButton();
                 this.updateLoggedinFavouritesButton();
                 this.addPurchaseRequestItemMenuItem();
                 this.addResourceDeliveryItemMenuItem();
@@ -131,6 +132,16 @@ export class NdeUpdateAccountMenuCustomComponent {
         !!logoutIconTemplate && !!logoutMatIcon && logoutMatIcon.appendChild(logoutIconTemplate.content.cloneNode(true));
     }
 
+    private showAccountButton = () => {
+        this.showDebug && console.log('accountButton showAccountButton');
+        this.showHideAccountButton('show');
+    }
+
+    private hideAccountButton = () => {
+        this.showDebug && console.log('accountButton hideAccountButton');
+        this.showHideAccountButton('hide');
+    }
+
     private showHideAccountButton = (showHide: string) => {
         const accountButtonFound = document.querySelector(`a[aria-label="Go to my library account"]`);
         const accountButton = !!accountButtonFound && accountButtonFound as HTMLElement;
@@ -151,8 +162,6 @@ export class NdeUpdateAccountMenuCustomComponent {
         if (!accountButtonFound) {
             return; // buttons not available yet
         }
-        // ensure any previous logged out state hasn't hidden the button!!
-        this.showHideAccountButton('show');
 
         // get rid of the existing icons
         const existingAccountSvg = document.querySelector('[aria-label="Go to my library account"] mat-icon svg');
