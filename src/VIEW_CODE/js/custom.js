@@ -1612,15 +1612,7 @@ class LocalStorageCacheManager {
 	}
 
 	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm) {
-
-        // AD 1260
-        // current flakiness on overriding direct linking of availability records
-        // hopefully only temporary!!
-
-        return;
-
-
-		// for some types, the availability link loads the resource directly when we want them to go to the full view
+    	// for some types, the availability link loads the resource directly when we want them to go to the full view
 		// we cant override the click on the extant element
 		// so delete it and insert static text that will pick up the overall parent click to the full record
 		const maxCount = 50;
