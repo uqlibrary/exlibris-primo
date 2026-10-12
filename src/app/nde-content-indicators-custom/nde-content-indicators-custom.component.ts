@@ -40,7 +40,6 @@ export class NdeContentIndicatorsCustomComponent {
     public searchState = this.store.selectSignal(selectSearchState);
     private loggedIn = this.store.selectSignal(selectIsLoggedIn);
 
-    panelId = `uql-course-reading-list-sidebar-panel`;
     private readonly UNSAFE_READING_LIST_BASE_URL = 'http://lr.library.uq.edu.au';
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
     private matExpansionHeader: HTMLElement | null = null;
@@ -353,7 +352,7 @@ export class NdeContentIndicatorsCustomComponent {
         const loginPrompt = (loggedIn: boolean) => !loggedIn
             ? '<div id="crl-login-banner" _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>'
             : '';
-        let htmlContent = `<${this.panelId} _nghost-ng-crl="" class="ng-star-inserted">
+        let htmlContent = `<uql-course-reading-list-sidebar-panel _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
                 <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
                     <mat-expansion-panel-header _ngcontent-ng-crl="" role="button"
@@ -474,10 +473,10 @@ export class NdeContentIndicatorsCustomComponent {
         this.matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
 
         // when they tab into the panel header, give it a big border and background colour
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusin", (event) => {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusin", () => {
             this.addClickStyles();
         })
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusout", (event) => {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusout", () => {
             this.removeClickStyles();
         })
 
@@ -524,7 +523,7 @@ export class NdeContentIndicatorsCustomComponent {
 
         // now watch for the original sidebar to appear - if it does, move our element and delete our sidebar
         const waitOnSuppliedSidebar = setInterval(() => {
-            const suppliedSidebar = document.querySelector('.full-view-right-content:not(#createdSidebar)');
+            const suppliedSidebar = document.querySelector('.full-view-right-content:not(#createdSidebar) nde-full-display-side-bar');
             if (!suppliedSidebar) {
                 return;
             }
@@ -574,7 +573,7 @@ export class NdeContentIndicatorsCustomComponent {
             return;
         }
         // if we are next-prev between pages, remove the old CRL sidebar
-        const previousReadingListSidebar = document.querySelectorAll(this.panelId);
+        const previousReadingListSidebar = document.querySelectorAll('uql-course-reading-list-sidebar-panel');
         previousReadingListSidebar?.length > 0 && previousReadingListSidebar.forEach(b => b.remove());
 
         // if removing that leaves the sidebar empty, remove it too
