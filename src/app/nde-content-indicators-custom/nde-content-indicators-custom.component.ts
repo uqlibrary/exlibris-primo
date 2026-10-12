@@ -523,7 +523,7 @@ export class NdeContentIndicatorsCustomComponent {
 
         // now watch for the original sidebar to appear - if it does, move our element and delete our sidebar
         const waitOnSuppliedSidebar = setInterval(() => {
-            const suppliedSidebar = document.querySelector('.full-view-right-content:not(#createdSidebar)');
+            const suppliedSidebar = document.querySelector('.full-view-right-content:not(#createdSidebar) nde-full-display-side-bar');
             if (!suppliedSidebar) {
                 return;
             }
