@@ -1071,7 +1071,13 @@ class LocalStorageCacheManager {
                 }
             });
         }
-
+        if (!!item?.pnx?.display?.mms && item.pnx.display.mms.length > 0) {
+            item.pnx.display.mms.forEach((r) => {
+                if (!list.includes(lcnPattern(r))) {
+                    list.push(lcnPattern(r));
+                }
+            });
+        }
 
         // DOI
 		if (!!item?.pnx?.addata?.doi && item.pnx.addata.doi.length > 0) {
@@ -1606,15 +1612,6 @@ class LocalStorageCacheManager {
 	}
 
 	function overrideDirectLinkingOnSomeBriefRecords(sectionWrapper, vm) {
-
-        // AD 1260
-        // current flakiness on overriding direct linking of availability records
-        // hopefully only temporary!!
-
-        // prod-appdev. Checking if this is working
-        // return;
-
-
 		// for some types, the availability link loads the resource directly when we want them to go to the full view
 		// we cant override the click on the extant element
 		// so delete it and insert static text that will pick up the overall parent click to the full record
@@ -2109,9 +2106,6 @@ class LocalStorageCacheManager {
 					{
 						url: 'https://web.library.uq.edu.au/find-and-borrow/request-items',
 						title: 'Help for requests',
-					}, {
-						url: 'https://auth.library.uq.edu.au/login?relais_return=1',
-						title: 'Document Delivery Portal',
 					}
 				];
 				addLinksToAccountArea('request', true, displayLinks);
@@ -2176,7 +2170,7 @@ class LocalStorageCacheManager {
 						url: 'https://web.library.uq.edu.au/find-and-borrow/library-memberships',
 						title: 'Update your details',
 					}, {
-						url: 'https://guides.library.uq.edu.au/how-to-find/using-library-search/save-options-and-alerts#s-lg-box-22848997',
+						url: 'https://guides.library.uq.edu.au/tools-and-techniques/using-library-search/save-options-and-alerts#s-lg-box-wrapper-26777583',
 						title: 'Information on search history',
 					}
 				];
