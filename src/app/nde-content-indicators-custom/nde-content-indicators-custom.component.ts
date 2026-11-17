@@ -40,6 +40,7 @@ export class NdeContentIndicatorsCustomComponent {
     public searchState = this.store.selectSignal(selectSearchState);
     private loggedIn = this.store.selectSignal(selectIsLoggedIn);
 
+    panelId = `uql-course-reading-list-sidebar-panel`;
     private readonly UNSAFE_READING_LIST_BASE_URL = 'http://lr.library.uq.edu.au';
     private readonly SAFE_READING_LIST_BASE_URL = 'https://uq.rl.talis.com';
     private matExpansionHeader: HTMLElement | null = null;
@@ -352,7 +353,7 @@ export class NdeContentIndicatorsCustomComponent {
         const loginPrompt = (loggedIn: boolean) => !loggedIn
             ? '<div id="crl-login-banner" _ngcontent-ng-crl="" class="text-size-normal crl-login-banner">UQ login required.</div>'
             : '';
-        let htmlContent = `<uql-course-reading-list-sidebar-panel _nghost-ng-crl="" class="ng-star-inserted">
+        let htmlContent = `<${this.panelId} _nghost-ng-crl="" class="ng-star-inserted">
             <nde-collapsible-box _ngcontent-ng-crl="" class="course-reading-list-container" _nghost-ng-crl="">
                 <mat-expansion-panel _ngcontent-ng-crl="" tabindex="-1" class="mat-expansion-panel mat-elevation-z0 mat-expanded mat-expansion-panel-animations-enabled">
                     <mat-expansion-panel-header _ngcontent-ng-crl="" role="button"
@@ -416,7 +417,7 @@ export class NdeContentIndicatorsCustomComponent {
             </div>
         </mat-expansion-panel>
     </nde-collapsible-box>
-</uql-course-reading-list-sidebar-panel>`;
+</${this.panelId}>`;
         const template = document.createElement('template');
         template.innerHTML = htmlContent;
 
@@ -510,7 +511,7 @@ export class NdeContentIndicatorsCustomComponent {
         // there seem to be edge timing conditions where this code manages to produce multiple panels. Delete duplicates.
         const startUrl = window.location.href;
         const waitOnExtraPanels = setInterval(() => {
-            const extraSidebars = document.querySelectorAll('uql-course-reading-list-sidebar-panel:not(:first-of-type)');
+            const extraSidebars = document.querySelectorAll(`${this.panelId}:not(:first-of-type)`);
             if (startUrl !== window.location.href) {
                 clearInterval(waitOnExtraPanels);
             }
@@ -529,7 +530,7 @@ export class NdeContentIndicatorsCustomComponent {
             }
             clearInterval(waitOnSuppliedSidebar);
 
-            const ourCrlPanel = document.querySelector('uql-course-reading-list-sidebar-panel');
+            const ourCrlPanel = document.querySelector(this.panelId);
             !!ourCrlPanel && suppliedSidebar?.insertBefore(ourCrlPanel, suppliedSidebar.firstChild);
         }, 100);
     }
@@ -573,7 +574,7 @@ export class NdeContentIndicatorsCustomComponent {
             return;
         }
         // if we are next-prev between pages, remove the old CRL sidebar
-        const previousReadingListSidebar = document.querySelectorAll('uql-course-reading-list-sidebar-panel');
+        const previousReadingListSidebar = document.querySelectorAll(this.panelId);
         previousReadingListSidebar?.length > 0 && previousReadingListSidebar.forEach(b => b.remove());
 
         // if removing that leaves the sidebar empty, remove it too
