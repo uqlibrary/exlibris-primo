@@ -1611,7 +1611,8 @@ class LocalStorageCacheManager {
         // current flakiness on overriding direct linking of availability records
         // hopefully only temporary!!
 
-        return;
+        // prod-appdev. Checking if this is working
+        // return;
 
 
 		// for some types, the availability link loads the resource directly when we want them to go to the full view
