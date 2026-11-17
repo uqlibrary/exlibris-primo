@@ -324,22 +324,22 @@ class LocalStorageCacheManager {
 	}
 
 	function ourRoomBookingMenuItem() {
-		const ICON_SVG_HOTEL_DESK_BELL = 'M2 17h20v2H2zm11.84-9.21c.1-.24.16-.51.16-.79 0-1.1-.9-2-2-2s-2 .9-2 2c0 .28.06.55.16.79C6.25 8.6 3.27 11.93 3 16h18c-.27-4.07-3.25-7.4-7.16-8.21z';
-		return '    <md-menu-item data-testid="uqlRoomBookingMenuItem" class="uql-account-menu-option">\n' +
-			'    <button class="button-with-icon md-primoExplore-theme md-ink-ripple" type="button"' +
-			'			data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Book a room or desk" role="menuitem"' +
-			'			onclick="javascript:window.open(\'https://uqbookit.uq.edu.au/#/app/booking-types/77b52dde-d704-4b6d-917e-e820f7df07cb\', \'_blank\');">\n' +
-			'<svg data-testid="library-room-booking-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-			'<path d="M2.18907 3.41406H17.8109C18.467 3.41406 19 3.94588 19 4.60043V17.8141C19 18.4686 18.467 19.0004 17.8109 19.0004H2.18907C1.53303 19.0004 1 18.4686 1 17.8141V4.60043C1 3.94588 1.53303 3.41406 2.18907 3.41406Z" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
-			'<path d="M1 8.2002H18.5399" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
-			'<path d="M5.79688 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
-			'<path d="M14.2441 5.21364V1" stroke="#51247A" stroke-linecap="round" stroke-linejoin="round"></path>' +
-			"</svg>" +
-			'        <div class="textwrapper">\n' +
-			'            <span class="primaryText">Book a room or desk</span>\n' +
-			"        </div>\n" +
-			"    </button>\n" +
-			"</md-menu-item>\n";
+		return '    <md-menu-item data-testid="uqlRoomBookingMenuItem" class="uql-account-menu-option account-menu-spaces">' + "\n" +
+            '<button type="button" data-analyticsid="mylibrary-menu-room-bookings" aria-label="Go to Find library study spaces" role="menuitem"' +
+        '			onclick="javascript:window.open(\'https://www.library.uq.edu.au/spaces\', \'_blank\');">\n' +
+                '<svg data-testid="library-room-booking-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+                    '<path stroke="#51247a" stroke-miterlimit="10" d="M1.80798 3.37006c0 0.65137 0.25876 1.27607 0.71935 1.73666 0.46059 0.46059 1.08528 0.71934 1.73665 0.71934s1.27607 -0.25875 1.73666 -0.71934c0.46059 -0.46059 0.71934 -1.08529 0.71934 -1.73666S6.46123 2.094 6.00064 1.63341C5.54005 1.17282 4.91535 0.914063 4.26398 0.914062c-0.65137 0.000001 -1.27606 0.258758 -1.73665 0.719348 -0.46059 0.46059 -0.71935 1.08528 -0.71935 1.73665Z" stroke-width="1"></path>' + "\n" +
+                    '<path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M11.413 9.6999h-0.008l-4.14998 0.024 -3.044 -2.453c-0.029 -0.024 -0.062 -0.04 -0.093 -0.061 -0.04713 -0.03602 -0.0962 -0.0694 -0.147 -0.1 -0.05255 -0.02598 -0.10666 -0.04869 -0.162 -0.068 -0.037 -0.01 -0.071 -0.028 -0.109 -0.042 -0.07381 -0.02047 -0.14901 -0.03551 -0.225 -0.045 -0.021 0 -0.04 -0.01 -0.062 -0.012h-0.1c-0.22859 -0.00843 -0.456 0.03643 -0.66426 0.13101 -0.20827 0.09459 -0.39168 0.23632 -0.53574 0.41399l-0.013 0.012c-0.025 0.03 -0.042 0.065 -0.064 0.1s-0.065 0.091 -0.092 0.141c-0.02589 0.0534 -0.04893 0.10815 -0.069 0.164 -0.014 0.037 -0.031 0.071 -0.043 0.109 -0.0197 0.07048 -0.03408 0.14235 -0.043 0.215 0 0.025 -0.012 0.047 -0.014 0.071v0.014l-0.708 7.347c-0.03339 0.3618 0.06571 0.7235 0.27888 1.0178 0.21316 0.2942 0.5259 0.5011 0.88012 0.5822l5.321 1.217 0.36 3.27c0.03996 0.3679 0.21453 0.7081 0.49013 0.9551 0.2756 0.2469 0.63278 0.3833 1.00286 0.3829 0.05544 0.0003 0.11085 -0.0024 0.16601 -0.008 0.19589 -0.0215 0.38562 -0.0815 0.55838 -0.1764 0.1727 -0.0948 0.325 -0.2228 0.4483 -0.3766 0.1232 -0.1538 0.2149 -0.3304 0.2699 -0.5196 0.055 -0.1893 0.0721 -0.3875 0.0504 -0.5834l-0.477 -4.33c-0.0337 -0.3101 -0.1633 -0.6019 -0.3707 -0.8349 -0.20736 -0.2331 -0.48221 -0.3956 -0.78628 -0.4651l-5.08 -1.159 0.321 -3.279 1.288 1.046c0.26685 0.215 0.59929 0.3322 0.942 0.332h0.009l4.68298 -0.027c0.3978 -0.0012 0.7789 -0.1604 1.0594 -0.4425 0.2804 -0.2822 0.4373 -0.6642 0.4361 -1.062 -0.0012 -0.3978 -0.1604 -0.7789 -0.4425 -1.0593 -0.2822 -0.28051 -0.6642 -0.4374 -1.062 -0.4362v-0.005Z" stroke-width="1"></path>' + "\n" +
+                    '<path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="m18.971 9.56299 -0.686 4.49301 -3.611 0.028" stroke-width="1"></path>' +
+                    '<path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="M12.465 16.7412H22.94" stroke-width="1"></path>' +
+                    '<path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="m14.882 16.7412 -0.413 6.042" stroke-width="1"></path>' +
+                    '<path stroke="#51247a" stroke-linecap="round" stroke-linejoin="round" d="m20.523 16.7412 0.413 6.042" stroke-width="1"></path>' +
+                "</svg>" +
+                '        <div class="textwrapper">\n' +
+                '            <span class="primaryText">Find library study spaces</span>\n' +
+                "       </div>\n" +
+                "   </button>\n" +
+                "</md-menu-item>\n";
 	}
 
 	// remove their icon and insert one we like - icons provided by OMC
