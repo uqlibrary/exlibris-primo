@@ -417,7 +417,7 @@ export class NdeContentIndicatorsCustomComponent {
             </div>
         </mat-expansion-panel>
     </nde-collapsible-box>
-</uql-course-reading-list-sidebar-panel>`;
+</${this.panelId}>`;
         const template = document.createElement('template');
         template.innerHTML = htmlContent;
 
@@ -474,10 +474,10 @@ export class NdeContentIndicatorsCustomComponent {
         this.matExpansionHeader = document.getElementById('mat-expansion-panel-header-crl');
 
         // when they tab into the panel header, give it a big border and background colour
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusin", (event) => {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusin", () => {
             this.addClickStyles();
         })
-        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusout", (event) => {
+        !!this.matExpansionHeader && this.matExpansionHeader.addEventListener("focusout", () => {
             this.removeClickStyles();
         })
 
@@ -511,7 +511,7 @@ export class NdeContentIndicatorsCustomComponent {
         // there seem to be edge timing conditions where this code manages to produce multiple panels. Delete duplicates.
         const startUrl = window.location.href;
         const waitOnExtraPanels = setInterval(() => {
-            const extraSidebars = document.querySelectorAll('uql-course-reading-list-sidebar-panel:not(:first-of-type)');
+            const extraSidebars = document.querySelectorAll(`${this.panelId}:not(:first-of-type)`);
             if (startUrl !== window.location.href) {
                 clearInterval(waitOnExtraPanels);
             }
@@ -524,13 +524,13 @@ export class NdeContentIndicatorsCustomComponent {
 
         // now watch for the original sidebar to appear - if it does, move our element and delete our sidebar
         const waitOnSuppliedSidebar = setInterval(() => {
-            const suppliedSidebar = document.querySelector('.full-view-right-content:not(#createdSidebar)');
+            const suppliedSidebar = document.querySelector('.full-view-right-content:not(#createdSidebar) nde-full-display-side-bar');
             if (!suppliedSidebar) {
                 return;
             }
             clearInterval(waitOnSuppliedSidebar);
 
-            const ourCrlPanel = document.querySelector('uql-course-reading-list-sidebar-panel');
+            const ourCrlPanel = document.querySelector(this.panelId);
             !!ourCrlPanel && suppliedSidebar?.insertBefore(ourCrlPanel, suppliedSidebar.firstChild);
         }, 100);
     }
