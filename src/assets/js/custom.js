@@ -146,6 +146,7 @@ function insertUqComponents() {
 
   if (!document.querySelector('alert-list')) {
     const alerts = document.createElement('alert-list');
+    !!alerts && alerts.setAttribute('system', 'primo');
     !!alerts && document.body.insertBefore(alerts, firstElement);
   }
 
