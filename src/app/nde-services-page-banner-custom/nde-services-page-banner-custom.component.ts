@@ -44,9 +44,16 @@ export class NdeServicesPageBannerCustomComponent {
 
                 if (showServicesBanner) {
                     this.addServicesPageWarningBanner();
+                    this.removeRecordType();
                 }
             }, 100);
         }
+    }
+
+    private removeRecordType = () => {
+        // remove the record type from display when it is a services page
+        const ndeRecordType = document.querySelector('nde-record-type');
+        !!ndeRecordType && ndeRecordType.remove();
     }
 
     private addServicesPageWarningBanner = () => {
