@@ -501,7 +501,7 @@ export class NdeContentIndicatorsCustomComponent {
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseover', function () {
             const listArea1 = document.getElementById('uql-accordion-child-crl');
             let mouseOverPrefix = listArea1?.style.visibility === 'hidden' ? 'Expand' : 'Collapse';
-            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`;
+            const mouseOverLabel = `${mouseOverPrefix} Course reading lists`; // Collapse Course reading list; Expand Course reading list
             !!panelToggleButton && mouseoverTooltip(panelToggleButton, mouseOverLabel, crlTooltipId);
         });
         !!this.matExpansionHeader && this.matExpansionHeader.addEventListener('mouseout', function () {
@@ -706,7 +706,6 @@ export class NdeContentIndicatorsCustomComponent {
             });
         }
 
-        console.log('###','crl: list=', list);
         return list;
     }
 }

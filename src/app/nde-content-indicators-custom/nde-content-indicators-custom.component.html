@@ -1,5 +1,5 @@
 <div *ngIf="hasContentAdvice$ | async" _ngcontent-ng-content-indicator="" class="uql-cultural-advice-content-indicator record-content-indicator record-indication-wrapper display-inline" data-testid="brief-cultural-advice-content-indicator">
-    <div _ngcontent-ng-content-indicator="" mattooltipclass="record-indication-tooltip" class="mat-mdc-tooltip-trigger record-indication-cont display-inline-block ng-star-inserted" cdk-describedby-host="ng-1">
+    <div style="position: relative;" _ngcontent-ng-content-indicator="" mattooltipclass="record-indication-tooltip" class="mat-mdc-tooltip-trigger record-indication-cont display-inline-block ng-star-inserted" cdk-describedby-host="ng-1">
         <mat-divider _ngcontent-ng-content-indicator="" role="separator" class="mat-divider nde-divider mat-divider-vertical" aria-orientation="vertical"></mat-divider>
         <div _ngcontent-ng-content-indicator="" class="display-inline">
             <mat-icon _ngcontent-ng-content-indicator="" role="img" class="mat-icon notranslate nde-mat-icon-size-small margin-right-small cultural-advice-indicator-color mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Open-Access-Indicator">
@@ -9,10 +9,19 @@
             </mat-icon>
             <span _ngcontent-ng-content-indicator="" class="record-indication text-uppercase">CULTURAL ADVICE</span>
         </div>
+        <div class="uql-tooltip cdk-overlay-connected-position-bounding-box" dir="ltr">
+            <div class="cdk-overlay-pane mat-mdc-tooltip-panel-below mat-mdc-tooltip-panel">
+            <span aria-hidden="true" class="mat-tooltip-component ng-star-inserted">
+                <div class="mdc-tooltip mat-mdc-tooltip mat-mdc-tooltip-show mat-mdc-tooltip-surface" style="max-width: initial; min-width: initial">
+                    <div class="mdc-tooltip__surface" style="white-space: nowrap;">This resource has an advisory statement</div>
+                </div>
+            </span>
+            </div>
+        </div>
     </div>
 </div>
 <div *ngIf="hasReadingList$ | async" id="uql-course-resource-content-indicator" _ngcontent-ng-content-indicator="" class="uql-course-resource-content-indicator record-content-indicator record-indication-wrapper display-inline" data-testid="course-reading-list-content-indicator-wrapper">
-    <div _ngcontent-ng-content-indicator="" mattooltipclass="record-indication-tooltip" class="mat-mdc-tooltip-trigger record-indication-cont display-inline-block ng-star-inserted" cdk-describedby-host="ng-1">
+    <div style="position: relative;" _ngcontent-ng-content-indicator="" mattooltipclass="record-indication-tooltip" class="mat-mdc-tooltip-trigger record-indication-cont display-inline-block ng-star-inserted" cdk-describedby-host="ng-1">
         <mat-divider _ngcontent-ng-content-indicator="" role="separator" class="mat-divider nde-divider mat-divider-vertical" aria-orientation="vertical"></mat-divider>
         <div _ngcontent-ng-content-indicator="" class="display-inline">
             <mat-icon _ngcontent-ng-content-indicator="" role="img" class="mat-icon notranslate nde-mat-icon-size-small margin-right-small cultural-advice-indicator-color mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Open-Access-Indicator">
@@ -21,6 +30,15 @@
                 </svg>
             </mat-icon>
             <span _ngcontent-ng-content-indicator="" class="record-indication text-uppercase">COURSE READING LIST</span>
+        </div>
+        <div class="uql-tooltip cdk-overlay-connected-position-bounding-box" dir="ltr">
+            <div class="cdk-overlay-pane mat-mdc-tooltip-panel-below mat-mdc-tooltip-panel">
+            <span aria-hidden="true" class="mat-tooltip-component ng-star-inserted">
+                <div class="mdc-tooltip mat-mdc-tooltip mat-mdc-tooltip-show mat-mdc-tooltip-surface" style="max-width: initial; min-width: initial">
+                    <div class="mdc-tooltip__surface" style="white-space: nowrap;">This resource is on a course reading list</div>
+                </div>
+            </span>
+            </div>
         </div>
     </div>
 </div>
