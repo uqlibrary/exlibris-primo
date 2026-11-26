@@ -77,10 +77,10 @@ export class NdeContentIndicatorsCustomComponent {
 
     public displayCourseReadingListIndicator = (record: any) => {
         if (!!record?.pnx) {
-            // works on full
+            // when on full record display
             this.pnx = record?.pnx
         } else {
-            // works on brief
+            // when on brief results
             const nativeEl: HTMLElement = this.elementRef.nativeElement;
 
             // climb up to parent wrapping the whole header
