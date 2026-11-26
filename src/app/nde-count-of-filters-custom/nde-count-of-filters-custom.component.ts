@@ -23,6 +23,7 @@ export class NdeCountOfFiltersCustomComponent {
     private elementRoot: HTMLElement | null = null;
 
     ngOnInit(): void {
+        console.log('### NdeCountOfFiltersCustomComponent start');
         this.elementRoot = findHostRecord(this.elementRef, 'nde-search-filters-side-nav');
         const standardHtml = '<span class="filter-results-count ng-star-inserted">(RECORD_COUNT)</span>';
 
@@ -49,6 +50,7 @@ export class NdeCountOfFiltersCustomComponent {
     }
 
     async fetchAPI(urlParamString: string, headers: object = {}): Promise<any> {
+        console.log('### NdeCountOfFiltersCustomComponent fetching');
         /* istanbul ignore next */
         const options = {
             'Content-Type': 'application/json',
@@ -131,6 +133,7 @@ export class NdeCountOfFiltersCustomComponent {
         const params = this.getApiParams();
         await this.fetchAPI(params, {})
             .then((response: SearchResponse) => {
+                console.log('### NdeCountOfFiltersCustomComponent got it!');
                 // similar, but not identical code above in ngOnInit
                 response?.facets?.find(f => f.name === showOnlySectionId)?.values?.forEach(record => {
                     const label = record?.value;
