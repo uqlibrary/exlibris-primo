@@ -11,9 +11,10 @@ export class NdeServicesPageBannerCustomComponent {
     ngOnInit(): void {
         let showServicesBanner = true
 
-        const isServicePageByUrl = window.location.pathname === '/nde/openurl';
-        if (!isServicePageByUrl) {
-            // items with this url are loaded from unvetted data and might be complete rubbish
+        const isServicePageByUrl = window.location.pathname === '/nde/openurl'; // items with this url are loaded from unvetted data and might be complete rubbish
+        if (isServicePageByUrl) {
+            this.removeRecordType(); // this is removed generally for all pages with this url
+        } else {
             showServicesBanner = false;
         }
 
@@ -44,7 +45,6 @@ export class NdeServicesPageBannerCustomComponent {
 
                 if (showServicesBanner) {
                     this.addServicesPageWarningBanner();
-                    this.removeRecordType();
                 }
             }, 100);
         }
