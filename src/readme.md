@@ -45,7 +45,7 @@ Here is a workflow that covers both of these:
   * Merge in, preferably from master
   * Recommit
   * if angular changes involved, [Zip](https://github.com/uqlibrary/exlibris-primo/blob/master/src/view_package/README.md) and Upload the package
-  * Commit & Push (to store an angular change)
+  * Commit & Push (to store an angular change).
 
 ### Deployment
 
